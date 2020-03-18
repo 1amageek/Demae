@@ -1,0 +1,9 @@
+{
+    "typescript.tsdk": "node_modules/typescript/lib",
+    "editor.detectIndentation": false,
+    "editor.insertSpaces": false,
+		"editor.tabSize": 2,
+		"editor.formatOnType": true,
+		"editor.formatOnPaste": true,
+		"editor.formatOnSave": true
+}

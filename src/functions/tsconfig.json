@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "lib": [
+      "es6",
+      "dom",
+      "es2018"
+    ],
+    "module": "commonjs",
+    "noImplicitReturns": true,
+    "strict": true,
+    "outDir": "../../dist/functions",
+    "sourceMap": true,
+    "target": "es2018",
+    "baseUrl": "./",
+    "experimentalDecorators": true,
+    "forceConsistentCasingInFileNames": false,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "allowJs": true
+  },
+  "compileOnSave": true
+}
