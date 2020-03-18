@@ -1,25 +1,15 @@
-# With Firebase Hosting and Typescript example
+# Demae
 
 ## How to use
 
-### Using `create-next-app`
-
-Execute [`create-next-app`](https://github.com/zeit/next.js/tree/canary/packages/create-next-app) with [Yarn](https://yarnpkg.com/lang/en/docs/cli/create/) or [npx](https://github.com/zkat/npx#readme) to bootstrap the example:
+### Using 
 
 ```bash
-npx create-next-app --example with-firebase-hosting-and-typescript with-firebase-hosting-and-typescript-app
-# or
-yarn create next-app --example with-firebase-hosting-and-typescript with-firebase-hosting-and-typescript-app
+git clone git@github.com:1amageek/Demae.git
 ```
 
-### Download manually
 
-Download the example:
-
-```bash
-curl https://codeload.github.com/zeit/next.js/tar.gz/canary | tar -xz --strip=2 next.js-canary/examples/with-firebase-hosting-and-typescript
-cd with-firebase-hosting-and-typescript
-```
+### Setup
 
 Set up firebase:
 
@@ -28,6 +18,19 @@ Set up firebase:
 - grab the projects ID from the web consoles URL: https://console.firebase.google.com/project/<projectId>
 - update the `.firebaserc` default project ID to the newly created project
 - login to the Firebase CLI tool with `firebase login`
+- overwrite `src/app/config/development.config.json` and `production.config.json`
+  
+```JOSN:development.config.json
+{
+	"apiKey": "",
+	"authDomain": "",
+	"databaseURL": "",
+	"projectId": "",
+	"storageBucket": "",
+	"messagingSenderId": "",
+	"appId": ""
+}
+```
 
 #### Install project:
 
