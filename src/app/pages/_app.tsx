@@ -19,7 +19,7 @@ if (firebase.apps.length === 0) {
 			ssl: false
 		});
 	}
-	Ballcap.initialize(firestore, firestore.collection("version").doc("1"))
+	Ballcap.initialize(app)
 }
 
 class Layout extends React.Component {
