@@ -19,6 +19,7 @@ Set up firebase:
 - update the `.firebaserc` default project ID to the newly created project
 - login to the Firebase CLI tool with `firebase login`
 - overwrite `src/app/config/development.config.json` and `production.config.json`
+- `clasp clone --rootDir ./src ${script_id}`
   
 ```JOSN:development.config.json
 {
@@ -29,6 +30,13 @@ Set up firebase:
 	"storageBucket": "",
 	"messagingSenderId": "",
 	"appId": ""
+}
+```
+
+```JSON:.clasp.json
+{
+	"scriptId": "",
+	"rootDir": "./src/gas"
 }
 ```
 
@@ -93,6 +101,9 @@ npm run clean
 ```
 /social/v1/users/:uid/orders/:order_id
 ```
+
+
+### GAS
 
 
 ## The idea behind the example
