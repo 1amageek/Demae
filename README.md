@@ -62,6 +62,39 @@ npm run deploy
 npm run clean
 ```
 
+## Architecture
+
+### Database
+
+#### Commerce
+
+```
+/commerce/v1/accounts/:uid
+```
+
+```
+/commerce/v1/accounts/:uid/products/:product_id
+```
+
+```
+/commerce/v1/accounts/:uid/products/:product_id/skus/:sku_id
+```
+
+```
+/commerce/v1/accounts/:uid/orders/:order_id
+```
+
+#### Social
+
+```
+/social/v1/users/:uid
+```
+
+```
+/social/v1/users/:uid/orders/:order_id
+```
+
+
 ## The idea behind the example
 
 The goal is to host the Next.js app on Firebase Cloud Functions with Firebase Hosting rewrite rules so our app is served from our Firebase Hosting URL, with a complete Typescript stack for both the Next app and for the Firebase Functions. Each individual `page` bundle is served in a new call to the Cloud Function which performs the initial server render.
