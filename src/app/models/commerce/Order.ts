@@ -1,4 +1,4 @@
-import { Doc, Model, Field, File, firestore, CollectionReference, DocumentReference, Timestamp } from '@1amageek/ballcap-admin'
+import { Doc, Model, Field, File, firestore, CollectionReference, DocumentReference, Timestamp } from '@1amageek/ballcap'
 import { Currency } from '../../../common//Currency'
 import { OrderItemType, OrderItemStatus, DeliveryStatus, OrderPaymentStatus } from '../../../common/commerce/Types'
 

@@ -24,7 +24,22 @@
 		"forceConsistentCasingInFileNames": true,
 		"esModuleInterop": true,
 		"resolveJsonModule": true,
-		"isolatedModules": true
+		"isolatedModules": true,
+		"baseUrl": "./",
+		"paths": {
+			"components/*": [
+				"components/*"
+			],
+			"hooks/*": [
+				"hooks/*"
+			],
+			"models/*": [
+				"models/*"
+			],
+			"public/*": [
+				"public/*"
+			]
+		}
 	},
 	"exclude": [
 		"node_modules"
@@ -33,5 +48,8 @@
 		"next-env.d.ts",
 		"**/*.ts",
 		"**/*.tsx"
-	]
+	],
+	"rules": {
+		"prettier": true
+	}
 }

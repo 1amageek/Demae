@@ -22,6 +22,15 @@ module.exports = (nextConfig = {
 				})
 			]
 
+			config.resolve.alias = {
+				...config.resolve.alias,
+				'components': path.resolve(__dirname, 'components'),
+				'context': path.resolve(__dirname, 'context'),
+				'hooks': path.resolve(__dirname, 'hooks'),
+				'models': path.resolve(__dirname, 'models'),
+				'public': path.resolve(__dirname, 'public')
+			}
+
 			config.module.rules.push(
 				{
 					oneOf: [

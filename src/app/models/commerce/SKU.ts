@@ -1,4 +1,4 @@
-import { Doc, Field, DocumentReference, firestore, CollectionReference } from '@1amageek/ballcap-admin'
+import { Doc, Field, DocumentReference, firestore, CollectionReference } from '@1amageek/ballcap'
 import { Currency } from '../../../common/Currency'
 import { Inventory } from '../../../common/commerce/Types'
 

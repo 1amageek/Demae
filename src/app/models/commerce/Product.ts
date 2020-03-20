@@ -1,4 +1,4 @@
-import { Doc, Field, Collection, SubCollection, firestore, CollectionReference } from '@1amageek/ballcap-admin'
+import { Doc, Field, Collection, SubCollection, firestore, CollectionReference } from '@1amageek/ballcap'
 import Plan from './Plan'
 import SKU from './SKU'
 

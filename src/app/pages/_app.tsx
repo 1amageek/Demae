@@ -1,10 +1,10 @@
-import React from "react"
-import App from "next/app"
-
+import React from 'react'
+import App from 'next/app'
 import * as Ballcap from "@1amageek/ballcap"
 import firebase from "firebase"
 import "@firebase/firestore"
 import "@firebase/auth"
+import { UserProvider } from 'context'
 
 const config = require(`../config/${process.env.FIREBASE_CONFIG!}`)
 const isEmulated = process.env.EMULATE_ENV === "emulator"
@@ -22,20 +22,55 @@ if (firebase.apps.length === 0) {
 	Ballcap.initialize(app)
 }
 
-class Layout extends React.Component {
-	render() {
-		const { children } = this.props
-		return <div className='layout'>{children}</div>
-	}
-}
-
 export default class MyApp extends App {
+
+	static async getInitialProps({ Component, router, ctx }) {
+		let pageProps = {}
+		if (Component.getInitialProps) {
+			pageProps = await Component.getInitialProps(ctx)
+		}
+		return { pageProps }
+	}
+
+	listener?: firebase.Unsubscribe
+
+	componentDidMount() {
+		this.listener = firebase.auth().onAuthStateChanged(async (auth) => {
+			if (auth) {
+				const authUser = JSON.stringify(auth)
+				localStorage.setItem('authUser', authUser)
+				this.setState({
+					authUser: authUser
+				})
+			} else {
+				localStorage.removeItem('authUser')
+				this.setState({
+					authUser: null
+				})
+			}
+		})
+	}
+
+	componentWillUnmount() {
+		if (this.listener) {
+			this.listener()
+		}
+	}
+
 	render() {
 		const { Component, pageProps } = this.props
 		return (
-			<Layout>
+			<Provider>
 				<Component {...pageProps} />
-			</Layout>
+			</Provider>
 		)
 	}
+}
+
+const Provider = ({ children }: { children: any }) => {
+	return (
+		<UserProvider>
+			{children}
+		</UserProvider>
+	)
 }

@@ -1,23 +1,11 @@
-import { Doc, Field, CollectionReference, firestore } from '@1amageek/ballcap-admin'
-import * as functions from 'firebase-functions'
+import { Doc, Field, Collection, SubCollection, firestore, CollectionReference } from '@1amageek/ballcap'
 import { BusinessType, TosAcceptance } from '../../../common/commerce/Types'
+import Product from './Product'
 
 export default class Account extends Doc {
 
 	static collectionReference(): CollectionReference {
 		return firestore.collection('commerce/v1/accounts')
-	}
-
-	static async getAccountID(uid: string) {
-		const account = await Account.get<Account>(uid)
-		if (!account) {
-			throw new functions.https.HttpsError('invalid-argument', 'User have not Account')
-		}
-		const accountID = account.accountID
-		if (!accountID) {
-			throw new functions.https.HttpsError('invalid-argument', 'User have not Stripe accountID')
-		}
-		return accountID
 	}
 
 	@Field accountID?: string
@@ -34,6 +22,7 @@ export default class Account extends Doc {
 	@Field accountInformation: { [key: string]: any } = {}
 	@Field IPAddress?: string
 	@Field metadata?: { [key: string]: any } = {}
-
 	@Field tosAcceptance?: TosAcceptance
+
+	@SubCollection products: Collection<Product> = new Collection()
 }

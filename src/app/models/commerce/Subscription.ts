@@ -1,4 +1,4 @@
-import { Doc, Field, Timestamp, firestore, CollectionReference } from '@1amageek/ballcap-admin'
+import { Doc, Field, Timestamp, firestore, CollectionReference } from '@1amageek/ballcap'
 import SubscriptionItem from './SubscriptionItem'
 import { Interval, SubscriptionStatus } from '../../../common/commerce/Types'
 
