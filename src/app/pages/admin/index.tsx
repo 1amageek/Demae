@@ -22,7 +22,7 @@ import Layout from 'components/Layout'
 import Form from 'components/accounts/products/Form'
 import Account from 'models/commerce/Account'
 import Product from 'models/commerce/Product'
-import { useCurrentUser } from 'hooks'
+import { useAuthUser } from 'hooks'
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
@@ -51,7 +51,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 export default () => {
 	const classes = useStyles();
-	const user = useCurrentUser()
+	const user = useAuthUser()
 	const [product, setProduct] = useState<Product | undefined>()
 	const [open, setOpen] = useState(false)
 

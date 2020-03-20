@@ -5,18 +5,18 @@ import "@firebase/firestore"
 import "@firebase/auth"
 
 
-export const useCurrentUser = () => {
-	const [currentUser, setCurrentUser] = useState<firebase.User | undefined>(undefined)
+export const useAuthUser = () => {
+	const [authUser, setAuthUser] = useState<firebase.User | undefined>(undefined)
 	useEffect(() => {
 		const user = localStorage.getItem('authUser')
 		if (user) {
 			const parsedUser = JSON.parse(user)
-			if (currentUser?.uid !== parsedUser.uid) {
-				setCurrentUser(parsedUser as firebase.User)
+			if (authUser?.uid !== parsedUser.uid) {
+				setAuthUser(parsedUser as firebase.User)
 			}
 		} else {
-			setCurrentUser(undefined)
+			setAuthUser(undefined)
 		}
 	})
-	return currentUser
+	return authUser
 }

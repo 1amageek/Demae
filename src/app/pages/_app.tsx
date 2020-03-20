@@ -4,7 +4,9 @@ import * as Ballcap from "@1amageek/ballcap"
 import firebase from "firebase"
 import "@firebase/firestore"
 import "@firebase/auth"
+import * as Social from 'models/social'
 import { UserProvider } from 'context'
+import { useAuthUser } from 'hooks'
 
 const config = require(`../config/${process.env.FIREBASE_CONFIG!}`)
 const isEmulated = process.env.EMULATE_ENV === "emulator"
@@ -34,9 +36,41 @@ export default class MyApp extends App {
 
 	listener?: firebase.Unsubscribe
 
+	currentAuthUser() {
+		const user = localStorage.getItem('authUser')
+		if (user) {
+			const parsedUser = JSON.parse(user)
+			return parsedUser as firebase.User
+		}
+		return undefined
+	}
+
+	async signIn(uid: string) {
+		const user = await Social.User.get<Social.User>(uid)
+		if (!user) {
+			const user = new Social.User(uid)
+			await user.save()
+		}
+	}
+
 	componentDidMount() {
+
+		const uid = this.currentAuthUser()?.uid
+		// if (uid) {
+		// 	const user = new Social.User(uid)
+		// 	user.documentReference.onSnapshot({
+		// 		next: (snapshot) => {
+		// 			if (snapshot.exists) {
+		// 				const user = JSON.stringify(snapshot.data({ serverTimestamps: 'estimate' }))
+		// 				localStorage.setItem('social.user', user)
+		// 			}
+		// 		}
+		// 	})
+		// }
+
 		this.listener = firebase.auth().onAuthStateChanged(async (auth) => {
 			if (auth) {
+				await this.signIn(auth.uid)
 				const authUser = JSON.stringify(auth)
 				localStorage.setItem('authUser', authUser)
 				this.setState({

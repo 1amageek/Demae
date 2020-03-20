@@ -2,7 +2,7 @@ import React, { useEffect } from 'react'
 import StyledFirebaseAuth from 'react-firebaseui/StyledFirebaseAuth'
 import firebase from 'firebase'
 import 'firebase/auth'
-import { useCurrentUser } from 'hooks'
+import { useAuthUser } from 'hooks'
 import { UserContext, UserProvider } from 'context'
 
 export default () => {

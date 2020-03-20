@@ -2,7 +2,7 @@ import React, { useEffect } from 'react'
 import StyledFirebaseAuth from 'react-firebaseui/StyledFirebaseAuth'
 import firebase from 'firebase'
 import 'firebase/auth'
-import { useCurrentUser } from 'hooks'
+import * as Social from 'models/social'
 
 export default ({ redirectURL = '/', defaultCountry = 'JP' }: { redirectURL: string, defaultCountry: string }) => {
 
@@ -16,10 +16,9 @@ export default ({ redirectURL = '/', defaultCountry = 'JP' }: { redirectURL: str
 			}
 		],
 		callbacks: {
-			signInSuccessWithAuthResult: (authResult, redirectUrl) => {
-				console.log(authResult, redirectUrl)
-				return true
-			},
+			// signInSuccessWithAuthResult: (authResult, redirectUrl) => {
+			// 	return false
+			// },
 			signInFailure: async (error) => {
 				console.log(error)
 			}
