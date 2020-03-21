@@ -72,6 +72,105 @@ npm run clean
 
 ## Architecture
 
+### Pages
+
+Root
+```
+/
+```
+
+#### User Page
+```
+/users/:id
+```
+This page displays user information.
+
+#### Payment method Page
+```
+/users/:id/paymentMethods
+```
+This page shows the payment method that the user has registered.
+
+#### Purchase history
+```
+/users/:id/purchaseHistory
+```
+This page shows the user's purchase history.
+
+
+#### Account Page
+```
+/accounts/:id
+```
+This page displays a list of products offered by your account.
+
+#### Account's product page
+```
+/accounts/:id/products/:product_id
+```
+This page displays product details.
+
+#### Account's sku page
+```
+/accounts/:id/products/:product_id/skus/:sku_id
+```
+This page shows SKU details.
+
+
+#### Admin Page
+```
+/admin/:id
+```
+
+
+#### Admin orders page
+```
+/admin/:id/orders
+```
+This page displays a list of orders.
+
+
+#### Admin order page
+```
+/admin/:id/orders/:order_id
+```
+This page displays order details
+
+
+#### Admin products page
+```
+/admin/:id/products
+```
+This page displays a list of products sold by your account.
+
+#### Admin product page
+```
+/admin/:id/products/:product_id
+```
+This page shows details of the products sold by your account.
+
+#### Admin edit product page
+```
+/admin/:id/products/:product_id/edit
+```
+This page edits the details of the products that your account sells.
+
+#### Admin sku page
+```
+/admin/:id/products/:product_id/skus/:sku_id
+```
+This page shows details of the sku that your account sells.
+
+#### Admin edit sku page
+```
+/admin/:id/products/:product_id/skus/:sku_id/edit
+```
+This page is for editing the details of the sku sold by your account.
+
+
+
+---
+
 ### Database
 
 #### Commerce
