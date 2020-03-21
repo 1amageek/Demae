@@ -121,6 +121,26 @@ This page shows SKU details.
 ```
 /admin/:id
 ```
+
+
+#### Admin orders page
+```
+/admin/:id/orders
+```
+This page displays a list of orders.
+
+
+#### Admin order page
+```
+/admin/:id/orders/:order_id
+```
+This page displays order details
+
+
+#### Admin products page
+```
+/admin/:id/products
+```
 This page displays a list of products sold by your account.
 
 #### Admin product page
@@ -141,11 +161,13 @@ This page edits the details of the products that your account sells.
 ```
 This page shows details of the sku that your account sells.
 
-#### Admin edit product page
+#### Admin edit sku page
 ```
-/admin/:id/products/:product_id/edit
+/admin/:id/products/:product_id/skus/:sku_id/edit
 ```
 This page is for editing the details of the sku sold by your account.
+
+
 
 ---
 
