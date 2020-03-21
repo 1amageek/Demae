@@ -11,18 +11,21 @@ export const create = regionFunctions.https.onCall(async (data, context) => {
 	if (!STRIPE_API_KEY) {
 		throw new functions.https.HttpsError('invalid-argument', 'The functions requires STRIPE_API_KEY.')
 	}
+	console.info(context)
 	const uid: string = context.auth.uid
 	const stripe = new Stripe(STRIPE_API_KEY, { apiVersion: '2020-03-02' })
 	try {
 		const result = await stripe.accounts.create({
 			...data,
-			description: uid
+			metadata: {
+				uid: uid
+			}
 		})
 		return result
 	} catch (error) {
 		console.error(error)
+		throw error
 	}
-	return
 })
 
 export const update = regionFunctions.https.onCall(async (data, context) => {
@@ -33,6 +36,7 @@ export const update = regionFunctions.https.onCall(async (data, context) => {
 	if (!STRIPE_API_KEY) {
 		throw new functions.https.HttpsError('invalid-argument', 'The functions requires STRIPE_API_KEY.')
 	}
+	console.info(context)
 	const uid: string = context.auth.uid
 	const stripe = new Stripe(STRIPE_API_KEY, { apiVersion: '2020-03-02' })
 	try {
@@ -41,8 +45,8 @@ export const update = regionFunctions.https.onCall(async (data, context) => {
 		return result
 	} catch (error) {
 		console.error(error)
+		throw error
 	}
-	return
 })
 
 export const retrieve = regionFunctions.https.onCall(async (_, context) => {
@@ -53,6 +57,7 @@ export const retrieve = regionFunctions.https.onCall(async (_, context) => {
 	if (!STRIPE_API_KEY) {
 		throw new functions.https.HttpsError('invalid-argument', 'The functions requires STRIPE_API_KEY.')
 	}
+	console.info(context)
 	const uid: string = context.auth.uid
 	const stripe = new Stripe(STRIPE_API_KEY, { apiVersion: '2020-03-02' })
 	try {
@@ -61,7 +66,7 @@ export const retrieve = regionFunctions.https.onCall(async (_, context) => {
 		return result
 	} catch (error) {
 		console.error(error)
+		throw error
 	}
-	return
 })
 

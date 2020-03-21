@@ -14,6 +14,7 @@
 		"emulate": "cross-env NODE_ENV=production firebase emulators:start",
 		"deploy": "npm run clean && NODE_ENV=production firebase deploy",
 		"deploy:functions": "npm run clean && NODE_ENV=production firebase deploy --only functions",
+		"deploy:functions:stripe": "npm run clean && NODE_ENV=production firebase deploy --only functions:v1.stripe",
 		"deploy:gas": "clasp push",
 		"clean": "rimraf \"dist/functions\" && rimraf \"dist/public\"",
 		"build-app": "next build \"src/app\"",

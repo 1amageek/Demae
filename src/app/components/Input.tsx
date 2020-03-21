@@ -17,7 +17,7 @@ type InitProps = {
 	inputProps?: InputProps
 }
 
-type InitValue = string | undefined
+type InitValue = string | number | undefined
 
 export const useInput = (props: InitProps | InitValue) => {
 	if (typeof props === 'string' || typeof props === 'undefined') {
@@ -25,8 +25,15 @@ export const useInput = (props: InitProps | InitValue) => {
 		const handleChange = e => setValue(e.target.value);
 		return {
 			value,
-			onChange: handleChange,
-			setValue
+			onChange: handleChange
+		};
+	} else if (typeof props === 'number') {
+		const [value, setValue] = useState(String(props) || "");
+		const handleChange = e => setValue(e.target.value);
+		return {
+			value,
+			type: 'number',
+			onChange: handleChange
 		};
 	} else {
 		const [value, setValue] = useState(props.initValue ? props.initValue : "");
@@ -34,8 +41,7 @@ export const useInput = (props: InitProps | InitValue) => {
 		return {
 			...props.inputProps,
 			value,
-			onChange: handleChange,
-			setValue
+			onChange: handleChange
 		};
 	}
 }

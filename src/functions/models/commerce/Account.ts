@@ -1,6 +1,7 @@
 import { Doc, Field, CollectionReference, firestore } from '@1amageek/ballcap-admin'
 import * as functions from 'firebase-functions'
-import { BusinessType, TosAcceptance } from '../../common/commerce/Types'
+import { BusinessType, TosAcceptance } from '../../common/commerce/account'
+import { Currency } from '../../common/Currency'
 
 export default class Account extends Doc {
 
@@ -20,8 +21,9 @@ export default class Account extends Doc {
 		return accountID
 	}
 
-	@Field accountID?: string
-	@Field country: string = 'JP'
+	@Field accountID!: string
+	@Field country: string = 'US'
+	@Field defaultCurrency: Currency = 'USD'
 	@Field businessType: BusinessType = 'individual'
 	@Field company?: { [key: string]: any }
 	@Field individual?: { [key: string]: any }
@@ -31,8 +33,6 @@ export default class Account extends Doc {
 	@Field hasLegalEntity: boolean = false
 	@Field commissionRate: number = 10
 	@Field balance: number = 0
-	@Field accountInformation: { [key: string]: any } = {}
-	@Field IPAddress?: string
 	@Field metadata?: { [key: string]: any } = {}
 
 	@Field tosAcceptance?: TosAcceptance
