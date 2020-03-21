@@ -129,11 +129,25 @@ This page displays a list of products sold by your account.
 ```
 This page shows details of the products sold by your account.
 
-#### Admin product page
+#### Admin edit product page
 ```
 /admin/:id/products/:product_id/edit
 ```
 This page edits the details of the products that your account sells.
+
+#### Admin sku page
+```
+/admin/:id/products/:product_id/skus/:sku_id
+```
+This page shows details of the sku that your account sells.
+
+#### Admin edit product page
+```
+/admin/:id/products/:product_id/edit
+```
+This page is for editing the details of the sku sold by your account.
+
+---
 
 ### Database
 
