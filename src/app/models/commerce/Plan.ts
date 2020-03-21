@@ -1,7 +1,7 @@
 import { Doc, Field, Collection, SubCollection, firestore, CollectionReference, DocumentReference, Timestamp } from '@1amageek/ballcap'
-import { Currency } from '../../../common/Currency'
+import { Currency } from 'common/Currency'
 import Subscription from './Subscription'
-import { Interval, TiersMode, Tier } from '../../../common/commerce/Types'
+import { Interval, TiersMode, Tier } from 'common/commerce/Types'
 
 export default class Plan extends Doc {
 

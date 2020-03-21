@@ -27,6 +27,9 @@
 		"isolatedModules": true,
 		"baseUrl": "./",
 		"paths": {
+			"common/*": [
+				"../functions/common/*"
+			],
 			"components/*": [
 				"components/*"
 			],

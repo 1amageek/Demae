@@ -1,5 +1,5 @@
 import { Doc, Field, Collection, SubCollection, firestore, CollectionReference } from '@1amageek/ballcap'
-import { BusinessType, TosAcceptance } from '../../../common/commerce/Types'
+import { BusinessType, TosAcceptance } from 'common/commerce/Types'
 import Product from './Product'
 
 export default class Account extends Doc {

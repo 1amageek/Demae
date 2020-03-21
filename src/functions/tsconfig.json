@@ -18,11 +18,11 @@
 		"esModuleInterop": true,
 		"resolveJsonModule": true,
 		"isolatedModules": true,
-		"allowJs": true
+		"allowJs": true,
 	},
 	"compileOnSave": true,
 	"include": [
-		"./"
+		"./",
 	],
 	"exclude": [
 		"node_modules",

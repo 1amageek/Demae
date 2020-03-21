@@ -1,6 +1,6 @@
 import { Doc, Model, Field, File, firestore, CollectionReference, DocumentReference, Timestamp } from '@1amageek/ballcap-admin'
-import { Currency } from '../../../common//Currency'
-import { OrderItemType, OrderItemStatus, DeliveryStatus, OrderPaymentStatus } from '../../../common/commerce/Types'
+import { Currency } from '../../common/Currency'
+import { OrderItemType, OrderItemStatus, DeliveryStatus, OrderPaymentStatus } from '../../common/commerce/Types'
 
 export class OrderItem extends Model {
 	@Field purchasedBy!: string

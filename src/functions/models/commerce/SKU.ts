@@ -1,6 +1,6 @@
 import { Doc, Field, DocumentReference, firestore, CollectionReference } from '@1amageek/ballcap-admin'
-import { Currency } from '../../../common/Currency'
-import { Inventory } from '../../../common/commerce/Types'
+import { Currency } from '../../common/Currency'
+import { Inventory } from '../../common/commerce/Types'
 
 export default class SKU extends Doc {
 

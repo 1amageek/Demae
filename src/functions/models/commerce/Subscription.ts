@@ -1,6 +1,6 @@
 import { Doc, Field, Timestamp, firestore, CollectionReference } from '@1amageek/ballcap-admin'
 import SubscriptionItem from './SubscriptionItem'
-import { Interval, SubscriptionStatus } from '../../../common/commerce/Types'
+import { Interval, SubscriptionStatus } from '../../common/commerce/Types'
 
 export default class Subscription extends Doc {
 

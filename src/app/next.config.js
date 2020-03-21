@@ -24,6 +24,7 @@ module.exports = (nextConfig = {
 
 			config.resolve.alias = {
 				...config.resolve.alias,
+				'common': path.resolve(__dirname, '../functions/common'),
 				'components': path.resolve(__dirname, 'components'),
 				'context': path.resolve(__dirname, 'context'),
 				'hooks': path.resolve(__dirname, 'hooks'),

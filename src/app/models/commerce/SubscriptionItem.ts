@@ -1,5 +1,5 @@
 import { Model, Field, DocumentReference } from '@1amageek/ballcap'
-import { Currency } from '../../../common/Currency'
+import { Currency } from 'common/Currency'
 
 export default class SubscriptionItem extends Model {
 	@Field subscribedBy!: string

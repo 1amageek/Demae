@@ -1,6 +1,6 @@
 import { Doc, Field, CollectionReference, firestore } from '@1amageek/ballcap-admin'
 import * as functions from 'firebase-functions'
-import { BusinessType, TosAcceptance } from '../../../common/commerce/Types'
+import { BusinessType, TosAcceptance } from '../../common/commerce/Types'
 
 export default class Account extends Doc {
 
