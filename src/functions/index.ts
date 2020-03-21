@@ -1,15 +1,46 @@
 import * as functions from 'firebase-functions'
+import * as admin from 'firebase-admin'
+import * as ballcap from '@1amageek/ballcap-admin'
 import * as path from 'path'
 import next from 'next'
+import express from 'express'
+import session from 'express-session'
+import FileStore from 'session-file-store'
+import bodyParser from 'body-parser'
+
+const firebase = admin.initializeApp()
+ballcap.initialize(firebase)
 
 // Hosting
+const filestore = FileStore(session)
 const dev = process.env.NODE_ENV !== 'production'
 const app = next({
 	dev, conf: { distDir: `${path.relative(process.cwd(), __dirname)}/next` }
 })
+const filestore_secret = functions.config().filestore.secret
 const handle = app.getRequestHandler()
-export const hosting = functions.https.onRequest((req, res) => {
-	return app.prepare().then(() => handle(req, res))
+export const hosting = functions.https.onRequest(async (req, res) => {
+	await app.prepare()
+	const server = express()
+	server.use(bodyParser.json())
+	server.use(
+		session({
+			secret: filestore_secret,
+			saveUninitialized: true,
+			store: new filestore({ secret: filestore_secret }),
+			resave: false,
+			rolling: true,
+			cookie: { maxAge: 604800000, httpOnly: true }, // week
+		})
+	)
+	server.use((req, _, next) => {
+		(req as any).firebaseServer = firebase
+		next()
+	})
+	server.get('*', async (req, res) => {
+		await handle(req, res)
+	})
+	server(req, res)
 })
 
 // Functions

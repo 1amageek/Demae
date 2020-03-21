@@ -20,7 +20,7 @@ type InitProps = {
 type InitValue = string | number | undefined
 
 export const useInput = (props: InitProps | InitValue) => {
-	if (typeof props === 'string' || typeof props === 'undefined') {
+	if (typeof props === 'string' || typeof props === 'undefined' || props === null) {
 		const [value, setValue] = useState(props || "");
 		const handleChange = e => setValue(e.target.value);
 		return {
@@ -36,6 +36,7 @@ export const useInput = (props: InitProps | InitValue) => {
 			onChange: handleChange
 		};
 	} else {
+		console.log(props)
 		const [value, setValue] = useState(props.initValue ? props.initValue : "");
 		const handleChange = e => setValue(e.target.value);
 		return {

@@ -96,7 +96,7 @@ export default () => {
 										handleOpen()
 									}}>
 										Add Product
-              	</Button>
+              		</Button>
 									<Tooltip title="Reload">
 										<IconButton>
 											<RefreshIcon className={classes.block} color="inherit" />

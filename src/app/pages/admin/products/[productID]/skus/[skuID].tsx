@@ -1,4 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react'
+import firebase from 'firebase'
+import 'firebase/auth'
 import Link from 'next/link'
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -6,7 +8,9 @@ import Typography from '@material-ui/core/Typography';
 import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
-import TextField from '@material-ui/core/TextField';
+import Fab from '@material-ui/core/Fab';
+import AddIcon from '@material-ui/icons/Add';
+import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import Tooltip from '@material-ui/core/Tooltip';
 import Table from '@material-ui/core/Table';
 import TableHead from '@material-ui/core/TableHead';
@@ -19,8 +23,11 @@ import SearchIcon from '@material-ui/icons/Search';
 import RefreshIcon from '@material-ui/icons/Refresh';
 import Modal from 'components/Modal';
 import Layout from 'components/Layout'
-import Form from 'components/accounts/products/Form'
+import Input, { useInput } from 'components/Input'
+import Account from 'models/commerce/Account'
 import Product from 'models/commerce/Product'
+import SKU from 'models/commerce/SKU'
+import { useAuthUser, useAccountProductSKU } from 'hooks';
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
@@ -47,18 +54,11 @@ const useStyles = makeStyles((theme: Theme) =>
 	}),
 );
 
-export default () => {
+const index = ({ productID, skuID, edit }: { productID: string, skuID: string, edit: boolean }) => {
 	const classes = useStyles();
-
-	const [open, setOpen] = React.useState(false);
-
-	const handleOpen = () => {
-		setOpen(true);
-	};
-
-	const handleClose = () => {
-		setOpen(false);
-	};
+	const authUser = useAuthUser()
+	const sku = useAccountProductSKU(productID, skuID)
+	const [isEditing, setEditing] = useState(edit)
 
 	return (
 		<>
@@ -68,29 +68,37 @@ export default () => {
 						<Toolbar>
 							<Grid container spacing={2} alignItems="center">
 								<Grid item>
-									<SearchIcon className={classes.block} color="inherit" />
-								</Grid>
-								<Grid item xs>
-									<TextField
-										fullWidth
-										placeholder="Search by email address, phone number, or user UID"
-										InputProps={{
-											disableUnderline: true,
-											className: classes.searchInput,
-										}}
-									/>
+									<Link href={`/admin/products/${productID}`}>
+										<Tooltip title="Back">
+											<IconButton>
+												<ArrowBackIcon className={classes.block} color="inherit" />
+											</IconButton>
+										</Tooltip>
+									</Link>
 								</Grid>
 								<Grid item>
-									<Button variant="contained" color="primary" className={classes.addAction} onClick={() => {
-										handleOpen()
-									}}>
-										Add Product
-              	</Button>
-									<Tooltip title="Reload">
-										<IconButton>
-											<RefreshIcon className={classes.block} color="inherit" />
-										</IconButton>
-									</Tooltip>
+									{
+										isEditing ? (
+											<>
+												<Button variant="contained" color="primary" className={classes.addAction} onClick={async () => {
+
+													if (sku) {
+
+														await sku.save()
+													}
+
+													setEditing(false)
+												}}>SAVE</Button>
+												<Button variant="contained" color="primary" className={classes.addAction} onClick={() => {
+													setEditing(false)
+												}}>CANCEL</Button>
+											</>
+										) : (
+												<Button variant="contained" color="primary" className={classes.addAction} onClick={() => {
+													setEditing(true)
+												}}>EDIT</Button>
+											)
+									}
 								</Grid>
 							</Grid>
 						</Toolbar>
@@ -116,14 +124,15 @@ export default () => {
 					</Table>
 				</Paper>
 			</Layout>
-			<Modal
-				open={open}
-				onClose={handleClose}
-			>
-				<div className={classes.paper}>
-					<Form product={new Product()} />
-				</div>
-			</Modal>
 		</>
 	)
 }
+
+index.getInitialProps = async (ctx) => {
+	const productID = ctx.query.productID
+	const skuID = ctx.query.skuID
+	const edit = ctx.query.edit || false
+	return { productID, skuID, edit }
+}
+
+export default index

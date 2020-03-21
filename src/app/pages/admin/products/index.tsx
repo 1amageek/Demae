@@ -1,11 +1,14 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link'
+import Router from 'next/router'
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
+import Fab from '@material-ui/core/Fab';
+import AddIcon from '@material-ui/icons/Add';
 import TextField from '@material-ui/core/TextField';
 import Tooltip from '@material-ui/core/Tooltip';
 import Table from '@material-ui/core/Table';
@@ -20,7 +23,9 @@ import RefreshIcon from '@material-ui/icons/Refresh';
 import Modal from 'components/Modal';
 import Layout from 'components/Layout'
 import Form from 'components/accounts/products/Form'
+import Account from 'models/commerce/Account'
 import Product from 'models/commerce/Product'
+import { useAuthUser } from 'hooks';
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
@@ -44,13 +49,33 @@ const useStyles = makeStyles((theme: Theme) =>
 		contentWrapper: {
 			margin: '40px 16px',
 		},
+		absolute: {
+			position: 'absolute',
+			bottom: theme.spacing(2),
+			right: theme.spacing(3),
+		},
 	}),
 );
 
 export default () => {
-	const classes = useStyles();
+	const classes = useStyles()
+	const authUser = useAuthUser()
+	const [products, setProducts] = useState<Product[]>([])
+	useEffect(() => {
+		const uid = authUser?.uid
+		if (!uid) { return }
+		(async () => {
+			const account = new Account(uid)
+			const snapshot = await account.products.collectionReference
+				.orderBy('updatedAt', 'desc')
+				.limit(100)
+				.get()
+			const products = snapshot.docs.map(doc => Product.fromSnapshot<Product>(doc))
+			setProducts([...products])
+		})()
+	}, [authUser?.uid])
 
-	const [open, setOpen] = React.useState(false);
+	const [open, setOpen] = useState(false)
 
 	const handleOpen = () => {
 		setOpen(true);
@@ -82,7 +107,7 @@ export default () => {
 								</Grid>
 								<Grid item>
 									<Button variant="contained" color="primary" className={classes.addAction} onClick={() => {
-										handleOpen()
+										// handleOpen()
 									}}>
 										Add Product
               	</Button>
@@ -105,17 +130,33 @@ export default () => {
 							</TableRow>
 						</TableHead>
 						<TableBody>
-							<Link href="/admin/products">
-								<TableRow hover key={"order.id"}>
-									<TableCell>ID</TableCell>
-									<TableCell>Name</TableCell>
-									<TableCell>Status</TableCell>
-								</TableRow>
-							</Link>
+							{products.map(product => {
+								return (
+									<Link href={`/admin/products/${product.id}`} key={product.id} >
+										<TableRow hover>
+											<TableCell>{product.id}</TableCell>
+											<TableCell>{product.name}</TableCell>
+											<TableCell>{product.isAvailable}</TableCell>
+										</TableRow>
+									</Link>
+								)
+							})}
 						</TableBody>
 					</Table>
 				</Paper>
 			</Layout>
+			<Tooltip title="Product Add" aria-label="add" onClick={(e) => {
+				e.preventDefault()
+				const uid = authUser?.uid
+				if (!uid) { return }
+				const account = new Account(uid)
+				const ref = account.products.collectionReference.doc()
+				Router.push({ pathname: `/admin/products/${ref.id}`, query: { edit: true } })
+			}}>
+				<Fab color="secondary" className={classes.absolute}>
+					<AddIcon />
+				</Fab>
+			</Tooltip>
 			<Modal
 				open={open}
 				onClose={handleClose}
