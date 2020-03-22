@@ -59,6 +59,10 @@ const index = ({ productID, skuID, edit }: { productID: string, skuID: string, e
 	const authUser = useAuthUser()
 	const sku = useAccountProductSKU(productID, skuID)
 	const [isEditing, setEditing] = useState(edit)
+	const name = useInput(sku?.name)
+	const caption = useInput(sku?.caption)
+	const amount = useInput(sku?.amount)
+	const currency = useInput(sku?.currency)
 
 	return (
 		<>
