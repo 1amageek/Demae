@@ -24,10 +24,10 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import Layout from 'components/Layout'
 import Input, { useInput } from 'components/Input'
-import Account from 'models/commerce/Account'
+import Account from 'models/account/Account'
 import Product from 'models/commerce/Product'
 import SKU from 'models/commerce/SKU'
-import { useAuthUser, useAccountProductSKU } from 'hooks';
+import { useAuthUser, useProviderProductSKU } from 'hooks';
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
@@ -57,7 +57,7 @@ const useStyles = makeStyles((theme: Theme) =>
 const index = ({ productID, skuID, edit }: { productID: string, skuID: string, edit: boolean }) => {
 	const classes = useStyles();
 	const authUser = useAuthUser()
-	const sku = useAccountProductSKU(productID, skuID)
+	const sku = useProviderProductSKU(productID, skuID)
 	const [isEditing, setEditing] = useState(edit)
 	const name = useInput(sku?.name)
 	const caption = useInput(sku?.caption)

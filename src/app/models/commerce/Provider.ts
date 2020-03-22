@@ -1,5 +1,5 @@
-import { Doc, Field, Collection, SubCollection, CollectionReference, firestore, GeoPoint } from '@1amageek/ballcap-admin'
-import { Currency } from '../../common/Currency'
+import { Doc, Field, Collection, SubCollection, firestore, CollectionReference, GeoPoint } from '@1amageek/ballcap'
+import { Currency } from 'common/Currency'
 import Product from './Product'
 
 export default class Provider extends Doc {

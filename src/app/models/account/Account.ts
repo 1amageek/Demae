@@ -1,6 +1,5 @@
-import { Doc, Field, Collection, SubCollection, firestore, CollectionReference } from '@1amageek/ballcap'
-import { BusinessType, TosAcceptance } from 'common/commerce/account'
-import Product from './Product'
+import { Doc, Field, firestore, CollectionReference } from '@1amageek/ballcap'
+import { BusinessType } from 'common/commerce/account'
 import { Currency } from 'common/Currency'
 
 export default class Account extends Doc {
@@ -22,6 +21,4 @@ export default class Account extends Doc {
 	@Field commissionRate: number = 10
 	@Field balance: number = 0
 	@Field metadata?: { [key: string]: any } = {}
-
-	@SubCollection products: Collection<Product> = new Collection()
 }

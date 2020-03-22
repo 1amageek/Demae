@@ -23,7 +23,7 @@ import RefreshIcon from '@material-ui/icons/Refresh';
 import Modal from 'components/Modal';
 import Layout from 'components/Layout'
 import Form from 'components/accounts/products/Form'
-import Account from 'models/commerce/Account'
+import Provider from 'models/commerce/Provider'
 import Product from 'models/commerce/Product'
 import { useAuthUser } from 'hooks';
 
@@ -65,8 +65,8 @@ export default () => {
 		const uid = authUser?.uid
 		if (!uid) { return }
 		(async () => {
-			const account = new Account(uid)
-			const snapshot = await account.products.collectionReference
+			const provider = new Provider(uid)
+			const snapshot = await provider.products.collectionReference
 				.orderBy('updatedAt', 'desc')
 				.limit(100)
 				.get()
@@ -149,8 +149,8 @@ export default () => {
 				e.preventDefault()
 				const uid = authUser?.uid
 				if (!uid) { return }
-				const account = new Account(uid)
-				const ref = account.products.collectionReference.doc()
+				const provider = new Provider(uid)
+				const ref = provider.products.collectionReference.doc()
 				Router.push({ pathname: `/admin/products/${ref.id}`, query: { edit: true } })
 			}}>
 				<Fab color="secondary" className={classes.absolute}>

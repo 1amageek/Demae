@@ -20,7 +20,7 @@ import RefreshIcon from '@material-ui/icons/Refresh';
 import Modal from 'components/Modal';
 import Layout from 'components/Layout'
 import Form from 'components/accounts/products/Form'
-import Account from 'models/commerce/Account'
+import Provider from 'models/commerce/Provider'
 import Product from 'models/commerce/Product'
 import { useAuthUser } from 'hooks'
 
@@ -57,8 +57,8 @@ export default () => {
 
 	useEffect(() => {
 		if (user) {
-			const account = new Account(user?.uid)
-			const product = new Product(account.products.collectionReference.doc())
+			const provider = new Provider(user?.uid)
+			const product = new Product(provider.products.collectionReference.doc())
 			setProduct(product)
 		}
 	}, [user?.uid])

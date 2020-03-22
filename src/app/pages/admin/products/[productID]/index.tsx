@@ -29,10 +29,10 @@ import Modal from 'components/Modal';
 import Layout from 'components/Layout'
 import Form from 'components/accounts/products/Form'
 import Input, { useInput } from 'components/Input'
-import Account from 'models/commerce/Account'
+import Provider from 'models/commerce/Provider'
 import Product from 'models/commerce/Product'
 import SKU from 'models/commerce/SKU'
-import { useAuthUser, useAccountProduct } from 'hooks';
+import { useAuthUser, useProviderProduct } from 'hooks';
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
@@ -67,7 +67,7 @@ const useStyles = makeStyles((theme: Theme) =>
 const index = ({ id, edit }: { id: string, edit: boolean }) => {
 	const classes = useStyles()
 	const authUser = useAuthUser()
-	const product = useAccountProduct(id)
+	const product = useProviderProduct(id)
 	const [isEditing, setEditing] = useState(edit)
 	const name = useInput(product?.name)
 	const caption = useInput(product?.caption)
@@ -78,8 +78,8 @@ const index = ({ id, edit }: { id: string, edit: boolean }) => {
 		const uid = authUser?.uid
 		if (!uid) { return }
 		(async () => {
-			const account = new Account(uid)
-			const snapshot = await account.products.doc(id, Product).skus.collectionReference
+			const provider = new Provider(uid)
+			const snapshot = await provider.products.doc(id, Product).skus.collectionReference
 				.orderBy('updatedAt', 'desc')
 				.limit(100)
 				.get()
@@ -221,8 +221,8 @@ const index = ({ id, edit }: { id: string, edit: boolean }) => {
 					e.preventDefault()
 					const uid = authUser?.uid
 					if (!uid) { return }
-					const account = new Account(uid)
-					const ref = account.products.doc(id, Product).skus.collectionReference.doc()
+					const provider = new Provider(uid)
+					const ref = provider.products.doc(id, Product).skus.collectionReference.doc()
 					Router.push({ pathname: `/admin/products/${id}/skus/${ref.id}`, query: { edit: true } })
 				}}>
 					<Fab color="secondary" className={classes.absolute}>

@@ -3,7 +3,7 @@ import firebase from "firebase"
 import "@firebase/firestore"
 import "@firebase/auth"
 import { Doc } from '@1amageek/ballcap'
-import Account from 'models/commerce/Account'
+import Provider from 'models/commerce/Provider'
 import Product from 'models/commerce/Product'
 import SKU from 'models/commerce/SKU'
 
@@ -23,14 +23,14 @@ export const useAuthUser = () => {
 	return authUser
 }
 
-export const useAccountProduct = (id: string) => {
+export const useProviderProduct = (id: string) => {
 	const user = useAuthUser()
 	const [product, setProduct] = useState<Product | undefined>(undefined)
 	useEffect(() => {
 		(async () => {
 			if (user) {
 				if (!product) {
-					const snapshot = await new Account(user.uid).products.collectionReference.doc(id).get()
+					const snapshot = await new Provider(user.uid).products.collectionReference.doc(id).get()
 					let product = Product.fromSnapshot<Product>(snapshot)
 					setProduct(product)
 				}
@@ -40,14 +40,14 @@ export const useAccountProduct = (id: string) => {
 	return product
 }
 
-export const useAccountProductSKU = (productID: string, skuID: string) => {
+export const useProviderProductSKU = (productID: string, skuID: string) => {
 	const user = useAuthUser()
 	const [sku, setSKU] = useState<SKU | undefined>(undefined)
 	useEffect(() => {
 		(async () => {
 			if (user) {
 				if (!sku) {
-					const snapshot = await new Account(user.uid).products.doc(productID, Product).skus.collectionReference.doc(skuID).get()
+					const snapshot = await new Provider(user.uid).products.doc(productID, Product).skus.collectionReference.doc(skuID).get()
 					let sku = SKU.fromSnapshot<SKU>(snapshot)
 					setSKU(sku)
 				}

@@ -7,7 +7,7 @@ import Typography from '@material-ui/core/Typography';
 import ButtonBase from '@material-ui/core/ButtonBase';
 import Card from 'components/accounts/Card'
 import { useDataSource } from 'hooks';
-import { Account } from 'models/commerce';
+import { Provider } from 'models/commerce';
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
@@ -34,7 +34,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 export default function ComplexGrid() {
 	const classes = useStyles();
-	const datasource = useDataSource(Account.collectionReference().limit(100), Account)
+	const datasource = useDataSource(Provider.collectionReference().limit(100), Provider)
 	return (
 		<div className={classes.root}>
 			<Container className={classes.paper}>
