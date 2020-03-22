@@ -176,23 +176,23 @@ This page is for editing the details of the sku sold by your account.
 #### Commerce
 
 ```
-/commerce/v1/shop/:uid
+/commerce/v1/providers/:uid
 ```
 
 ```
-/commerce/v1/shop/:uid/products/:product_id
+/commerce/v1/providers/:uid/products/:product_id
 ```
 
 ```
-/commerce/v1/shop/:uid/products/:product_id/skus/:sku_id
+/commerce/v1/providers/:uid/products/:product_id/skus/:sku_id
 ```
 
 ```
-/commerce/v1/shop/:uid/orders/:order_id
+/commerce/v1/providers/:uid/orders/:order_id
 ```
 
 ```
-/commerce/v1/users/:uid
+/commerce/v1/providers/:uid
 ```
 
 #### Social
