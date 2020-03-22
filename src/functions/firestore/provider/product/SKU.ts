@@ -4,8 +4,10 @@ import Stripe from 'stripe'
 import { ErrorCode, nullFilter } from '../../helper'
 import SKU from '../../../models/commerce/SKU'
 
+const triggerdPath = '/commerce/{version}/providers/{uid}/products/{productID}/SKUs/{skuID}'
+
 export const onCreate = regionFunctions.firestore
-	.document('/commerce/{version}/accounts/{uid}/products/{productID}/SKUs/{skuID}')
+	.document(triggerdPath)
 	.onCreate(async (snapshot, context) => {
 		console.info(context)
 		const STRIPE_API_KEY = functions.config().stripe.api_key
@@ -41,7 +43,7 @@ export const onCreate = regionFunctions.firestore
 	})
 
 export const onUpdate = regionFunctions.firestore
-	.document('/commerce/{version}/accounts/{uid}/products/{productID}/SKUs/{skuID}')
+	.document(triggerdPath)
 	.onUpdate(async (snapshot, context) => {
 		console.info(context)
 		const sku: SKU = SKU.fromSnapshot(snapshot.after)

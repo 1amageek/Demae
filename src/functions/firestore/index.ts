@@ -1,2 +1,2 @@
-import * as Account from './account'
-export const account = { ...Account }
+import * as Provider from './provider'
+export const provider = { ...Provider }

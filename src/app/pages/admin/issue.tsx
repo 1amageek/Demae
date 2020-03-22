@@ -116,7 +116,7 @@ const IndividualForm = ({ individual }: { individual: Partial<Individual> }) => 
 				Save
 			</Button>
 		</form>
-	);
+	)
 
 }
 

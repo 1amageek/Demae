@@ -10,8 +10,10 @@ import * as SKU from './SKU'
 export const plan = { ...Plan }
 export const sku = { ...SKU }
 
+const triggerdPath = '/commerce/{version}/providers/{uid}/products/{productID}'
+
 export const onCreate = regionFunctions.firestore
-	.document('/commerce/{version}/accounts/{uid}/products/{productID}')
+	.document(triggerdPath)
 	.onCreate(async (snapshot, context) => {
 		console.info(context)
 		const STRIPE_API_KEY = functions.config().stripe.api_key
@@ -46,7 +48,7 @@ export const onCreate = regionFunctions.firestore
 	})
 
 export const onUpdate = regionFunctions.firestore
-	.document('/commerce/{version}/accounts/{uid}/products/{productID}')
+	.document(triggerdPath)
 	.onUpdate(async (snapshot, context) => {
 		console.info(context)
 		const product: Product = Product.fromSnapshot(snapshot.after)

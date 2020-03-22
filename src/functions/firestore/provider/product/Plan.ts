@@ -32,8 +32,10 @@ const create = async (stripe: Stripe, plan: Plan) => {
 	}
 }
 
+const triggerdPath = '/commerce/{version}/providers/{uid}/products/{productID}/plans/{planID}'
+
 export const onCreate = regionFunctions.firestore
-	.document('/commerce/{version}/accounts/{uid}/products/{productID}/plans/{planID}')
+	.document(triggerdPath)
 	.onCreate(async (snapshot, context) => {
 		console.info(context)
 		const STRIPE_API_KEY = functions.config().stripe.api_key
@@ -52,7 +54,7 @@ export const onCreate = regionFunctions.firestore
 	})
 
 export const onUpdate = regionFunctions.firestore
-	.document('/commerce/{version}/accounts/{uid}/products/{productID}/plans/{planID}')
+	.document(triggerdPath)
 	.onUpdate(async (snapshot, context) => {
 		console.info(context)
 		const plan: Plan = Plan.fromSnapshot(snapshot.after)
