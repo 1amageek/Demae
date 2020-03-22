@@ -1,129 +1,59 @@
 import React from 'react';
 import Link from 'next/link'
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
-import Typography from '@material-ui/core/Typography';
-import Paper from '@material-ui/core/Paper';
+import { makeStyles, createStyles, Theme } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
-import Button from '@material-ui/core/Button';
-import TextField from '@material-ui/core/TextField';
-import Tooltip from '@material-ui/core/Tooltip';
-import Table from '@material-ui/core/Table';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
-import TableCell from '@material-ui/core/TableCell';
-import TableBody from '@material-ui/core/TableBody';
-import IconButton from '@material-ui/core/IconButton';
-import { makeStyles, useTheme, Theme, createStyles } from '@material-ui/core/styles';
-import SearchIcon from '@material-ui/icons/Search';
-import RefreshIcon from '@material-ui/icons/Refresh';
-import Modal from 'components/Modal';
-import Layout from 'components/Layout'
-import Form from 'components/accounts/products/Form'
-import Product from 'models/commerce/Product'
+import Container from '@material-ui/core/Container';
+import Typography from '@material-ui/core/Typography';
+import ButtonBase from '@material-ui/core/ButtonBase';
+import Card from 'components/accounts/Card'
+import { useDataSource } from 'hooks';
+import { Account } from 'models/commerce';
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
+		root: {
+			flexGrow: 1,
+		},
 		paper: {
-			maxWidth: 936,
+			padding: theme.spacing(2),
 			margin: 'auto',
-			overflow: 'hidden',
+			maxWidth: 500,
 		},
-		searchBar: {
-			borderBottom: '1px solid rgba(0, 0, 0, 0.12)',
+		image: {
+			width: 128,
+			height: 128,
 		},
-		searchInput: {
-			fontSize: theme.typography.fontSize,
-		},
-		block: {
+		img: {
+			margin: 'auto',
 			display: 'block',
-		},
-		addAction: {
-			marginRight: theme.spacing(1),
-		},
-		contentWrapper: {
-			margin: '40px 16px',
+			maxWidth: '100%',
+			maxHeight: '100%',
 		},
 	}),
 );
 
-export default () => {
+export default function ComplexGrid() {
 	const classes = useStyles();
-
-	const [open, setOpen] = React.useState(false);
-
-	const handleOpen = () => {
-		setOpen(true);
-	};
-
-	const handleClose = () => {
-		setOpen(false);
-	};
-
+	const datasource = useDataSource(Account.collectionReference().limit(100), Account)
 	return (
-		<>
-			<Layout>
-				<Paper className={classes.paper}>
-					<AppBar className={classes.searchBar} position="static" color="default" elevation={0}>
-						<Toolbar>
-							<Grid container spacing={2} alignItems="center">
-								<Grid item>
-									<SearchIcon className={classes.block} color="inherit" />
-								</Grid>
-								<Grid item xs>
-									<TextField
-										fullWidth
-										placeholder="Search by email address, phone number, or user UID"
-										InputProps={{
-											disableUnderline: true,
-											className: classes.searchInput,
-										}}
-									/>
-								</Grid>
-								<Grid item>
-									<Button variant="contained" color="primary" className={classes.addAction} onClick={() => {
-										handleOpen()
-									}}>
-										Add Product
-              	</Button>
-									<Tooltip title="Reload">
-										<IconButton>
-											<RefreshIcon className={classes.block} color="inherit" />
-										</IconButton>
-									</Tooltip>
-								</Grid>
-							</Grid>
-						</Toolbar>
-					</AppBar>
+		<div className={classes.root}>
+			<Container className={classes.paper}>
+				<Grid container spacing={2}>
 
-					<Table>
-						<TableHead>
-							<TableRow>
-								<TableCell>ID</TableCell>
-								<TableCell>Name</TableCell>
-								<TableCell>Status</TableCell>
-							</TableRow>
-						</TableHead>
-						<TableBody>
-							<Link href="/admin/products">
-								<TableRow hover key={"order.id"}>
-									<TableCell>ID</TableCell>
-									<TableCell>Name</TableCell>
-									<TableCell>Status</TableCell>
-								</TableRow>
-							</Link>
-						</TableBody>
-					</Table>
-				</Paper>
-			</Layout>
-			<Modal
-				open={open}
-				onClose={handleClose}
-			>
-				<div className={classes.paper}>
-					<Form product={new Product()} />
-				</div>
-			</Modal>
-		</>
-	)
+					<Grid item xs={12} container>
+						<Card />
+					</Grid>
+					<Grid item xs={12} container>
+						<Card />
+					</Grid>
+					<Grid item xs={12} container>
+						<Card />
+					</Grid>
+					<Grid item xs={12} container>
+						<Card />
+					</Grid>
+				</Grid>
+			</Container>
+		</div>
+	);
 }

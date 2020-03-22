@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import firebase from "firebase"
 import "@firebase/firestore"
 import "@firebase/auth"
+import { Doc } from '@1amageek/ballcap'
 import Account from 'models/commerce/Account'
 import Product from 'models/commerce/Product'
 import SKU from 'models/commerce/SKU'
@@ -55,3 +56,16 @@ export const useAccountProductSKU = (productID: string, skuID: string) => {
 	}, [user?.uid, sku?.id])
 	return sku
 }
+
+export const useDataSource = <T extends Doc>(query: firebase.firestore.Query, type: typeof Doc) => {
+	const [data, setData] = useState<T[]>([])
+	useEffect(() => {
+		(async () => {
+			const snapshot = await query.get()
+			const data = snapshot.docs.map(doc => type.fromSnapshot<T>(doc))
+			setData(data)
+		})()
+	}, [data.length])
+	return data
+}
+
