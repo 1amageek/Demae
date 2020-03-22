@@ -86,12 +86,11 @@ const index = ({ id, edit }: { id: string, edit: boolean }) => {
 			const skus = snapshot.docs.map(doc => SKU.fromSnapshot<SKU>(doc))
 			setSKUs([...skus])
 		})()
-	}, [])
+	}, [authUser?.uid])
 
 	return (
 		<>
 			<Layout>
-
 				<Grid container spacing={3}>
 					<Grid item xs={12}>
 						<Paper className={classes.paper}>
@@ -194,7 +193,7 @@ const index = ({ id, edit }: { id: string, edit: boolean }) => {
 									<TableRow>
 										<TableCell>ID</TableCell>
 										<TableCell>Name</TableCell>
-										<TableCell>Status</TableCell>
+										<TableCell>Price</TableCell>
 									</TableRow>
 								</TableHead>
 								<TableBody>
@@ -202,8 +201,9 @@ const index = ({ id, edit }: { id: string, edit: boolean }) => {
 										return (
 											<Link href={`/admin/products/${id}/skus/${sku.id}`} key={sku.id} >
 												<TableRow hover>
-													<TableCell>{"product.id"}</TableCell>
-
+													<TableCell>{sku.id}</TableCell>
+													<TableCell>{sku.name}</TableCell>
+													<TableCell>{sku.currency} {sku.amount.toLocaleString()}</TableCell>
 												</TableRow>
 											</Link>
 										)

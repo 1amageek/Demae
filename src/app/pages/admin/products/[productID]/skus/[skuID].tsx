@@ -19,9 +19,9 @@ import TableCell from '@material-ui/core/TableCell';
 import TableBody from '@material-ui/core/TableBody';
 import IconButton from '@material-ui/core/IconButton';
 import { makeStyles, useTheme, Theme, createStyles } from '@material-ui/core/styles';
-import SearchIcon from '@material-ui/icons/Search';
-import RefreshIcon from '@material-ui/icons/Refresh';
-import Modal from 'components/Modal';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemText from '@material-ui/core/ListItemText';
 import Layout from 'components/Layout'
 import Input, { useInput } from 'components/Input'
 import Account from 'models/commerce/Account'
@@ -87,7 +87,9 @@ const index = ({ productID, skuID, edit }: { productID: string, skuID: string, e
 												<Button variant="contained" color="primary" className={classes.addAction} onClick={async () => {
 
 													if (sku) {
-
+														sku.name = name.value
+														sku.caption = caption.value
+														sku.amount = Number(amount.value)
 														await sku.save()
 													}
 
@@ -108,24 +110,55 @@ const index = ({ productID, skuID, edit }: { productID: string, skuID: string, e
 						</Toolbar>
 					</AppBar>
 
-					<Table>
-						<TableHead>
-							<TableRow>
-								<TableCell>ID</TableCell>
-								<TableCell>Name</TableCell>
-								<TableCell>Status</TableCell>
-							</TableRow>
-						</TableHead>
-						<TableBody>
-							<Link href="/admin/products">
-								<TableRow hover key={"order.id"}>
-									<TableCell>ID</TableCell>
-									<TableCell>Name</TableCell>
-									<TableCell>Status</TableCell>
-								</TableRow>
-							</Link>
-						</TableBody>
-					</Table>
+					{
+						isEditing ? (
+							<List >
+								<ListItem key={"ID"} >
+									<ListItemText primary={"ID"} />
+									{sku && <ListItemText primary={sku.id} />}
+								</ListItem>
+								<ListItem key={"name"} >
+									<ListItemText primary={"name"} />
+									<Input {...name} />
+								</ListItem>
+								<ListItem key={"caption"}>
+									<ListItemText primary={"caption"} />
+									<Input {...caption} />
+								</ListItem>
+								<ListItem key={"amount"}>
+									<ListItemText primary={"amount"} />
+									<Input {...amount} type="number" />
+								</ListItem>
+								<ListItem key={"status"}>
+									<ListItemText primary={"status"} />
+									{sku && <ListItemText primary={sku.isAvailable ? "Available" : "Disabled"} />}
+								</ListItem>
+							</List>
+						) : (
+								<List >
+									<ListItem key={"ID"} >
+										<ListItemText primary={"ID"} />
+										{sku && <ListItemText primary={sku.id} />}
+									</ListItem>
+									<ListItem key={"name"} >
+										<ListItemText primary={"name"} />
+										{sku && <ListItemText primary={sku.name} />}
+									</ListItem>
+									<ListItem key={"caption"}>
+										<ListItemText primary={"caption"} />
+										{sku && <ListItemText primary={sku.caption} />}
+									</ListItem>
+									<ListItem key={"amount"}>
+										<ListItemText primary={"amount"} />
+										{sku && <ListItemText primary={sku.amount} />}
+									</ListItem>
+									<ListItem key={"status"}>
+										<ListItemText primary={"status"} />
+										{sku && <ListItemText primary={sku.isAvailable ? "Available" : "Disabled"} />}
+									</ListItem>
+								</List>
+							)
+					}
 				</Paper>
 			</Layout>
 		</>
