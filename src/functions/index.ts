@@ -17,7 +17,7 @@ const dev = process.env.NODE_ENV !== 'production'
 const app = next({
 	dev, conf: { distDir: `${path.relative(process.cwd(), __dirname)}/next` }
 })
-const filestore_secret = functions.config().filestore.secret
+const FILESTORE_SECRET = functions.config().filestore.secret
 const handle = app.getRequestHandler()
 export const hosting = functions.https.onRequest(async (req, res) => {
 	await app.prepare()
@@ -25,9 +25,9 @@ export const hosting = functions.https.onRequest(async (req, res) => {
 	server.use(bodyParser.json())
 	server.use(
 		session({
-			secret: filestore_secret,
+			secret: FILESTORE_SECRET,
 			saveUninitialized: true,
-			store: new filestore({ secret: filestore_secret }),
+			store: new filestore({ secret: FILESTORE_SECRET }),
 			resave: false,
 			rolling: true,
 			cookie: { maxAge: 604800000, httpOnly: true }, // week

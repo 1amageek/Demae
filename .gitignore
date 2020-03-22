@@ -12,6 +12,7 @@ firebase-debug.log*
 dist/
 
 src/app/config/*
+src/functions/.runtimeconfig.json
 
 setup.sh
 

@@ -10,8 +10,9 @@
 		"dev": "npm run clean && next src/app",
 		"preserve": "npm run build-public && npm run build-functions && npm run build-app && npm run copy-deps && npm run install-deps",
 		"serve": "cross-env NODE_ENV=production firebase serve",
-		"preemulate": "npm run build-public && npm run build-functions && npm run build-app:emulator && npm run copy-deps && npm run install-deps",
+		"preemulate": "npm run build-public && npm run build-functions && npm run build-app:emulator && npm run copy-deps && npm run install-deps && npm run copy-runtimeconfig",
 		"emulate": "cross-env NODE_ENV=production firebase emulators:start",
+		"emulate:functions": "npm run build-functions && cross-env NODE_ENV=production firebase emulators:start",
 		"deploy": "npm run clean && NODE_ENV=production firebase deploy",
 		"deploy:functions": "npm run clean && NODE_ENV=production firebase deploy --only functions",
 		"deploy:functions:stripe": "npm run clean && NODE_ENV=production firebase deploy --only functions:v1.stripe",
@@ -24,6 +25,7 @@
 		"lint-app": "tslint --project src/app",
 		"typecheck-app": "tsc --project src/app",
 		"lint-functions": "tslint --project src/functions",
+		"copy-runtimeconfig": "cpx \"src/functions/.runtimeconfig.json\" \"dist/functions\" -C",
 		"copy-deps": "cpx \"*{package.json,package-lock.json,yarn.lock}\" \"dist/functions\" -C",
 		"install-deps": "cd \"dist/functions\" && npm i"
 	},
