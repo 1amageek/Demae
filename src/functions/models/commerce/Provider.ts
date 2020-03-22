@@ -4,7 +4,7 @@ import { Currency } from '../../common/Currency'
 export default class Provider extends Doc {
 
 	static collectionReference(): CollectionReference {
-		return firestore.collection('commerce/v1/accounts')
+		return firestore.collection('commerce/v1/providers')
 	}
 
 	@Field name: string = ''
