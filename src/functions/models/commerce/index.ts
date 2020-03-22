@@ -1,4 +1,4 @@
-import Account from './Account'
+import Account from '../account/Account'
 import Plan from './Plan'
 import Product from './Product'
 import SKU from './SKU'

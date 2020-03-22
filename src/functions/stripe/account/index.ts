@@ -1,7 +1,7 @@
 import * as functions from 'firebase-functions'
 import { regionFunctions } from '../../helper'
 import Stripe from 'stripe'
-import Account from '../../models/commerce/Account'
+import Account from '../../models/account/Account'
 
 export const create = regionFunctions.https.onCall(async (data, context) => {
 	if (!context.auth) {
