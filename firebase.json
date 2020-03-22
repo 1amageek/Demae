@@ -29,10 +29,14 @@
 			"port": "8080"
 		},
 		"functions": {
-			"port": "5000"
+			"port": "5001"
 		},
 		"database": {
 			"port": "9000"
+		},
+		"hosting": {
+			"host": "localhost",
+			"port": "5000"
 		}
 	}
 }

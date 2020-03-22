@@ -37,6 +37,20 @@ export const hosting = functions.https.onRequest(async (req, res) => {
 		(req as any).firebaseServer = firebase
 		next()
 	})
+	server.get('/_/signup', async (req, res) => {
+		if (!req.headers.authorization) {
+			throw new Error("Signup requires authentication.")
+		}
+		const match = req.headers.authorization.match(/^Bearer (.*)$/)
+		if (match) {
+			const idToken = match[1]
+			const decodedToken = await firebase.auth().verifyIdToken(idToken);
+			(req.session as any).decodedToken = decodedToken
+			res.json({ status: true, decodedToken })
+			return
+		}
+		throw new Error("Signup requires authentication.")
+	})
 	server.get('*', async (req, res) => {
 		await handle(req, res)
 	})

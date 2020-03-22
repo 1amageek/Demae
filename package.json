@@ -1,5 +1,5 @@
 {
-	"name": "@1amageek/reaf",
+	"name": "functions",
 	"version": "1.0.1",
 	"description": "Host Next.js SSR app on Firebase Cloud Functions with Firebase Hosting redirects. Built with typescript.",
 	"engines": {

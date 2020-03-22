@@ -15,7 +15,7 @@
 		"skipLibCheck": true,
 		"sourceMap": true,
 		"noEmit": false,
-		"outDir": "../../dist/app",
+		"outDir": "../../dist",
 		"lib": [
 			"es6",
 			"dom",
