@@ -36,7 +36,6 @@ export const useInput = (props: InitProps | InitValue) => {
 			onChange: handleChange
 		};
 	} else {
-		console.log(props)
 		const [value, setValue] = useState(props.initValue ? props.initValue : "");
 		const handleChange = e => setValue(e.target.value);
 		return {

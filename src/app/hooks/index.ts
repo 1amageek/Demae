@@ -23,6 +23,22 @@ export const useAuthUser = () => {
 	return authUser
 }
 
+export const useProvider = () => {
+	const user = useAuthUser()
+	const [provider, setProvider] = useState<Provider | undefined>(undefined)
+	useEffect(() => {
+		(async () => {
+			if (user) {
+				if (!provider) {
+					let provider = await Provider.get<Provider>(user.uid)
+					setProvider(provider)
+				}
+			}
+		})()
+	}, [user?.uid, provider?.id])
+	return provider
+}
+
 export const useProviderProduct = (id: string) => {
 	const user = useAuthUser()
 	const [product, setProduct] = useState<Product | undefined>(undefined)

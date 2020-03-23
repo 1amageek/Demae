@@ -1,9 +1,9 @@
 import React, { useEffect } from 'react'
-import StyledFirebaseAuth from 'react-firebaseui/StyledFirebaseAuth'
+import Link from 'next/link'
 import firebase from 'firebase'
 import 'firebase/auth'
-import { useAuthUser } from 'hooks'
 import { UserContext, UserProvider } from 'context'
+import { Button } from '@material-ui/core'
 
 export default () => {
 
@@ -16,6 +16,11 @@ export default () => {
 						<button onClick={async () => {
 							await firebase.auth().signOut()
 						}}>logout</button>
+
+						<Link href="/providers/create">
+							<Button>Create Provider</Button>
+						</Link>
+
 					</div>
 				)
 			}}

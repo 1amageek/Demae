@@ -22,7 +22,7 @@ import SearchIcon from '@material-ui/icons/Search';
 import RefreshIcon from '@material-ui/icons/Refresh';
 import Modal from 'components/Modal';
 import Layout from 'components/Layout'
-import Form from 'components/accounts/products/Form'
+import Form from 'components/provider/products/Form'
 import Provider from 'models/commerce/Provider'
 import Product from 'models/commerce/Product'
 import { useAuthUser } from 'hooks';

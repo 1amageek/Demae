@@ -10,7 +10,7 @@ import Switch from '@material-ui/core/Switch';
 import Button from '@material-ui/core/Button';
 import { useAuthUser } from 'hooks'
 import Input, { useInput } from 'components/Input'
-import Account from 'models/commerce/Account'
+import Account from 'models/account/Account'
 import { Create, Individual } from 'common/commerce/account'
 
 

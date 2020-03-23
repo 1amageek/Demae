@@ -14,6 +14,7 @@ export default class Provider extends Doc {
 	@Field country: string = 'US'
 	@Field defaultCurrency: Currency = 'USD'
 	@Field email: string = ''
+	@Field phone: string = ''
 	@Field location?: GeoPoint
 	@Field address?: string
 	@Field isAvailable: boolean = false
