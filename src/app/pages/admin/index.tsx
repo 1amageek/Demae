@@ -19,7 +19,7 @@ import SearchIcon from '@material-ui/icons/Search';
 import RefreshIcon from '@material-ui/icons/Refresh';
 import Modal from 'components/Modal';
 import Layout from 'components/Layout'
-import Form from 'components/provider/products/Form'
+import Form from 'components/account/products/Form'
 import Provider from 'models/commerce/Provider'
 import Product from 'models/commerce/Product'
 import { useAuthUser } from 'hooks'
