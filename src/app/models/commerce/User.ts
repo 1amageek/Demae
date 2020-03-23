@@ -9,4 +9,5 @@ export default class User extends Doc {
 	@Field customerID?: string
 	@Field isAvailable: boolean = false
 	@Field country: string = 'JP'
+	@Field currentOrderID?: string
 }
