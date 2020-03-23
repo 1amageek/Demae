@@ -1,6 +1,6 @@
 import { Doc, Model, Field, File, firestore, CollectionReference, DocumentReference, Timestamp } from '@1amageek/ballcap-admin'
 import { Currency } from '../../common/Currency'
-import { OrderItemType, OrderItemStatus, DeliveryStatus, OrderPaymentStatus } from '../../common/commerce/Types'
+import { OrderItemType, OrderItemStatus, DeliveryStatus, OrderPaymentStatus, Discount } from '../../common/commerce/Types'
 
 export class OrderItem extends Model {
 	@Field purchasedBy!: string
@@ -12,6 +12,7 @@ export class OrderItem extends Model {
 	@Field quantity: number = 1
 	@Field currency: Currency = 'USD'
 	@Field amount: number = 0
+	@Field discount: Discount | null = null
 	@Field status: OrderItemStatus = 'none'
 	@Field category: string = ''
 	@Field name: string = ''
