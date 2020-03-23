@@ -51,7 +51,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 export default () => {
 	const classes = useStyles();
-	const user = useAuthUser()
+	const [user] = useAuthUser()
 	const [product, setProduct] = useState<Product | undefined>()
 	const [open, setOpen] = useState(false)
 

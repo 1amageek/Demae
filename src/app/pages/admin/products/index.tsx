@@ -59,7 +59,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 export default () => {
 	const classes = useStyles()
-	const authUser = useAuthUser()
+	const [authUser] = useAuthUser()
 	const [products, setProducts] = useState<Product[]>([])
 	useEffect(() => {
 		const uid = authUser?.uid

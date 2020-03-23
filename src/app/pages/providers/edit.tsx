@@ -19,7 +19,7 @@ import { Create, Individual } from 'common/commerce/account'
 
 export default () => {
 
-	const provider = useProvider()
+	const [provider] = useProvider()
 	return (
 		<UserContext.Consumer>
 			{user => {

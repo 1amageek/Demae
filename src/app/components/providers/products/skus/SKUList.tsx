@@ -6,12 +6,12 @@ import { Provider, Product, SKU } from 'models/commerce';
 
 export default ({ providerID, productID }: { providerID: string, productID: string }) => {
 
-	const [data, isLoading] = useDataSource(
+	const [data, isLoading] = useDataSource<SKU>(
 		new Provider(providerID)
 			.products.doc(productID, Product)
 			.skus
 			.collectionReference
-			.limit(100), Product)
+			.limit(100), SKU)
 	return (
 		<>
 			{isLoading ? (
@@ -21,7 +21,7 @@ export default ({ providerID, productID }: { providerID: string, productID: stri
 						{data.map(doc => {
 							return (
 								<Grid key={doc.id} item xs={12} container>
-									<Card />
+									<Card sku={doc} />
 								</Grid>
 							)
 						})}

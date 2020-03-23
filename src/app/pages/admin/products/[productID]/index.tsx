@@ -66,8 +66,8 @@ const useStyles = makeStyles((theme: Theme) =>
 
 const index = ({ id, edit }: { id: string, edit: boolean }) => {
 	const classes = useStyles()
-	const authUser = useAuthUser()
-	const product = useProviderProduct(id)
+	const [authUser] = useAuthUser()
+	const [product] = useProviderProduct(id)
 	const [isEditing, setEditing] = useState(edit)
 	const name = useInput(product?.name)
 	const caption = useInput(product?.caption)

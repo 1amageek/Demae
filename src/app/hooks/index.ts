@@ -6,9 +6,11 @@ import { Doc, DocumentReference } from '@1amageek/ballcap'
 import Provider from 'models/commerce/Provider'
 import Product from 'models/commerce/Product'
 import SKU from 'models/commerce/SKU'
+import Cart from 'models/commerce/Cart'
 
-export const useAuthUser = () => {
+export const useAuthUser = (): [firebase.User | undefined, boolean] => {
 	const [authUser, setAuthUser] = useState<firebase.User | undefined>(undefined)
+	const [isLoading, setLoading] = useState(true)
 	useEffect(() => {
 		const user = localStorage.getItem('authUser')
 		if (user) {
@@ -16,32 +18,37 @@ export const useAuthUser = () => {
 			if (authUser?.uid !== parsedUser.uid) {
 				setAuthUser(parsedUser as firebase.User)
 			}
+			setLoading(false)
 		} else {
 			setAuthUser(undefined)
+			setLoading(false)
 		}
 	})
-	return authUser
+	return [authUser, isLoading]
 }
 
-export const useProvider = () => {
-	const user = useAuthUser()
+export const useProvider = (): [Provider | undefined, boolean] => {
+	const [user] = useAuthUser()
 	const [provider, setProvider] = useState<Provider | undefined>(undefined)
+	const [isLoading, setLoading] = useState(true)
 	useEffect(() => {
 		(async () => {
 			if (user) {
 				if (!provider) {
 					let provider = await Provider.get<Provider>(user.uid)
 					setProvider(provider)
+					setLoading(false)
 				}
 			}
 		})()
 	}, [user?.uid, provider?.id])
-	return provider
+	return [provider, isLoading]
 }
 
-export const useProviderProduct = (id: string) => {
-	const user = useAuthUser()
+export const useProviderProduct = (id: string): [Product | undefined, boolean] => {
+	const [user] = useAuthUser()
 	const [product, setProduct] = useState<Product | undefined>(undefined)
+	const [isLoading, setLoading] = useState(true)
 	useEffect(() => {
 		(async () => {
 			if (user) {
@@ -49,16 +56,18 @@ export const useProviderProduct = (id: string) => {
 					const snapshot = await new Provider(user.uid).products.collectionReference.doc(id).get()
 					let product = Product.fromSnapshot<Product>(snapshot)
 					setProduct(product)
+					setLoading(false)
 				}
 			}
 		})()
 	}, [user?.uid, product?.id])
-	return product
+	return [product, isLoading]
 }
 
-export const useProviderProductSKU = (productID: string, skuID: string) => {
-	const user = useAuthUser()
+export const useProviderProductSKU = (productID: string, skuID: string): [SKU | undefined, boolean] => {
+	const [user] = useAuthUser()
 	const [sku, setSKU] = useState<SKU | undefined>(undefined)
+	const [isLoading, setLoading] = useState(true)
 	useEffect(() => {
 		(async () => {
 			if (user) {
@@ -66,11 +75,12 @@ export const useProviderProductSKU = (productID: string, skuID: string) => {
 					const snapshot = await new Provider(user.uid).products.doc(productID, Product).skus.collectionReference.doc(skuID).get()
 					let sku = SKU.fromSnapshot<SKU>(snapshot)
 					setSKU(sku)
+					setLoading(false)
 				}
 			}
 		})()
 	}, [user?.uid, sku?.id])
-	return sku
+	return [sku, isLoading]
 }
 
 export const useDocument = <T extends Doc>(documentReference: DocumentReference, type: typeof Doc): [T | undefined, boolean] => {
@@ -79,7 +89,6 @@ export const useDocument = <T extends Doc>(documentReference: DocumentReference,
 	useEffect(() => {
 		(async () => {
 			const snapshot = await documentReference.get()
-			console.log(snapshot)
 			const doc = type.fromSnapshot<T>(snapshot)
 			setData(doc)
 			setLoading(false)
@@ -102,3 +111,20 @@ export const useDataSource = <T extends Doc>(query: firebase.firestore.Query, ty
 	return [data, isLoading]
 }
 
+export const useCart = (): [Cart | undefined, boolean] => {
+	const [user] = useAuthUser()
+	const [cart, setCart] = useState<Cart | undefined>(undefined)
+	const [isLoading, setLoading] = useState(true)
+	useEffect(() => {
+		(async () => {
+			if (user) {
+				if (!cart) {
+					let cart = await Cart.get<Cart>(user.uid) || new Cart(user.uid)
+					setCart(cart)
+					setLoading(false)
+				}
+			}
+		})()
+	}, [user?.uid, cart?.id])
+	return [cart, isLoading]
+}

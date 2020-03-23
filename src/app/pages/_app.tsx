@@ -24,7 +24,7 @@ if (firebase.apps.length === 0) {
 }
 
 interface Props {
-	authUser: string | null
+	authUser: firebase.User | null
 }
 
 const Provider = ({ children }: { children: any }) => {
@@ -42,11 +42,10 @@ const App = ({ Component, pageProps, router }: AppProps) => {
 	useEffect(() => {
 		const listener = firebase.auth().onAuthStateChanged(async (auth) => {
 			if (auth) {
-				await signIn(auth.uid)
 				const authUser = JSON.stringify(auth)
 				localStorage.setItem('authUser', authUser)
 				setState({
-					authUser: authUser
+					authUser: auth
 				})
 			} else {
 				localStorage.removeItem('authUser')
@@ -58,7 +57,7 @@ const App = ({ Component, pageProps, router }: AppProps) => {
 		return () => {
 			listener()
 		}
-	})
+	}, [state.authUser?.uid])
 
 	const signIn = async (uid: string) => {
 		const user = await Social.User.get<Social.User>(uid)
@@ -76,7 +75,7 @@ const App = ({ Component, pageProps, router }: AppProps) => {
 }
 
 App.getInitialProps = async (context: AppContext) => {
-	const { ctx: { query, asPath, req, res }, Component } = context;
+	// const { ctx: { query, asPath, req, res }, Component } = context;
 	const appProps = await NextApp.getInitialProps(context);
 	return { ...appProps };
 }

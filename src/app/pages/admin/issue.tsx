@@ -34,7 +34,7 @@ export default () => {
 
 const IndividualForm = ({ individual }: { individual: Partial<Individual> }) => {
 
-	const authUser = useAuthUser()
+	const [authUser] = useAuthUser()
 
 	const first_name = useInput(individual.first_name)
 	const last_name = useInput(individual.last_name)

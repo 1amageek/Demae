@@ -5,6 +5,6 @@ import { useAuthUser } from 'hooks'
 
 export const UserContext = createContext<firebase.User | undefined>(undefined)
 export const UserProvider = ({ children }) => {
-	const user = useAuthUser()
+	const [user] = useAuthUser()
 	return <UserContext.Provider value={user}> {children} </UserContext.Provider>
 }

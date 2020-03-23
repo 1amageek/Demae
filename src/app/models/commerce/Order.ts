@@ -1,11 +1,8 @@
-import { Doc, Model, Field, File, firestore, CollectionReference, DocumentReference, Timestamp } from '@1amageek/ballcap'
+import { Doc, Model, Field, File, firestore, CollectionReference, DocumentReference, Timestamp, Codable } from '@1amageek/ballcap'
 import { Currency } from 'common/Currency'
 import { OrderItemType, OrderItemStatus, DeliveryStatus, OrderPaymentStatus, Discount } from 'common/commerce/Types'
 
 export class OrderItem extends Model {
-	@Field purchasedBy!: string
-	@Field selledBy: string = ''
-	@Field createdBy: string = ''
 	@Field type: OrderItemType = 'sku'
 	@Field productReference?: DocumentReference
 	@Field skuReference?: DocumentReference
@@ -16,13 +13,14 @@ export class OrderItem extends Model {
 	@Field status: OrderItemStatus = 'none'
 	@Field category: string = ''
 	@Field name: string = ''
+	@Field caption: string = ''
 	@Field metadata?: any
 }
 
 export default class Order extends Doc {
 
 	static collectionReference(): CollectionReference {
-		return firestore.collection('commerce/1/orders')
+		return firestore.collection('commerce/v1/orders')
 	}
 
 	@Field parentID?: string
@@ -40,6 +38,7 @@ export default class Order extends Doc {
 	@Field estimatedArrivalDate?: any
 	@Field currency: Currency = 'USD'
 	@Field amount: number = 0
+	@Codable(OrderItem)
 	@Field items: OrderItem[] = []
 	@Field deliveryStatus: DeliveryStatus = 'none'
 	@Field paymentStatus: OrderPaymentStatus = 'none'

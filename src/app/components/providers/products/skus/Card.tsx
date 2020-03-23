@@ -6,6 +6,10 @@ import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
+import SKU from 'models/commerce/SKU'
+import { useCart } from 'hooks';
+import Cart from 'models/commerce/Cart';
+import User from 'models/commerce/User'
 
 const useStyles = makeStyles({
 	root: {
@@ -13,8 +17,15 @@ const useStyles = makeStyles({
 	},
 });
 
-export default function ImgMediaCard() {
+export default ({ sku }: { sku: SKU }) => {
 	const classes = useStyles();
+	const [cart] = useCart()
+
+	const addItem = async () => {
+		if (!cart) { return }
+		cart.addItem(sku)
+		await cart.save()
+	}
 
 	return (
 		<Card className={classes.root}>
@@ -30,11 +41,8 @@ export default function ImgMediaCard() {
 				</CardContent>
 			</CardActionArea>
 			<CardActions>
-				<Button size="small" color="primary">
-					Share
-        </Button>
-				<Button size="small" color="primary">
-					Learn More
+				<Button size="small" color="primary" onClick={addItem}>
+					Add to Bag
         </Button>
 			</CardActions>
 		</Card>
