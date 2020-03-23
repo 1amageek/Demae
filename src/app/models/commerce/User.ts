@@ -1,5 +1,4 @@
 import { Doc, Field, firestore, CollectionReference } from '@1amageek/ballcap'
-import * as functions from 'firebase-functions'
 
 export default class User extends Doc {
 
