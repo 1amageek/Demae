@@ -41,4 +41,10 @@ export type Address = {
 	town?: string
 }
 
+export type DiscountType = 'absolute' | 'rate'
 
+export type Discount = {
+	type: DiscountType
+	amount?: number
+	rate?: number
+}
