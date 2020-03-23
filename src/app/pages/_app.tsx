@@ -6,7 +6,6 @@ import "@firebase/firestore"
 import "@firebase/auth"
 import * as Social from 'models/social'
 import { UserProvider } from 'context'
-import { useAuthUser } from 'hooks'
 
 const config = require(`../config/${process.env.FIREBASE_CONFIG!}`)
 const isEmulated = process.env.EMULATE_ENV === "emulator"
@@ -38,9 +37,7 @@ const Provider = ({ children }: { children: any }) => {
 
 const App = ({ Component, pageProps, router }: AppProps) => {
 
-	const [state, setState] = useState<Props>({
-		authUser: null
-	})
+	const [state, setState] = useState<Props>({ authUser: null })
 
 	useEffect(() => {
 		const listener = firebase.auth().onAuthStateChanged(async (auth) => {
@@ -62,16 +59,6 @@ const App = ({ Component, pageProps, router }: AppProps) => {
 			listener()
 		}
 	})
-
-
-	const currentAuthUser = () => {
-		const user = localStorage.getItem('authUser')
-		if (user) {
-			const parsedUser = JSON.parse(user)
-			return parsedUser as firebase.User
-		}
-		return undefined
-	}
 
 	const signIn = async (uid: string) => {
 		const user = await Social.User.get<Social.User>(uid)
