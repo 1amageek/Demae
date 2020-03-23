@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import Layout from 'components/Layout'
+import Layout from 'components/admin/Layout'
 import Grid from '@material-ui/core/Grid'
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';

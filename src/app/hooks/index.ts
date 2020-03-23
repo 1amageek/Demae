@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import firebase from "firebase"
 import "@firebase/firestore"
 import "@firebase/auth"
-import { Doc } from '@1amageek/ballcap'
+import { Doc, DocumentReference } from '@1amageek/ballcap'
 import Provider from 'models/commerce/Provider'
 import Product from 'models/commerce/Product'
 import SKU from 'models/commerce/SKU'
@@ -73,15 +73,32 @@ export const useProviderProductSKU = (productID: string, skuID: string) => {
 	return sku
 }
 
-export const useDataSource = <T extends Doc>(query: firebase.firestore.Query, type: typeof Doc) => {
+export const useDocument = <T extends Doc>(documentReference: DocumentReference, type: typeof Doc): [T | undefined, boolean] => {
+	const [data, setData] = useState<T | undefined>()
+	const [isLoading, setLoading] = useState(true)
+	useEffect(() => {
+		(async () => {
+			const snapshot = await documentReference.get()
+			console.log(snapshot)
+			const doc = type.fromSnapshot<T>(snapshot)
+			setData(doc)
+			setLoading(false)
+		})()
+	}, [data?.id, isLoading])
+	return [data, isLoading]
+}
+
+export const useDataSource = <T extends Doc>(query: firebase.firestore.Query, type: typeof Doc): [T[], boolean] => {
 	const [data, setData] = useState<T[]>([])
+	const [isLoading, setLoading] = useState(true)
 	useEffect(() => {
 		(async () => {
 			const snapshot = await query.get()
 			const data = snapshot.docs.map(doc => type.fromSnapshot<T>(doc))
 			setData(data)
+			setLoading(false)
 		})()
-	}, [data.length])
-	return data
+	}, [data.length, isLoading])
+	return [data, isLoading]
 }
 

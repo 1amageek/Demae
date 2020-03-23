@@ -1,29 +1,40 @@
 import React, { useEffect } from 'react'
-import Link from 'next/link'
+import { StaticRouter as Router, Switch, Route, Link } from 'react-router-dom'
+import { createMemoryHistory } from 'history'
+import Provider from 'components/providers/ProviderList'
+
 import firebase from 'firebase'
 import 'firebase/auth'
 import { UserContext, UserProvider } from 'context'
 import { Button } from '@material-ui/core'
 
 export default () => {
-
+	const history = createMemoryHistory()
 	return (
-		<UserContext.Consumer>
-			{user => {
-				return (
-					<div>
-						{user && "a"}
-						<button onClick={async () => {
-							await firebase.auth().signOut()
-						}}>logout</button>
+		<Router>
+			<div>
+				<nav>
+					<ul>
+						<li>
+							<Link to="/">Home</Link>
+						</li>
+						<li>
+							<Link to="/providers">Provider</Link>
+						</li>
+						<li>
+							<Link to="/users">Users</Link>
+						</li>
+					</ul>
+				</nav>
 
-						<Link href="/providers/create">
-							<Button>Create Provider</Button>
-						</Link>
-
-					</div>
-				)
-			}}
-		</UserContext.Consumer>
-	)
+				{/* A <Switch> looks through its children <Route>s and
+            renders the first one that matches the current URL. */}
+				<Switch>
+					<Route path="/providers">
+						<Provider />
+					</Route>
+				</Switch>
+			</div>
+		</Router>
+	);
 }

@@ -21,7 +21,7 @@ import { makeStyles, useTheme, Theme, createStyles } from '@material-ui/core/sty
 import SearchIcon from '@material-ui/icons/Search';
 import RefreshIcon from '@material-ui/icons/Refresh';
 import Modal from 'components/Modal';
-import Layout from 'components/Layout'
+import Layout from 'components/admin/Layout'
 import Form from 'components/account/products/Form'
 import Provider from 'models/commerce/Provider'
 import Product from 'models/commerce/Product'

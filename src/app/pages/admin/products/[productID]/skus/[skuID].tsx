@@ -22,7 +22,7 @@ import { makeStyles, useTheme, Theme, createStyles } from '@material-ui/core/sty
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
-import Layout from 'components/Layout'
+import Layout from 'components/admin/Layout'
 import Input, { useInput } from 'components/Input'
 import Account from 'models/account/Account'
 import Product from 'models/commerce/Product'
