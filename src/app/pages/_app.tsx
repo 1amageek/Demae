@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import NextApp, { AppProps, AppContext } from "next/app"
+import { StaticRouter, BrowserRouter, Switch, Route, Link, Redirect } from 'react-router-dom'
 import * as Ballcap from "@1amageek/ballcap"
 import firebase from "firebase"
 import "@firebase/firestore"
@@ -35,11 +36,28 @@ const Provider = ({ children }: { children: any }) => {
 	)
 }
 
+const Router = ({ children }: { children: any }) => {
+	if (process.browser) {
+		return (
+			<BrowserRouter>
+				{children}
+			</BrowserRouter>
+		)
+	} else {
+		return (
+			<StaticRouter>
+				{children}
+			</StaticRouter>
+		)
+	}
+}
+
 const App = ({ Component, pageProps, router }: AppProps) => {
 
 	const [state, setState] = useState<Props>({ authUser: null })
 
 	useEffect(() => {
+		console.log('[App] start auth listening')
 		const listener = firebase.auth().onAuthStateChanged(async (auth) => {
 			if (auth) {
 				const authUser = JSON.stringify(auth)
@@ -69,7 +87,9 @@ const App = ({ Component, pageProps, router }: AppProps) => {
 
 	return (
 		<Provider>
-			<Component {...pageProps} />
+			<Router>
+				<Component {...pageProps} />
+			</Router>
 		</Provider>
 	)
 }
