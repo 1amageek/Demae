@@ -1,4 +1,5 @@
-import { Doc, Field, firestore, CollectionReference } from '@1amageek/ballcap'
+import { Doc, Field, firestore, CollectionReference, SubCollection, Collection } from '@1amageek/ballcap'
+import Address from './Address'
 
 export default class User extends Doc {
 
@@ -10,4 +11,8 @@ export default class User extends Doc {
 	@Field isAvailable: boolean = false
 	@Field country: string = 'JP'
 	@Field currentOrderID?: string
+	@Field defaultAddress?: string
+	@Field defaultPaymentMethod?: string
+
+	@SubCollection addresses: Collection<Address> = new Collection()
 }

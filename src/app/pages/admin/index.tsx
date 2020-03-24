@@ -22,7 +22,7 @@ import Layout from 'components/admin/Layout'
 import Form from 'components/account/products/Form'
 import Provider from 'models/commerce/Provider'
 import Product from 'models/commerce/Product'
-import { useAuthUser } from 'hooks'
+import { useAuthUser } from 'hooks/commerce'
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({

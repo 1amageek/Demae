@@ -10,11 +10,20 @@ export class OrderItem extends Model {
 	@Field currency: Currency = 'USD'
 	@Field amount: number = 0
 	@Field discount: Discount | null = null
+	@Field taxRate: number = 0
 	@Field status: OrderItemStatus = 'none'
 	@Field category: string = ''
 	@Field name: string = ''
 	@Field caption: string = ''
 	@Field metadata?: any
+
+	tax() {
+		return Math.floor(this.amount * this.taxRate)
+	}
+
+	price() {
+		return Math.floor(this.amount + this.tax())
+	}
 }
 
 export default class Order extends Doc {

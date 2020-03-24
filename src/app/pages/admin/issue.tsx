@@ -8,7 +8,7 @@ import FormControl from '@material-ui/core/FormControl';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Switch from '@material-ui/core/Switch';
 import Button from '@material-ui/core/Button';
-import { useAuthUser } from 'hooks'
+import { useAuthUser } from 'hooks/commerce'
 import Input, { useInput } from 'components/Input'
 import Account from 'models/account/Account'
 import { Create, Individual } from 'common/commerce/account'

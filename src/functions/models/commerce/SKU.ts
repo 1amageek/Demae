@@ -18,6 +18,7 @@ export default class SKU extends Doc {
 	@Field caption!: string
 	@Field amount: number = 0
 	@Field discount: Discount | null = null
+	@Field taxRate: number = 0
 	@Field inventory: Inventory = { type: 'finite', quantity: 1 }
 	@Field isPrivate: boolean = false
 	@Field metadata?: any

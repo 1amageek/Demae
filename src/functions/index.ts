@@ -4,8 +4,6 @@ import * as ballcap from '@1amageek/ballcap-admin'
 import * as path from 'path'
 import express from 'express'
 import next from 'next'
-// import cookieParser from 'cookie-parser'
-// import Server from './server'
 
 const firebase = admin.initializeApp()
 ballcap.initialize(firebase)
@@ -19,8 +17,6 @@ const handle = app.getRequestHandler()
 export const hosting = functions.https.onRequest(async (req, res) => {
 	await app.prepare()
 	const server = express()
-	// server.use(cookieParser())
-	// server.use('/admin', Server)
 	server.get('*', async (req, res) => {
 		await handle(req, res)
 	})

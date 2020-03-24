@@ -31,7 +31,7 @@ export type Inventory = {
 // Subscription
 export type SubscriptionStatus = 'incomplete' | 'incomplete_expired' | 'trialing' | 'active' | 'past_due' | 'canceled' | 'unpaid'
 
-export type Address = {
+export interface Address {
 	city?: string
 	country?: string
 	line1?: string

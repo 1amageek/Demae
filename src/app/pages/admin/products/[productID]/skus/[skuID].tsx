@@ -27,7 +27,7 @@ import Input, { useInput } from 'components/Input'
 import Account from 'models/account/Account'
 import Product from 'models/commerce/Product'
 import SKU from 'models/commerce/SKU'
-import { useAuthUser, useProviderProductSKU } from 'hooks';
+import { useAuthUser, useProviderProductSKU } from 'hooks/commerce';
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({

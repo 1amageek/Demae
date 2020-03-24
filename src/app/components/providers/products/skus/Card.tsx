@@ -7,7 +7,7 @@ import CardContent from '@material-ui/core/CardContent';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import SKU from 'models/commerce/SKU'
-import { useCart } from 'hooks';
+import { useCart } from 'hooks/commerce';
 import Cart from 'models/commerce/Cart';
 import User from 'models/commerce/User'
 

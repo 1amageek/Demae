@@ -32,7 +32,7 @@ import Input, { useInput } from 'components/Input'
 import Provider from 'models/commerce/Provider'
 import Product from 'models/commerce/Product'
 import SKU from 'models/commerce/SKU'
-import { useAuthUser, useProviderProduct } from 'hooks';
+import { useAuthUser, useProviderProduct } from 'hooks/commerce';
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({

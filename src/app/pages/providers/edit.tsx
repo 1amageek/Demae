@@ -9,7 +9,7 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Switch from '@material-ui/core/Switch';
 import Button from '@material-ui/core/Button';
 import Login from 'components/Login'
-import { useAuthUser, useProvider } from 'hooks'
+import { useAuthUser, useProvider } from 'hooks/commerce'
 import Loading from 'components/Loading'
 import Input, { useInput } from 'components/Input'
 import Provider from 'models/commerce/Provider'

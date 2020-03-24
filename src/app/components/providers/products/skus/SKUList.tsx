@@ -1,7 +1,7 @@
 import React from 'react';
 import Grid from '@material-ui/core/Grid';
 import Card from 'components/providers/products/skus/Card'
-import { useDataSource } from 'hooks';
+import { useDataSource } from 'hooks/commerce';
 import { Provider, Product, SKU } from 'models/commerce';
 
 export default ({ providerID, productID }: { providerID: string, productID: string }) => {

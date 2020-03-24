@@ -10,6 +10,7 @@ export class OrderItem extends Model {
 	@Field currency: Currency = 'USD'
 	@Field amount: number = 0
 	@Field discount: Discount | null = null
+	@Field taxRate: number = 0
 	@Field status: OrderItemStatus = 'none'
 	@Field category: string = ''
 	@Field name: string = ''

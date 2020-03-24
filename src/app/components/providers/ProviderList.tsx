@@ -6,7 +6,7 @@ import Container from '@material-ui/core/Container';
 import Typography from '@material-ui/core/Typography';
 import ButtonBase from '@material-ui/core/ButtonBase';
 import Card from 'components/providers/Card'
-import { useDataSource } from 'hooks';
+import { useDataSource } from 'hooks/commerce';
 import { Provider } from 'models/commerce';
 
 const useStyles = makeStyles((theme: Theme) =>
