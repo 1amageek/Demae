@@ -118,6 +118,9 @@ const CheckoutForm = () => {
 				const result = await create({
 					payment_method: paymentMethod.id,
 					phone: auth.phoneNumber,
+					invoice_settings: {
+						default_payment_method: paymentMethod.id
+					},
 					metadata: {
 						uid: auth.uid
 					}
