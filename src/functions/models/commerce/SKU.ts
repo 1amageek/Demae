@@ -1,6 +1,10 @@
-import { Doc, Field, DocumentReference, firestore, CollectionReference } from '@1amageek/ballcap-admin'
+import { Doc, Field, DocumentReference, firestore, CollectionReference, SubCollection, Collection } from '@1amageek/ballcap-admin'
 import { Currency } from '../../common/Currency'
 import { Inventory, Discount } from '../../common/commerce/Types'
+
+export class Stock extends Doc {
+	@Field count: number = 0
+}
 
 export default class SKU extends Doc {
 
@@ -11,7 +15,7 @@ export default class SKU extends Doc {
 	@Field isAvailable: boolean = true
 	@Field selledBy!: string
 	@Field createdBy!: string
-	@Field numberOfFetch: number = 5
+	@Field numberOfFetch: number = 3
 	@Field currency: Currency = 'USD'
 	@Field productReference?: DocumentReference
 	@Field name!: string
@@ -22,4 +26,6 @@ export default class SKU extends Doc {
 	@Field inventory: Inventory = { type: 'finite', quantity: 1 }
 	@Field isPrivate: boolean = false
 	@Field metadata?: any
+
+	@SubCollection inventories: Collection<Stock> = new Collection()
 }

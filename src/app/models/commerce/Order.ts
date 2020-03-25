@@ -1,6 +1,7 @@
-import { Doc, Model, Field, File, firestore, CollectionReference, DocumentReference, Timestamp, Codable } from '@1amageek/ballcap'
+import { Doc, Model, Field, File, DocumentReference, Timestamp, Codable } from '@1amageek/ballcap'
 import { Currency } from 'common/Currency'
 import { OrderItemType, OrderItemStatus, DeliveryStatus, OrderPaymentStatus, Discount } from 'common/commerce/Types'
+import Shipping from './Shipping'
 
 export class OrderItem extends Model {
 	@Field type: OrderItemType = 'sku'
@@ -27,11 +28,6 @@ export class OrderItem extends Model {
 }
 
 export default class Order extends Doc {
-
-	static collectionReference(): CollectionReference {
-		return firestore.collection('commerce/v1/orders')
-	}
-
 	@Field parentID?: string
 	@Field type?: string
 	@Field title?: string
@@ -39,7 +35,7 @@ export default class Order extends Doc {
 	@Field assets: File[] = []
 	@Field purchasedBy!: string
 	@Field selledBy!: string
-	@Field shippingTo!: { [key: string]: string }
+	@Field shipping?: Shipping
 	@Field transferredTo: DocumentReference[] = []
 	@Field paidAt?: Timestamp
 	@Field expirationDate?: Timestamp
@@ -54,3 +50,4 @@ export default class Order extends Doc {
 	@Field isCancelled: boolean = false
 	@Field metadata?: any
 }
+

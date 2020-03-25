@@ -59,19 +59,6 @@ export default () => {
 		const paymentMethodID = user.defaultPaymentMethodID
 		if (!paymentMethodID) { return }
 
-		console.log({
-			setup_future_usage: 'off_session',
-			amount: cart.total(),
-			currency: cart.currency,
-			customer: customerID,
-			shipping: {
-				address: defaultAddress.address()
-			},
-			metadata: {
-				uid: user.id,
-			}
-		})
-
 		const paymentIntentCreate = firebase.functions().httpsCallable('v1-stripe-paymentIntent-create')
 		const result = await paymentIntentCreate({
 			setup_future_usage: 'off_session',
