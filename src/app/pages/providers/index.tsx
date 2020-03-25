@@ -1,10 +1,6 @@
-import Layout from 'components/providers/Layout'
-import ProviderList from 'components/providers/ProviderList'
+import React from 'react'
+import App from 'components/App'
 
 export default () => {
-	return (
-		<Layout>
-			<ProviderList />
-		</Layout>
-	)
+	return <App />
 }

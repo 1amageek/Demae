@@ -47,9 +47,13 @@ export default () => {
 					</List>
 				)}
 			<Summary items={[{
-				type: 'price',
-				title: 'Price',
-				detail: '1000'
+				type: 'subtotal',
+				title: 'Subtotal',
+				detail: cart?.subtotal().toLocaleString() || '0'
+			}, {
+				type: 'tax',
+				title: 'tax',
+				detail: cart?.tax().toLocaleString() || '0'
 			}]} />
 		</>
 	)

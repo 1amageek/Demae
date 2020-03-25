@@ -1,5 +1,6 @@
-import { Doc, Field, firestore, CollectionReference, SubCollection, Collection } from '@1amageek/ballcap'
+import { Doc, Field, firestore, CollectionReference, SubCollection, Collection, Codable } from '@1amageek/ballcap'
 import Address from './Address'
+import { Country } from 'common/Country'
 
 export default class User extends Doc {
 
@@ -9,10 +10,11 @@ export default class User extends Doc {
 
 	@Field customerID?: string
 	@Field isAvailable: boolean = false
-	@Field country: string = 'JP'
+	@Field country: Country = 'US'
 	@Field currentOrderID?: string
-	@Field defaultAddress?: string
-	@Field defaultPaymentMethod?: string
+	@Codable(Address)
+	@Field defaultAddress?: Address
+	@Field defaultPaymentMethodID?: string
 
 	@SubCollection addresses: Collection<Address> = new Collection()
 }

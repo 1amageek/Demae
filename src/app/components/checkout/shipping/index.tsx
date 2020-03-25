@@ -68,23 +68,21 @@ const Form = ({ address }: { address: Address }) => {
 	const country = useInput(address?.country)
 	const state = useInput(address?.state)
 	const city = useInput(address?.city)
-	const town = useInput(address?.town)
 	const line1 = useInput(address?.line1)
 	const line2 = useInput(address?.line2)
 	const postal_code = useInput(address?.postal_code)
 
 	const onClick = async () => {
 		const user = new User(authUser!.uid)
-		address.country = country.value
+		// address.country = country.value
 		address.state = state.value
 		address.city = city.value
-		address.town = town.value
 		address.line1 = line1.value
 		address.line2 = line2.value
 		address.postal_code = postal_code.value
 		await Promise.all([
 			address.save(),
-			user.documentReference.set({ defaultAddress: address.id }, { merge: true })
+			user.documentReference.set({ defaultAddress: address.data() }, { merge: true })
 		])
 	}
 
@@ -106,10 +104,6 @@ const Form = ({ address }: { address: Address }) => {
 				<ListItem key={"state"}>
 					<ListItemText primary={"state"} />
 					<Input {...state} />
-				</ListItem>
-				<ListItem key={"town"}>
-					<ListItemText primary={"town"} />
-					<Input {...town} />
 				</ListItem>
 				<ListItem key={"line1"}>
 					<ListItemText primary={"line1"} />

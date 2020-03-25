@@ -1,5 +1,6 @@
 import { Doc, Field, firestore, CollectionReference } from '@1amageek/ballcap-admin'
 import * as functions from 'firebase-functions'
+import { Country } from '../../common/Country'
 
 export default class User extends Doc {
 
@@ -21,6 +22,8 @@ export default class User extends Doc {
 
 	@Field customerID?: string
 	@Field isAvailable: boolean = false
-	@Field country: string = 'JP'
+	@Field country: Country = 'JP'
 	@Field currentOrderID?: string
+	@Field defaultAddress?: any
+	@Field defaultPaymentMethodID?: string
 }

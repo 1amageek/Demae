@@ -8,6 +8,43 @@ export default class Cart extends Order {
 		return firestore.collection('commerce/v1/carts')
 	}
 
+	subtotal() {
+		return this.items
+			.filter(item => item.type === 'sku')
+			.reduce((prev, current) => {
+				return prev + current.amount
+			}, 0)
+	}
+
+	taxRates() {
+		const taxItems = this.items.filter(item => item.type === 'tax')
+		const taxItemRates = taxItems.map(item => item.taxRate)
+		return Array.from(new Set(taxItemRates))
+	}
+
+	taxes() {
+		return this.taxRates().map(taxRate => {
+			return this.items
+				.filter(item => item.taxRate === taxRate)
+				.reduce((prev, current) => {
+					return prev + Math.floor(current.amount * taxRate)
+				}, 0)
+		})
+	}
+
+	tax() {
+		return this.taxes().reduce((prev, current) => {
+			return prev + current
+		}, 0)
+	}
+
+	total() {
+		return this.subtotal() +
+			this.taxes().reduce((prev, current) => {
+				return prev + current
+			}, 0)
+	}
+
 	addItem(sku: SKU) {
 		const orderItem = this.items.find(value => value.skuReference!.path == sku.path)
 		if (orderItem) {

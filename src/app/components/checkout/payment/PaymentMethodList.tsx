@@ -15,6 +15,7 @@ import Button from '@material-ui/core/Button';
 import { useUser, useDataSource, useAuthUser } from 'hooks/commerce'
 import { usePaymentMethods } from 'hooks/stripe'
 import Loading from 'components/Loading'
+import { PaymentMethod } from '@stripe/stripe-js';
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -36,26 +37,20 @@ const useStyles = makeStyles((theme: Theme) =>
 	}),
 );
 
-export default () => {
+export default ({ paymentMethods }: { paymentMethods: PaymentMethod[] }) => {
 	const classes = useStyles()
-	const [paymentMethods, isLoading] = usePaymentMethods()
-
-	if (isLoading) {
-		return <Loading />
-	} else {
-		return (
-			<List className={classes.list} >
-				{paymentMethods.map(paymentMethod => {
-					return (
-						<ListItem button key={paymentMethod.id} component={Link} to={`/checkout`}>
-							<ListItemText primary={`${paymentMethod.card!.last4}`} />
-						</ListItem>
-					)
-				})}
-				<ListItem button component={Link} to='/checkout/paymentMethod'>
-					<ListItemText primary={`Add Payment`} />
-				</ListItem>
-			</List>
-		)
-	}
+	return (
+		<List className={classes.list} >
+			{paymentMethods.map(paymentMethod => {
+				return (
+					<ListItem button key={paymentMethod.id} component={Link} to={`/checkout`}>
+						<ListItemText primary={`${paymentMethod.card!.last4}`} />
+					</ListItem>
+				)
+			})}
+			<ListItem button component={Link} to='/checkout/paymentMethod'>
+				<ListItemText primary={`Add Payment`} />
+			</ListItem>
+		</List>
+	)
 }

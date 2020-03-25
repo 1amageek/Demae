@@ -26,7 +26,7 @@ const useStyles = makeStyles((theme: Theme) =>
 	}),
 );
 
-type SummaryType = 'price' | 'tax' | 'shipping' | 'discount'
+type SummaryType = 'subtotal' | 'tax' | 'shipping' | 'discount' | 'total'
 
 type SummaryItem = {
 	type: SummaryType
