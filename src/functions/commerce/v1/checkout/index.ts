@@ -101,11 +101,7 @@ export const create = regionFunctions.https.onCall(async (data, context) => {
 		amount: order.amount,
 		currency: order.currency,
 		customer: customerID,
-		shipping: {
-			address: order.data().address,
-			name: order.shipping?.name() || '',
-			phone: order.shipping?.phone || ''
-		},
+		shipping: order.shipping?.data(),
 		payment_method: paymentMethodID,
 		metadata: {
 			uid: uid,

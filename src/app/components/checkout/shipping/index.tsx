@@ -13,8 +13,8 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import Input, { useInput } from 'components/Input'
-import Address from 'models/commerce/Address'
-import { useAuthUser, useUserAddress } from 'hooks/commerce';
+import Shipping from 'models/commerce/Shipping'
+import { useAuthUser, useUserShipping } from 'hooks/commerce';
 import Loading from 'components/Loading'
 import { User } from 'models/commerce';
 
@@ -44,45 +44,52 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 export default ({ match }) => {
-	const addressID = match.params.id
-	if (addressID) {
-		const [address, isLoading] = useUserAddress(addressID!);
+	const shippingID = match.params.id
+	if (shippingID) {
+		const [shipping, isLoading] = useUserShipping(shippingID!);
 		if (isLoading) {
 			return <Loading />
 		} else {
-			return <Form address={address!} />
+			return <Form shipping={shipping!} />
 		}
 	} else {
 		const [authUser, isLoading] = useAuthUser()
 		if (isLoading) {
 			return <Loading />
 		} else {
-			const address: Address = new Address(new User(authUser!.uid).addresses.collectionReference.doc())
-			return <Form address={address} />
+			const shipping: Shipping = new Shipping(new User(authUser!.uid).shippingAddresses.collectionReference.doc())
+			return <Form shipping={shipping} />
 		}
 	}
 }
 
-const Form = ({ address }: { address: Address }) => {
+const Form = ({ shipping }: { shipping: Shipping }) => {
 	const [authUser, isLoading] = useAuthUser()
-	const country = useInput(address?.country)
-	const state = useInput(address?.state)
-	const city = useInput(address?.city)
-	const line1 = useInput(address?.line1)
-	const line2 = useInput(address?.line2)
-	const postal_code = useInput(address?.postal_code)
+	const country = useInput(shipping.address?.country)
+	const state = useInput(shipping.address?.state)
+	const city = useInput(shipping.address?.city)
+	const line1 = useInput(shipping.address?.line1)
+	const line2 = useInput(shipping.address?.line2)
+	const postal_code = useInput(shipping.address?.postal_code)
+
+	const name = useInput(shipping.name)
 
 	const onClick = async () => {
 		const user = new User(authUser!.uid)
-		// address.country = country.value
-		address.state = state.value
-		address.city = city.value
-		address.line1 = line1.value
-		address.line2 = line2.value
-		address.postal_code = postal_code.value
+		// shipping.country = country.value
+		shipping.address = {
+			// country: country.value,
+			state: state.value,
+			city: city.value,
+			line1: line1.value,
+			line2: line2.value,
+			postal_code: postal_code.value
+		}
+		shipping.name = name.value
+		shipping.phone = authUser!.phoneNumber || ''
 		await Promise.all([
-			address.save(),
-			user.documentReference.set({ defaultAddress: address.data() }, { merge: true })
+			shipping.save(),
+			user.documentReference.set({ defaultShipping: shipping.data() }, { merge: true })
 		])
 	}
 
@@ -112,6 +119,10 @@ const Form = ({ address }: { address: Address }) => {
 				<ListItem key={"postal_code"}>
 					<ListItemText primary={"postal_code"} />
 					<Input {...postal_code} />
+				</ListItem>
+				<ListItem key={"name"}>
+					<ListItemText primary={"name"} />
+					<Input {...name} />
 				</ListItem>
 			</List>
 			<Button variant="contained" color="primary" onClick={onClick}>Continue to Payment</Button>

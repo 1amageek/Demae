@@ -1,6 +1,7 @@
-import { Doc, Field, firestore, CollectionReference } from '@1amageek/ballcap-admin'
+import { Doc, Field, firestore, CollectionReference, Codable, SubCollection, Collection } from '@1amageek/ballcap-admin'
 import * as functions from 'firebase-functions'
 import { Country } from '../../common/Country'
+import Shipping from './Shipping'
 
 export default class User extends Doc {
 
@@ -22,8 +23,11 @@ export default class User extends Doc {
 
 	@Field customerID?: string
 	@Field isAvailable: boolean = false
-	@Field country: Country = 'JP'
+	@Field country: Country = 'US'
 	@Field currentOrderID?: string
-	@Field defaultAddress?: any
+	@Codable(Shipping)
+	@Field defaultShipping?: Shipping
 	@Field defaultPaymentMethodID?: string
+
+	@SubCollection shippingAddresses: Collection<Shipping> = new Collection()
 }

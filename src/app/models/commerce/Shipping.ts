@@ -1,22 +1,16 @@
-import { Doc, Field } from '@1amageek/ballcap-admin'
+import { Doc, Field } from '@1amageek/ballcap'
 import { Address } from 'common/commerce/Types'
 import { Country } from 'common/Country'
 
 export default class Shipping extends Doc {
 
 	@Field address?: Address
-	@Field firstName?: string
-	@Field middleName?: string
-	@Field lastName?: string
+	@Field name?: string
 	@Field phone?: string
 
 	formatted(country: Country = 'US') {
 		return `${
-			(this.firstName || "") +
-			" " +
-			(this.middleName || "") +
-			" " +
-			(this.lastName || "") +
+			(this.name || "") +
 			" " +
 			(this.address?.line1 || "") +
 			" " +
@@ -25,13 +19,5 @@ export default class Shipping extends Doc {
 			(this.address?.city || "") +
 			" " +
 			(this.address?.state || "")}`
-	}
-
-	name() {
-		if (this.middleName) {
-			return `${this.firstName} ${this.middleName} ${this.lastName}`
-		} else {
-			return `${this.firstName} ${this.lastName}`
-		}
 	}
 }

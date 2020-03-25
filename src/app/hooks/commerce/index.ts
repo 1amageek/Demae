@@ -8,7 +8,7 @@ import Product from 'models/commerce/Product'
 import SKU from 'models/commerce/SKU'
 import Cart from 'models/commerce/Cart'
 import User from 'models/commerce/User'
-import Address from 'models/commerce/Address'
+import Shipping from 'models/commerce/Shipping'
 
 export const useAuthUser = (): [firebase.User | undefined, boolean] => {
 	const [authUser, setAuthUser] = useState<firebase.User | undefined>(undefined)
@@ -149,22 +149,22 @@ export const useUser = (): [User | undefined, boolean] => {
 	return [user, isLoading]
 }
 
-export const useUserAddress = (id: string): [Address | undefined, boolean] => {
+export const useUserShipping = (id: string): [Shipping | undefined, boolean] => {
 	const [auth] = useAuthUser()
-	const [address, setAddress] = useState<Address | undefined>(undefined)
+	const [shipping, setShipping] = useState<Shipping | undefined>(undefined)
 	const [isLoading, setLoading] = useState(true)
 	useEffect(() => {
 		(async () => {
 			if (auth) {
-				if (!address) {
-					const snapshot = await new User(auth.uid).addresses.collectionReference.doc(id).get()
-					let address = Address.fromSnapshot<Address>(snapshot)
-					setAddress(address)
+				if (!shipping) {
+					const snapshot = await new User(auth.uid).shippingAddresses.collectionReference.doc(id).get()
+					let shipping = Shipping.fromSnapshot<Shipping>(snapshot)
+					setShipping(shipping)
 					setLoading(false)
 				}
 			}
 		})()
-	}, [auth?.uid, address?.id])
-	return [address, isLoading]
+	}, [auth?.uid, shipping?.id])
+	return [shipping, isLoading]
 }
 
