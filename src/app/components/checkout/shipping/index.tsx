@@ -101,10 +101,6 @@ const Form = ({ address }: { address: Address }) => {
 					<ListItemText primary={"city"} />
 					<Input {...city} />
 				</ListItem>
-				<ListItem key={"state"}>
-					<ListItemText primary={"state"} />
-					<Input {...state} />
-				</ListItem>
 				<ListItem key={"line1"}>
 					<ListItemText primary={"line1"} />
 					<Input {...line1} />

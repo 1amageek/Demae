@@ -28,13 +28,13 @@ const App = () => {
 	return (
 		<Switch>
 			<Route path={`/home`} exact component={Home} />
-			<Route path={`/cart`} component={Cart} />
-			<Route path={`/providers`} component={Provider} />
-			<Route path={`/checkout`} component={Checkout} />
-			<Route path={`/checkout/shipping/:id`} component={Shipping} />
-			<Route path={`/checkout/shipping`} component={Shipping} />
-			<Route path={`/checkout/paymentMethod/:id`} component={PaymentMethod} />
-			<Route path={`/checkout/paymentMethod`} component={PaymentMethod} />
+			<Route path={`/cart`} exact component={Cart} />
+			<Route path={`/providers`} exact component={Provider} />
+			<Route path={`/checkout/shipping/:id`} exact component={Shipping} />
+			<Route path={`/checkout/shipping`} cexact omponent={Shipping} />
+			<Route path={`/checkout`} exact component={Checkout} />
+			<Route path={`/checkout/paymentMethod/:id`} exact component={PaymentMethod} />
+			<Route path={`/checkout/paymentMethod`} exact component={PaymentMethod} />
 		</Switch>
 	)
 }

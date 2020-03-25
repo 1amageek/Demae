@@ -53,15 +53,20 @@ export default () => {
 		if (!cart) { return }
 		const customerID = user.customerID
 		if (!customerID) { return }
+		console.log(user.data())
 		const defaultAddress = user.defaultAddress
 		if (!defaultAddress) { return }
+		const paymentMethodID = user.defaultPaymentMethodID
+		if (!paymentMethodID) { return }
 
 		console.log({
 			setup_future_usage: 'off_session',
 			amount: cart.total(),
 			currency: cart.currency,
 			customer: customerID,
-			shipping: defaultAddress.address(),
+			shipping: {
+				address: defaultAddress.address()
+			},
 			metadata: {
 				uid: user.id,
 			}
@@ -73,7 +78,12 @@ export default () => {
 			amount: cart.total(),
 			currency: cart.currency,
 			customer: customerID,
-			shipping: defaultAddress.address(),
+			shipping: {
+				address: defaultAddress.address(),
+				name: defaultAddress.name(),
+				phone: auth!.phoneNumber
+			},
+			payment_method: paymentMethodID,
 			metadata: {
 				uid: user.id,
 			}

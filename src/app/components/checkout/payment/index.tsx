@@ -106,7 +106,7 @@ const CheckoutForm = () => {
 				return
 			}
 
-			const updateData = { defaultPaymentMethod: paymentMethod.id }
+			const updateData = { defaultPaymentMethodID: paymentMethod.id }
 			if (user?.customerID) {
 				const attach = firebase.functions().httpsCallable('v1-stripe-paymentMethod-attach')
 				const result = await attach({

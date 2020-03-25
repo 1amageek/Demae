@@ -31,6 +31,14 @@ export default class Address extends Doc implements IAddress {
 			(this.state || "")}`
 	}
 
+	name() {
+		if (this.middleName) {
+			return `${this.firstName} ${this.middleName} ${this.lastName}`
+		} else {
+			return `${this.firstName} ${this.lastName}`
+		}
+	}
+
 	address() {
 		const { city, country, line1, line2, postal_code, state } = this.data()
 		return { city, country, line1, line2, postal_code, state }
