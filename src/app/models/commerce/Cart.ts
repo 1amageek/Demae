@@ -12,7 +12,7 @@ export default class Cart extends Order {
 		return this.items
 			.filter(item => item.type === 'sku')
 			.reduce((prev, current) => {
-				return prev + current.amount
+				return prev + current.subtotal()
 			}, 0)
 	}
 
@@ -27,7 +27,7 @@ export default class Cart extends Order {
 			return this.items
 				.filter(item => item.taxRate === taxRate)
 				.reduce((prev, current) => {
-					return prev + Math.floor(current.amount * taxRate)
+					return prev + current.tax()
 				}, 0)
 		})
 	}

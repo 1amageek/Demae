@@ -1,9 +1,9 @@
 import * as functions from 'firebase-functions'
 import { firestore } from 'firebase-admin'
-import { regionFunctions } from '../../../helper'
+import { regionFunctions } from '../../helper'
 import Stripe from 'stripe'
-import Order, { OrderItem } from '../../../models/commerce/Order'
-import SKU, { Stock } from '../../../models/commerce/SKU'
+import Order, { OrderItem } from '../../models/commerce/Order'
+import SKU, { Stock } from '../../models/commerce/SKU'
 
 
 type Response = {

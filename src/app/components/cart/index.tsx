@@ -64,7 +64,7 @@ const Cell = ({ item, key }: { item: OrderItem, key: string }) => {
 		<>
 			<ListItem button key={key}>
 				<ListItemText primary={item.name} secondary={item.caption} />
-				<ListItemText primary={`Price ${item.price().toLocaleString()}`} secondary={`Tax ${item.tax().toLocaleString()}`} />
+				<ListItemText primary={`Price ${item.subtotal().toLocaleString()}`} secondary={`Tax ${item.tax().toLocaleString()}`} />
 				<ListItemSecondaryAction>
 					<TextField value={item.quantity} />
 				</ListItemSecondaryAction>

@@ -21,16 +21,13 @@ export class OrderItem extends Model {
 
 export default class Order extends Doc {
 	@Field parentID?: string
-	@Field type?: string
 	@Field title?: string
 	@Field image?: string
 	@Field assets: File[] = []
 	@Field purchasedBy!: string
 	@Field selledBy!: string
 	@Field shipping?: Shipping
-	@Field transferredTo: DocumentReference[] = []
 	@Field paidAt?: Timestamp
-	@Field expirationDate?: Timestamp
 	@Field shippingDate?: any
 	@Field estimatedArrivalDate?: any
 	@Field currency: Currency = 'USD'

@@ -22,23 +22,31 @@ export class OrderItem extends Model {
 		return Math.floor(this.amount * this.taxRate)
 	}
 
-	price() {
-		return Math.floor(this.amount + this.tax())
+	subtotal() {
+		if (this.discount) {
+			if (this.discount.type === 'rate') {
+				return this.amount - Math.floor(this.amount * this.discount.rate!)
+			} else {
+				return Math.max(this.amount - this.discount.amount!, 0)
+			}
+		}
+		return this.amount
+	}
+
+	total() {
+		return this.subtotal() + this.tax()
 	}
 }
 
 export default class Order extends Doc {
 	@Field parentID?: string
-	@Field type?: string
 	@Field title?: string
 	@Field image?: string
 	@Field assets: File[] = []
 	@Field purchasedBy!: string
 	@Field selledBy!: string
 	@Field shipping?: Shipping
-	@Field transferredTo: DocumentReference[] = []
 	@Field paidAt?: Timestamp
-	@Field expirationDate?: Timestamp
 	@Field shippingDate?: any
 	@Field estimatedArrivalDate?: any
 	@Field currency: Currency = 'USD'

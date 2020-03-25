@@ -44,27 +44,41 @@ export default () => {
 	const checkout = async () => {
 		if (!user) { return }
 		if (!cart) { return }
+
+		// customerID
 		const customerID = user.customerID
 		if (!customerID) { return }
-		console.log(user.data())
+
+		// defaultShipping
 		const defaultShipping = user.defaultShipping
 		if (!defaultShipping) { return }
+
+		// paymentMethodID
 		const paymentMethodID = user.defaultPaymentMethodID
 		if (!paymentMethodID) { return }
 
-		const paymentIntentCreate = firebase.functions().httpsCallable('v1-stripe-paymentIntent-create')
-		const result = await paymentIntentCreate({
-			setup_future_usage: 'off_session',
-			amount: cart.total(),
-			currency: cart.currency,
-			customer: customerID,
-			shipping: defaultShipping.data(),
-			payment_method: paymentMethodID,
-			metadata: {
-				uid: user.id,
-			}
-		})
+		cart.purchasedBy = user.id
+		cart.shipping = defaultShipping
+		cart.currency = 'USD'
+		cart.amount = cart.total()
+
+		const checkoutCreate = firebase.functions().httpsCallable('v1-commerce-checkout-create')
+		const result = await checkoutCreate(cart.data())
 		console.log(result)
+
+		// const paymentIntentCreate = firebase.functions().httpsCallable('v1-stripe-paymentIntent-create')
+		// const result = await paymentIntentCreate({
+		// 	setup_future_usage: 'off_session',
+		// 	amount: cart.total(),
+		// 	currency: cart.currency,
+		// 	customer: customerID,
+		// 	shipping: defaultShipping.data(),
+		// 	payment_method: paymentMethodID,
+		// 	metadata: {
+		// 		uid: user.id,
+		// 	}
+		// })
+		// console.log(result)
 	}
 
 	return (
