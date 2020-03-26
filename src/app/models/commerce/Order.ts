@@ -45,6 +45,7 @@ export default class Order extends Doc {
 	@Field assets: File[] = []
 	@Field purchasedBy!: string
 	@Field selledBy!: string
+	@Codable(Shipping)
 	@Field shipping?: Shipping
 	@Field paidAt?: Timestamp
 	@Field shippingDate?: any

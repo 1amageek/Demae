@@ -61,9 +61,14 @@ export default () => {
 		cart.shipping = defaultShipping
 		cart.currency = 'USD'
 		cart.amount = cart.total()
-
+		const data = cart.data({ convertDocumentReference: true })
+		console.log(data.items)
 		const checkoutCreate = firebase.functions().httpsCallable('v1-commerce-checkout-create')
-		const result = await checkoutCreate(cart.data())
+		const result = await checkoutCreate({
+			order: data,
+			paymentMethodID: paymentMethodID,
+			customerID: customerID
+		})
 		console.log(result)
 
 		// const paymentIntentCreate = firebase.functions().httpsCallable('v1-stripe-paymentIntent-create')

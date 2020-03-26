@@ -1,4 +1,4 @@
-import { Doc, Model, Field, File, firestore, CollectionReference, DocumentReference, Timestamp, Codable } from '@1amageek/ballcap-admin'
+import { Doc, Model, Field, File, DocumentReference, Timestamp, Codable } from '@1amageek/ballcap-admin'
 import { Currency } from '../../common/Currency'
 import { OrderItemType, OrderItemStatus, DeliveryStatus, OrderPaymentStatus, Discount } from '../../common/commerce/Types'
 import Shipping from './Shipping'
@@ -26,6 +26,7 @@ export default class Order extends Doc {
 	@Field assets: File[] = []
 	@Field purchasedBy!: string
 	@Field selledBy!: string
+	@Codable(Shipping)
 	@Field shipping?: Shipping
 	@Field paidAt?: Timestamp
 	@Field shippingDate?: any

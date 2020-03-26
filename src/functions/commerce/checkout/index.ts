@@ -1,10 +1,8 @@
 import * as functions from 'firebase-functions'
-import { firestore } from 'firebase-admin'
 import { regionFunctions } from '../../helper'
 import Stripe from 'stripe'
 import Order, { OrderItem } from '../../models/commerce/Order'
 import SKU, { Stock } from '../../models/commerce/SKU'
-
 
 type Response = {
 	error?: {
@@ -38,7 +36,7 @@ export const create = regionFunctions.https.onCall(async (data, context) => {
 	if (!customerID) {
 		throw new functions.https.HttpsError('invalid-argument', 'This request does not contain a customerID.')
 	}
-	const order: Order = Order.fromData(orderData)
+	const order: Order = Order.from(orderData, { convertDocumentReference: true })
 	const skuItems: OrderItem[] = order.items.filter(item => item.type === 'sku')
 	const skuValidation = skuItems.find(item => { return !(item.skuReference) })
 	if (skuValidation) {
@@ -67,6 +65,7 @@ export const create = regionFunctions.https.onCall(async (data, context) => {
 	// Bucket
 	const bucketOutOfStock = bucketSKUs.find(sku => sku.inventory.value! === 'out_of_stock')
 	if (bucketOutOfStock) {
+		console.log(`Bucket SKU is out of stock. ${bucketOutOfStock.path}`)
 		return {
 			error: {
 				success: false,
@@ -87,6 +86,7 @@ export const create = regionFunctions.https.onCall(async (data, context) => {
 		return orderItem!.quantity > stockCount
 	})
 	if (finiteOutOfStock) {
+		console.log(`Finite SKU is out of stock. ${finiteOutOfStock.path}`)
 		return {
 			error: {
 				success: false,
