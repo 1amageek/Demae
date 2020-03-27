@@ -73,7 +73,10 @@ export const create = regionFunctions.https.onCall(async (data, context) => {
 				createdAt: admin.firestore.FieldValue.serverTimestamp(),
 				updatedAt: admin.firestore.FieldValue.serverTimestamp()
 			})
-			return result
+			return {
+				paymentIntentID: result.id,
+				orderID: orderRef.id
+			}
 		})
 		return { result } as Response
 	} catch (error) {
@@ -111,6 +114,10 @@ export const confirm = regionFunctions.https.onCall(async (data, context) => {
 				throw new functions.https.HttpsError('invalid-argument', `The order does not exist. ${orderRef.path}`)
 			}
 			const order = Order.fromSnapshot<Order>(snapshot)
+
+			if (order.paymentStatus !== 'none') {
+				throw new functions.https.HttpsError('invalid-argument', `Invalid order status.. ${orderRef.path}`)
+			}
 
 			try {
 				// Check the stock status.
@@ -152,7 +159,10 @@ export const confirm = regionFunctions.https.onCall(async (data, context) => {
 		})
 		return { result } as Response
 	} catch (error) {
-		return { error } as Response
+		if (error instanceof OrderError) {
+			return { error } as Response
+		}
+		throw error
 	}
 })
 
