@@ -25,7 +25,7 @@ export default class Order extends Doc {
 	@Field image?: string
 	@Field assets: File[] = []
 	@Field purchasedBy!: string
-	@Field selledBy!: string
+	@Field providerID!: string
 	@Codable(Shipping)
 	@Field shipping?: Shipping
 	@Field paidAt?: Timestamp
@@ -38,5 +38,6 @@ export default class Order extends Doc {
 	@Field deliveryStatus: DeliveryStatus = 'none'
 	@Field paymentStatus: OrderPaymentStatus = 'none'
 	@Field isCancelled: boolean = false
+	@Field paymentResult?: any
 	@Field metadata?: any
 }

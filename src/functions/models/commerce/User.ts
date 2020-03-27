@@ -2,6 +2,7 @@ import { Doc, Field, firestore, CollectionReference, Codable, SubCollection, Col
 import * as functions from 'firebase-functions'
 import { Country } from '../../common/Country'
 import Shipping from './Shipping'
+import Order from './Order'
 
 export default class User extends Doc {
 
@@ -30,4 +31,6 @@ export default class User extends Doc {
 	@Field defaultPaymentMethodID?: string
 
 	@SubCollection shippingAddresses: Collection<Shipping> = new Collection()
+	@SubCollection orders: Collection<Order> = new Collection()
+
 }

@@ -1,6 +1,7 @@
 import { Doc, Field, Collection, SubCollection, CollectionReference, firestore, GeoPoint } from '@1amageek/ballcap-admin'
 import { Currency } from '../../common/Currency'
 import Product from './Product'
+import Order from './Order'
 
 export default class Provider extends Doc {
 
@@ -23,4 +24,5 @@ export default class Provider extends Doc {
 	@Field metadata?: { [key: string]: any } = {}
 
 	@SubCollection products: Collection<Product> = new Collection()
+	@SubCollection orders: Collection<Order> = new Collection()
 }

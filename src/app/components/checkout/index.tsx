@@ -64,26 +64,24 @@ export default () => {
 		const data = cart.data({ convertDocumentReference: true })
 		console.log(data.items)
 		const checkoutCreate = firebase.functions().httpsCallable('v1-commerce-checkout-create')
-		const result = await checkoutCreate({
-			order: data,
-			paymentMethodID: paymentMethodID,
-			customerID: customerID
-		})
-		console.log(result)
 
-		// const paymentIntentCreate = firebase.functions().httpsCallable('v1-stripe-paymentIntent-create')
-		// const result = await paymentIntentCreate({
-		// 	setup_future_usage: 'off_session',
-		// 	amount: cart.total(),
-		// 	currency: cart.currency,
-		// 	customer: customerID,
-		// 	shipping: defaultShipping.data(),
-		// 	payment_method: paymentMethodID,
-		// 	metadata: {
-		// 		uid: user.id,
-		// 	}
-		// })
-		// console.log(result)
+		try {
+			const response = await checkoutCreate({
+				order: data,
+				paymentMethodID: paymentMethodID,
+				customerID: customerID
+			})
+			const { error, result } = response.data
+			if (error) {
+				console.log(error)
+				return
+			}
+
+			console.log(result)
+
+		} catch (error) {
+			console.log(error)
+		}
 	}
 
 	return (

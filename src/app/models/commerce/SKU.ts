@@ -1,6 +1,7 @@
 import { Doc, Field, DocumentReference, firestore, CollectionReference } from '@1amageek/ballcap'
 import { Currency } from 'common/Currency'
 import { Inventory, Discount } from 'common/commerce/Types'
+import { ShardType, ShardCharacters } from 'common/Shard'
 
 export default class SKU extends Doc {
 
@@ -11,7 +12,7 @@ export default class SKU extends Doc {
 	@Field isAvailable: boolean = true
 	@Field selledBy!: string
 	@Field createdBy!: string
-	@Field numberOfFetch: number = 5
+	@Field shardCharacters: ShardType[] = ShardCharacters.slice(0, 3)
 	@Field currency: Currency = 'USD'
 	@Field productReference?: DocumentReference
 	@Field name!: string
