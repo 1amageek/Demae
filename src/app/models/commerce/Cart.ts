@@ -76,6 +76,6 @@ export default class Cart extends Order {
 	}
 
 	deleteItem(item: OrderItem) {
-		this.items.filter(value => value.skuReference!.path !== item.skuReference!.path)
+		this.items = this.items.filter(value => value.skuReference!.path !== item.skuReference!.path)
 	}
 }

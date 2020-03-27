@@ -1,5 +1,11 @@
 import { useState, useEffect } from 'react'
-import TextField from '@material-ui/core/TextField'
+import MenuItem from '@material-ui/core/MenuItem'
+import Select from '@material-ui/core/Select'
+
+type MenuProp = {
+	value: string | number
+	label: string
+}
 
 type InputProps = {
 	id?: string
@@ -10,6 +16,7 @@ type InputProps = {
 	required?: boolean
 	autoComplete?: string
 	style?: Object
+	menu?: MenuProp[]
 }
 
 type InitProps = {
@@ -19,7 +26,7 @@ type InitProps = {
 
 type InitValue = string | number | undefined
 
-export const useInput = (props: InitProps | InitValue) => {
+export const useSelect = (props: InitProps | InitValue) => {
 	if (typeof props === 'string' || typeof props === 'undefined' || props === null) {
 		const [value, setValue] = useState(props || "")
 		useEffect(() => {
@@ -57,12 +64,15 @@ export const useInput = (props: InitProps | InitValue) => {
 
 export default (props: InputProps) => {
 	return (
-		<TextField
-			margin="normal"
-			InputLabelProps={{
-				shrink: true,
-			}}
+		<Select
 			{...props}
-		/>
+		>
+			{props.menu?.map(menu => {
+				return <MenuItem value={menu.value}>{menu.label}</MenuItem>
+			})}
+		</Select>
 	)
 }
+
+
+

@@ -1,14 +1,13 @@
-import { Doc, Field, DocumentReference, firestore, CollectionReference } from '@1amageek/ballcap'
+import { Doc, Field, DocumentReference, SubCollection, Collection, Batch } from '@1amageek/ballcap'
 import { Currency } from 'common/Currency'
 import { Inventory, Discount } from 'common/commerce/Types'
-import { ShardType, ShardCharacters } from 'common/Shard'
+import { ShardType, ShardCharacters } from './Shard'
+
+export class Stock extends Doc {
+	@Field count: number = 0
+}
 
 export default class SKU extends Doc {
-
-	static collectionReference(): CollectionReference {
-		return firestore.collection('commerce/v1/SKUs')
-	}
-
 	@Field isAvailable: boolean = true
 	@Field selledBy!: string
 	@Field createdBy!: string
@@ -24,11 +23,30 @@ export default class SKU extends Doc {
 	@Field isPrivate: boolean = false
 	@Field metadata?: any
 
+	@SubCollection inventories: Collection<Stock> = new Collection()
+
 	tax() {
 		return Math.floor(this.amount * this.taxRate)
 	}
 
 	price() {
 		return Math.floor(this.amount + this.tax())
+	}
+
+	async updateInventory() {
+		if (this.inventory.type !== 'finite') {
+			return
+		}
+		if (!this.inventory.quantity) {
+			return
+		}
+		const qty = Math.floor(this.inventory.quantity / this.shardCharacters.length)
+		const batch = new Batch()
+		this.shardCharacters.forEach(shard => {
+			const stock = new Stock(this.inventories.collectionReference.doc(shard))
+			stock.count = qty
+			batch.save(stock)
+		})
+		await batch.commit()
 	}
 }

@@ -2,7 +2,7 @@ import React from 'react';
 import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import CssBaseline from '@material-ui/core/CssBaseline';
-import Toolbar from '@material-ui/core/Toolbar';
+import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
@@ -32,6 +32,12 @@ export default () => {
 	const classes = useStyles()
 	const [cart, isLoading] = useCart()
 
+	const itemDelete = async (item: OrderItem) => {
+		console.log('a')
+		cart?.deleteItem(item)
+		await cart?.update()
+	}
+
 	return (
 		<>
 			<Typography className={classes.text} gutterBottom>
@@ -42,7 +48,9 @@ export default () => {
 			) : (
 					<List className={classes.list}>
 						{cart!.items.map((item, index) => {
-							return <Cell item={item} key={String(index)} />
+							return <Cell item={item} key={String(index)} onClick={async () => {
+								await itemDelete(item)
+							}} />
 						})}
 					</List>
 				)}
@@ -59,7 +67,7 @@ export default () => {
 	)
 }
 
-const Cell = ({ item, key }: { item: OrderItem, key: string }) => {
+const Cell = ({ item, key, onClick }: { item: OrderItem, key: string, onClick: () => void }) => {
 	return (
 		<>
 			<ListItem button key={key}>
@@ -67,6 +75,7 @@ const Cell = ({ item, key }: { item: OrderItem, key: string }) => {
 				<ListItemText primary={`Price ${item.subtotal().toLocaleString()}`} secondary={`Tax ${item.tax().toLocaleString()}`} />
 				<ListItemSecondaryAction>
 					<TextField value={item.quantity} />
+					<Button onClick={onClick}>Delete</Button>
 				</ListItemSecondaryAction>
 			</ListItem>
 		</>

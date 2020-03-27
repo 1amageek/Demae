@@ -27,7 +27,7 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import Modal from 'components/Modal';
 import Layout from 'components/admin/Layout'
-import Form from 'components/account/products/Form'
+import Form from 'components/admin/products/Form'
 import Input, { useInput } from 'components/Input'
 import Provider from 'models/commerce/Provider'
 import Product from 'models/commerce/Product'

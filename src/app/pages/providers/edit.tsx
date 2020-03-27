@@ -19,15 +19,20 @@ import { Create, Individual } from 'common/commerce/account'
 
 export default () => {
 
-	const [provider] = useProvider()
+	const [provider, isLoading] = useProvider()
 	return (
 		<UserContext.Consumer>
 			{user => {
 				if (user) {
-					if (provider) {
-						return <Form provider={provider} />
-					} else {
+					if (isLoading) {
 						return <Loading />
+					} else {
+						if (provider) {
+							return <Form provider={provider} />
+						} else {
+							const provider = new Provider(user.uid)
+							return <Form provider={provider} />
+						}
 					}
 				} else {
 					return <Login />

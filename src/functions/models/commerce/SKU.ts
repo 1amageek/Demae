@@ -1,4 +1,4 @@
-import { Doc, Field, DocumentReference, firestore, CollectionReference, SubCollection, Collection } from '@1amageek/ballcap-admin'
+import { Doc, Field, DocumentReference, SubCollection, Collection } from '@1amageek/ballcap-admin'
 import { Currency } from '../../common/Currency'
 import { Inventory, Discount } from '../../common/commerce/Types'
 import { ShardType, ShardCharacters } from '../../common/Shard'
@@ -8,11 +8,6 @@ export class Stock extends Doc {
 }
 
 export default class SKU extends Doc {
-
-	static collectionReference(): CollectionReference {
-		return firestore.collection('commerce/v1/SKUs')
-	}
-
 	@Field isAvailable: boolean = true
 	@Field selledBy!: string
 	@Field createdBy!: string

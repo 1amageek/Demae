@@ -12,11 +12,6 @@ import Fab from '@material-ui/core/Fab';
 import AddIcon from '@material-ui/icons/Add';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import Tooltip from '@material-ui/core/Tooltip';
-import Table from '@material-ui/core/Table';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
-import TableCell from '@material-ui/core/TableCell';
-import TableBody from '@material-ui/core/TableBody';
 import IconButton from '@material-ui/core/IconButton';
 import { makeStyles, useTheme, Theme, createStyles } from '@material-ui/core/styles';
 import List from '@material-ui/core/List';
@@ -24,10 +19,12 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import Layout from 'components/admin/Layout'
 import Input, { useInput } from 'components/Input'
+import Select, { useSelect } from 'components/Select'
 import Account from 'models/account/Account'
 import Product from 'models/commerce/Product'
-import SKU from 'models/commerce/SKU'
+import SKU, { Stock } from 'models/commerce/SKU'
 import { useAuthUser, useProviderProductSKU } from 'hooks/commerce';
+import { StockType, StockValue } from 'common/commerce/Types';
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
@@ -64,6 +61,58 @@ const index = ({ productID, skuID, edit }: { productID: string, skuID: string, e
 	const amount = useInput(sku?.amount)
 	const currency = useInput(sku?.currency)
 
+	const inventory = useSelect({
+		initValue: sku?.inventory.type, inputProps: {
+			menu: [
+				{
+					label: "Bucket",
+					value: "bucket"
+				},
+				{
+					label: "Finite",
+					value: "finite"
+				}
+				, {
+					label: "Infinite",
+					value: "infinite"
+				}
+			]
+		}
+	})
+	const stockValue = useSelect({
+		initValue: sku?.inventory.value, inputProps: {
+			menu: [
+				{
+					label: "InStock",
+					value: "in_stock"
+				},
+				{
+					label: "Limited",
+					value: "limited"
+				}
+				, {
+					label: "OutOfStock",
+					value: "out_of_stock"
+				}
+			]
+		}
+	})
+	const quantity = useInput(sku?.inventory.quantity)
+
+	const [qty, setQty] = useState(0)
+	useEffect(() => {
+		(async () => {
+			if (sku?.inventory.type === 'finite') {
+				const snapshot = await sku?.inventories.collectionReference.get()
+				const count = snapshot?.docs.map(doc => Stock.fromSnapshot<Stock>(doc)).reduce((prev, current) => {
+					return prev + current.count
+				}, 0)
+				setQty(count || 0)
+			}
+		})()
+	}, [sku?.inventory.type])
+
+
 	return (
 		<>
 			<Layout>
@@ -90,7 +139,12 @@ const index = ({ productID, skuID, edit }: { productID: string, skuID: string, e
 														sku.name = name.value
 														sku.caption = caption.value
 														sku.amount = Number(amount.value)
-														await sku.save()
+														sku.inventory = {
+															type: inventory.value as StockType,
+															quantity: Number(quantity.value),
+															value: stockValue.value as StockValue
+														}
+														await Promise.all([sku.updateInventory(), sku.save()])
 													}
 
 													setEditing(false)
@@ -129,6 +183,16 @@ const index = ({ productID, skuID, edit }: { productID: string, skuID: string, e
 									<ListItemText primary={"amount"} />
 									<Input {...amount} type="number" />
 								</ListItem>
+								<ListItem key={"inventory"}>
+									<ListItemText primary={"inventory"} />
+									<Select {...inventory} />
+									{
+										inventory.value === 'finite' && <Input {...quantity} type="number" />
+									}
+									{
+										inventory.value === 'bucket' && <Select {...stockValue} type="number" />
+									}
+								</ListItem>
 								<ListItem key={"status"}>
 									<ListItemText primary={"status"} />
 									{sku && <ListItemText primary={sku.isAvailable ? "Available" : "Disabled"} />}
@@ -155,6 +219,12 @@ const index = ({ productID, skuID, edit }: { productID: string, skuID: string, e
 									<ListItem key={"status"}>
 										<ListItemText primary={"status"} />
 										{sku && <ListItemText primary={sku.isAvailable ? "Available" : "Disabled"} />}
+									</ListItem>
+									<ListItem key={"inventory"}>
+										<ListItemText primary={"inventory"} />
+										{sku && sku.inventory.type === "finite" && <ListItemText primary={qty} />}
+										{sku && sku.inventory.type === "infinite" && <ListItemText primary={"Infinite"} />}
+										{sku && sku.inventory.type === "bucket" && <ListItemText primary={sku.inventory.value} />}
 									</ListItem>
 								</List>
 							)
