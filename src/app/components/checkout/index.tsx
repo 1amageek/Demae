@@ -71,16 +71,17 @@ export default () => {
 				paymentMethodID: paymentMethodID,
 				customerID: customerID
 			})
-			const { error, token } = response.data
+			const { error, result } = response.data
 			if (error) {
 				console.log(error)
 				return
 			}
 
-			console.log(token)
+			const token = result
 			try {
 				const checkoutConfirm = firebase.functions().httpsCallable('v1-commerce-checkout-confirm')
-				const result = await checkoutConfirm(token)
+				const response = await checkoutConfirm(token)
+				const { error, result } = response.data
 				console.log(result)
 			} catch (error) {
 				console.log(error)
