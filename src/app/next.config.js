@@ -5,7 +5,6 @@ const withWorkers = require('@zeit/next-workers')
 module.exports = withWorkers({
 	distDir: '../../dist/functions/next',
 	webpack(config, options) {
-		config.output.globalObject = 'self';
 		const { dir, dev } = options
 		const devProject = process.env.FIREBASE_PROJECT !== "production"
 		const envfile = dev ? '.development.env' : devProject ? '.development.env' : '.production.env'
@@ -22,7 +21,7 @@ module.exports = withWorkers({
 
 		config.resolve.alias = {
 			...config.resolve.alias,
-			'common': path.resolve(__dirname, '../functions/common'),
+			'common': path.resolve(__dirname, 'common'),
 			'components': path.resolve(__dirname, 'components'),
 			'context': path.resolve(__dirname, 'context'),
 			'hooks': path.resolve(__dirname, 'hooks'),

@@ -4,6 +4,10 @@ import { Country } from '../../common/Country'
 import Shipping from './Shipping'
 import Order from './Order'
 
+export class Role extends Doc {
+
+}
+
 export default class User extends Doc {
 
 	static collectionReference(): CollectionReference {
@@ -30,6 +34,7 @@ export default class User extends Doc {
 	@Field defaultShipping?: Shipping
 	@Field defaultPaymentMethodID?: string
 
+	@SubCollection roles: Collection<Role> = new Collection()
 	@SubCollection shippingAddresses: Collection<Shipping> = new Collection()
 	@SubCollection orders: Collection<Order> = new Collection()
 

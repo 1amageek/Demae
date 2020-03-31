@@ -5,7 +5,7 @@ import BottomNavigation from '@material-ui/core/BottomNavigation';
 import BottomNavigationAction from '@material-ui/core/BottomNavigationAction';
 import StorefrontIcon from '@material-ui/icons/Storefront';
 import ShoppingCartIcon from '@material-ui/icons/ShoppingCart';
-import PersonPinIcon from '@material-ui/icons/PersonPin';
+import MenuIcon from '@material-ui/icons/Menu';
 import Link from 'next/link'
 
 const useStyles = makeStyles({
@@ -37,13 +37,13 @@ export default () => {
 				<BottomNavigationAction
 					label="Cart"
 					value="cart"
-					icon={<StorefrontIcon />} />
+					icon={<ShoppingCartIcon />} />
 			</Link>
 			<Link href='/account' prefetch>
 				<BottomNavigationAction
 					label="Account"
 					value="account"
-					icon={<StorefrontIcon />} />
+					icon={<MenuIcon />} />
 			</Link>
 		</BottomNavigation>
 	);

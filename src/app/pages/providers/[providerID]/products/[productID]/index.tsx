@@ -1,5 +1,5 @@
 import React from 'react'
-import { useRouter } from 'next/router'
+import { useRouter } from 'next/Router'
 import Layout from 'components/providers/Layout'
 import Product from 'components/providers/products/Product'
 import SKUList from 'components/providers/products/skus/SKUList'

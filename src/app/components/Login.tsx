@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import Router from 'next/router'
+import Router from 'next/Router'
 import StyledFirebaseAuth from 'react-firebaseui/StyledFirebaseAuth'
 import firebase, { auth } from 'firebase'
 import 'firebase/auth'

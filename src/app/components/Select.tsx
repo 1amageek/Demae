@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import MenuItem from '@material-ui/core/MenuItem'
 import Select from '@material-ui/core/Select'
+import InputLabel from '@material-ui/core/InputLabel'
+import FormControl from '@material-ui/core/FormControl'
 
 type MenuProp = {
 	value: string | number
@@ -64,13 +66,14 @@ export const useSelect = (props: InitProps | InitValue) => {
 
 export default (props: InputProps) => {
 	return (
-		<Select
-			{...props}
-		>
-			{props.menu?.map(menu => {
-				return <MenuItem value={menu.value}>{menu.label}</MenuItem>
-			})}
-		</Select>
+		<FormControl style={{ marginBottom: '12px' }}>
+			{props.label && <InputLabel id={props.id}>{props.label}</InputLabel>}
+			<Select {...props}>
+				{props.menu?.map(menu => {
+					return <MenuItem value={menu.value}>{menu.label}</MenuItem>
+				})}
+			</Select>
+		</FormControl>
 	)
 }
 
