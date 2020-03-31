@@ -39,7 +39,6 @@
 		"@material-ui/styles": "latest",
 		"@stripe/react-stripe-js": "^1.1.0",
 		"@stripe/stripe-js": "^1.2.0",
-		"@zeit/next-workers": "^1.0.0",
 		"body-parser": "^1.19.0",
 		"express": "^4.17.1",
 		"firebase": "latest",
@@ -54,8 +53,7 @@
 		"react-firebaseui": "^4.1.0",
 		"react-router-dom": "^5.1.2",
 		"stripe": "^8.32.0",
-		"styled-components": "latest",
-		"worker-loader": "^2.0.0"
+		"styled-components": "latest"
 	},
 	"devDependencies": {
 		"@types/cookie-parser": "^1.4.2",

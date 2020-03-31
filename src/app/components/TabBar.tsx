@@ -6,7 +6,7 @@ import BottomNavigationAction from '@material-ui/core/BottomNavigationAction';
 import StorefrontIcon from '@material-ui/icons/Storefront';
 import ShoppingCartIcon from '@material-ui/icons/ShoppingCart';
 import PersonPinIcon from '@material-ui/icons/PersonPin';
-import { Link } from 'react-router-dom'
+import Link from 'next/link'
 
 const useStyles = makeStyles({
 	root: {
@@ -27,24 +27,24 @@ export default () => {
 
 	return (
 		<BottomNavigation value={value} onChange={handleChange} className={classes.root}>
-			<BottomNavigationAction
-				component={Link}
-				to='/home'
-				label="Home"
-				value="home"
-				icon={<StorefrontIcon />} />
-			<BottomNavigationAction
-				component={Link}
-				to='/cart'
-				label="Cart"
-				value="cart"
-				icon={<ShoppingCartIcon />} />
-			<BottomNavigationAction
-				component={Link}
-				to='/account'
-				label="Account"
-				value="account"
-				icon={<PersonPinIcon />} />
+			<Link href='/home' prefetch>
+				<BottomNavigationAction
+					label="Home"
+					value="home"
+					icon={<StorefrontIcon />} />
+			</Link>
+			<Link href='/cart' prefetch>
+				<BottomNavigationAction
+					label="Cart"
+					value="cart"
+					icon={<StorefrontIcon />} />
+			</Link>
+			<Link href='/account' prefetch>
+				<BottomNavigationAction
+					label="Account"
+					value="account"
+					icon={<StorefrontIcon />} />
+			</Link>
 		</BottomNavigation>
 	);
 }

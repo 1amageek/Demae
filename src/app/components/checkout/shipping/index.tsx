@@ -43,8 +43,8 @@ const useStyles = makeStyles((theme: Theme) =>
 	}),
 );
 
-export default ({ match }) => {
-	const shippingID = match.params.id
+export default () => {
+	const shippingID = ''
 	if (shippingID) {
 		const [shipping, isLoading] = useUserShipping(shippingID!);
 		if (isLoading) {

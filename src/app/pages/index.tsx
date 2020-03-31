@@ -23,13 +23,15 @@ const index = ({ uid }: { uid?: string }) => {
 	// const worker = useServiceWorker('index.worker')
 	console.log('uid', uid)
 	React.useEffect(() => {
-		register()
+		// register()
 		// worker?.postMessage('from Host')
 		// worker?.addEventListener('message', (event) => {
 		// 	console.log("aeee", event)
 		// })
 	}, [])
-	return <App />
+	return <App>
+		index
+	</App>
 }
 
 function getId(req) {

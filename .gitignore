@@ -15,7 +15,7 @@ src/app/config/*
 src/functions/.runtimeconfig.json
 
 setup.sh
-
+report.*
 playground/
 
 .clasp.json

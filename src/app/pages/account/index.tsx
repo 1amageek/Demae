@@ -1,6 +1,6 @@
 import React from 'react'
 import App from 'components/App'
-
+import Account from 'components/account'
 export default () => {
-	return <App />
+	return <App><Account /></App>
 }

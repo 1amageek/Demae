@@ -11,12 +11,16 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import Typography from '@material-ui/core/Typography';
 import Divider from '@material-ui/core/Divider';
+import Container from '@material-ui/core/Container';
+import MenuItem from '@material-ui/core/MenuItem';
+import Menu from '@material-ui/core/Menu';
+import Box from '@material-ui/core/Box';
+
+import AccountCircle from '@material-ui/icons/AccountCircle';
 import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
-
-import Container from '@material-ui/core/Container'
 
 const drawerWidth = 180;
 
@@ -38,6 +42,9 @@ const useStyles = makeStyles((theme: Theme) =>
 				easing: theme.transitions.easing.easeOut,
 				duration: theme.transitions.duration.enteringScreen,
 			}),
+		},
+		tooBar: {
+			flexGrow: 1
 		},
 		menuButton: {
 			marginRight: theme.spacing(2),
@@ -83,6 +90,17 @@ export default ({ children }: { children: any }) => {
 	const classes = useStyles();
 	const theme = useTheme();
 	const [open, setOpen] = React.useState(false);
+	const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+	const menuOpen = Boolean(anchorEl);
+
+
+	const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
+		setAnchorEl(event.currentTarget);
+	};
+
+	const handleClose = () => {
+		setAnchorEl(null);
+	};
 
 	const handleDrawerOpen = () => {
 		setOpen(true);
@@ -101,7 +119,8 @@ export default ({ children }: { children: any }) => {
 					[classes.appBarShift]: open,
 				})}
 			>
-				<Toolbar>
+				<Toolbar className={classes.tooBar}>
+
 					<IconButton
 						color="inherit"
 						aria-label="open drawer"
@@ -111,9 +130,40 @@ export default ({ children }: { children: any }) => {
 					>
 						<MenuIcon />
 					</IconButton>
+
 					<Typography variant="h6" noWrap>
 						Persistent drawer
           </Typography>
+
+					<div style={{ flexGrow: 1 }}></div>
+
+					<IconButton
+						aria-label="account of current user"
+						aria-controls="menu-appbar"
+						aria-haspopup="true"
+						onClick={handleMenu}
+						color="inherit"
+					>
+						<AccountCircle />
+					</IconButton>
+					<Menu
+						id="menu-appbar"
+						anchorEl={anchorEl}
+						anchorOrigin={{
+							vertical: 'top',
+							horizontal: 'right',
+						}}
+						keepMounted
+						transformOrigin={{
+							vertical: 'top',
+							horizontal: 'right',
+						}}
+						open={menuOpen}
+						onClose={handleClose}
+					>
+						<MenuItem onClick={handleClose}>Profile</MenuItem>
+						<MenuItem onClick={handleClose}>My account</MenuItem>
+					</Menu>
 				</Toolbar>
 			</AppBar>
 			<Drawer

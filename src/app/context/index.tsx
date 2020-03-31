@@ -8,3 +8,15 @@ export const UserProvider = ({ children }) => {
 	const [user] = useAuthUser()
 	return <UserContext.Provider value={user}> {children} </UserContext.Provider>
 }
+
+interface AppContent {
+	appBar: {
+		title: string
+	}
+}
+
+export const AppContext = createContext<[AppContent, (content: AppContent) => void]>([{ appBar: { title: 'Home' } }, (value: AppContent) => { }])
+export const AppProvider = ({ children }) => {
+	const [appContent, setAppContent] = useState<AppContent>({ appBar: { title: 'Home' } })
+	return <AppContext.Provider value={[appContent, setAppContent]}> {children} </AppContext.Provider>
+}
