@@ -6,12 +6,12 @@ import { Provider, Product, SKU } from 'models/commerce';
 
 export default ({ providerID, productID }: { providerID: string, productID: string }) => {
 
-	const [data, isLoading] = useDataSource<SKU>(
+	const [data, isLoading] = useDataSource<SKU>(SKU,
 		new Provider(providerID)
 			.products.doc(productID, Product)
 			.skus
 			.collectionReference
-			.limit(100), SKU)
+			.limit(100))
 	return (
 		<>
 			{isLoading ? (

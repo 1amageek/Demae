@@ -39,7 +39,7 @@ export default () => {
 	const [user, isUserLoading] = useUser()
 	const [cart, isCartLoading] = useCart()
 	const [paymentMethods, isPaymentMethodsLoading] = usePaymentMethods()
-	const [shippingAddresses, isAddressLoading] = useDataSource<Shipping>(new User(auth?.uid).shippingAddresses.collectionReference.limit(10), Shipping)
+	const [shippingAddresses, isAddressLoading] = useDataSource<Shipping>(Shipping, new User(auth?.uid).shippingAddresses.collectionReference.limit(10))
 
 	const checkout = async () => {
 		if (!user) { return }

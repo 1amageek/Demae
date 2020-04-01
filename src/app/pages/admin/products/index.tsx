@@ -11,11 +11,7 @@ import Fab from '@material-ui/core/Fab';
 import AddIcon from '@material-ui/icons/Add';
 import TextField from '@material-ui/core/TextField';
 import Tooltip from '@material-ui/core/Tooltip';
-import Table from '@material-ui/core/Table';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
-import TableCell from '@material-ui/core/TableCell';
-import TableBody from '@material-ui/core/TableBody';
+import ProductTable from 'components/admin/products/ProductsTable'
 import IconButton from '@material-ui/core/IconButton';
 import { makeStyles, useTheme, Theme, createStyles } from '@material-ui/core/styles';
 import SearchIcon from '@material-ui/icons/Search';
@@ -23,9 +19,9 @@ import RefreshIcon from '@material-ui/icons/Refresh';
 import Modal from 'components/Modal';
 import Layout from 'components/admin/Layout'
 import Form from 'components/admin/products/Form'
-import Provider from 'models/commerce/Provider'
 import Product from 'models/commerce/Product'
-import { useAuthUser } from 'hooks/commerce';
+import { useProvider, useDataSource } from 'hooks/commerce';
+import Loading from 'components/Loading'
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
@@ -59,23 +55,11 @@ const useStyles = makeStyles((theme: Theme) =>
 
 export default () => {
 	const classes = useStyles()
-	const [authUser] = useAuthUser()
-	const [products, setProducts] = useState<Product[]>([])
-	useEffect(() => {
-		const uid = authUser?.uid
-		if (!uid) { return }
-		(async () => {
-			const provider = new Provider(uid)
-			const snapshot = await provider.products.collectionReference
-				.orderBy('updatedAt', 'desc')
-				.limit(100)
-				.get()
-			const products = snapshot.docs.map(doc => Product.fromSnapshot<Product>(doc))
-			setProducts([...products])
-		})()
-	}, [authUser?.uid])
-
+	const [provider] = useProvider()
 	const [open, setOpen] = useState(false)
+	const [products, isLoading] = useDataSource<Product>(Product, provider?.products.collectionReference
+		.orderBy('updatedAt', 'desc')
+		.limit(100))
 
 	const handleOpen = () => {
 		setOpen(true);
@@ -84,6 +68,10 @@ export default () => {
 	const handleClose = () => {
 		setOpen(false);
 	};
+
+	if (isLoading) {
+		return <Layout><Loading /></Layout>
+	}
 
 	return (
 		<>
@@ -120,38 +108,15 @@ export default () => {
 							</Grid>
 						</Toolbar>
 					</AppBar>
-
-					<Table>
-						<TableHead>
-							<TableRow>
-								<TableCell>ID</TableCell>
-								<TableCell>Name</TableCell>
-								<TableCell>Status</TableCell>
-							</TableRow>
-						</TableHead>
-						<TableBody>
-							{products.map(product => {
-								return (
-									<Link href={`/admin/products/${product.id}`} key={product.id} >
-										<TableRow hover>
-											<TableCell>{product.id}</TableCell>
-											<TableCell>{product.name}</TableCell>
-											<TableCell>{product.isAvailable}</TableCell>
-										</TableRow>
-									</Link>
-								)
-							})}
-						</TableBody>
-					</Table>
+					<ProductTable products={products} />
 				</Paper>
 			</Layout>
 			<Tooltip title="Product Add" aria-label="add" onClick={(e) => {
 				e.preventDefault()
-				const uid = authUser?.uid
-				if (!uid) { return }
-				const provider = new Provider(uid)
-				const ref = provider.products.collectionReference.doc()
-				Router.push({ pathname: `/admin/products/${ref.id}`, query: { edit: true } })
+				if (provider) {
+					const ref = provider.products.collectionReference.doc()
+					Router.push({ pathname: `/admin/products/${ref.id}`, query: { edit: true } })
+				}
 			}}>
 				<Fab color="secondary" className={classes.absolute}>
 					<AddIcon />

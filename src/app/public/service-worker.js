@@ -38,7 +38,6 @@ firebase.initializeApp({
 
 const CACHE_NAME = 'cache-v1';
 const urlsToCache = [
-	'/'
 ];
 
 firebase.auth().onAuthStateChanged((user) => {
@@ -105,8 +104,13 @@ self.addEventListener('install', (event) => {
 
 // As this is a test app, let's only return cached data when offline.
 self.addEventListener('fetch', (event) => {
+	const shouldBeProcessed = (
+		self.location.origin == getOriginFromUrl(event.request.url) &&
+		(self.location.protocol == 'https:' || self.location.hostname == 'localhost')
+	)
+	if (!shouldBeProcessed) { return; }
+
 	const fetchEvent = event;
-	// Get underlying body if available. Works for text and json bodies.
 	const getBodyContent = (req) => {
 		return Promise.resolve().then(() => {
 			if (req.method !== 'GET') {
@@ -125,97 +129,74 @@ self.addEventListener('fetch', (event) => {
 	};
 
 	const requestProcessor = (token) => {
+		if (!token) { return }
 		let req = event.request;
 		let processRequestPromise = Promise.resolve();
-		// For same origin https requests, append idToken to header.
-		if (self.location.origin == getOriginFromUrl(event.request.url) &&
-			(self.location.protocol == 'https:' ||
-				self.location.hostname == 'localhost') &&
-			token) {
-			// Clone headers as request headers are immutable.
-			const headers = new Headers();
-			for (let entry of req.headers.entries()) {
-				headers.append(entry[0], entry[1]);
-			}
-			// Add ID token to header. We can't add to Authentication header as it
-			// will break HTTP basic authentication.
-			const { idToken, uid, claim } = token
-			headers.append('Authorization', 'Bearer ' + idToken);
-			headers.append('uid', uid);
-			if (claim) {
-				if (claim.admin) {
-					headers.append('admin', claim.admin);
-				}
-			}
-			processRequestPromise = getBodyContent(req).then((body) => {
-				try {
-					req = new Request(req.url, {
-						method: req.method,
-						headers: headers,
-						mode: 'same-origin',
-						credentials: req.credentials,
-						cache: req.cache,
-						redirect: req.redirect,
-						referrer: req.referrer,
-						body,
-						bodyUsed: req.bodyUsed,
-						context: req.context
-					});
-				} catch (e) {
-					console.log(e)
-					// This will fail for CORS requests. We just continue with the
-					// fetch caching logic below and do not pass the ID token.
-				}
-			});
+
+		const headers = new Headers();
+		for (let entry of req.headers.entries()) {
+			headers.append(entry[0], entry[1]);
 		}
+
+		const { idToken, uid, claim } = token
+		headers.append('Authorization', 'Bearer ' + idToken);
+		headers.append('uid', uid);
+		if (claim) {
+			if (claim.admin) {
+				headers.append('admin', claim.admin);
+			}
+		}
+		processRequestPromise = getBodyContent(req).then((body) => {
+			try {
+				req = new Request(req.url, {
+					method: req.method,
+					headers: headers,
+					mode: 'same-origin',
+					credentials: req.credentials,
+					cache: req.cache,
+					redirect: req.redirect,
+					referrer: req.referrer,
+					body,
+					bodyUsed: req.bodyUsed,
+					context: req.context
+				});
+			} catch (e) {
+				reject(e)
+			}
+		});
+
 		return processRequestPromise.then(() => {
 			return fetch(req);
 		})
 			.then((response) => {
-				// Check if we received a valid response.
-				// If not, just funnel the error response.
 				if (!response || response.status !== 200 || response.type !== 'basic') {
 					return response;
 				}
-				// If response is valid, clone it and save it to the cache.
 				const responseToCache = response.clone();
-				// Save response to cache only for GET requests.
-				// Cache Storage API does not support using a Request object whose method is
-				// not 'GET'.
 				if (req.method === 'GET') {
 					caches.open(CACHE_NAME).then((cache) => {
 						cache.put(fetchEvent.request, responseToCache);
 					});
 				}
-				// After caching, return response.
 				return response;
 			})
 			.catch((error) => {
-				// For fetch errors, attempt to retrieve the resource from cache.
 				return caches.match(fetchEvent.request.clone());
 			})
 			.catch((error) => {
-				// If error getting resource from cache, do nothing.
 				console.log(error);
 			});
 	};
-	// Try to fetch the resource first after checking for the ID token.
 	event.respondWith(getIdToken().then(requestProcessor, requestProcessor));
 });
 
 self.addEventListener('activate', (event) => {
-	// Update this list with all caches that need to remain cached.
 	const cacheWhitelist = ['cache-v1'];
 	event.waitUntil(caches.keys().then((cacheNames) => {
 		return Promise.all(cacheNames.map((cacheName) => {
-			// Check if cache is not whitelisted above.
 			if (cacheWhitelist.indexOf(cacheName) === -1) {
-				// If not whitelisted, delete it.
 				return caches.delete(cacheName);
 			}
-			// Allow active service worker to set itself as the controller for all clients
-			// within its scope. Otherwise, pages won't be able to use it until the next
-			// load. This makes it possible for the login page to immediately use this.
 		})).then(() => clients.claim());
 	}));
 });

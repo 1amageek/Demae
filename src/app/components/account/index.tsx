@@ -113,7 +113,7 @@ export default () => {
 
 const ProviderList = ({ uid, handleOpen }: { uid: string, handleOpen: () => void }) => {
 	const user = new Commerce.User(uid)
-	const [data, isDataLoading] = useDataSource<Role>(user.roles.collectionReference, Role)
+	const [data, isDataLoading] = useDataSource<Role>(Role, user.roles.collectionReference)
 	const [providers, setProviders] = useState<Provider[]>([])
 	const [isLoading, setLoading] = useState(isDataLoading)
 

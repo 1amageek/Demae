@@ -22,7 +22,8 @@ import Layout from 'components/admin/Layout'
 import Form from 'components/admin/products/Form'
 import Provider from 'models/commerce/Provider'
 import Product from 'models/commerce/Product'
-import { useAuthUser } from 'hooks/commerce'
+import { useAuthUser, useProvider } from 'hooks/commerce'
+import Loading from 'components/Loading'
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
@@ -51,17 +52,16 @@ const useStyles = makeStyles((theme: Theme) =>
 
 export default () => {
 	const classes = useStyles();
-	const [user] = useAuthUser()
+	const [provider, isLoading] = useProvider()
 	const [product, setProduct] = useState<Product | undefined>()
 	const [open, setOpen] = useState(false)
 
 	useEffect(() => {
-		if (user) {
-			const provider = new Provider(user?.uid)
+		if (provider) {
 			const product = new Product(provider.products.collectionReference.doc())
 			setProduct(product)
 		}
-	}, [user?.uid])
+	}, [provider?.id])
 
 	const handleOpen = () => {
 		setOpen(true);
@@ -70,6 +70,10 @@ export default () => {
 	const handleClose = () => {
 		setOpen(false);
 	};
+
+	if (isLoading) {
+		return <Layout><Loading /></Layout>
+	}
 
 	return (
 		<>

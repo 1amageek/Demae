@@ -34,7 +34,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 export default () => {
 	const classes = useStyles();
-	const [data, isLoading] = useDataSource<Provider>(Provider.collectionReference().limit(100), Provider)
+	const [data, isLoading] = useDataSource<Provider>(Provider, Provider.collectionReference().limit(100))
 	return (
 		<Container className={classes.paper}>
 			{isLoading ? (

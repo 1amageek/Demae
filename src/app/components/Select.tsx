@@ -22,14 +22,14 @@ type InputProps = {
 }
 
 type InitProps = {
-	initValue?: string
+	initValue?: string | number | boolean
 	inputProps?: InputProps
 }
 
 type InitValue = string | number | undefined
 
 export const useSelect = (props: InitProps | InitValue) => {
-	if (typeof props === 'string' || typeof props === 'undefined' || props === null) {
+	if (typeof props === 'string' || typeof props === 'number' || typeof props === 'boolean' || typeof props === 'undefined' || props === null) {
 		const [value, setValue] = useState(props || "")
 		useEffect(() => {
 			setValue(props || "")
@@ -37,17 +37,6 @@ export const useSelect = (props: InitProps | InitValue) => {
 		const handleChange = e => setValue(e.target.value)
 		return {
 			value,
-			onChange: handleChange
-		};
-	} else if (typeof props === 'number') {
-		const [value, setValue] = useState(String(props) || "")
-		useEffect(() => {
-			setValue(String(props) || "")
-		}, [props])
-		const handleChange = e => setValue(e.target.value)
-		return {
-			value,
-			type: 'number',
 			onChange: handleChange
 		};
 	} else {
@@ -76,6 +65,3 @@ export default (props: InputProps) => {
 		</FormControl>
 	)
 }
-
-
-

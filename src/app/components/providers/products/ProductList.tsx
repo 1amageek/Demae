@@ -5,7 +5,7 @@ import { useDataSource } from 'hooks/commerce';
 import { Provider, Product } from 'models/commerce';
 
 export default ({ providerID }: { providerID: string }) => {
-	const [data, isLoading] = useDataSource(new Provider(providerID).products.collectionReference.limit(100), Product)
+	const [data, isLoading] = useDataSource(Product, new Provider(providerID).products.collectionReference.limit(100))
 	return (
 		<>
 			{isLoading ? (

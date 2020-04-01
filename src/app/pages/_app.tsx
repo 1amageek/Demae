@@ -77,13 +77,21 @@ const App = ({ Component, pageProps, router }: AppProps) => {
 		}
 	}, [state.authUser?.uid])
 
-	const signIn = async (uid: string) => {
-		const user = await Social.User.get<Social.User>(uid)
-		if (!user) {
-			const user = new Social.User(uid)
-			await user.save()
+	useEffect(() => {
+		console.log('[App] start Token listening')
+		const listener = firebase.auth().onIdTokenChanged(async (auth) => {
+			if (auth) {
+				const result = await auth.getIdTokenResult()
+				const claims = JSON.stringify(result.claims)
+				localStorage.setItem('claims', claims)
+			} else {
+				localStorage.removeItem('claims')
+			}
+		})
+		return () => {
+			listener()
 		}
-	}
+	}, [])
 
 	return (
 		<Provider>

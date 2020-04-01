@@ -25,14 +25,15 @@ import RefreshIcon from '@material-ui/icons/Refresh';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
-import Modal from 'components/Modal';
+import ProductTable from 'components/admin/products/ProductTable'
+import SKUsTable from 'components/admin/products/skus/SKUsTable'
 import Layout from 'components/admin/Layout'
 import Form from 'components/admin/products/Form'
 import Input, { useInput } from 'components/Input'
 import Provider from 'models/commerce/Provider'
 import Product from 'models/commerce/Product'
 import SKU from 'models/commerce/SKU'
-import { useAuthUser, useProviderProduct } from 'hooks/commerce';
+import { useAuthUser, useProviderProduct, useDataSource } from 'hooks/commerce';
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
@@ -67,26 +68,12 @@ const useStyles = makeStyles((theme: Theme) =>
 const index = ({ id, edit }: { id: string, edit: boolean }) => {
 	const classes = useStyles()
 	const [authUser] = useAuthUser()
-	const [product] = useProviderProduct(id)
-	const [isEditing, setEditing] = useState(edit)
-	const name = useInput(product?.name)
-	const caption = useInput(product?.caption)
-	const description = useInput(product?.description)
+	const [product, isProductLoading] = useProviderProduct(id)
+	const [skus, isSKULoading] = useDataSource<SKU>(SKU, product?.skus.collectionReference
+		.orderBy('updatedAt', 'desc')
+		.limit(100))
 
-	const [skus, setSKUs] = useState<SKU[]>([])
-	useEffect(() => {
-		const uid = authUser?.uid
-		if (!uid) { return }
-		(async () => {
-			const provider = new Provider(uid)
-			const snapshot = await provider.products.doc(id, Product).skus.collectionReference
-				.orderBy('updatedAt', 'desc')
-				.limit(100)
-				.get()
-			const skus = snapshot.docs.map(doc => SKU.fromSnapshot<SKU>(doc))
-			setSKUs([...skus])
-		})()
-	}, [authUser?.uid])
+	const [isEditing, setEditing] = useState(edit)
 
 	return (
 		<>
@@ -94,127 +81,15 @@ const index = ({ id, edit }: { id: string, edit: boolean }) => {
 				<Grid container spacing={3}>
 					<Grid item xs={12}>
 						<Paper className={classes.paper}>
-							<AppBar className={classes.searchBar} position="static" color="default" elevation={0}>
-								<Toolbar>
-									<Grid container spacing={2} alignItems="center">
-										<Grid item>
-											<Link href='/admin/products'>
-												<Tooltip title="Back">
-													<IconButton>
-														<ArrowBackIcon className={classes.block} color="inherit" />
-													</IconButton>
-												</Tooltip>
-											</Link>
-										</Grid>
-										<Grid item>
-											{
-												isEditing ? (
-													<>
-														<Button variant="contained" color="primary" className={classes.addAction} onClick={async () => {
-
-															if (product) {
-																product.name = name.value
-																product.caption = caption.value
-																product.description = description.value
-																await product.save()
-															}
-
-															setEditing(false)
-														}}>SAVE</Button>
-														<Button variant="contained" color="primary" className={classes.addAction} onClick={() => {
-															setEditing(false)
-														}}>CANCEL</Button>
-													</>
-												) : (
-														<Button variant="contained" color="primary" className={classes.addAction} onClick={() => {
-															setEditing(true)
-														}}>EDIT</Button>
-													)
-											}
-										</Grid>
-									</Grid>
-								</Toolbar>
-							</AppBar>
-							{
-								isEditing ? (
-									<List >
-										<ListItem key={"ID"} >
-											<ListItemText primary={"ID"} />
-											{product && <ListItemText primary={product.id} />}
-										</ListItem>
-										<ListItem key={"name"} >
-											<ListItemText primary={"name"} />
-											<Input {...name} />
-										</ListItem>
-										<ListItem key={"caption"}>
-											<ListItemText primary={"caption"} />
-											<Input {...caption} />
-										</ListItem>
-										<ListItem key={"description"}>
-											<ListItemText primary={"description"} />
-											<Input {...description} />
-										</ListItem>
-										<ListItem key={"status"}>
-											<ListItemText primary={"status"} />
-											{product && <ListItemText primary={product.isAvailable ? "Available" : "Disabled"} />}
-										</ListItem>
-									</List>
-								) : (
-										<List >
-											<ListItem key={"ID"} >
-												<ListItemText primary={"ID"} />
-												{product && <ListItemText primary={product.id} />}
-											</ListItem>
-											<ListItem key={"name"} >
-												<ListItemText primary={"name"} />
-												{product && <ListItemText primary={product.name} />}
-											</ListItem>
-											<ListItem key={"caption"}>
-												<ListItemText primary={"caption"} />
-												{product && <ListItemText primary={product.caption} />}
-											</ListItem>
-											<ListItem key={"description"}>
-												<ListItemText primary={"description"} />
-												{product && <ListItemText primary={product.description} />}
-											</ListItem>
-											<ListItem key={"status"}>
-												<ListItemText primary={"status"} />
-												{product && <ListItemText primary={product.isAvailable ? "Available" : "Disabled"} />}
-											</ListItem>
-										</List>
-									)
-							}
+							<ProductTable edit={isEditing} product={product!} />
 						</Paper>
 					</Grid>
 					<Grid item xs={12}>
 						<Paper className={classes.paper}>
-							<Table>
-								<TableHead>
-									<TableRow>
-										<TableCell>ID</TableCell>
-										<TableCell>Name</TableCell>
-										<TableCell>Price</TableCell>
-									</TableRow>
-								</TableHead>
-								<TableBody>
-									{skus.map(sku => {
-										return (
-											<Link href={`/admin/products/${id}/skus/${sku.id}`} key={sku.id} >
-												<TableRow hover>
-													<TableCell>{sku.id}</TableCell>
-													<TableCell>{sku.name}</TableCell>
-													<TableCell>{sku.currency} {sku.amount.toLocaleString()}</TableCell>
-												</TableRow>
-											</Link>
-										)
-									})}
-								</TableBody>
-							</Table>
+							{product && <SKUsTable product={product} skus={skus} />}
 						</Paper>
 					</Grid>
-
 				</Grid>
-
 			</Layout >
 			{
 				!isEditing && <Tooltip title="SKU Add" aria-label="add" onClick={(e) => {

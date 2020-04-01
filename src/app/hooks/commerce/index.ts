@@ -29,21 +29,42 @@ export const useAuthUser = (): [firebase.User | undefined, boolean] => {
 	return [authUser, isLoading]
 }
 
-export const useProvider = (): [Provider | undefined, boolean] => {
-	const [user] = useAuthUser()
-	const [provider, setProvider] = useState<Provider | undefined>(undefined)
+export const useClaim = (): [string | undefined, boolean] => {
+	const [admin, setAdmin] = useState<string | undefined>(undefined)
 	const [isLoading, setLoading] = useState(true)
 	useEffect(() => {
-		(async () => {
-			if (user) {
-				if (!provider) {
-					let provider = await Provider.get<Provider>(user.uid)
-					setProvider(provider)
-					setLoading(false)
-				}
+		const claims = localStorage.getItem('claims')
+		if (claims) {
+			const parsedClaims = JSON.parse(claims)
+			if (admin !== parsedClaims.admin) {
+				setAdmin(parsedClaims.admin)
 			}
-		})()
-	}, [user?.uid, provider?.id])
+			setLoading(false)
+		} else {
+			setAdmin(undefined)
+			setLoading(false)
+		}
+	}, [admin])
+	return [admin, isLoading]
+}
+
+export const useProvider = (): [Provider | undefined, boolean] => {
+	const [adminID, isAdminLoading] = useClaim()
+	const [provider, setProvider] = useState<Provider | undefined>(undefined)
+	const [isLoading, setLoading] = useState(isAdminLoading)
+	useEffect(() => {
+		if (adminID) {
+			(async () => {
+				const provider = await Provider.get<Provider>(adminID)
+				if (provider) {
+					setProvider(provider)
+				}
+				setLoading(false)
+			})()
+		} else {
+			setLoading(false)
+		}
+	}, [adminID])
 	return [provider, isLoading]
 }
 
@@ -99,17 +120,19 @@ export const useDocument = <T extends Doc>(documentReference: DocumentReference,
 	return [data, isLoading]
 }
 
-export const useDataSource = <T extends Doc>(query: firebase.firestore.Query, type: typeof Doc): [T[], boolean] => {
+export const useDataSource = <T extends Doc>(type: typeof Doc, query?: firebase.firestore.Query): [T[], boolean] => {
 	const [data, setData] = useState<T[]>([])
 	const [isLoading, setLoading] = useState(true)
 	useEffect(() => {
-		(async () => {
-			const snapshot = await query.get()
-			const data = snapshot.docs.map(doc => type.fromSnapshot<T>(doc))
-			setData(data)
-			setLoading(false)
-		})()
-	}, [data.length, isLoading])
+		if (query) {
+			(async () => {
+				const snapshot = await query.get()
+				const data = snapshot.docs.map(doc => type.fromSnapshot<T>(doc))
+				setData(data)
+				setLoading(false)
+			})()
+		}
+	}, [data.length, isLoading, query])
 	return [data, isLoading]
 }
 
