@@ -71,7 +71,7 @@ export default ({ uid, provider, account }: { uid: string, provider: Provider, a
 				</FormControl>
 				<Button fullWidth variant="contained" size="large" color="primary" onClick={onSubmit}>
 					Save
-			</Button>
+				</Button>
 			</form>
 		</>
 	)

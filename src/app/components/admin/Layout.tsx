@@ -114,7 +114,7 @@ export default ({ children }: { children: any }) => {
 		<div className={classes.root}>
 			<CssBaseline />
 			<AppBar
-				position="fixed"
+				position='fixed'
 				className={clsx(classes.appBar, {
 					[classes.appBarShift]: open,
 				})}
@@ -122,32 +122,32 @@ export default ({ children }: { children: any }) => {
 				<Toolbar className={classes.tooBar}>
 
 					<IconButton
-						color="inherit"
-						aria-label="open drawer"
+						color='inherit'
+						aria-label='open drawer'
 						onClick={handleDrawerOpen}
-						edge="start"
+						edge='start'
 						className={clsx(classes.menuButton, open && classes.hide)}
 					>
 						<MenuIcon />
 					</IconButton>
 
-					<Typography variant="h6" noWrap>
-						Persistent drawer
+					<Typography variant='h6' noWrap>
+						Admin
           </Typography>
 
 					<div style={{ flexGrow: 1 }}></div>
 
 					<IconButton
-						aria-label="account of current user"
-						aria-controls="menu-appbar"
-						aria-haspopup="true"
+						aria-label='account of current user'
+						aria-controls='menu-appbar'
+						aria-haspopup='true'
 						onClick={handleMenu}
-						color="inherit"
+						color='inherit'
 					>
 						<AccountCircle />
 					</IconButton>
 					<Menu
-						id="menu-appbar"
+						id='menu-appbar'
 						anchorEl={anchorEl}
 						anchorOrigin={{
 							vertical: 'top',
@@ -168,8 +168,8 @@ export default ({ children }: { children: any }) => {
 			</AppBar>
 			<Drawer
 				className={classes.drawer}
-				variant="persistent"
-				anchor="left"
+				variant='persistent'
+				anchor='left'
 				open={open}
 				classes={{
 					paper: classes.drawerPaper,
@@ -182,14 +182,19 @@ export default ({ children }: { children: any }) => {
 				</div>
 				<Divider />
 				<List>
-					<Link href="/admin/products">
-						<ListItem button key={"product"}>
-							<ListItemText primary={"Product"} />
+					<Link href='/admin/products'>
+						<ListItem button key={'product'}>
+							<ListItemText primary={'Product'} />
 						</ListItem>
 					</Link>
-					<Link href="/admin/orders">
-						<ListItem button key={"orders"}>
-							<ListItemText primary={"Orders"} />
+					<Link href='/admin/orders'>
+						<ListItem button key={'orders'}>
+							<ListItemText primary={'Orders'} />
+						</ListItem>
+					</Link>
+					<Link href='/admin/account'>
+						<ListItem button key={'account'}>
+							<ListItemText primary={'Account'} />
 						</ListItem>
 					</Link>
 				</List>
