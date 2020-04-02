@@ -96,36 +96,36 @@ const Form = ({ shipping }: { shipping: Shipping }) => {
 	return (
 		<>
 			<List >
-				<ListItem key={"country"} >
-					<ListItemText primary={"country"} />
+				<ListItem key={'country'} >
+					<ListItemText primary={'country'} />
 					<Input {...country} />
 				</ListItem>
-				<ListItem key={"state"}>
-					<ListItemText primary={"state"} />
+				<ListItem key={'state'}>
+					<ListItemText primary={'state'} />
 					<Input {...state} />
 				</ListItem>
-				<ListItem key={"city"}>
-					<ListItemText primary={"city"} />
+				<ListItem key={'city'}>
+					<ListItemText primary={'city'} />
 					<Input {...city} />
 				</ListItem>
-				<ListItem key={"line1"}>
-					<ListItemText primary={"line1"} />
+				<ListItem key={'line1'}>
+					<ListItemText primary={'line1'} />
 					<Input {...line1} />
 				</ListItem>
-				<ListItem key={"line2"}>
-					<ListItemText primary={"line2"} />
+				<ListItem key={'line2'}>
+					<ListItemText primary={'line2'} />
 					<Input {...line2} />
 				</ListItem>
-				<ListItem key={"postal_code"}>
-					<ListItemText primary={"postal_code"} />
+				<ListItem key={'postal_code'}>
+					<ListItemText primary={'postal_code'} />
 					<Input {...postal_code} />
 				</ListItem>
-				<ListItem key={"name"}>
-					<ListItemText primary={"name"} />
+				<ListItem key={'name'}>
+					<ListItemText primary={'name'} />
 					<Input {...name} />
 				</ListItem>
 			</List>
-			<Button variant="contained" color="primary" onClick={onClick}>Continue to Payment</Button>
+			<Button variant='contained' color='primary' onClick={onClick}>Continue to Payment</Button>
 		</>
 	)
 }

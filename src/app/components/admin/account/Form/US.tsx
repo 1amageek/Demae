@@ -2,18 +2,41 @@ import React, { useState } from 'react';
 import firebase from 'firebase'
 import 'firebase/functions'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
-import TextField from '@material-ui/core/TextField';
-import FormGroup from '@material-ui/core/FormGroup';
-import FormControl from '@material-ui/core/FormControl';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Paper from '@material-ui/core/Paper';
+import AppBar from '@material-ui/core/AppBar';
+import Toolbar from '@material-ui/core/Toolbar';
+import Typography from '@material-ui/core/Typography';
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableRow from '@material-ui/core/TableRow';
 import Button from '@material-ui/core/Button';
 import { useAuthUser } from 'hooks/commerce'
 import Input, { useInput } from 'components/Input'
 import Account from 'models/account/Account'
 import { Create, Individual } from 'common/commerce/account'
 import Grid from '@material-ui/core/Grid';
+import { Box } from '@material-ui/core';
 
+const useStyles = makeStyles((theme: Theme) =>
+	createStyles({
+		box: {
+			padding: theme.spacing(2),
+			backgroundColor: '#fafafa'
+		},
+		bottomBox: {
+			padding: theme.spacing(2),
+			display: 'flex',
+			justifyContent: 'flex-end'
+		},
+		input: {
+			backgroundColor: '#fff'
+		},
+		cell: {
+			borderBottom: 'none',
+			padding: theme.spacing(1),
+		},
+	}),
+);
 
 export default () => {
 
@@ -34,17 +57,28 @@ export default () => {
 }
 
 const IndividualForm = ({ individual }: { individual: Partial<Individual> }) => {
-
+	const classes = useStyles()
 	const [authUser] = useAuthUser()
 
 	const first_name = useInput(individual.first_name)
 	const last_name = useInput(individual.last_name)
-	const email = useInput(individual.email)
-	const phone = useInput(individual.phone)
-
 	const year = useInput(individual.dob?.year)
 	const month = useInput(individual.dob?.month)
 	const day = useInput(individual.dob?.day)
+	const ssn_last_4 = useInput(individual.ssn_last_4)
+
+	const country = useInput(individual.address?.country)
+	const state = useInput(individual.address?.state)
+	const city = useInput(individual.address?.city)
+	const line1 = useInput(individual.address?.line1)
+	const line2 = useInput(individual.address?.line2)
+	const postal_code = useInput(individual.address?.postal_code)
+
+
+	const email = useInput(individual.email)
+	const phone = useInput(individual.phone)
+
+
 
 	const shouldSubmit = () => {
 		if (!authUser) {
@@ -103,39 +137,111 @@ const IndividualForm = ({ individual }: { individual: Partial<Individual> }) => 
 	}
 
 	return (
-		<form noValidate autoComplete='off'>
-			<FormControl fullWidth style={{ marginBottom: '28px' }}>
-
-				<Grid container spacing={2} alignItems='center'>
-					<Grid item>
-						<Input label='first name' {...first_name} />
+		<>
+			<AppBar position='static' color='transparent' elevation={0}>
+				<Toolbar>
+					<Typography variant="h6">
+						Edit account information
+          </Typography>
+				</Toolbar>
+			</AppBar>
+			<form noValidate autoComplete='off'>
+				<Box className={classes.box} >
+					<Grid container spacing={2}>
+						<Grid item xs={12} sm={6}>
+							<Table size='small'>
+								<TableBody>
+									<TableRow>
+										<TableCell className={classes.cell} align='right'>First Name</TableCell>
+										<TableCell className={classes.cell} align='left'>
+											<Input className={classes.input} required label='first name' variant='outlined' margin='dense' size='small' {...first_name} />
+										</TableCell>
+									</TableRow>
+									<TableRow>
+										<TableCell className={classes.cell} align='right'>Last Name</TableCell>
+										<TableCell className={classes.cell} align='left'>
+											<Input className={classes.input} required label='last name' variant='outlined' margin='dense' size='small' {...last_name} />
+										</TableCell>
+									</TableRow>
+									<TableRow>
+										<TableCell className={classes.cell} align='right'>email</TableCell>
+										<TableCell className={classes.cell} align='left'>
+											<Input className={classes.input} required label='email' variant='outlined' margin='dense' size='small' {...email} />
+										</TableCell>
+									</TableRow>
+									<TableRow>
+										<TableCell className={classes.cell} align='right'>Phone</TableCell>
+										<TableCell className={classes.cell} align='left'>
+											<Input className={classes.input} required label='phone' variant='outlined' margin='dense' size='small' {...phone} />
+										</TableCell>
+									</TableRow>
+									<TableRow>
+										<TableCell className={classes.cell} align='right'>First Name</TableCell>
+										<TableCell className={classes.cell} align='left'>
+											<Input className={classes.input} required label='year' type='number' variant='outlined' margin='dense' size='small' {...year} style={{ width: '100px', marginRight: '8px' }} />
+											<Input className={classes.input} required label='month' type='number' variant='outlined' margin='dense' size='small' {...month} style={{ width: '80px', marginRight: '8px' }} />
+											<Input className={classes.input} required label='day' type='number' variant='outlined' margin='dense' size='small' {...day} style={{ width: '80px' }} />
+										</TableCell>
+									</TableRow>
+									<TableRow>
+										<TableCell className={classes.cell} align='right'>SSN Last 4</TableCell>
+										<TableCell className={classes.cell} align='left'>
+											<Input className={classes.input} required label='SSN last 4' variant='outlined' margin='dense' size='small' {...ssn_last_4} />
+										</TableCell>
+									</TableRow>
+								</TableBody>
+							</Table>
+						</Grid>
+						<Grid item xs={12} sm={6}>
+							<Table size='small'>
+								<TableBody>
+									<TableRow>
+										<TableCell className={classes.cell} align='right'>line1</TableCell>
+										<TableCell className={classes.cell} align='left'>
+											<Input className={classes.input} required label='line1' variant='outlined' margin='dense' size='small' {...line1} />
+										</TableCell>
+									</TableRow>
+									<TableRow>
+										<TableCell className={classes.cell} align='right'>line2</TableCell>
+										<TableCell className={classes.cell} align='left'>
+											<Input className={classes.input} required label='line2' variant='outlined' margin='dense' size='small' {...line2} />
+										</TableCell>
+									</TableRow>
+									<TableRow>
+										<TableCell className={classes.cell} align='right'>city</TableCell>
+										<TableCell className={classes.cell} align='left'>
+											<Input className={classes.input} required label='city' variant='outlined' margin='dense' size='small' {...city} />
+										</TableCell>
+									</TableRow>
+									<TableRow>
+										<TableCell className={classes.cell} align='right'>state</TableCell>
+										<TableCell className={classes.cell} align='left'>
+											<Input className={classes.input} required label='state' variant='outlined' margin='dense' size='small' {...state} />
+										</TableCell>
+									</TableRow>
+									<TableRow>
+										<TableCell className={classes.cell} align='right'>postal code</TableCell>
+										<TableCell className={classes.cell} align='left'>
+											<Input className={classes.input} required label='postal code' variant='outlined' margin='dense' size='small' {...postal_code} />
+										</TableCell>
+									</TableRow>
+									<TableRow>
+										<TableCell className={classes.cell} align='right'>country</TableCell>
+										<TableCell className={classes.cell} align='left'>
+											<Input className={classes.input} required label='country' variant='outlined' margin='dense' size='small' {...country} />
+										</TableCell>
+									</TableRow>
+								</TableBody>
+							</Table>
+						</Grid>
 					</Grid>
-					<Grid item>
-						<Input label='last name' {...last_name} />
-					</Grid>
-				</Grid>
-
-				<FormGroup>
-					<Input label='email' {...email} />
-					<Input label='phone' {...phone} />
-				</FormGroup>
-
-				<Grid container spacing={2} alignItems='center'>
-					<Grid item>
-						<Input label='year' type='number' {...year} />
-					</Grid>
-					<Grid item>
-						<Input label='month' type='number' {...month} />
-					</Grid>
-					<Grid item>
-						<Input label='day' type='number' {...day} />
-					</Grid>
-				</Grid>
-			</FormControl>
-			<Button fullWidth variant='contained' size='large' color='primary' onClick={onSubmit}>
-				Save
-			</Button>
-		</form>
+				</Box>
+				<Box className={classes.bottomBox} >
+					<Button style={{}} variant='contained' size='medium' color='primary' type='submit' onClick={onSubmit}>
+						Save
+				</Button>
+				</Box>
+			</form>
+		</>
 	)
-
 }

@@ -9,7 +9,7 @@ const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
 		paper: {
 			backgroundColor: theme.palette.background.paper,
-			padding: theme.spacing(2),
+			// padding: theme.spacing(2),
 		},
 	}),
 );
@@ -18,7 +18,7 @@ export default () => {
 	const classes = useStyles();
 	return (
 		<Layout>
-			<Container maxWidth='sm' >
+			<Container maxWidth='md' >
 				<Paper className={classes.paper}>
 					<Form />
 				</Paper>

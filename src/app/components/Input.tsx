@@ -1,16 +1,7 @@
 import { useState, useEffect } from 'react'
-import TextField from '@material-ui/core/TextField'
+import TextField, { TextFieldProps } from '@material-ui/core/TextField'
 
-type InputProps = {
-	id?: string
-	label?: string
-	type?: string
-	placeholder?: string
-	fullWidth?: boolean
-	required?: boolean
-	autoComplete?: string
-	style?: Object
-}
+type InputProps = TextFieldProps
 
 type InitProps = {
 	initValue?: string
@@ -21,9 +12,9 @@ type InitValue = string | number | undefined
 
 export const useInput = (props: InitProps | InitValue) => {
 	if (typeof props === 'string' || typeof props === 'undefined' || props === null) {
-		const [value, setValue] = useState(props || "")
+		const [value, setValue] = useState(props || '')
 		useEffect(() => {
-			setValue(props || "")
+			setValue(props || '')
 		}, [props])
 		const handleChange = e => setValue(e.target.value)
 		return {
@@ -31,9 +22,9 @@ export const useInput = (props: InitProps | InitValue) => {
 			onChange: handleChange
 		};
 	} else if (typeof props === 'number') {
-		const [value, setValue] = useState(String(props) || "")
+		const [value, setValue] = useState(String(props) || '')
 		useEffect(() => {
-			setValue(String(props) || "")
+			setValue(String(props) || '')
 		}, [props])
 		const handleChange = e => setValue(e.target.value)
 		return {
@@ -42,9 +33,9 @@ export const useInput = (props: InitProps | InitValue) => {
 			onChange: handleChange
 		};
 	} else {
-		const [value, setValue] = useState(props.initValue ? props.initValue : "")
+		const [value, setValue] = useState(props.initValue ? props.initValue : '')
 		useEffect(() => {
-			setValue(props.initValue ? props.initValue : "")
+			setValue(props.initValue ? props.initValue : '')
 		}, [props.initValue])
 		const handleChange = e => setValue(e.target.value)
 		return {
@@ -58,7 +49,7 @@ export const useInput = (props: InitProps | InitValue) => {
 export default (props: InputProps) => {
 	return (
 		<TextField
-			margin="normal"
+			margin='normal'
 			InputLabelProps={{
 				shrink: true,
 			}}

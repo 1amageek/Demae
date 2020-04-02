@@ -123,7 +123,7 @@ export default () => {
 			</Paper>
 
 
-			<Button className={classes.button} variant="contained" color="primary" onClick={checkout} disabled={!(user?.customerID)}>
+			<Button className={classes.button} variant='contained' color='primary' onClick={checkout} disabled={!(user?.customerID)}>
 				Payment
       </Button>
 		</>
