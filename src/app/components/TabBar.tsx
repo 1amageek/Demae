@@ -27,19 +27,19 @@ export default () => {
 
 	return (
 		<BottomNavigation value={value} onChange={handleChange} className={classes.root}>
-			<Link href='/home' prefetch>
+			<Link href='/home'>
 				<BottomNavigationAction
 					label="Home"
 					value="home"
 					icon={<StorefrontIcon />} />
 			</Link>
-			<Link href='/cart' prefetch>
+			<Link href='/cart'>
 				<BottomNavigationAction
 					label="Cart"
 					value="cart"
 					icon={<ShoppingCartIcon />} />
 			</Link>
-			<Link href='/account' prefetch>
+			<Link href='/account'>
 				<BottomNavigationAction
 					label="Account"
 					value="account"

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import firebase from 'firebase'
 import 'firebase/auth'
 import Link from 'next/link'
-import Router from 'next/Router'
+import Router from 'next/router'
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';

@@ -22,7 +22,7 @@
 			"es2016",
 			"WebWorker"
 		],
-		"forceConsistentCasingInFileNames": true,
+		"forceConsistentCasingInFileNames": false,
 		"esModuleInterop": true,
 		"resolveJsonModule": true,
 		"isolatedModules": true,

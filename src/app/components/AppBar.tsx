@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import firebase from 'firebase'
-import 'firebase/auth'
 import Link from 'next/link';
 import Container from '@material-ui/core/Container';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';

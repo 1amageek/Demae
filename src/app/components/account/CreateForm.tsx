@@ -9,7 +9,7 @@ import FormControl from '@material-ui/core/FormControl';
 import Typography from '@material-ui/core/Typography';
 import Select, { useSelect } from 'components/Select'
 import { BusinessType } from 'common/commerce/account';
-import Router from 'next/Router'
+import Router from 'next/router'
 
 export default ({ uid, provider, account }: { uid: string, provider: Provider, account: Account }) => {
 

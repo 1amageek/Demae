@@ -1,4 +1,4 @@
-import { useRouter } from 'next/Router'
+import { useRouter } from 'next/router'
 import Layout from 'components/providers/Layout'
 import Provider from 'components/providers/Provider'
 import ProductList from 'components/providers/products/ProductList'

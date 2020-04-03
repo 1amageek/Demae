@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import firebase from 'firebase'
 import 'firebase/functions'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
@@ -9,6 +9,7 @@ import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
+import FileInput from '@material-ui/core/Input';
 import Button from '@material-ui/core/Button';
 import { useAuthUser } from 'hooks/commerce'
 import Input, { useInput } from 'components/Input'
@@ -74,11 +75,8 @@ const IndividualForm = ({ individual }: { individual: Partial<Individual> }) => 
 	const line2 = useInput(individual.address?.line2)
 	const postal_code = useInput(individual.address?.postal_code)
 
-
 	const email = useInput(individual.email)
 	const phone = useInput(individual.phone)
-
-
 
 	const shouldSubmit = () => {
 		if (!authUser) {
@@ -117,7 +115,18 @@ const IndividualForm = ({ individual }: { individual: Partial<Individual> }) => 
 					year: Number(year.value),
 					month: Number(month.value),
 					day: Number(day.value)
-				}
+				},
+				ssn_last_4: ssn_last_4.value,
+				address: {
+					country: country.value,
+					state: state.value,
+					city: city.value,
+					line1: line1.value,
+					line2: line2.value,
+					postal_code: postal_code.value
+				},
+				email: email.value,
+				phone: phone.value
 			}
 		}
 
@@ -129,12 +138,44 @@ const IndividualForm = ({ individual }: { individual: Partial<Individual> }) => 
 			account.country = result.data.country
 			account.businessType = result.data.business_type
 			account.email = result.data.email
+			// account.individual =
 			await account.save()
 			console.log(result)
 		} catch (error) {
 			console.log(error)
 		}
 	}
+
+	const fileUpload = (body: FormData) => {
+		return fetch('https://files.stripe.com/v1/files', {
+			method: 'POST',
+			mode: 'cors',
+			body,
+			headers: {
+				Authorization: `Bearer ${process.env.STRIPE_KEY!}`,
+				"Content-Type": "multipart/form-data"
+			}
+		})
+	}
+
+	const handleCapture = async ({ target }) => {
+		const uid = authUser?.uid
+		if (!uid) { return }
+		console.log(target.files)
+		const file = target.files[0] as File
+		const ref = firebase.storage().ref(new Account(uid).documentReference.path + '/verification/back.jpg')
+		try {
+			const task = ref.put(file)
+			task.on('state_changed', (snapshot) => {
+				console.log(snapshot)
+			}, (error) => {
+				console.log(error)
+			})
+			task.resume()
+		} catch (error) {
+			console.log(error)
+		}
+	};
 
 	return (
 		<>
@@ -187,6 +228,18 @@ const IndividualForm = ({ individual }: { individual: Partial<Individual> }) => 
 										<TableCell className={classes.cell} align='right'>SSN Last 4</TableCell>
 										<TableCell className={classes.cell} align='left'>
 											<Input className={classes.input} required label='SSN last 4' variant='outlined' margin='dense' size='small' {...ssn_last_4} />
+										</TableCell>
+									</TableRow>
+									<TableRow>
+										<TableCell className={classes.cell} align='right'>Passport or Local ID card. (Front)</TableCell>
+										<TableCell className={classes.cell} align='left'>
+											<FileInput type="file" />
+										</TableCell>
+									</TableRow>
+									<TableRow>
+										<TableCell className={classes.cell} align='right'>Passport or Local ID card. (Back)</TableCell>
+										<TableCell className={classes.cell} align='left'>
+											<input accept="image/jpeg,image/png,application/pdf" type="file" onChange={handleCapture} />
 										</TableCell>
 									</TableRow>
 								</TableBody>

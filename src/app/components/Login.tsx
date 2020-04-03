@@ -1,8 +1,7 @@
-import React, { useEffect } from 'react'
-import Router from 'next/Router'
+import React from 'react'
+import Router from 'next/router'
 import StyledFirebaseAuth from 'react-firebaseui/StyledFirebaseAuth'
-import firebase, { auth } from 'firebase'
-import 'firebase/auth'
+import firebase from 'firebase'
 import * as Social from 'models/social'
 
 export default ({ redirectURL = '/', defaultCountry = 'JP' }: { redirectURL?: string, defaultCountry?: string }) => {

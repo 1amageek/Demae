@@ -35,6 +35,10 @@ export const hosting = functions.https.onRequest(async (req, res) => {
 		// }
 		await handle(req, res)
 	})
+	server.use((error: any) => {
+		console.error(error)
+		res.status(500).send('error')
+	})
 	server(req, res)
 })
 
