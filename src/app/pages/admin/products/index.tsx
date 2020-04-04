@@ -11,7 +11,7 @@ import Fab from '@material-ui/core/Fab';
 import AddIcon from '@material-ui/icons/Add';
 import TextField from '@material-ui/core/TextField';
 import Tooltip from '@material-ui/core/Tooltip';
-import ProductTable from 'components/admin/products/ProductsTable'
+import ProductsTable from 'components/admin/products/ProductsTable'
 import IconButton from '@material-ui/core/IconButton';
 import { makeStyles, useTheme, Theme, createStyles } from '@material-ui/core/styles';
 import SearchIcon from '@material-ui/icons/Search';
@@ -108,7 +108,7 @@ export default () => {
 							</Grid>
 						</Toolbar>
 					</AppBar>
-					<ProductTable products={products} />
+					<ProductsTable products={products} />
 				</Paper>
 			</Layout>
 			<Tooltip title="Product Add" aria-label="add" onClick={(e) => {

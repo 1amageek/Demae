@@ -9,7 +9,8 @@ import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
-import FileInput from '@material-ui/core/Input';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import DoneIcon from '@material-ui/icons/Done';
 import Button from '@material-ui/core/Button';
 import { useAuthUser } from 'hooks/commerce'
 import Input, { useInput } from 'components/Input'
@@ -36,6 +37,16 @@ const useStyles = makeStyles((theme: Theme) =>
 			borderBottom: 'none',
 			padding: theme.spacing(1),
 		},
+		cellStatus: {
+			borderBottom: 'none',
+			padding: theme.spacing(1),
+			width: '48px',
+		},
+		cellStatusBox: {
+			display: 'flex',
+			justifyContent: 'center',
+			alignItems: 'center'
+		}
 	}),
 );
 
@@ -77,6 +88,11 @@ const IndividualForm = ({ individual }: { individual: Partial<Individual> }) => 
 
 	const email = useInput(individual.email)
 	const phone = useInput(individual.phone)
+
+	const [front, setFront] = useState<string | undefined>()
+	const [back, setBack] = useState<string | undefined>()
+	const [isFrontLoading, setFrontLoading] = useState(false)
+	const [isBackLoading, setBackLoading] = useState(false)
 
 	const shouldSubmit = () => {
 		if (!authUser) {
@@ -146,36 +162,57 @@ const IndividualForm = ({ individual }: { individual: Partial<Individual> }) => 
 		}
 	}
 
-	const fileUpload = (body: FormData) => {
-		return fetch('https://files.stripe.com/v1/files', {
-			method: 'POST',
-			mode: 'cors',
-			body,
-			headers: {
-				Authorization: `Bearer ${process.env.STRIPE_KEY!}`,
-				"Content-Type": "multipart/form-data"
+	const handleFrontCapture = async ({ target }) => {
+		const uid = authUser?.uid
+		if (!uid) { return }
+		setFrontLoading(true)
+		const file = target.files[0] as File
+		const ref = firebase.storage().ref(new Account(uid).documentReference.path + '/verification/front.jpg')
+		ref.put(file).then(async (snapshot) => {
+			if (snapshot.state === 'success') {
+				console.log(snapshot)
+				const metadata = snapshot.metadata
+				const { bucket, fullPath, name, contentType } = metadata
+				const uploadFile = firebase.functions().httpsCallable('v1-stripe-account-uploadFile')
+				try {
+					const result = await uploadFile({ bucket, fullPath, name, contentType })
+					const data = result.data
+					if (data) {
+						setFront(data.id)
+					}
+				} catch (error) {
+					console.error(error)
+				}
 			}
+			setFrontLoading(false)
 		})
 	}
 
-	const handleCapture = async ({ target }) => {
+	const handleBackCapture = async ({ target }) => {
 		const uid = authUser?.uid
 		if (!uid) { return }
-		console.log(target.files)
+		setBackLoading(true)
 		const file = target.files[0] as File
 		const ref = firebase.storage().ref(new Account(uid).documentReference.path + '/verification/back.jpg')
-		try {
-			const task = ref.put(file)
-			task.on('state_changed', (snapshot) => {
+		ref.put(file).then(async (snapshot) => {
+			if (snapshot.state === 'success') {
 				console.log(snapshot)
-			}, (error) => {
-				console.log(error)
-			})
-			task.resume()
-		} catch (error) {
-			console.log(error)
-		}
-	};
+				const metadata = snapshot.metadata
+				const { bucket, fullPath, name, contentType } = metadata
+				const uploadFile = firebase.functions().httpsCallable('v1-stripe-account-uploadFile')
+				try {
+					const result = await uploadFile({ bucket, fullPath, name, contentType })
+					const data = result.data
+					if (data) {
+						setBack(data.id)
+					}
+				} catch (error) {
+					console.error(error)
+				}
+			}
+			setBackLoading(false)
+		})
+	}
 
 	return (
 		<>
@@ -193,53 +230,71 @@ const IndividualForm = ({ individual }: { individual: Partial<Individual> }) => 
 							<Table size='small'>
 								<TableBody>
 									<TableRow>
+										<TableCell className={classes.cellStatus}></TableCell>
 										<TableCell className={classes.cell} align='right'>First Name</TableCell>
 										<TableCell className={classes.cell} align='left'>
 											<Input className={classes.input} required label='first name' variant='outlined' margin='dense' size='small' {...first_name} />
 										</TableCell>
 									</TableRow>
 									<TableRow>
+										<TableCell className={classes.cellStatus}></TableCell>
 										<TableCell className={classes.cell} align='right'>Last Name</TableCell>
 										<TableCell className={classes.cell} align='left'>
 											<Input className={classes.input} required label='last name' variant='outlined' margin='dense' size='small' {...last_name} />
 										</TableCell>
 									</TableRow>
 									<TableRow>
+										<TableCell className={classes.cellStatus}></TableCell>
 										<TableCell className={classes.cell} align='right'>email</TableCell>
 										<TableCell className={classes.cell} align='left'>
 											<Input className={classes.input} required label='email' variant='outlined' margin='dense' size='small' {...email} />
 										</TableCell>
 									</TableRow>
 									<TableRow>
+										<TableCell className={classes.cellStatus}></TableCell>
 										<TableCell className={classes.cell} align='right'>Phone</TableCell>
 										<TableCell className={classes.cell} align='left'>
 											<Input className={classes.input} required label='phone' variant='outlined' margin='dense' size='small' {...phone} />
 										</TableCell>
 									</TableRow>
 									<TableRow>
+										<TableCell className={classes.cellStatus}></TableCell>
 										<TableCell className={classes.cell} align='right'>First Name</TableCell>
 										<TableCell className={classes.cell} align='left'>
-											<Input className={classes.input} required label='year' type='number' variant='outlined' margin='dense' size='small' {...year} style={{ width: '100px', marginRight: '8px' }} />
-											<Input className={classes.input} required label='month' type='number' variant='outlined' margin='dense' size='small' {...month} style={{ width: '80px', marginRight: '8px' }} />
-											<Input className={classes.input} required label='day' type='number' variant='outlined' margin='dense' size='small' {...day} style={{ width: '80px' }} />
+											<Input className={classes.input} required label='year' type='number' variant='outlined' margin='dense' size='small' {...year} style={{ width: '80px', marginRight: '8px' }} />
+											<Input className={classes.input} required label='month' type='number' variant='outlined' margin='dense' size='small' {...month} style={{ width: '66px', marginRight: '8px' }} />
+											<Input className={classes.input} required label='day' type='number' variant='outlined' margin='dense' size='small' {...day} style={{ width: '66px' }} />
 										</TableCell>
 									</TableRow>
 									<TableRow>
+										<TableCell className={classes.cellStatus}></TableCell>
 										<TableCell className={classes.cell} align='right'>SSN Last 4</TableCell>
 										<TableCell className={classes.cell} align='left'>
 											<Input className={classes.input} required label='SSN last 4' variant='outlined' margin='dense' size='small' {...ssn_last_4} />
 										</TableCell>
 									</TableRow>
 									<TableRow>
-										<TableCell className={classes.cell} align='right'>Passport or Local ID card. (Front)</TableCell>
+										<TableCell className={classes.cellStatus}>
+											<Box className={classes.cellStatusBox}>
+												{isFrontLoading && <CircularProgress size={16} />}
+												{front && <DoneIcon color="primary" />}
+											</Box>
+										</TableCell>
+										<TableCell className={classes.cell} align='right'>Passport or Local ID card. (front)</TableCell>
 										<TableCell className={classes.cell} align='left'>
-											<FileInput type="file" />
+											<input accept="image/jpeg,image/png,application/pdf" type="file" onChange={handleFrontCapture} />
 										</TableCell>
 									</TableRow>
 									<TableRow>
+										<TableCell className={classes.cellStatus}>
+											<Box className={classes.cellStatusBox}>
+												{isBackLoading && <CircularProgress size={16} />}
+												{back && <DoneIcon color="primary" />}
+											</Box>
+										</TableCell>
 										<TableCell className={classes.cell} align='right'>Passport or Local ID card. (Back)</TableCell>
 										<TableCell className={classes.cell} align='left'>
-											<input accept="image/jpeg,image/png,application/pdf" type="file" onChange={handleCapture} />
+											<input accept="image/jpeg,image/png,application/pdf" type="file" onChange={handleBackCapture} />
 										</TableCell>
 									</TableRow>
 								</TableBody>
@@ -249,36 +304,42 @@ const IndividualForm = ({ individual }: { individual: Partial<Individual> }) => 
 							<Table size='small'>
 								<TableBody>
 									<TableRow>
+										<TableCell className={classes.cellStatus}></TableCell>
 										<TableCell className={classes.cell} align='right'>line1</TableCell>
 										<TableCell className={classes.cell} align='left'>
 											<Input className={classes.input} required label='line1' variant='outlined' margin='dense' size='small' {...line1} />
 										</TableCell>
 									</TableRow>
 									<TableRow>
+										<TableCell className={classes.cellStatus}></TableCell>
 										<TableCell className={classes.cell} align='right'>line2</TableCell>
 										<TableCell className={classes.cell} align='left'>
 											<Input className={classes.input} required label='line2' variant='outlined' margin='dense' size='small' {...line2} />
 										</TableCell>
 									</TableRow>
 									<TableRow>
+										<TableCell className={classes.cellStatus}></TableCell>
 										<TableCell className={classes.cell} align='right'>city</TableCell>
 										<TableCell className={classes.cell} align='left'>
 											<Input className={classes.input} required label='city' variant='outlined' margin='dense' size='small' {...city} />
 										</TableCell>
 									</TableRow>
 									<TableRow>
+										<TableCell className={classes.cellStatus}></TableCell>
 										<TableCell className={classes.cell} align='right'>state</TableCell>
 										<TableCell className={classes.cell} align='left'>
 											<Input className={classes.input} required label='state' variant='outlined' margin='dense' size='small' {...state} />
 										</TableCell>
 									</TableRow>
 									<TableRow>
+										<TableCell className={classes.cellStatus}></TableCell>
 										<TableCell className={classes.cell} align='right'>postal code</TableCell>
 										<TableCell className={classes.cell} align='left'>
 											<Input className={classes.input} required label='postal code' variant='outlined' margin='dense' size='small' {...postal_code} />
 										</TableCell>
 									</TableRow>
 									<TableRow>
+										<TableCell className={classes.cellStatus}></TableCell>
 										<TableCell className={classes.cell} align='right'>country</TableCell>
 										<TableCell className={classes.cell} align='left'>
 											<Input className={classes.input} required label='country' variant='outlined' margin='dense' size='small' {...country} />
