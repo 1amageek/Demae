@@ -1,5 +1,6 @@
 import React, { useContext } from 'react'
 import { Switch, Route, Redirect } from 'react-router-dom'
+import { makeStyles, useTheme, Theme, createStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import CssBaseline from '@material-ui/core/CssBaseline'
 import AppBar from 'components/AppBar'
@@ -13,19 +14,28 @@ import Shipping from 'components/checkout/shipping'
 import PaymentMethod from 'components/checkout/payment'
 import { AppContext } from 'context'
 
-export default ({ children }: { children: any }) => {
+const useStyles = makeStyles((theme: Theme) =>
+	createStyles({
+		content: {
+			flexGrow: 1,
+			padding: theme.spacing(2, 0),
+		},
+	}),
+);
 
+export default ({ children }: { children: any }) => {
+	const classes = useStyles()
 	const [appContent] = useContext(AppContext)
 
 	return (
 		<>
 			<AppBar title={appContent.appBar.title} />
-			<div>
-				<Container maxWidth="sm">
+			<main className={classes.content}>
+				<Container maxWidth='sm'>
 					<CssBaseline />
 					{children}
 				</Container>
-			</div>
+			</main>
 			<TabBar />
 		</>
 	);

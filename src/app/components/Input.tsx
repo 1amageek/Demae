@@ -1,16 +1,5 @@
 import { useState, useEffect } from 'react'
-import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import TextField, { TextFieldProps } from '@material-ui/core/TextField'
-
-const useStyles = makeStyles((theme: Theme) =>
-	createStyles({
-		input: {
-			"&": {
-				border: "red solid 2px"
-			}
-		}
-	}),
-);
 
 type InitProps = {
 	initValue?: string
@@ -87,10 +76,8 @@ export const useInput = (props: InitProps | InitValue, textFieldProps?: TextFiel
 }
 
 export default (props: TextFieldProps) => {
-	const classes = useStyles()
 	return (
 		<TextField
-			className={classes.input}
 			margin='normal'
 			InputLabelProps={{
 				shrink: true,

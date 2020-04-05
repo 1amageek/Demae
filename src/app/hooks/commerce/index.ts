@@ -29,7 +29,7 @@ export const useAuthUser = (): [firebase.User | undefined, boolean] => {
 	return [authUser, isLoading]
 }
 
-export const useClaim = (): [string | undefined, boolean] => {
+export const useAdmin = (): [string | undefined, boolean] => {
 	const [admin, setAdmin] = useState<string | undefined>(undefined)
 	const [isLoading, setLoading] = useState(true)
 	useEffect(() => {
@@ -49,7 +49,7 @@ export const useClaim = (): [string | undefined, boolean] => {
 }
 
 export const useProvider = (): [Provider | undefined, boolean] => {
-	const [adminID, isAdminLoading] = useClaim()
+	const [adminID, isAdminLoading] = useAdmin()
 	const [provider, setProvider] = useState<Provider | undefined>(undefined)
 	const [isLoading, setLoading] = useState(isAdminLoading)
 	useEffect(() => {
@@ -116,7 +116,7 @@ export const useDocument = <T extends Doc>(documentReference: DocumentReference,
 			setData(doc)
 			setLoading(false)
 		})()
-	}, [data?.id, isLoading])
+	}, [data?.id])
 	return [data, isLoading]
 }
 
@@ -126,25 +126,28 @@ export const useDataSource = <T extends Doc>(type: typeof Doc, query?: firebase.
 	useEffect(() => {
 		if (query) {
 			(async () => {
+				setLoading(true)
 				const snapshot = await query.get()
 				const data = snapshot.docs.map(doc => type.fromSnapshot<T>(doc))
 				setData(data)
 				setLoading(false)
 			})()
 		}
-	}, [data.length, isLoading, query])
+		setLoading(false)
+	}, [data.length, query])
 	return [data, isLoading]
 }
 
 export const useCart = (): [Cart | undefined, boolean] => {
 	const [user] = useAuthUser()
 	const [cart, setCart] = useState<Cart | undefined>(undefined)
-	const [isLoading, setLoading] = useState(true)
+	const [isLoading, setLoading] = useState(false)
 	useEffect(() => {
 		(async () => {
 			if (user) {
 				if (!cart) {
-					let cart = await Cart.get<Cart>(user.uid) || new Cart(user.uid)
+					setLoading(true)
+					const cart = await Cart.get<Cart>(user.uid) || new Cart(user.uid)
 					setCart(cart)
 					setLoading(false)
 				}
@@ -157,12 +160,13 @@ export const useCart = (): [Cart | undefined, boolean] => {
 export const useUser = (): [User | undefined, boolean] => {
 	const [auth] = useAuthUser()
 	const [user, setUser] = useState<User | undefined>(undefined)
-	const [isLoading, setLoading] = useState(true)
+	const [isLoading, setLoading] = useState(false)
 	useEffect(() => {
 		(async () => {
 			if (auth) {
 				if (!user) {
-					let user = await User.get<User>(auth.uid) || new User(auth.uid)
+					setLoading(true)
+					const user = await User.get<User>(auth.uid) || new User(auth.uid)
 					setUser(user)
 					setLoading(false)
 				}

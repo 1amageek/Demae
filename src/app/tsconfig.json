@@ -40,6 +40,9 @@
 			"models/*": [
 				"models/*"
 			],
+			"config/*": [
+				"config/*"
+			],
 			"utils/*": [
 				"utils/*"
 			],

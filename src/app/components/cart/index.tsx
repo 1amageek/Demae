@@ -33,7 +33,6 @@ export default () => {
 	const [cart, isLoading] = useCart()
 
 	const itemDelete = async (item: OrderItem) => {
-		console.log('a')
 		cart?.deleteItem(item)
 		await cart?.update()
 	}
@@ -47,7 +46,7 @@ export default () => {
 				<Loading />
 			) : (
 					<List className={classes.list}>
-						{cart!.items.map((item, index) => {
+						{cart && cart.items.map((item, index) => {
 							return <Cell item={item} key={String(index)} onClick={async () => {
 								await itemDelete(item)
 							}} />

@@ -20,7 +20,7 @@ const useStyles = makeStyles((theme: Theme) =>
 	}),
 );
 
-export default ({ open, onClose, children }: { open: boolean, onClose: () => void, children: any }) => {
+export default ({ open, onClose, onNext, children }: { open: boolean, onClose: () => void, onNext?: () => void, children: any }) => {
 	const classes = useStyles();
 
 	const handleClose = () => {
@@ -29,8 +29,6 @@ export default ({ open, onClose, children }: { open: boolean, onClose: () => voi
 
 	return (
 		<Modal
-			aria-labelledby="transition-modal-title"
-			aria-describedby="transition-modal-description"
 			className={classes.modal}
 			open={open}
 			onClose={handleClose}

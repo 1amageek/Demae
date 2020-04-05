@@ -1,6 +1,6 @@
 import React from 'react'
 import { useRouter } from 'next/router'
-import Layout from 'components/providers/Layout'
+import App from 'components/App'
 import Product from 'components/providers/products/Product'
 import SKUList from 'components/providers/products/skus/SKUList'
 
@@ -9,9 +9,9 @@ export default () => {
 	const providerID = router.query.providerID as string
 	const productID = router.query.productID as string
 	return (
-		<Layout>
+		<App>
 			<Product providerID={providerID} productID={productID} />
 			<SKUList providerID={providerID} productID={productID} />
-		</Layout>
+		</App>
 	)
 }

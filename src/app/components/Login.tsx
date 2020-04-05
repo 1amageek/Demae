@@ -26,23 +26,9 @@ export default ({ redirectURL = '/', defaultCountry = 'JP' }: { redirectURL?: st
 							const user = new Social.User(uid)
 							await user.save()
 						}
-						Router.push('/')
+						Router.push(redirectURL)
 					})();
 				}
-
-				// (authResult.user as firebase.User).getIdToken().then(idToken => {
-				// 	const body = { idToken }
-				// 	const headers = new Headers()
-				// 	headers.append('Content-Type', 'application/json')
-				// 	fetch('/admin/sessionLogin', {
-				// 		method: 'POST',
-				// 		body: JSON.stringify(body),
-				// 		headers
-				// 	}).then(response => {
-				// 		console.log(response)
-				// 		console.log(response.headers)
-				// 	})
-				// })
 				return false
 			},
 			signInFailure: async (error) => {

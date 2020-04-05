@@ -34,18 +34,5 @@ const index = ({ uid }: { uid?: string }) => {
 	</App>
 }
 
-function getId(req) {
-	const uidHeader = req.headers.uid || '';
-	const components = uidHeader.split(' ');
-	return components.length > 1 ? components[1] : '';
-}
-
-index.getInitialProps = async (ctx) => {
-
-	const { req, res }: { req: Request, res: Response } = ctx
-	const uid = (req.headers as any).uid || ''
-	return { uid }
-}
-
 export default index
 

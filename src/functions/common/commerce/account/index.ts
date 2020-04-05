@@ -1,4 +1,5 @@
 import { Address } from '../Types'
+import { Gender } from '../../Gender'
 
 export type BusinessType = 'individual' | 'company' | 'non_profit' | 'government_entity'
 
@@ -52,7 +53,7 @@ export type Individual = {
 	first_name?: string
 	first_name_kana?: string
 	first_name_kanji?: string
-	gender?: string
+	gender?: Gender
 	id_number?: string
 	last_name?: string
 	last_name_kana?: string

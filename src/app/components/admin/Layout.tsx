@@ -1,6 +1,9 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link'
+import Router from 'next/router'
 import clsx from 'clsx';
+import firebase from 'firebase'
+import '@firebase/auth'
 import { makeStyles, useTheme, Theme, createStyles } from '@material-ui/core/styles';
 import Drawer from '@material-ui/core/Drawer';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -14,13 +17,16 @@ import Divider from '@material-ui/core/Divider';
 import Container from '@material-ui/core/Container';
 import MenuItem from '@material-ui/core/MenuItem';
 import Menu from '@material-ui/core/Menu';
-import Box from '@material-ui/core/Box';
-
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
+import { useAdmin, useDataSource, useAuthUser } from 'hooks/commerce';
+import Loading from 'components/Loading';
+import { Role } from 'models/commerce/User';
+import Provider from 'models/commerce/Provider'
+import { User } from 'models/commerce';
 
 const drawerWidth = 180;
 
@@ -69,7 +75,7 @@ const useStyles = makeStyles((theme: Theme) =>
 		},
 		content: {
 			flexGrow: 1,
-			padding: theme.spacing(3),
+			padding: theme.spacing(2, 0),
 			transition: theme.transitions.create('margin', {
 				easing: theme.transitions.easing.sharp,
 				duration: theme.transitions.duration.leavingScreen,
@@ -87,20 +93,20 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 export default ({ children }: { children: any }) => {
-	const classes = useStyles();
-	const theme = useTheme();
-	const [open, setOpen] = React.useState(false);
-	const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-	const menuOpen = Boolean(anchorEl);
+	const classes = useStyles()
+	const [admin, isLoading] = useAdmin()
+	const [auth] = useAuthUser()
+	const theme = useTheme()
+	const [open, setOpen] = useState(false)
 
 
-	const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
-		setAnchorEl(event.currentTarget);
-	};
 
-	const handleClose = () => {
-		setAnchorEl(null);
-	};
+	useEffect(() => {
+		if (!isLoading && !admin) {
+			Router.push('/')
+		}
+	}, [isLoading])
+
 
 	const handleDrawerOpen = () => {
 		setOpen(true);
@@ -109,6 +115,10 @@ export default ({ children }: { children: any }) => {
 	const handleDrawerClose = () => {
 		setOpen(false);
 	};
+
+	if (isLoading || !admin) {
+		return <Loading />
+	}
 
 	return (
 		<div className={classes.root}>
@@ -120,7 +130,6 @@ export default ({ children }: { children: any }) => {
 				})}
 			>
 				<Toolbar className={classes.tooBar}>
-
 					<IconButton
 						color='inherit'
 						aria-label='open drawer'
@@ -130,40 +139,11 @@ export default ({ children }: { children: any }) => {
 					>
 						<MenuIcon />
 					</IconButton>
-
 					<Typography variant='h6' noWrap>
 						Admin
           </Typography>
-
 					<div style={{ flexGrow: 1 }}></div>
-
-					<IconButton
-						aria-label='account of current user'
-						aria-controls='menu-appbar'
-						aria-haspopup='true'
-						onClick={handleMenu}
-						color='inherit'
-					>
-						<AccountCircle />
-					</IconButton>
-					<Menu
-						id='menu-appbar'
-						anchorEl={anchorEl}
-						anchorOrigin={{
-							vertical: 'top',
-							horizontal: 'right',
-						}}
-						keepMounted
-						transformOrigin={{
-							vertical: 'top',
-							horizontal: 'right',
-						}}
-						open={menuOpen}
-						onClose={handleClose}
-					>
-						<MenuItem onClick={handleClose}>Profile</MenuItem>
-						<MenuItem onClick={handleClose}>My account</MenuItem>
-					</Menu>
+					<AccountMenu uid={auth?.uid} />
 				</Toolbar>
 			</AppBar>
 			<Drawer
@@ -212,4 +192,73 @@ export default ({ children }: { children: any }) => {
 			</main>
 		</div>
 	);
+}
+
+const AccountMenu = ({ uid }: { uid?: string }) => {
+	if (uid) {
+		const [data, isDataLoading] = useDataSource<Role>(Role, new User(uid).roles.collectionReference)
+		const [providers, setProviders] = useState<Provider[]>([])
+		const [isLoading, setLoading] = useState(isDataLoading)
+		const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
+		const menuOpen = Boolean(anchorEl)
+		const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
+			setAnchorEl(event.currentTarget);
+		}
+		const handleClose = () => {
+			setAnchorEl(null);
+		}
+
+		useEffect(() => {
+			(async () => {
+				if (!isDataLoading) {
+					const providers = await Promise.all(data.map(async role => {
+						return Provider.get<Provider>(role.id)
+					}))
+					const filterd = providers.filter(value => !!value) as Provider[]
+					setProviders(filterd)
+					setLoading(false)
+				}
+			})()
+		}, [data])
+
+		return (
+			<>
+				<IconButton
+					onClick={handleMenu}
+					color='inherit'
+				>
+					<AccountCircle />
+				</IconButton>
+				<Menu
+					style={{ width: '120px' }}
+					anchorEl={anchorEl}
+					anchorOrigin={{ vertical: 'top', horizontal: 'right', }}
+					keepMounted
+					transformOrigin={{ vertical: 'top', horizontal: 'right', }}
+					open={menuOpen}
+					onClose={handleClose}
+				>
+					{providers.map(p => {
+						return (
+							<MenuItem key={p.id} onClick={() => {
+								Router.push('/admin')
+							}}>{p.name}</MenuItem>
+						)
+					})}
+					<Divider />
+					<MenuItem key={'signout'} onClick={async () => {
+						await firebase.auth().signOut()
+					}}>SignOut</MenuItem>
+				</Menu>
+			</>
+		)
+	} else {
+		return (
+			<IconButton
+				color='inherit'
+			>
+				<AccountCircle />
+			</IconButton>
+		)
+	}
 }

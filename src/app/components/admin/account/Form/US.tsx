@@ -63,14 +63,24 @@ const registerableCountries = ['US']
 
 export default () => {
 	return (
-		<IndividualForm individual={{}} />
+		<>
+			<AppBar position='static' color='transparent' elevation={0}>
+				<Toolbar>
+					<Typography variant='h6'>
+						Edit account information
+          </Typography>
+				</Toolbar>
+			</AppBar>
+			<IndividualForm individual={{}} />
+		</>
 	);
 }
 
 const IndividualForm = ({ individual }: { individual: Partial<Individual> }) => {
 	const classes = useStyles()
 	const [authUser] = useAuthUser()
-	const [open, setOpen] = useState(false);
+	const [open, setOpen] = useState(false)
+	const [error, setError] = useState<string | undefined>()
 	const first_name = useInput(individual.first_name, { inputProps: { pattern: '[A-Za-z]{1,32}' }, required: true })
 	const last_name = useInput(individual.last_name, { inputProps: { pattern: '[A-Za-z]{1,32}' }, required: true })
 	const year = useInput(individual.dob?.year, { inputProps: { pattern: '^[12][0-9]{3}$' }, required: true })
@@ -141,7 +151,14 @@ const IndividualForm = ({ individual }: { individual: Partial<Individual> }) => 
 		setLoading(true)
 		const accountCreate = firebase.app().functions('us-central1').httpsCallable('v1-stripe-account-create')
 		try {
-			const result = await accountCreate(data)
+			const response = await accountCreate(data)
+			const { result, error } = response.data
+			if (error) {
+				setError(error.message)
+				setLoading(false)
+				setOpen(true)
+				return
+			}
 			const account = new Account(uid)
 			account.accountID = result.data.id
 			account.country = result.data.country
@@ -149,8 +166,7 @@ const IndividualForm = ({ individual }: { individual: Partial<Individual> }) => 
 			account.email = result.data.email
 			account.individual = data.individual
 			await account.save()
-			setLoading(true)
-			console.log(result)
+			setLoading(false)
 		} catch (error) {
 			setLoading(false)
 			setOpen(true)
@@ -212,13 +228,6 @@ const IndividualForm = ({ individual }: { individual: Partial<Individual> }) => 
 
 	return (
 		<>
-			<AppBar position='static' color='transparent' elevation={0}>
-				<Toolbar>
-					<Typography variant='h6'>
-						Edit account information
-          </Typography>
-				</Toolbar>
-			</AppBar>
 			<form onSubmit={handleSubmit}>
 				<Box className={classes.box} >
 					<Grid container spacing={2}>
@@ -358,11 +367,11 @@ const IndividualForm = ({ individual }: { individual: Partial<Individual> }) => 
 				<DialogTitle>Error</DialogTitle>
 				<DialogContent>
 					<DialogContentText>
-						Account registration failed.
+						{error ? error : 'Account registration failed.'}
 					</DialogContentText>
 				</DialogContent>
 				<DialogActions>
-					<Button onClick={handleClose} color="primary" autoFocus>
+					<Button onClick={handleClose} color='primary' autoFocus>
 						OK
           </Button>
 				</DialogActions>

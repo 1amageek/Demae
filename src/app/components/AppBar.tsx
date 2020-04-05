@@ -30,13 +30,10 @@ export default ({ title }: { title: string }) => {
 
 	return (
 		<div className={classes.root}>
-			<AppBar position="static">
-				<Container maxWidth="lg">
+			<AppBar position='static' color='transparent' elevation={1}>
+				<Container maxWidth='md'>
 					<Toolbar>
-						<IconButton edge="start" className={classes.menuButton} color="inherit" aria-label="menu">
-							<MenuIcon />
-						</IconButton>
-						<Typography variant="h6" className={classes.title}>
+						<Typography variant='h6' className={classes.title}>
 							{title}
 						</Typography>
 						<LoginButton />
@@ -71,7 +68,7 @@ const LoginButton = () => {
 	} else {
 		return (
 			<Link href='/login'>
-				<Button color="inherit">Login</Button>
+				<Button variant='contained' color='primary'>Login</Button>
 			</Link>
 		)
 	}
