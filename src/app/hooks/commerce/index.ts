@@ -74,14 +74,15 @@ export const useProviderProduct = (id: string): [Product | undefined, boolean] =
 	const [isLoading, setLoading] = useState(true)
 	useEffect(() => {
 		(async () => {
+			setLoading(true)
 			if (user) {
-				if (!product) {
+				if (!product && id) {
 					const snapshot = await new Provider(user.uid).products.collectionReference.doc(id).get()
 					let product = Product.fromSnapshot<Product>(snapshot)
 					setProduct(product)
-					setLoading(false)
 				}
 			}
+			setLoading(false)
 		})()
 	}, [user?.uid, product?.id])
 	return [product, isLoading]
@@ -120,9 +121,10 @@ export const useDocument = <T extends Doc>(documentReference: DocumentReference,
 	return [data, isLoading]
 }
 
-export const useDataSource = <T extends Doc>(type: typeof Doc, query?: firebase.firestore.Query): [T[], boolean] => {
+export const useDataSource = <T extends Doc>(type: typeof Doc, query: firebase.firestore.Query): [T[], boolean] => {
 	const [data, setData] = useState<T[]>([])
 	const [isLoading, setLoading] = useState(true)
+
 	useEffect(() => {
 		if (query) {
 			(async () => {
@@ -134,7 +136,7 @@ export const useDataSource = <T extends Doc>(type: typeof Doc, query?: firebase.
 			})()
 		}
 		setLoading(false)
-	}, [data.length, query])
+	}, [data.length, (query as any).id])
 	return [data, isLoading]
 }
 
