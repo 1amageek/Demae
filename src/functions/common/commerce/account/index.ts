@@ -29,13 +29,13 @@ export type Company = {
 }
 
 export type Verification = {
-	additional_document: {
-		back: any
-		front: any
+	additional_document?: {
+		back?: string
+		front?: string
 	}
-	document: {
-		back: any
-		front: any
+	document?: {
+		back?: string
+		front?: string
 	}
 }
 

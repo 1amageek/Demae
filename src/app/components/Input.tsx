@@ -1,25 +1,64 @@
 import { useState, useEffect } from 'react'
+import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import TextField, { TextFieldProps } from '@material-ui/core/TextField'
 
-type InputProps = TextFieldProps
+const useStyles = makeStyles((theme: Theme) =>
+	createStyles({
+		input: {
+			"&": {
+				border: "red solid 2px"
+			}
+		}
+	}),
+);
 
 type InitProps = {
 	initValue?: string
-	inputProps?: InputProps
+	inputProps?: TextFieldProps
 }
 
 type InitValue = string | number | undefined
 
-export const useInput = (props: InitProps | InitValue) => {
+export const useInput = (props: InitProps | InitValue, textFieldProps?: TextFieldProps) => {
 	if (typeof props === 'string' || typeof props === 'undefined' || props === null) {
 		const [value, setValue] = useState(props || '')
+		const [error, setError] = useState(false)
 		useEffect(() => {
 			setValue(props || '')
 		}, [props])
-		const handleChange = e => setValue(e.target.value)
+		const onChange = e => {
+			const value = e.target.value
+			setValue(value)
+			if (textFieldProps && value && error) {
+				const inputProps = (textFieldProps as any).inputProps
+				if (inputProps) {
+					const pattern = inputProps.pattern
+					if (pattern) {
+						const regex = new RegExp(pattern)
+						setError(!value.match(regex))
+					}
+				}
+			}
+		}
+		const onBlur = e => {
+			const value = e.target.value
+			if (textFieldProps && value) {
+				const inputProps = (textFieldProps as any).inputProps
+				if (inputProps) {
+					const pattern = inputProps.pattern
+					if (pattern) {
+						const regex = new RegExp(pattern)
+						setError(!value.match(regex))
+					}
+				}
+			}
+		}
 		return {
+			...textFieldProps,
 			value,
-			onChange: handleChange
+			error,
+			onChange: onChange,
+			onBlur: onBlur
 		};
 	} else if (typeof props === 'number') {
 		const [value, setValue] = useState(String(props) || '')
@@ -28,6 +67,7 @@ export const useInput = (props: InitProps | InitValue) => {
 		}, [props])
 		const handleChange = e => setValue(e.target.value)
 		return {
+			...textFieldProps,
 			value,
 			type: 'number',
 			onChange: handleChange
@@ -46,9 +86,11 @@ export const useInput = (props: InitProps | InitValue) => {
 	}
 }
 
-export default (props: InputProps) => {
+export default (props: TextFieldProps) => {
+	const classes = useStyles()
 	return (
 		<TextField
+			className={classes.input}
 			margin='normal'
 			InputLabelProps={{
 				shrink: true,

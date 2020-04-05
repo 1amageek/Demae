@@ -1,6 +1,3 @@
-import * as functions from 'firebase-functions'
-export const regionFunctions = functions.region('us-central1')
-
 export const nullFilter = <T>(data: T) => {
 	const mod = data
 	Object.entries(mod).forEach(([key, val]) => {

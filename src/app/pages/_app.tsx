@@ -60,6 +60,7 @@ const App = ({ Component, pageProps, router }: AppProps) => {
 		console.log('[App] start auth listening')
 		const listener = firebase.auth().onAuthStateChanged(async (auth) => {
 			if (auth) {
+				console.log('auth id: ', auth.uid)
 				const authUser = JSON.stringify(auth)
 				localStorage.setItem('authUser', authUser)
 				setState({

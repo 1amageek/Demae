@@ -26,6 +26,7 @@ module.exports = withWorkers({
 			'context': path.resolve(__dirname, 'context'),
 			'hooks': path.resolve(__dirname, 'hooks'),
 			'models': path.resolve(__dirname, 'models'),
+			'utils': path.resolve(__dirname, 'utils'),
 			'public': path.resolve(__dirname, 'public')
 		}
 

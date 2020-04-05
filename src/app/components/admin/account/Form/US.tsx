@@ -9,15 +9,24 @@ import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import DoneIcon from '@material-ui/icons/Done';
 import Button from '@material-ui/core/Button';
 import { useAuthUser } from 'hooks/commerce'
 import Input, { useInput } from 'components/Input'
+import Select, { useSelect } from 'components/Select'
 import Account from 'models/account/Account'
 import { Create, Individual } from 'common/commerce/account'
 import Grid from '@material-ui/core/Grid';
 import { Box } from '@material-ui/core';
+import { Countries } from 'common/Country';
+import { nullFilter } from 'utils'
+import Loading from 'components/Loading'
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
@@ -50,19 +59,9 @@ const useStyles = makeStyles((theme: Theme) =>
 	}),
 );
 
+const registerableCountries = ['US']
+
 export default () => {
-
-	const onSubmit = async () => {
-		// product.name = name
-		// product.caption = caption
-		// product.description = description
-		// try {
-		// 	await product.save()
-		// } catch (error) {
-		// 	console.error(error)
-		// }
-	}
-
 	return (
 		<IndividualForm individual={{}} />
 	);
@@ -71,55 +70,42 @@ export default () => {
 const IndividualForm = ({ individual }: { individual: Partial<Individual> }) => {
 	const classes = useStyles()
 	const [authUser] = useAuthUser()
-
-	const first_name = useInput(individual.first_name)
-	const last_name = useInput(individual.last_name)
-	const year = useInput(individual.dob?.year)
-	const month = useInput(individual.dob?.month)
-	const day = useInput(individual.dob?.day)
-	const ssn_last_4 = useInput(individual.ssn_last_4)
-
-	const country = useInput(individual.address?.country)
-	const state = useInput(individual.address?.state)
-	const city = useInput(individual.address?.city)
-	const line1 = useInput(individual.address?.line1)
+	const [open, setOpen] = useState(false);
+	const first_name = useInput(individual.first_name, { inputProps: { pattern: '[A-Za-z]{1,32}' }, required: true })
+	const last_name = useInput(individual.last_name, { inputProps: { pattern: '[A-Za-z]{1,32}' }, required: true })
+	const year = useInput(individual.dob?.year, { inputProps: { pattern: '^[12][0-9]{3}$' }, required: true })
+	const month = useInput(individual.dob?.month, { inputProps: { pattern: '^(0?[1-9]|1[012])$' }, required: true })
+	const day = useInput(individual.dob?.day, { inputProps: { pattern: '^(([0]?[1-9])|([1-2][0-9])|(3[01]))$' }, required: true })
+	const ssn_last_4 = useInput(individual.ssn_last_4, { inputProps: { pattern: '^[0-9]{4}$' }, required: true })
+	const country = useSelect({
+		initValue: individual.address?.country || 'US',
+		inputProps: {
+			menu: Countries.filter(country => registerableCountries.includes(country.value))
+		},
+		controlProps: {
+			variant: 'outlined'
+		}
+	})
+	const state = useInput(individual.address?.state, { required: true })
+	const city = useInput(individual.address?.city, { required: true })
+	const line1 = useInput(individual.address?.line1, { inputProps: { pattern: '[A-Za-z]{1,32}' }, required: true })
 	const line2 = useInput(individual.address?.line2)
-	const postal_code = useInput(individual.address?.postal_code)
-
-	const email = useInput(individual.email)
-	const phone = useInput(individual.phone)
-
+	const postal_code = useInput(individual.address?.postal_code, { required: true })
+	const email = useInput(individual.email, { required: true, type: 'email' })
+	const phone = useInput(individual.phone, { required: true, type: 'tel' })
 	const [front, setFront] = useState<string | undefined>()
 	const [back, setBack] = useState<string | undefined>()
 	const [isFrontLoading, setFrontLoading] = useState(false)
 	const [isBackLoading, setBackLoading] = useState(false)
+	const [isLoading, setLoading] = useState(false)
 
-	const shouldSubmit = () => {
-		if (!authUser) {
-			return false
-		}
-		if (first_name.value.length === 0) {
-			return false
-		}
-		if (last_name.value.length === 0) {
-			return false
-		}
-		if (email.value.length === 0) {
-			return false
-		}
-		if (phone.value.length === 0) {
-			return false
-		}
-		return true
-	}
+	const handleClose = () => setOpen(false)
 
-	const onSubmit = async () => {
-
+	const handleSubmit = async (event) => {
+		event.preventDefault();
 		const uid = authUser?.uid
 		if (!uid) { return }
-		if (!shouldSubmit()) { return }
-
-		const data: Create = {
+		let data: Create = {
 			type: 'custom',
 			country: 'US',
 			business_type: 'individual',
@@ -134,7 +120,7 @@ const IndividualForm = ({ individual }: { individual: Partial<Individual> }) => 
 				},
 				ssn_last_4: ssn_last_4.value,
 				address: {
-					country: country.value,
+					country: country.value as string,
 					state: state.value,
 					city: city.value,
 					line1: line1.value,
@@ -142,10 +128,17 @@ const IndividualForm = ({ individual }: { individual: Partial<Individual> }) => 
 					postal_code: postal_code.value
 				},
 				email: email.value,
-				phone: phone.value
+				phone: phone.value,
+				verification: {
+					document: {
+						front: front,
+						back: back
+					}
+				}
 			}
 		}
-
+		data = nullFilter(data)
+		setLoading(true)
 		const accountCreate = firebase.app().functions('us-central1').httpsCallable('v1-stripe-account-create')
 		try {
 			const result = await accountCreate(data)
@@ -154,10 +147,13 @@ const IndividualForm = ({ individual }: { individual: Partial<Individual> }) => 
 			account.country = result.data.country
 			account.businessType = result.data.business_type
 			account.email = result.data.email
-			// account.individual =
+			account.individual = data.individual
 			await account.save()
+			setLoading(true)
 			console.log(result)
 		} catch (error) {
+			setLoading(false)
+			setOpen(true)
 			console.log(error)
 		}
 	}
@@ -173,9 +169,9 @@ const IndividualForm = ({ individual }: { individual: Partial<Individual> }) => 
 				console.log(snapshot)
 				const metadata = snapshot.metadata
 				const { bucket, fullPath, name, contentType } = metadata
-				const uploadFile = firebase.functions().httpsCallable('v1-stripe-account-uploadFile')
+				const uploadFile = firebase.functions().httpsCallable('v1-stripe-file-upload')
 				try {
-					const result = await uploadFile({ bucket, fullPath, name, contentType })
+					const result = await uploadFile({ bucket, fullPath, name, contentType, purpose: 'identity_document' })
 					const data = result.data
 					if (data) {
 						setFront(data.id)
@@ -199,9 +195,9 @@ const IndividualForm = ({ individual }: { individual: Partial<Individual> }) => 
 				console.log(snapshot)
 				const metadata = snapshot.metadata
 				const { bucket, fullPath, name, contentType } = metadata
-				const uploadFile = firebase.functions().httpsCallable('v1-stripe-account-uploadFile')
+				const uploadFile = firebase.functions().httpsCallable('v1-stripe-file-upload')
 				try {
-					const result = await uploadFile({ bucket, fullPath, name, contentType })
+					const result = await uploadFile({ bucket, fullPath, name, contentType, purpose: 'identity_document' })
 					const data = result.data
 					if (data) {
 						setBack(data.id)
@@ -218,12 +214,12 @@ const IndividualForm = ({ individual }: { individual: Partial<Individual> }) => 
 		<>
 			<AppBar position='static' color='transparent' elevation={0}>
 				<Toolbar>
-					<Typography variant="h6">
+					<Typography variant='h6'>
 						Edit account information
           </Typography>
 				</Toolbar>
 			</AppBar>
-			<form noValidate autoComplete='off'>
+			<form onSubmit={handleSubmit}>
 				<Box className={classes.box} >
 					<Grid container spacing={2}>
 						<Grid item xs={12} sm={6}>
@@ -233,68 +229,68 @@ const IndividualForm = ({ individual }: { individual: Partial<Individual> }) => 
 										<TableCell className={classes.cellStatus}></TableCell>
 										<TableCell className={classes.cell} align='right'>First Name</TableCell>
 										<TableCell className={classes.cell} align='left'>
-											<Input className={classes.input} required label='first name' variant='outlined' margin='dense' size='small' {...first_name} />
+											<Input className={classes.input} label='first name' variant='outlined' margin='dense' size='small' {...first_name} />
 										</TableCell>
 									</TableRow>
 									<TableRow>
 										<TableCell className={classes.cellStatus}></TableCell>
 										<TableCell className={classes.cell} align='right'>Last Name</TableCell>
 										<TableCell className={classes.cell} align='left'>
-											<Input className={classes.input} required label='last name' variant='outlined' margin='dense' size='small' {...last_name} />
+											<Input className={classes.input} label='last name' variant='outlined' margin='dense' size='small' {...last_name} />
 										</TableCell>
 									</TableRow>
 									<TableRow>
 										<TableCell className={classes.cellStatus}></TableCell>
 										<TableCell className={classes.cell} align='right'>email</TableCell>
 										<TableCell className={classes.cell} align='left'>
-											<Input className={classes.input} required label='email' variant='outlined' margin='dense' size='small' {...email} />
+											<Input className={classes.input} label='email' variant='outlined' margin='dense' size='small' {...email} />
 										</TableCell>
 									</TableRow>
 									<TableRow>
 										<TableCell className={classes.cellStatus}></TableCell>
 										<TableCell className={classes.cell} align='right'>Phone</TableCell>
 										<TableCell className={classes.cell} align='left'>
-											<Input className={classes.input} required label='phone' variant='outlined' margin='dense' size='small' {...phone} />
+											<Input className={classes.input} label='phone' variant='outlined' margin='dense' size='small' {...phone} />
 										</TableCell>
 									</TableRow>
 									<TableRow>
 										<TableCell className={classes.cellStatus}></TableCell>
 										<TableCell className={classes.cell} align='right'>First Name</TableCell>
 										<TableCell className={classes.cell} align='left'>
-											<Input className={classes.input} required label='year' type='number' variant='outlined' margin='dense' size='small' {...year} style={{ width: '80px', marginRight: '8px' }} />
-											<Input className={classes.input} required label='month' type='number' variant='outlined' margin='dense' size='small' {...month} style={{ width: '66px', marginRight: '8px' }} />
-											<Input className={classes.input} required label='day' type='number' variant='outlined' margin='dense' size='small' {...day} style={{ width: '66px' }} />
+											<Input className={classes.input} label='year' type='number' variant='outlined' margin='dense' size='small' {...year} style={{ width: '80px', marginRight: '8px' }} />
+											<Input className={classes.input} label='month' type='number' variant='outlined' margin='dense' size='small' {...month} style={{ width: '66px', marginRight: '8px' }} />
+											<Input className={classes.input} label='day' type='number' variant='outlined' margin='dense' size='small' {...day} style={{ width: '66px' }} />
 										</TableCell>
 									</TableRow>
 									<TableRow>
 										<TableCell className={classes.cellStatus}></TableCell>
 										<TableCell className={classes.cell} align='right'>SSN Last 4</TableCell>
 										<TableCell className={classes.cell} align='left'>
-											<Input className={classes.input} required label='SSN last 4' variant='outlined' margin='dense' size='small' {...ssn_last_4} />
+											<Input className={classes.input} label='SSN last 4' variant='outlined' margin='dense' size='small' {...ssn_last_4} />
 										</TableCell>
 									</TableRow>
 									<TableRow>
 										<TableCell className={classes.cellStatus}>
 											<Box className={classes.cellStatusBox}>
 												{isFrontLoading && <CircularProgress size={16} />}
-												{front && <DoneIcon color="primary" />}
+												{front && <DoneIcon color='primary' />}
 											</Box>
 										</TableCell>
 										<TableCell className={classes.cell} align='right'>Passport or Local ID card. (front)</TableCell>
 										<TableCell className={classes.cell} align='left'>
-											<input accept="image/jpeg,image/png,application/pdf" type="file" onChange={handleFrontCapture} />
+											<input accept='image/jpeg,image/png,application/pdf' type='file' onChange={handleFrontCapture} />
 										</TableCell>
 									</TableRow>
 									<TableRow>
 										<TableCell className={classes.cellStatus}>
 											<Box className={classes.cellStatusBox}>
 												{isBackLoading && <CircularProgress size={16} />}
-												{back && <DoneIcon color="primary" />}
+												{back && <DoneIcon color='primary' />}
 											</Box>
 										</TableCell>
 										<TableCell className={classes.cell} align='right'>Passport or Local ID card. (Back)</TableCell>
 										<TableCell className={classes.cell} align='left'>
-											<input accept="image/jpeg,image/png,application/pdf" type="file" onChange={handleBackCapture} />
+											<input accept='image/jpeg,image/png,application/pdf' type='file' onChange={handleBackCapture} />
 										</TableCell>
 									</TableRow>
 								</TableBody>
@@ -307,42 +303,42 @@ const IndividualForm = ({ individual }: { individual: Partial<Individual> }) => 
 										<TableCell className={classes.cellStatus}></TableCell>
 										<TableCell className={classes.cell} align='right'>line1</TableCell>
 										<TableCell className={classes.cell} align='left'>
-											<Input className={classes.input} required label='line1' variant='outlined' margin='dense' size='small' {...line1} />
+											<Input className={classes.input} label='line1' variant='outlined' margin='dense' size='small' {...line1} />
 										</TableCell>
 									</TableRow>
 									<TableRow>
 										<TableCell className={classes.cellStatus}></TableCell>
 										<TableCell className={classes.cell} align='right'>line2</TableCell>
 										<TableCell className={classes.cell} align='left'>
-											<Input className={classes.input} required label='line2' variant='outlined' margin='dense' size='small' {...line2} />
+											<Input className={classes.input} label='line2' variant='outlined' margin='dense' size='small' {...line2} />
 										</TableCell>
 									</TableRow>
 									<TableRow>
 										<TableCell className={classes.cellStatus}></TableCell>
 										<TableCell className={classes.cell} align='right'>city</TableCell>
 										<TableCell className={classes.cell} align='left'>
-											<Input className={classes.input} required label='city' variant='outlined' margin='dense' size='small' {...city} />
+											<Input className={classes.input} label='city' variant='outlined' margin='dense' size='small' {...city} />
 										</TableCell>
 									</TableRow>
 									<TableRow>
 										<TableCell className={classes.cellStatus}></TableCell>
 										<TableCell className={classes.cell} align='right'>state</TableCell>
 										<TableCell className={classes.cell} align='left'>
-											<Input className={classes.input} required label='state' variant='outlined' margin='dense' size='small' {...state} />
+											<Input className={classes.input} label='state' variant='outlined' margin='dense' size='small' {...state} />
 										</TableCell>
 									</TableRow>
 									<TableRow>
 										<TableCell className={classes.cellStatus}></TableCell>
 										<TableCell className={classes.cell} align='right'>postal code</TableCell>
 										<TableCell className={classes.cell} align='left'>
-											<Input className={classes.input} required label='postal code' variant='outlined' margin='dense' size='small' {...postal_code} />
+											<Input className={classes.input} label='postal code' variant='outlined' margin='dense' size='small' {...postal_code} />
 										</TableCell>
 									</TableRow>
 									<TableRow>
 										<TableCell className={classes.cellStatus}></TableCell>
 										<TableCell className={classes.cell} align='right'>country</TableCell>
 										<TableCell className={classes.cell} align='left'>
-											<Input className={classes.input} required label='country' variant='outlined' margin='dense' size='small' {...country} />
+											<Select {...country} />
 										</TableCell>
 									</TableRow>
 								</TableBody>
@@ -351,11 +347,26 @@ const IndividualForm = ({ individual }: { individual: Partial<Individual> }) => 
 					</Grid>
 				</Box>
 				<Box className={classes.bottomBox} >
-					<Button style={{}} variant='contained' size='medium' color='primary' type='submit' onClick={onSubmit}>
-						Save
-				</Button>
+					<Button style={{}} variant='contained' size='medium' color='primary' type='submit'>Save</Button>
 				</Box>
 			</form>
+			{isLoading && <Loading />}
+			<Dialog
+				open={open}
+				onClose={handleClose}
+			>
+				<DialogTitle>Error</DialogTitle>
+				<DialogContent>
+					<DialogContentText>
+						Account registration failed.
+					</DialogContentText>
+				</DialogContent>
+				<DialogActions>
+					<Button onClick={handleClose} color="primary" autoFocus>
+						OK
+          </Button>
+				</DialogActions>
+			</Dialog>
 		</>
 	)
 }

@@ -17,9 +17,7 @@ export default ({ uid, provider, account }: { uid: string, provider: Provider, a
 	const country = useSelect({
 		initValue: provider.country,
 		inputProps: {
-			menu: Countries.map(c => {
-				return { label: c, value: c }
-			})
+			menu: Countries
 		}
 	})
 	const defaultCurrency = useSelect({
@@ -35,12 +33,12 @@ export default ({ uid, provider, account }: { uid: string, provider: Provider, a
 		initValue: account.businessType, inputProps: {
 			menu: [
 				{
-					label: "Individual",
-					value: "individual"
+					label: 'Individual',
+					value: 'individual'
 				},
 				{
-					label: "Company",
-					value: "company"
+					label: 'Company',
+					value: 'company'
 				}
 			]
 		}
@@ -59,17 +57,17 @@ export default ({ uid, provider, account }: { uid: string, provider: Provider, a
 
 	return (
 		<>
-			<form noValidate autoComplete="off">
-				<Typography variant="h6" gutterBottom>
+			<form noValidate autoComplete='off'>
+				<Typography variant='h6' gutterBottom>
 					Create new provider
     		</Typography>
 				<FormControl fullWidth style={{ marginBottom: '28px' }}>
-					<Select label="businessType" {...businessType} />
-					<Input label="name" {...name} />
-					<Select label="country" {...country} />
-					<Select label="currency" {...defaultCurrency} />
+					<Select label='businessType' {...businessType} />
+					<Input label='name' {...name} />
+					<Select label='country' {...country} />
+					<Select label='currency' {...defaultCurrency} />
 				</FormControl>
-				<Button fullWidth variant="contained" size="large" color="primary" onClick={onSubmit}>
+				<Button fullWidth variant='contained' size='large' color='primary' onClick={onSubmit}>
 					Save
 				</Button>
 			</form>

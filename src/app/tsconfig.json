@@ -40,6 +40,9 @@
 			"models/*": [
 				"models/*"
 			],
+			"utils/*": [
+				"utils/*"
+			],
 			"public/*": [
 				"public/*"
 			]
