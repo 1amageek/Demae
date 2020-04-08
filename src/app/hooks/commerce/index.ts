@@ -133,23 +133,17 @@ export const useProvider = (): [Provider | undefined, boolean, Error?] => {
 
 export const useProviderProduct = (id: string): [Product | undefined, boolean, Error?] => {
 	const [user, isLoading] = useAuthUser()
-	if (user) {
-		return useDocument(Product, new Provider(user.uid).products.collectionReference.doc(id))
-	} else {
-		return [undefined, isLoading]
-	}
+	const documentReference = user ? new Provider(user.uid).products.collectionReference.doc(id) : undefined
+	return useDocument<Product>(Product, documentReference, isLoading)
 }
 
 export const useProviderProductSKU = (productID: string, skuID: string): [SKU | undefined, boolean, Error?] => {
 	const [user, isLoading] = useAuthUser()
-	if (user) {
-		return useDocument(SKU, new Provider(user.uid).products.doc(productID, Product).skus.collectionReference.doc(skuID))
-	} else {
-		return [undefined, isLoading]
-	}
+	const documentReference = user ? new Provider(user.uid).products.doc(productID, Product).skus.collectionReference.doc(skuID) : undefined
+	return useDocument<SKU>(SKU, documentReference, isLoading)
 }
 
-export const useDocument = <T extends Doc>(type: typeof Doc, documentReference: DocumentReference): [T | undefined, boolean, Error?] => {
+export const useDocument = <T extends Doc>(type: typeof Doc, documentReference?: DocumentReference, waiting: boolean = false): [T | undefined, boolean, Error?] => {
 	interface Prop {
 		data?: T
 		loading: boolean
@@ -179,11 +173,13 @@ export const useDocument = <T extends Doc>(type: typeof Doc, documentReference: 
 				}
 			}
 		}
-		fetchData(documentReference)
+		if (!waiting && documentReference) {
+			fetchData(documentReference)
+		}
 		return () => {
 			enabled = false
 		}
-	}, [documentReference.path])
+	}, [documentReference?.path, waiting])
 	return [state.data, state.loading, state.error]
 }
 
@@ -197,9 +193,6 @@ export const useDataSource = <T extends Doc>(type: typeof Doc, query: firebase.f
 
 	const [state, setState] = useState<Prop>({ data: [], loading: true })
 	useEffect(() => {
-		if (waiting) {
-			return
-		}
 		let enabled = true
 		const fetchData = async () => {
 			try {
@@ -226,7 +219,9 @@ export const useDataSource = <T extends Doc>(type: typeof Doc, query: firebase.f
 			...state,
 			loading: true
 		})
-		fetchData();
+		if (!waiting) {
+			fetchData()
+		}
 		return () => {
 			enabled = false
 		}

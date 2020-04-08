@@ -1,5 +1,6 @@
 import React from 'react';
 import Link from 'next/link'
+import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import Table from '@material-ui/core/Table';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
@@ -9,7 +10,38 @@ import Product from 'models/commerce/Product'
 import SKU from 'models/commerce/SKU'
 import StatusCell from 'components/admin/StatusCell';
 
+const useStyles = makeStyles((theme: Theme) =>
+	createStyles({
+		box: {
+			backgroundColor: '#fafafa'
+		},
+		bottomBox: {
+			padding: theme.spacing(1),
+			display: 'flex',
+			justifyContent: 'flex-end'
+		},
+		input: {
+			backgroundColor: '#fff'
+		},
+		cell: {
+			borderBottom: 'none',
+			padding: theme.spacing(1),
+		},
+		cellStatus: {
+			borderBottom: 'none',
+			padding: theme.spacing(1),
+			width: '48px',
+		},
+		cellStatusBox: {
+			display: 'flex',
+			justifyContent: 'center',
+			alignItems: 'center'
+		}
+	})
+);
+
 export default ({ product, skus }: { product: Product, skus: SKU[] }) => {
+	const classes = useStyles()
 	return (
 		<Table>
 			<TableHead>

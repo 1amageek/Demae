@@ -76,7 +76,7 @@ export default ({ provider }: { provider: Provider }) => {
 						image={provider.coverImageURL()}
 						title={provider.name}
 					/>}
-					{(provider.description.length > 0) &&
+					{provider.description &&
 						<CardContent>
 							<Typography variant='body2' color='textSecondary' component='p'>
 								{provider.description}

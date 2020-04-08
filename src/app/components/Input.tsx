@@ -9,12 +9,13 @@ type InitProps = {
 type InitValue = string | number | undefined
 
 export const useInput = (props: InitProps | InitValue, textFieldProps?: TextFieldProps) => {
-	if (typeof props === 'string' || typeof props === 'undefined' || props === null) {
-		const [value, setValue] = useState(props || '')
+	if (typeof props === 'string' || typeof props === 'undefined' || typeof props === 'number' || props === null) {
+		const initValue = String(props || '')
+		const [value, setValue] = useState(initValue)
 		const [error, setError] = useState(false)
 		useEffect(() => {
-			setValue(props || '')
-		}, [props])
+			setValue(initValue)
+		}, [])
 		const onChange = e => {
 			const value = e.target.value
 			setValue(value)
@@ -48,18 +49,6 @@ export const useInput = (props: InitProps | InitValue, textFieldProps?: TextFiel
 			error,
 			onChange: onChange,
 			onBlur: onBlur
-		};
-	} else if (typeof props === 'number') {
-		const [value, setValue] = useState(String(props) || '')
-		useEffect(() => {
-			setValue(String(props) || '')
-		}, [props])
-		const handleChange = e => setValue(e.target.value)
-		return {
-			...textFieldProps,
-			value,
-			type: 'number',
-			onChange: handleChange
 		};
 	} else {
 		const [value, setValue] = useState(props.initValue ? props.initValue : '')

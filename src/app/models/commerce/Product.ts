@@ -12,7 +12,7 @@ export default class Product extends Doc {
 
 	@Field images: File[] = []
 	@Field type: ProductType = 'good'
-	@Field name: string = ""
+	@Field name: string = ''
 	@Field caption?: string
 	@Field description?: string
 	@Field isAvailable: boolean = true

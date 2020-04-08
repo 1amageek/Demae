@@ -12,8 +12,8 @@ export default class Provider extends Doc {
 	@Field thumbnailImage?: File
 	@Field coverImage?: File
 	@Field name: string = ''
-	@Field caption: string = ''
-	@Field description: string = ''
+	@Field caption?: string
+	@Field description?: string
 	@Field country: string = 'US'
 	@Field defaultCurrency: Currency = 'USD'
 	@Field email: string = ''

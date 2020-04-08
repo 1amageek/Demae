@@ -20,7 +20,8 @@ import DndCard from 'components/DndCard'
 import Box from '@material-ui/core/Box';
 import Input, { useInput } from 'components/Input'
 import Select, { useSelect } from 'components/Select'
-import Product from 'models/commerce/Product'
+import { SKU } from 'models/commerce';
+import { Currencies } from 'common/Currency'
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
@@ -52,16 +53,63 @@ const useStyles = makeStyles((theme: Theme) =>
 	})
 );
 
-export default ({ edit, product }: { edit: boolean, product: Product }) => {
+export default ({ edit, sku }: { edit: boolean, sku: SKU }) => {
 	const classes = useStyles()
 	const [isLoading, setLoading] = useState(false)
 	const [images, setImages] = useState<File[]>([])
 	const [isEditing, setEditing] = useState(edit)
-	const name = useInput(product?.name)
-	const caption = useInput(product?.caption)
-	const description = useInput(product?.description)
+	const name = useInput(sku?.name)
+	const caption = useInput(sku?.caption)
+	const amount = useInput(sku?.amount)
+	const description = useInput(sku?.description)
+	const currency = useSelect({
+		initValue: sku?.currency, inputProps: {
+			menu: Currencies.map(c => {
+				return {
+					label: c,
+					value: c,
+				}
+			})
+		}
+	})
+	const inventory = useSelect({
+		initValue: sku?.inventory.type, inputProps: {
+			menu: [
+				{
+					label: 'Bucket',
+					value: 'bucket'
+				},
+				{
+					label: 'Finite',
+					value: 'finite'
+				}
+				, {
+					label: 'Infinite',
+					value: 'infinite'
+				}
+			]
+		}
+	})
+	const stockValue = useSelect({
+		initValue: sku?.inventory.value, inputProps: {
+			menu: [
+				{
+					label: 'InStock',
+					value: 'in_stock'
+				},
+				{
+					label: 'Limited',
+					value: 'limited'
+				}
+				, {
+					label: 'OutOfStock',
+					value: 'out_of_stock'
+				}
+			]
+		}
+	})
 	const isAvailable = useSelect({
-		initValue: product?.isAvailable || 'true',
+		initValue: sku?.isAvailable || 'true',
 		inputProps: {
 			menu: [
 				{
@@ -84,7 +132,7 @@ export default ({ edit, product }: { edit: boolean, product: Product }) => {
 
 	const uploadImage = (file: File): Promise<StorageFile | undefined> => {
 		const id = firebase.firestore().collection('/dummy').doc().id
-		const ref = firebase.storage().ref(product.documentReference.path + `/images/${id}.jpg`)
+		const ref = firebase.storage().ref(sku.documentReference.path + `/images/${id}.jpg`)
 		return new Promise((resolve, reject) => {
 			ref.put(file).then(async (snapshot) => {
 				if (snapshot.state === 'success') {
@@ -125,7 +173,7 @@ export default ({ edit, product }: { edit: boolean, product: Product }) => {
 						<TableBody>
 							<TableRow>
 								<TableCell align='right'><div>ID</div></TableCell>
-								<TableCell align='left'><div>{product.id}</div></TableCell>
+								<TableCell align='left'><div>{sku.id}</div></TableCell>
 							</TableRow>
 							<TableRow>
 								<TableCell align='right'><div>name</div></TableCell>
@@ -148,6 +196,23 @@ export default ({ edit, product }: { edit: boolean, product: Product }) => {
 								<TableCell align='left'>
 									<div>
 										<Input variant='outlined' margin='dense' {...description} />
+									</div>
+								</TableCell>
+							</TableRow>
+							<TableRow>
+								<TableCell align='right'><div>amount</div></TableCell>
+								<TableCell align='left'>
+									<div>
+										<Select {...currency} />
+										<Input variant='outlined' margin='dense' {...amount} />
+									</div>
+								</TableCell>
+							</TableRow>
+							<TableRow>
+								<TableCell align='right'><div>inventory</div></TableCell>
+								<TableCell align='left'>
+									<div>
+										<Select {...inventory} />
 									</div>
 								</TableCell>
 							</TableRow>
@@ -176,13 +241,13 @@ export default ({ edit, product }: { edit: boolean, product: Product }) => {
 									const uploadedImages = await Promise.all(uploadImages(images))
 									if (uploadedImages) {
 										const fileterd = uploadedImages.filter(image => !!image) as StorageFile[]
-										product.images = fileterd
+										sku.images = fileterd
 									}
-									product.name = name.value
-									product.caption = caption.value
-									product.description = description.value
-									product.isAvailable = isAvailable.value === 'true'
-									await product.save()
+									sku.name = name.value
+									sku.caption = caption.value
+									sku.description = description.value
+									sku.isAvailable = isAvailable.value === 'true'
+									await sku.save()
 									setEditing(false)
 									setLoading(false)
 								}}>SAVE</Button>
@@ -193,9 +258,6 @@ export default ({ edit, product }: { edit: boolean, product: Product }) => {
 			</>
 		)
 	} else {
-		if (!product) {
-			return <></>
-		}
 		return (
 			<>
 				<AppBar position='static' color='transparent' elevation={0}>
@@ -223,23 +285,27 @@ export default ({ edit, product }: { edit: boolean, product: Product }) => {
 						<TableBody>
 							<TableRow>
 								<TableCell align='right'><div>ID</div></TableCell>
-								<TableCell align='left'><div>{product.id}</div></TableCell>
+								<TableCell align='left'><div>{sku.id}</div></TableCell>
 							</TableRow>
 							<TableRow>
 								<TableCell align='right'><div>name</div></TableCell>
-								<TableCell align='left'><div>{product.name}</div></TableCell>
+								<TableCell align='left'><div>{sku.name}</div></TableCell>
 							</TableRow>
 							<TableRow>
 								<TableCell align='right'><div>caption</div></TableCell>
-								<TableCell align='left'><div>{product.caption}</div></TableCell>
+								<TableCell align='left'><div>{sku.caption}</div></TableCell>
 							</TableRow>
 							<TableRow>
 								<TableCell align='right'><div>description</div></TableCell>
-								<TableCell align='left'><div>{product.description}</div></TableCell>
+								<TableCell align='left'><div>{sku.description}</div></TableCell>
+							</TableRow>
+							<TableRow>
+								<TableCell align='right'><div>amount</div></TableCell>
+								<TableCell align='left'><div>{sku.amount}</div></TableCell>
 							</TableRow>
 							<TableRow>
 								<TableCell align='right'><div>Status</div></TableCell>
-								<TableCell align='left'><div>{product.isAvailable ? 'Available' : 'Disabled'}</div></TableCell>
+								<TableCell align='left'><div>{sku.isAvailable ? 'Available' : 'Disabled'}</div></TableCell>
 							</TableRow>
 						</TableBody>
 					</Table>
