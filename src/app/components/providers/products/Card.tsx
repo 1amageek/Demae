@@ -1,5 +1,5 @@
 import React from 'react';
-import Link from 'next/link'
+import { Link } from 'react-router-dom'
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import clsx from 'clsx';
 import Card from '@material-ui/core/Card';
@@ -17,11 +17,12 @@ import FavoriteIcon from '@material-ui/icons/Favorite';
 import ShareIcon from '@material-ui/icons/Share';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
+import { Product, Provider } from 'models/commerce';
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
 		root: {
-			// maxWidth: 345,
+			flexGrow: 1
 		},
 		media: {
 			height: 0,
@@ -43,7 +44,7 @@ const useStyles = makeStyles((theme: Theme) =>
 	}),
 );
 
-export default ({ href }: { href: string }) => {
+export default ({ providerID, product }: { providerID: string, product: Product }) => {
 	const classes = useStyles();
 	const [expanded, setExpanded] = React.useState(false);
 
@@ -53,33 +54,23 @@ export default ({ href }: { href: string }) => {
 
 	return (
 		<Card className={classes.root}>
-			<CardHeader
-				avatar={
-					<Avatar aria-label="recipe" className={classes.avatar}>
-						R
-		      </Avatar>
-				}
-				action={
-					<IconButton aria-label="settings">
-						<MoreVertIcon />
-					</IconButton>
-				}
-				title="Shrimp and Chorizo Paella"
-				subheader="September 14, 2016"
-			/>
-			<Link href={href}>
+			<Link to={`/providers/${providerID}/products/${product.id}`}>
 				<CardActionArea>
-					<CardMedia
-						className={classes.media}
-						image="/static/images/cards/paella.jpg"
-						title="Paella dish"
-					/>
-					<CardContent>
-						<Typography variant="body2" color="textSecondary" component="p">
-							This impressive paella is a perfect party dish and a fun meal to cook together with your
-							guests. Add 1 cup of frozen peas along with the mussels, if you like.
-		    		</Typography>
-					</CardContent>
+					{(product.imageURLs().length > 0) &&
+						<CardMedia
+							className={classes.media}
+							image={product.imageURLs()[0]}
+							title={product.name}
+						/>
+					}
+					{
+						product.caption &&
+						<CardContent>
+							<Typography variant="body2" color="textSecondary" component="p">
+								{product.caption}
+							</Typography>
+						</CardContent>
+					}
 				</CardActionArea>
 			</Link >
 
@@ -90,7 +81,7 @@ export default ({ href }: { href: string }) => {
 				<IconButton aria-label="share">
 					<ShareIcon />
 				</IconButton>
-				<IconButton
+				{/* <IconButton
 					className={clsx(classes.expand, {
 						[classes.expandOpen]: expanded,
 					})}
@@ -99,15 +90,11 @@ export default ({ href }: { href: string }) => {
 					aria-label="show more"
 				>
 					<ExpandMoreIcon />
-				</IconButton>
+				</IconButton> */}
 			</CardActions>
-			<Collapse in={expanded} timeout="auto" unmountOnExit>
+			{/* <Collapse in={expanded} timeout="auto" unmountOnExit>
 				<CardContent>
 					<Typography paragraph>Method:</Typography>
-					<Typography paragraph>
-						Heat 1/2 cup of the broth in a pot until simmering, add saffron and set aside for 10
-						minutes.
-		      </Typography>
 					<Typography paragraph>
 						Heat oil in a (14- to 16-inch) paella pan or a large, deep skillet over medium-high
 						heat. Add chicken, shrimp and chorizo, and cook, stirring occasionally until lightly
@@ -116,18 +103,11 @@ export default ({ href }: { href: string }) => {
 						pepper, and cook, stirring often until thickened and fragrant, about 10 minutes. Add
 						saffron broth and remaining 4 1/2 cups chicken broth; bring to a boil.
 		      </Typography>
-					<Typography paragraph>
-						Add rice and stir very gently to distribute. Top with artichokes and peppers, and cook
-						without stirring, until most of the liquid is absorbed, 15 to 18 minutes. Reduce heat to
-						medium-low, add reserved shrimp and mussels, tucking them down into the rice, and cook
-						again without stirring, until mussels have opened and rice is just tender, 5 to 7
-						minutes more. (Discard any mussels that don’t open.)
-		      </Typography>
 					<Typography>
 						Set aside off of the heat to let rest for 10 minutes, and then serve.
 		      </Typography>
 				</CardContent>
-			</Collapse>
+			</Collapse> */}
 		</Card >
 	);
 }

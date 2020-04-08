@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { useRouter } from 'next/router'
+import { Link } from 'react-router-dom'
 import { makeStyles } from '@material-ui/core/styles';
 import BottomNavigation from '@material-ui/core/BottomNavigation';
 import BottomNavigationAction from '@material-ui/core/BottomNavigationAction';
@@ -19,26 +19,27 @@ const useStyles = makeStyles({
 
 export default () => {
 	const classes = useStyles();
-	const router = useRouter()
-	const route = router.route || 'home'
-	const [value, setValue] = useState(route)
+	const [value, setValue] = useState('home')
 	const handleChange = (event: React.ChangeEvent<{}>, newValue: string) => {
 		setValue(newValue);
 	}
 	return (
 		<BottomNavigation value={value} onChange={handleChange} className={classes.root}>
 			<BottomNavigationAction
-				href='/home'
+				component={Link}
+				to='/home'
 				label='Home'
 				value='home'
 				icon={<StorefrontIcon />} />
 			<BottomNavigationAction
-				href='/cart'
+				component={Link}
+				to='/cart'
 				label='Cart'
 				value='cart'
 				icon={<ShoppingCartIcon />} />
 			<BottomNavigationAction
-				href='/account'
+				component={Link}
+				to='/account'
 				label='Account'
 				value='account'
 				icon={<MenuIcon />} />

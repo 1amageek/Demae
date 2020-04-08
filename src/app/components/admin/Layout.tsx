@@ -171,6 +171,11 @@ export default ({ children }: { children: any }) => {
 							<ListItemText primary={'Orders'} />
 						</ListItem>
 					</Link>
+					<Link href='/admin/provider'>
+						<ListItem button key={'provider'}>
+							<ListItemText primary={'provider'} />
+						</ListItem>
+					</Link>
 					<Link href='/admin/account'>
 						<ListItem button key={'account'}>
 							<ListItemText primary={'Account'} />

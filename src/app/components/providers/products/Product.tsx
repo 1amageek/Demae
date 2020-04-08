@@ -8,14 +8,14 @@ import { useDocument, useDataSource } from 'hooks/commerce';
 import { Provider, Product } from 'models/commerce';
 
 export default ({ providerID, productID }: { providerID: string, productID: string }) => {
-	const [data, isLoading] = useDocument<Product>(new Provider(providerID).products.collectionReference.doc(productID), Product)
+	const [data, isLoading] = useDocument<Product>(Product, new Provider(providerID).products.collectionReference.doc(productID))
 	return (
 		<>
-			{isLoading ? (
+			{/* {isLoading ? (
 				<>loading</>
 			) : (
 					<Card href="" />
-				)}
+				)} */}
 		</>
 	);
 }

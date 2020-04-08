@@ -98,7 +98,7 @@ const App = ({ Component, pageProps, router }: AppProps) => {
 		<Provider>
 			<Router>
 				<Component {...pageProps} />
-			</Router>
+			</Router >
 		</Provider>
 	)
 }

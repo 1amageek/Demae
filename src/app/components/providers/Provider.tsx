@@ -1,20 +1,24 @@
 import React from 'react';
-import { makeStyles, createStyles, Theme } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
-import Container from '@material-ui/core/Container';
-import Card from 'components/providers/products/Card'
-import { useDocument, useDataSource } from 'hooks/commerce';
-import { Provider, Product } from 'models/commerce';
+import Card from 'components/providers/Card'
+import DataLoading from 'components/DataLoading';
+import ProductList from 'components/providers/products/ProductList'
+import { useDocument } from 'hooks/commerce';
+import { Provider } from 'models/commerce';
 
 export default ({ providerID }: { providerID: string }) => {
-	const [data, isLoading] = useDocument<Provider>(Provider.collectionReference().doc(providerID), Provider)
+	const [data, isLoading] = useDocument<Provider>(Provider, Provider.collectionReference().doc(providerID))
+	if (isLoading) {
+		return <DataLoading />
+	}
 	return (
-		<>
-			{isLoading ? (
-				<>loading</>
-			) : (
-					<Card href="" />
-				)}
-		</>
-	);
+		<Grid container spacing={2}>
+			<Grid item xs={12} container>
+				<Card provider={data!} />
+			</Grid>
+			<Grid item xs={12} container>
+				<ProductList providerID={providerID} />
+			</Grid>
+		</Grid>
+	)
 }

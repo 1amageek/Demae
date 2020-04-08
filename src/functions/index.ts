@@ -5,6 +5,7 @@ import * as path from 'path'
 import express from 'express'
 import bodyParser from 'body-parser'
 import next from 'next'
+import assets from './assets'
 
 const firebase = admin.initializeApp()
 ballcap.initialize(firebase)
@@ -23,6 +24,7 @@ export const hosting = functions.https.onRequest(async (req, res) => {
 	server.use(bodyParser.urlencoded({
 		extended: true
 	}));
+	server.use('/assets', assets)
 	server.get('*', async (req, res) => {
 		// const idToken = getIdToken(req);
 		// console.log(req.headers)

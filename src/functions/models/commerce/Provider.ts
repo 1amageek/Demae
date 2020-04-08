@@ -1,4 +1,4 @@
-import { Doc, Field, Collection, SubCollection, CollectionReference, firestore, GeoPoint } from '@1amageek/ballcap-admin'
+import { Doc, Field, Collection, SubCollection, CollectionReference, firestore, GeoPoint, File } from '@1amageek/ballcap-admin'
 import { Currency } from '../../common/Currency'
 import Product from './Product'
 import Order from './Order'
@@ -9,6 +9,8 @@ export default class Provider extends Doc {
 		return firestore.collection('commerce/v1/providers')
 	}
 
+	@Field thumbnailImage?: File
+	@Field coverImage?: File
 	@Field name: string = ''
 	@Field caption: string = ''
 	@Field description: string = ''

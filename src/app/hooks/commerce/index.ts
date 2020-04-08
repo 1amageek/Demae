@@ -170,21 +170,45 @@ export const useProviderProductSKU = (productID: string, skuID: string): [SKU | 
 	return [sku, isLoading]
 }
 
-export const useDocument = <T extends Doc>(documentReference: DocumentReference, type: typeof Doc): [T | undefined, boolean] => {
-	const [data, setData] = useState<T | undefined>()
-	const [isLoading, setLoading] = useState(true)
+export const useDocument = <T extends Doc>(type: typeof Doc, documentReference: DocumentReference): [T | undefined, boolean, Error?] => {
+	interface Prop {
+		data?: T
+		loading: boolean
+		error?: Error
+	}
+	const [state, setState] = useState<Prop>({ loading: true })
 	useEffect(() => {
-		(async () => {
-			const snapshot = await documentReference.get()
-			const doc = type.fromSnapshot<T>(snapshot)
-			setData(doc)
-			setLoading(false)
-		})()
-	}, [data?.id])
-	return [data, isLoading]
+		let enabled = true
+		const fetchData = async (documentReference: DocumentReference) => {
+			try {
+				const snapshot = await documentReference.get()
+				const data = type.fromSnapshot<T>(snapshot)
+				if (enabled) {
+					setState({
+						...state,
+						loading: false,
+						data
+					})
+				}
+			} catch (error) {
+				if (enabled) {
+					setState({
+						...state,
+						loading: false,
+						error
+					})
+				}
+			}
+		}
+		fetchData(documentReference)
+		return () => {
+			enabled = false
+		}
+	}, [documentReference.path])
+	return [state.data, state.loading, state.error]
 }
 
-export const useDataSource = <T extends Doc>(type: typeof Doc, query: firebase.firestore.Query): [T[], boolean, Error | undefined] => {
+export const useDataSource = <T extends Doc>(type: typeof Doc, query: firebase.firestore.Query, waiting: boolean = false): [T[], boolean, Error | undefined] => {
 
 	interface Prop {
 		data: T[]
@@ -194,6 +218,9 @@ export const useDataSource = <T extends Doc>(type: typeof Doc, query: firebase.f
 
 	const [state, setState] = useState<Prop>({ data: [], loading: true })
 	useEffect(() => {
+		if (waiting) {
+			return
+		}
 		let enabled = true
 		const fetchData = async () => {
 			try {
@@ -224,7 +251,7 @@ export const useDataSource = <T extends Doc>(type: typeof Doc, query: firebase.f
 		return () => {
 			enabled = false
 		}
-	}, [])
+	}, [waiting])
 	return [state.data, state.loading, state.error]
 };
 

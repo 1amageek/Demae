@@ -19,11 +19,17 @@ const useStyles = makeStyles((theme: Theme) =>
 		content: {
 			flexGrow: 1,
 			padding: theme.spacing(2, 0),
-		},
-	}),
+		}
+	})
 );
 
 export default ({ children }: { children: any }) => {
+	return (
+		<Route path="/" component={Layout} />
+	);
+}
+
+const Layout = ({ children }: { children: any }) => {
 	const classes = useStyles()
 	const [appContent] = useContext(AppContext)
 
@@ -33,7 +39,7 @@ export default ({ children }: { children: any }) => {
 			<main className={classes.content}>
 				<Container maxWidth='sm'>
 					<CssBaseline />
-					{children}
+					<App />
 				</Container>
 			</main>
 			<TabBar />
@@ -41,18 +47,19 @@ export default ({ children }: { children: any }) => {
 	);
 }
 
-// const App = () => {
-// 	return (
-// 		<Switch>
-// 			<Route path={`/home`} exact component={Home} />
-// 			<Route path={`/cart`} exact component={Cart} />
-// 			<Route path={`/account`} exact component={Account} />
-// 			<Route path={`/providers`} exact component={Provider} />
-// 			<Route path={`/checkout/shipping/:id`} exact component={Shipping} />
-// 			<Route path={`/checkout/shipping`} exact component={Shipping} />
-// 			<Route path={`/checkout`} exact component={Checkout} />
-// 			<Route path={`/checkout/paymentMethod/:id`} exact component={PaymentMethod} />
-// 			<Route path={`/checkout/paymentMethod`} exact component={PaymentMethod} />
-// 		</Switch>
-// 	)
-// }
+const App = () => {
+	return (
+		<Switch>
+			<Route path={`/home`} exact component={Home} />
+			<Route path={`/cart`} exact component={Cart} />
+			<Route path={`/account`} exact component={Account} />
+			<Route path={`/providers`} exact component={Provider} />
+			<Route path={`/providers/:providerID`} exact component={Provider} />
+			<Route path={`/checkout/shipping/:id`} exact component={Shipping} />
+			<Route path={`/checkout/shipping`} exact component={Shipping} />
+			<Route path={`/checkout`} exact component={Checkout} />
+			<Route path={`/checkout/paymentMethod/:id`} exact component={PaymentMethod} />
+			<Route path={`/checkout/paymentMethod`} exact component={PaymentMethod} />
+		</Switch>
+	)
+}

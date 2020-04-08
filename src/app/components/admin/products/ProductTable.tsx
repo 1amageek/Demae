@@ -1,6 +1,8 @@
 
 import React, { useState } from 'react'
+import firebase from 'firebase'
 import Link from 'next/link'
+import { File as StorageFile } from '@1amageek/ballcap'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -14,10 +16,12 @@ import TableRow from '@material-ui/core/TableRow';
 import TableCell from '@material-ui/core/TableCell';
 import TableBody from '@material-ui/core/TableBody';
 import IconButton from '@material-ui/core/IconButton';
+import DndCard from 'components/DndCard'
 import Box from '@material-ui/core/Box';
 import Input, { useInput } from 'components/Input'
 import Select, { useSelect } from 'components/Select'
 import Product from 'models/commerce/Product'
+
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
@@ -51,7 +55,8 @@ const useStyles = makeStyles((theme: Theme) =>
 
 export default ({ edit, product }: { edit: boolean, product: Product }) => {
 	const classes = useStyles()
-
+	const [isLoading, setLoading] = useState(false)
+	const [images, setImages] = useState<File[]>([])
 	const [isEditing, setEditing] = useState(edit)
 	const name = useInput(product?.name)
 	const caption = useInput(product?.caption)
@@ -72,6 +77,31 @@ export default ({ edit, product }: { edit: boolean, product: Product }) => {
 		}
 	})
 
+	const uploadImages = (files: File[]) => {
+		return files.map(file => {
+			return uploadImage(file)
+		})
+	}
+
+	const uploadImage = (file: File): Promise<StorageFile | undefined> => {
+		const id = firebase.firestore().collection('/dummy').doc().id
+		const ref = firebase.storage().ref(product.documentReference.path + `/images/${id}.jpg`)
+		return new Promise((resolve, reject) => {
+			ref.put(file).then(async (snapshot) => {
+				if (snapshot.state === 'success') {
+					const storageFile = new StorageFile()
+					if (snapshot.metadata.contentType) {
+						storageFile.mimeType = snapshot.metadata.contentType
+					}
+					storageFile.path = ref.fullPath
+					resolve(storageFile)
+				} else {
+					reject(undefined)
+				}
+			})
+		})
+	}
+
 	if (isEditing) {
 		return (
 			<>
@@ -83,6 +113,15 @@ export default ({ edit, product }: { edit: boolean, product: Product }) => {
 					</Toolbar>
 				</AppBar>
 				<Box className={classes.box} >
+					<Grid container spacing={2}>
+						<Grid item xs={12} sm={6}>
+							<DndCard
+								defaultText={'Images Image Drop the files here ...'}
+								onDrop={(files) => {
+									setImages(files)
+								}} />
+						</Grid>
+					</Grid>
 					<Table>
 						<TableBody>
 							<TableRow>
@@ -134,14 +173,19 @@ export default ({ edit, product }: { edit: boolean, product: Product }) => {
 							</Grid>
 							<Grid item>
 								<Button variant='contained' color='primary' onClick={async () => {
-									if (product) {
-										product.name = name.value
-										product.caption = caption.value
-										product.description = description.value
-										product.isAvailable = isAvailable.value === 'true'
-										await product.save()
+									setLoading(true)
+									const uploadedImages = await Promise.all(uploadImages(images))
+									if (uploadedImages) {
+										const fileterd = uploadedImages.filter(image => !!image) as StorageFile[]
+										product.images = fileterd
 									}
+									product.name = name.value
+									product.caption = caption.value
+									product.description = description.value
+									product.isAvailable = isAvailable.value === 'true'
+									await product.save()
 									setEditing(false)
+									setLoading(false)
 								}}>SAVE</Button>
 							</Grid>
 						</Grid>

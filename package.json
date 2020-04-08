@@ -7,6 +7,7 @@
 	},
 	"main": "index.js",
 	"scripts": {
+		"play": "ts-node --project src/functions playground",
 		"dev": "npm run clean && npm run copy-common && next src/app",
 		"preserve": "npm run build-public && npm run build-functions && npm run build-app && npm run copy-deps && npm run install-deps",
 		"serve": "cross-env NODE_ENV=production firebase serve",
@@ -50,7 +51,10 @@
 		"npm": "^6.14.3",
 		"prop-types": "latest",
 		"react": "latest",
+		"react-dnd": "^10.0.2",
+		"react-dnd-html5-backend": "^10.0.2",
 		"react-dom": "latest",
+		"react-dropzone": "^10.2.2",
 		"react-firebaseui": "^4.1.0",
 		"react-router-dom": "^5.1.2",
 		"stripe": "^8.32.0",
