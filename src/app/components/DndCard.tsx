@@ -6,7 +6,7 @@ import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
 		box: {
-			padding: theme.spacing(1),
+			padding: theme.spacing(1, 2),
 			display: 'flex',
 			justifyContent: 'center',
 			alignItems: 'center'

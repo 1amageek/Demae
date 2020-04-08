@@ -9,6 +9,7 @@ import Home from 'components/home'
 import Cart from 'components/cart'
 import Account from 'components/account'
 import Provider from 'components/providers'
+import Product from 'components/providers/products'
 import Checkout from 'components/checkout'
 import Shipping from 'components/checkout/shipping'
 import PaymentMethod from 'components/checkout/payment'
@@ -55,6 +56,8 @@ const App = () => {
 			<Route path={`/account`} exact component={Account} />
 			<Route path={`/providers`} exact component={Provider} />
 			<Route path={`/providers/:providerID`} exact component={Provider} />
+			<Route path={`/providers/:providerID/products`} exact component={Product} />
+			<Route path={`/providers/:providerID/products/:productID`} exact component={Product} />
 			<Route path={`/checkout/shipping/:id`} exact component={Shipping} />
 			<Route path={`/checkout/shipping`} exact component={Shipping} />
 			<Route path={`/checkout`} exact component={Checkout} />

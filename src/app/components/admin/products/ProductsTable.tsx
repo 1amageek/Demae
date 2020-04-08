@@ -6,15 +6,16 @@ import TableRow from '@material-ui/core/TableRow';
 import TableCell from '@material-ui/core/TableCell';
 import TableBody from '@material-ui/core/TableBody';
 import Product from 'models/commerce/Product'
+import StatusCell from '../StatusCell';
 
 export default ({ products }: { products: Product[] }) => {
 	return (
 		<Table>
 			<TableHead>
 				<TableRow>
-					<TableCell align='center'>ID</TableCell>
-					<TableCell align='center'>Name</TableCell>
-					<TableCell align='center'>Status</TableCell>
+					<TableCell align='left'>ID</TableCell>
+					<TableCell align='left'>Name</TableCell>
+					<TableCell align='left'>Status</TableCell>
 				</TableRow>
 			</TableHead>
 			<TableBody>
@@ -22,9 +23,11 @@ export default ({ products }: { products: Product[] }) => {
 					return (
 						<Link href={`/admin/products/${product.id}`} key={product.id} >
 							<TableRow hover key={product.id}>
-								<TableCell align='center'><div>{product.id}</div></TableCell>
-								<TableCell align='center'><div>{product.name}</div></TableCell>
-								<TableCell align='center'><div>{product.isAvailable}</div></TableCell>
+								<TableCell align='left'><div>{product.id}</div></TableCell>
+								<TableCell align='left'><div>{product.name}</div></TableCell>
+								<StatusCell isAvalabled={product.isAvailable} onChangeStatus={(isAvailable) => {
+									console.log(isAvailable)
+								}} />
 							</TableRow>
 						</Link>
 					)

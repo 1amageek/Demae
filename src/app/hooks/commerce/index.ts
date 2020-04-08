@@ -131,43 +131,22 @@ export const useProvider = (): [Provider | undefined, boolean, Error?] => {
 	return [state.data, state.loading, state.error]
 }
 
-export const useProviderProduct = (id: string): [Product | undefined, boolean] => {
-	const [user] = useAuthUser()
-	const [product, setProduct] = useState<Product | undefined>(undefined)
-	const [isLoading, setLoading] = useState(true)
-	useEffect(() => {
-		(async () => {
-			setLoading(true)
-			if (user) {
-				if (!product && id) {
-					const snapshot = await new Provider(user.uid).products.collectionReference.doc(id).get()
-					let product = Product.fromSnapshot<Product>(snapshot)
-					setProduct(product)
-				}
-			}
-			setLoading(false)
-		})()
-	}, [user?.uid, product?.id])
-	return [product, isLoading]
+export const useProviderProduct = (id: string): [Product | undefined, boolean, Error?] => {
+	const [user, isLoading] = useAuthUser()
+	if (user) {
+		return useDocument(Product, new Provider(user.uid).products.collectionReference.doc(id))
+	} else {
+		return [undefined, isLoading]
+	}
 }
 
-export const useProviderProductSKU = (productID: string, skuID: string): [SKU | undefined, boolean] => {
-	const [user] = useAuthUser()
-	const [sku, setSKU] = useState<SKU | undefined>(undefined)
-	const [isLoading, setLoading] = useState(true)
-	useEffect(() => {
-		(async () => {
-			if (user) {
-				if (!sku) {
-					const snapshot = await new Provider(user.uid).products.doc(productID, Product).skus.collectionReference.doc(skuID).get()
-					let sku = SKU.fromSnapshot<SKU>(snapshot)
-					setSKU(sku)
-					setLoading(false)
-				}
-			}
-		})()
-	}, [user?.uid, sku?.id])
-	return [sku, isLoading]
+export const useProviderProductSKU = (productID: string, skuID: string): [SKU | undefined, boolean, Error?] => {
+	const [user, isLoading] = useAuthUser()
+	if (user) {
+		return useDocument(SKU, new Provider(user.uid).products.doc(productID, Product).skus.collectionReference.doc(skuID))
+	} else {
+		return [undefined, isLoading]
+	}
 }
 
 export const useDocument = <T extends Doc>(type: typeof Doc, documentReference: DocumentReference): [T | undefined, boolean, Error?] => {
