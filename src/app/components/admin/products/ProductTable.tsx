@@ -57,7 +57,7 @@ export default ({ edit, product }: { edit: boolean, product: Product }) => {
 	const caption = useInput(product?.caption)
 	const description = useInput(product?.description)
 	const isAvailable = useSelect({
-		initValue: product?.isAvailable || 1,
+		initValue: product?.isAvailable || 'true',
 		inputProps: {
 			menu: [
 				{

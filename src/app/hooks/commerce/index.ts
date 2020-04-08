@@ -10,62 +10,125 @@ import Cart from 'models/commerce/Cart'
 import User from 'models/commerce/User'
 import Shipping from 'models/commerce/Shipping'
 
-export const useAuthUser = (): [firebase.User | undefined, boolean] => {
-	const [authUser, setAuthUser] = useState<firebase.User | undefined>(undefined)
-	const [isLoading, setLoading] = useState(true)
+export const useAuthUser = (): [firebase.User | undefined, boolean, Error?] => {
+	interface Prop {
+		data?: firebase.User
+		loading: boolean
+		error?: Error
+	}
+	const [state, setState] = useState<Prop>({ loading: true })
 	useEffect(() => {
+		let enabled = true
 		const user = localStorage.getItem('authUser')
 		if (user) {
 			const parsedUser = JSON.parse(user)
-			if (authUser?.uid !== parsedUser.uid) {
-				setAuthUser(parsedUser as firebase.User)
+			if (state.data?.uid !== parsedUser.uid) {
+				if (enabled) {
+					setState({
+						data: parsedUser as firebase.User,
+						loading: false
+					})
+				}
+			} else {
+				if (enabled) {
+					setState({
+						loading: false
+					})
+				}
 			}
-			setLoading(false)
 		} else {
-			setAuthUser(undefined)
-			setLoading(false)
+			setState({
+				loading: false
+			})
 		}
-	})
-	return [authUser, isLoading]
+		return () => {
+			enabled = false
+		}
+	}, []);
+	return [state.data, state.loading, state.error]
 }
 
-export const useAdmin = (): [string | undefined, boolean] => {
-	const [admin, setAdmin] = useState<string | undefined>(undefined)
-	const [isLoading, setLoading] = useState(true)
+export const useAdmin = (): [string | undefined, boolean, Error?] => {
+	interface Prop {
+		data?: string
+		loading: boolean
+		error?: Error
+	}
+	const [state, setState] = useState<Prop>({ loading: true })
 	useEffect(() => {
+		let enabled = true
 		const claims = localStorage.getItem('claims')
 		if (claims) {
 			const parsedClaims = JSON.parse(claims)
-			if (admin !== parsedClaims.admin) {
-				setAdmin(parsedClaims.admin)
+			if (state.data !== parsedClaims.admin) {
+				if (enabled) {
+					setState({
+						data: parsedClaims.admin,
+						loading: false
+					})
+				}
+			} else {
+				if (enabled) {
+					setState({
+						loading: false
+					})
+				}
 			}
-			setLoading(false)
 		} else {
-			setAdmin(undefined)
-			setLoading(false)
+			setState({
+				loading: false
+			})
 		}
-	}, [admin])
-	return [admin, isLoading]
+		return () => {
+			enabled = false
+		}
+	}, []);
+	return [state.data, state.loading, state.error]
 }
 
-export const useProvider = (): [Provider | undefined, boolean] => {
+export const useProvider = (): [Provider | undefined, boolean, Error?] => {
 	const [adminID, isAdminLoading] = useAdmin()
-	const [provider, setProvider] = useState<Provider | undefined>(undefined)
-	const [isLoading, setLoading] = useState(isAdminLoading)
+	interface Prop {
+		data?: Provider
+		loading: boolean
+		error?: Error
+	}
+	const [state, setState] = useState<Prop>({ loading: true })
 	useEffect(() => {
-		if (adminID) {
-			(async () => {
-				const provider = await Provider.get<Provider>(adminID)
-				if (provider) {
-					setProvider(provider)
+		let enabled = true
+		const fetchData = async (adminID: string) => {
+			try {
+				const data = await Provider.get<Provider>(adminID)
+				if (enabled) {
+					setState({
+						...state,
+						loading: false,
+						data
+					})
 				}
-				setLoading(false)
-			})()
-		} else {
-			setLoading(false)
+			} catch (error) {
+				if (enabled) {
+					setState({
+						...state,
+						loading: false,
+						error
+					})
+				}
+			}
 		}
-	}, [adminID])
-	return [provider, isLoading]
+		if (adminID) {
+			fetchData(adminID)
+		} else {
+			setState({
+				...state,
+				loading: isAdminLoading
+			})
+		}
+		return () => {
+			enabled = false
+		}
+	}, [adminID, isAdminLoading])
+	return [state.data, state.loading, state.error]
 }
 
 export const useProviderProduct = (id: string): [Product | undefined, boolean] => {
@@ -121,24 +184,50 @@ export const useDocument = <T extends Doc>(documentReference: DocumentReference,
 	return [data, isLoading]
 }
 
-export const useDataSource = <T extends Doc>(type: typeof Doc, query: firebase.firestore.Query): [T[], boolean] => {
-	const [data, setData] = useState<T[]>([])
-	const [isLoading, setLoading] = useState(true)
+export const useDataSource = <T extends Doc>(type: typeof Doc, query: firebase.firestore.Query): [T[], boolean, Error | undefined] => {
 
+	interface Prop {
+		data: T[]
+		loading: boolean
+		error?: Error
+	}
+
+	const [state, setState] = useState<Prop>({ data: [], loading: true })
 	useEffect(() => {
-		if (query) {
-			(async () => {
-				setLoading(true)
+		let enabled = true
+		const fetchData = async () => {
+			try {
 				const snapshot = await query.get()
 				const data = snapshot.docs.map(doc => type.fromSnapshot<T>(doc))
-				setData(data)
-				setLoading(false)
-			})()
+				if (enabled) {
+					setState({
+						...state,
+						loading: false,
+						data
+					});
+				}
+			} catch (error) {
+				if (enabled) {
+					setState({
+						...state,
+						loading: false,
+						error
+					});
+				}
+			}
+		};
+		setState({
+			...state,
+			loading: true
+		})
+		fetchData();
+		return () => {
+			enabled = false
 		}
-		setLoading(false)
-	}, [data.length, (query as any).id])
-	return [data, isLoading]
-}
+	}, [])
+	return [state.data, state.loading, state.error]
+};
+
 
 export const useCart = (): [Cart | undefined, boolean] => {
 	const [user] = useAuthUser()

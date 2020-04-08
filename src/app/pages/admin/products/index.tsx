@@ -26,6 +26,7 @@ import Product from 'models/commerce/Product'
 import { useProvider, useDataSource } from 'hooks/commerce';
 import Loading from 'components/Loading'
 import { Provider } from 'models/commerce';
+import DataSource from '../../../lib/DataSource';
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
@@ -54,7 +55,7 @@ const useStyles = makeStyles((theme: Theme) =>
 			bottom: theme.spacing(2),
 			right: theme.spacing(3),
 		},
-	}),
+	})
 );
 
 export default () => {
@@ -63,15 +64,19 @@ export default () => {
 	if (isLoading || !provider) {
 		return <Layout><Loading /></Layout>
 	}
-	return <Page provider={provider} />
+	return <Layout><Page provider={provider} /></Layout>
 }
 
 const Page = ({ provider }: { provider: Provider }) => {
 	const classes = useStyles()
 	const [open, setOpen] = useState(false)
-	const [products, isLoading] = useDataSource<Product>(Product, provider.products.collectionReference
-		.orderBy('updatedAt', 'desc')
-		.limit(100))
+	// const [products, isLoading] = useDataSource<Product>(Product, provider.products.collectionReference
+	// 	.orderBy('updatedAt', 'desc')
+	// 	.limit(100))
+
+	const data = DataSource.ref(provider.products.collectionReference).get(Product).data()
+	const products: Product[] = data.data as Product[]
+	const isLoading = data.loading
 
 	const handleOpen = () => {
 		setOpen(true);
@@ -82,29 +87,27 @@ const Page = ({ provider }: { provider: Provider }) => {
 	};
 
 	if (isLoading) {
-		return <Layout><Loading /></Layout>
+		return <Loading />
 	}
 
 	if (products.length === 0) {
 		return (
-			<Layout>
-				<Card>
-					<CardContent>
-						<Typography variant='h5' component='h2'>
-							There are no products.
+			<Card>
+				<CardContent>
+					<Typography variant='h5' component='h2'>
+						There are no products.
 						</Typography>
-						<Typography color='textSecondary'>
-							When you add a product, it will be displayed here.
+					<Typography color='textSecondary'>
+						When you add a product, it will be displayed here.
         		</Typography>
-					</CardContent>
-					<CardActions>
-						<Button variant='contained' color='primary' onClick={async () => {
-							const ref = provider.products.collectionReference.doc()
-							Router.push({ pathname: `/admin/products/${ref.id}`, query: { edit: true } })
-						}}>Add your product</Button>
-					</CardActions>
-				</Card>
-			</Layout>
+				</CardContent>
+				<CardActions>
+					<Button variant='contained' color='primary' onClick={async () => {
+						const ref = provider.products.collectionReference.doc()
+						Router.push({ pathname: `/admin/products/${ref.id}`, query: { edit: true } })
+					}}>Add your product</Button>
+				</CardActions>
+			</Card>
 		)
 	}
 

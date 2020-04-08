@@ -26,7 +26,8 @@ import { useAdmin, useDataSource, useAuthUser } from 'hooks/commerce';
 import Loading from 'components/Loading';
 import { Role } from 'models/commerce/User';
 import Provider from 'models/commerce/Provider'
-import { User } from 'models/commerce';
+import { User, Product } from 'models/commerce';
+import DataSource from 'lib/DataSource';
 
 const drawerWidth = 180;
 
@@ -98,8 +99,6 @@ export default ({ children }: { children: any }) => {
 	const [auth] = useAuthUser()
 	const theme = useTheme()
 	const [open, setOpen] = useState(false)
-
-
 
 	useEffect(() => {
 		if (!isLoading && !admin) {
@@ -196,9 +195,9 @@ export default ({ children }: { children: any }) => {
 
 const AccountMenu = ({ uid }: { uid?: string }) => {
 	if (uid) {
-		const [data, isDataLoading] = useDataSource<Role>(Role, new User(uid).roles.collectionReference)
-		const [providers, setProviders] = useState<Provider[]>([])
-		const [isLoading, setLoading] = useState(isDataLoading)
+		const datasource = DataSource.ref(new User(uid).roles.collectionReference).get(Role).map(doc => {
+			return Provider.get<Provider>(doc.id)
+		})
 		const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
 		const menuOpen = Boolean(anchorEl)
 		const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
@@ -207,19 +206,6 @@ const AccountMenu = ({ uid }: { uid?: string }) => {
 		const handleClose = () => {
 			setAnchorEl(null);
 		}
-
-		useEffect(() => {
-			(async () => {
-				if (!isDataLoading) {
-					const providers = await Promise.all(data.map(async role => {
-						return Provider.get<Provider>(role.id)
-					}))
-					const filterd = providers.filter(value => !!value) as Provider[]
-					setProviders(filterd)
-					setLoading(false)
-				}
-			})()
-		}, [data])
 
 		return (
 			<>
@@ -238,7 +224,7 @@ const AccountMenu = ({ uid }: { uid?: string }) => {
 					open={menuOpen}
 					onClose={handleClose}
 				>
-					{providers.map(p => {
+					{datasource.data.map(p => {
 						return (
 							<MenuItem key={p.id} onClick={() => {
 								Router.push('/admin')
