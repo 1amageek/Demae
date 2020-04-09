@@ -23,7 +23,7 @@ export default class Product extends Doc {
 	imageURLs() {
 		return this.images.map(image => {
 			if (image) {
-				return `https://demae-210ed.firebaseapp.com//assets/${image.path}`
+				return `https://demae-210ed.firebaseapp.com/assets/${image.path}`
 			}
 			return undefined
 		}).filter(value => !!value)

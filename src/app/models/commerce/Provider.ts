@@ -30,14 +30,14 @@ export default class Provider extends Doc {
 
 	thumbnailImageURL() {
 		if (this.thumbnailImage) {
-			return `https://demae-210ed.firebaseapp.com//assets/${this.thumbnailImage.path}`
+			return `https://demae-210ed.firebaseapp.com/assets/${this.thumbnailImage.path}`
 		}
 		return undefined
 	}
 
 	coverImageURL() {
 		if (this.coverImage) {
-			return `https://demae-210ed.firebaseapp.com//assets/${this.coverImage.path}`
+			return `https://demae-210ed.firebaseapp.com/assets/${this.coverImage.path}`
 		}
 		return undefined
 	}
