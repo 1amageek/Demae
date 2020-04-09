@@ -19,7 +19,7 @@ Set up firebase:
 - update the `.firebaserc` default project ID to the newly created project
 - login to the Firebase CLI tool with `firebase login`
 - overwrite `src/app/config/development.config.json` and `production.config.json`
-- `clasp clone --rootDir ./src ${script_id}`
+- add Stripe settings to setup.sh. copy `setup.sample.sh`
   
 ```JOSN:development.config.json
 {
@@ -33,12 +33,6 @@ Set up firebase:
 }
 ```
 
-```JSON:.clasp.json
-{
-	"scriptId": "",
-	"rootDir": "./src/gas"
-}
-```
 
 #### Install project:
 
@@ -71,6 +65,9 @@ npm run clean
 ```
 
 ## Architecture
+
+🙁It's old. sorry..
+I need a readme update.
 
 ### Pages
 
@@ -191,9 +188,6 @@ This page is for editing the details of the sku sold by your account.
 /commerce/v1/providers/:uid/orders/:order_id
 ```
 
-```
-/commerce/v1/providers/:uid
-```
 
 #### Social
 
