@@ -64,9 +64,10 @@ npm run deploy
 npm run clean
 ```
 
-🙁It's old. sorry..
-
 ## Architecture
+
+🙁It's old. sorry..
+I need a readme update.
 
 ### Pages
 
