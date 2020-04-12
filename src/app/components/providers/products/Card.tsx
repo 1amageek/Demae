@@ -1,7 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom'
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
-import clsx from 'clsx';
 import Card from '@material-ui/core/Card';
 import CardActionArea from '@material-ui/core/CardActionArea';
 import CardHeader from '@material-ui/core/CardHeader';
@@ -46,7 +45,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 export default ({ providerID, product }: { providerID: string, product: Product }) => {
 	const classes = useStyles();
-	const [expanded, setExpanded] = React.useState(false);
+	const [expanded, setExpanded] = useState(false);
 
 	const handleExpandClick = () => {
 		setExpanded(!expanded);

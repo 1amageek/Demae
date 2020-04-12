@@ -10,43 +10,11 @@ import Product from 'models/commerce/Product'
 import SKU from 'models/commerce/SKU'
 import StatusCell from 'components/admin/StatusCell';
 
-const useStyles = makeStyles((theme: Theme) =>
-	createStyles({
-		box: {
-			backgroundColor: '#fafafa'
-		},
-		bottomBox: {
-			padding: theme.spacing(1),
-			display: 'flex',
-			justifyContent: 'flex-end'
-		},
-		input: {
-			backgroundColor: '#fff'
-		},
-		cell: {
-			borderBottom: 'none',
-			padding: theme.spacing(1),
-		},
-		cellStatus: {
-			borderBottom: 'none',
-			padding: theme.spacing(1),
-			width: '48px',
-		},
-		cellStatusBox: {
-			display: 'flex',
-			justifyContent: 'center',
-			alignItems: 'center'
-		}
-	})
-);
-
-export default ({ product, skus }: { product: Product, skus: SKU[] }) => {
-	const classes = useStyles()
+export default ({ product, skus, setSKU }: { product: Product, skus: SKU[], setSKU?: (sku: SKU) => void }) => {
 	return (
 		<Table>
 			<TableHead>
 				<TableRow>
-					<TableCell align='left'>ID</TableCell>
 					<TableCell align='left'>Name</TableCell>
 					<TableCell align='left'>Currency</TableCell>
 					<TableCell align='left'>Amount</TableCell>
@@ -57,15 +25,21 @@ export default ({ product, skus }: { product: Product, skus: SKU[] }) => {
 			<TableBody>
 				{skus.map(data => {
 					return (
-						<Link href={`/admin/products/${product.id}/skus/${data.id}`} key={data.id} >
-							<TableRow hover key={data.id}>
-								<TableCell align='left'><div>{data.id}</div></TableCell>
-								<TableCell align='left'><div>{data.name}</div></TableCell>
-								<TableCell align='left'><div>{data.currency}</div></TableCell>
-								<TableCell align='left'><div>{data.amount.toLocaleString()}</div></TableCell>
-								<StatusCell isAvalabled={data.isAvailable} onChangeStatus={() => { }} />
-							</TableRow>
-						</Link>
+						<TableRow hover key={data.id} onClick={() => {
+							if (setSKU) setSKU(data)
+						}}>
+							<TableCell align='left'><div>{data.name}</div></TableCell>
+							<TableCell align='left'><div>{data.currency}</div></TableCell>
+							<TableCell align='left'><div>{data.amount.toLocaleString()}</div></TableCell>
+							<TableCell align='left'>
+								<div>
+									{data.inventory.type === 'infinite' && 'Infinite'}
+									{data.inventory.type === 'bucket' && data.inventory.value}
+									{data.inventory.type === 'finite' && data.inventory.quantity}
+								</div>
+							</TableCell>
+							<StatusCell isAvalabled={data.isAvailable} onChangeStatus={() => { }} />
+						</TableRow>
 					)
 				})}
 			</TableBody>

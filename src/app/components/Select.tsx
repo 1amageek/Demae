@@ -60,9 +60,9 @@ export const useSelect = (props: InitProps | InitValue) => {
 
 export default (props: InputProps) => {
 	return (
-		<FormControl style={{ marginBottom: '12px' }} variant='outlined' size='small'>
+		<FormControl variant='outlined' size='small' style={props.style} >
 			{props.label && <InputLabel id={props.id}>{props.label}</InputLabel>}
-			<Select {...props}>
+			<Select {...props} style={{ marginTop: '8px', marginBottom: '4px' }}>
 				{props.menu?.map(menu => {
 					return <MenuItem key={menu.value} value={menu.value}>{menu.label}</MenuItem>
 				})}

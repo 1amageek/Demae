@@ -1,21 +1,36 @@
 import React from 'react';
-import { makeStyles } from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
 import CardActionArea from '@material-ui/core/CardActionArea';
-import CardActions from '@material-ui/core/CardActions';
+import CardMedia from '@material-ui/core/CardMedia';
 import CardContent from '@material-ui/core/CardContent';
+import CardActions from '@material-ui/core/CardActions';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import SKU from 'models/commerce/SKU'
 import { useCart } from 'hooks/commerce';
-import Cart from 'models/commerce/Cart';
-import User from 'models/commerce/User'
+import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 
-const useStyles = makeStyles({
-	root: {
-		// maxWidth: 345,
-	},
-});
+const useStyles = makeStyles((theme: Theme) =>
+	createStyles({
+		root: {
+			flexGrow: 1
+		},
+		media: {
+			height: 0,
+			paddingTop: '56.25%', // 16:9
+		},
+		expand: {
+			transform: 'rotate(0deg)',
+			marginLeft: 'auto',
+			transition: theme.transitions.create('transform', {
+				duration: theme.transitions.duration.shortest,
+			}),
+		},
+		expandOpen: {
+			transform: 'rotate(180deg)',
+		}
+	}),
+);
 
 export default ({ sku }: { sku: SKU }) => {
 	const classes = useStyles();
@@ -30,15 +45,21 @@ export default ({ sku }: { sku: SKU }) => {
 	return (
 		<Card className={classes.root}>
 			<CardActionArea>
-				<CardContent>
-					<Typography gutterBottom variant="h5" component="h2">
-						Lizard
-          </Typography>
-					<Typography variant="body2" color="textSecondary" component="p">
-						Lizards are a widespread group of squamate reptiles, with over 6,000 species, ranging
-						across all continents except Antarctica
-          </Typography>
-				</CardContent>
+				{(sku.imageURLs().length > 0) &&
+					<CardMedia
+						className={classes.media}
+						image={sku.imageURLs()[0]}
+						title={sku.name}
+					/>
+				}
+				{
+					sku.caption &&
+					<CardContent>
+						<Typography variant="body2" color="textSecondary" component="p">
+							{sku.caption}
+						</Typography>
+					</CardContent>
+				}
 			</CardActionArea>
 			<CardActions>
 				<Button size="small" color="primary" onClick={addItem}>

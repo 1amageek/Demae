@@ -47,6 +47,7 @@ export const useInput = (props: InitProps | InitValue, textFieldProps?: TextFiel
 			...textFieldProps,
 			value,
 			error,
+			setValue,
 			onChange: onChange,
 			onBlur: onBlur
 		};
@@ -59,19 +60,27 @@ export const useInput = (props: InitProps | InitValue, textFieldProps?: TextFiel
 		return {
 			...props.inputProps,
 			value,
+			setValue,
 			onChange: handleChange
 		};
 	}
 }
 
 export default (props: TextFieldProps) => {
+	const filterdKey = Object.keys(props).filter(key => key !== 'setValue')
+	const filterdProps = filterdKey.reduce((prev, key) => {
+		return {
+			...prev,
+			[key]: props[key]
+		}
+	}, {} as TextFieldProps)
 	return (
 		<TextField
 			margin='normal'
 			InputLabelProps={{
 				shrink: true,
 			}}
-			{...props}
+			{...filterdProps}
 		/>
 	)
 }

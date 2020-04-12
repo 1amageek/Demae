@@ -36,6 +36,15 @@ export default class SKU extends Doc {
 		return Math.floor(this.amount + this.tax())
 	}
 
+	imageURLs() {
+		return this.images.map(image => {
+			if (image) {
+				return `https://demae-210ed.firebaseapp.com/assets/${image.path}`
+			}
+			return undefined
+		}).filter(value => !!value)
+	}
+
 	async updateInventory() {
 		if (this.inventory.type !== 'finite') {
 			return

@@ -94,7 +94,6 @@ export const confirm = regionFunctions.https.onCall(async (data, context) => {
 	return
 })
 
-
 export const capture = regionFunctions.https.onCall(async (data, context) => {
 	if (!context.auth) {
 		throw new functions.https.HttpsError('failed-precondition', 'The function must be called while authenticated.')

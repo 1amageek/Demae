@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react'
-import firebase from 'firebase'
+import React, { useState } from 'react'
 import 'firebase/auth'
 import Router, { useRouter } from 'next/router'
 import Paper from '@material-ui/core/Paper';
@@ -8,16 +7,9 @@ import Fab from '@material-ui/core/Fab';
 import AddIcon from '@material-ui/icons/Add';
 import Tooltip from '@material-ui/core/Tooltip';
 import { makeStyles, useTheme, Theme, createStyles } from '@material-ui/core/styles';
-import SearchIcon from '@material-ui/icons/Search';
-import RefreshIcon from '@material-ui/icons/Refresh';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemText from '@material-ui/core/ListItemText';
 import ProductTable from 'components/admin/products/ProductTable'
-import SKUsTable from 'components/admin/products/skus/SKUsTable'
+import SKUPage from 'components/admin/products/skus'
 import Layout from 'components/admin/Layout'
-import Form from 'components/admin/products/Form'
-import Input, { useInput } from 'components/Input'
 import Provider from 'models/commerce/Provider'
 import Product from 'models/commerce/Product'
 import SKU from 'models/commerce/SKU'
@@ -70,12 +62,13 @@ const Page = ({ product }: { product: Product }) => {
 	const router = useRouter()
 	const edit = router.query.edit === 'true'
 	const [authUser] = useAuthUser()
-
+	const [skuEdit, setSKUEdit] = useState(false)
+	const [sku, setSKU] = useState<SKU | undefined>(undefined)
 	const [skus, isSKULoading] = useDataSource<SKU>(SKU, product.skus.collectionReference
 		.orderBy('updatedAt', 'desc')
 		.limit(100))
 
-	const [isEditing, setEditing] = useState(edit)
+	const [isEditing] = useState(edit)
 	if (isSKULoading) {
 		return <Layout><Loading /></Layout>
 	}
@@ -84,14 +77,14 @@ const Page = ({ product }: { product: Product }) => {
 		<>
 			<Layout>
 				<Grid container spacing={3}>
-					<Grid item xs={12}>
+					<Grid item xs={6}>
 						<Paper className={classes.paper}>
 							<ProductTable edit={isEditing} product={product!} />
 						</Paper>
 					</Grid>
-					<Grid item xs={12}>
+					<Grid item xs={6}>
 						<Paper className={classes.paper}>
-							{product && <SKUsTable product={product} skus={skus} />}
+							{product && <SKUPage product={product} skus={skus} sku={sku} setSKU={setSKU} edit={skuEdit} />}
 						</Paper>
 					</Grid>
 				</Grid>
@@ -103,7 +96,9 @@ const Page = ({ product }: { product: Product }) => {
 					if (!uid) { return }
 					const provider = new Provider(uid)
 					const ref = provider.products.doc(product.id, Product).skus.collectionReference.doc()
-					Router.push({ pathname: `/admin/products/${product.id}/skus/${ref.id}`, query: { edit: true } })
+					const newSKU = new SKU(ref)
+					setSKUEdit(true)
+					setSKU(newSKU)
 				}}>
 					<Fab color='secondary' className={classes.absolute}>
 						<AddIcon />

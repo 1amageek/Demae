@@ -20,8 +20,9 @@ import DndCard from 'components/DndCard'
 import Box from '@material-ui/core/Box';
 import Input, { useInput } from 'components/Input'
 import Select, { useSelect } from 'components/Select'
-import { SKU } from 'models/commerce';
-import { Currencies } from 'common/Currency'
+import { SKU, Product } from 'models/commerce';
+import { Currencies, Currency } from 'common/Currency'
+import { StockType, StockValue } from 'common/commerce/Types';
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
@@ -53,7 +54,7 @@ const useStyles = makeStyles((theme: Theme) =>
 	})
 );
 
-export default ({ edit, sku }: { edit: boolean, sku: SKU }) => {
+export default ({ product, sku, edit, setSKU }: { product: Product, sku: SKU, edit: boolean, setSKU?: (sku: SKU | undefined) => void }) => {
 	const classes = useStyles()
 	const [isLoading, setLoading] = useState(false)
 	const [images, setImages] = useState<File[]>([])
@@ -90,11 +91,13 @@ export default ({ edit, sku }: { edit: boolean, sku: SKU }) => {
 			]
 		}
 	})
+	const quantity = useInput(sku?.inventory.quantity || '0')
 	const stockValue = useSelect({
-		initValue: sku?.inventory.value, inputProps: {
+		initValue: sku?.inventory.value || 'in_stock',
+		inputProps: {
 			menu: [
 				{
-					label: 'InStock',
+					label: 'In Stock',
 					value: 'in_stock'
 				},
 				{
@@ -102,7 +105,7 @@ export default ({ edit, sku }: { edit: boolean, sku: SKU }) => {
 					value: 'limited'
 				}
 				, {
-					label: 'OutOfStock',
+					label: 'Out Of Stock',
 					value: 'out_of_stock'
 				}
 			]
@@ -155,7 +158,7 @@ export default ({ edit, sku }: { edit: boolean, sku: SKU }) => {
 				<AppBar position='static' color='transparent' elevation={0}>
 					<Toolbar>
 						<Typography variant='h6'>
-							Edit Product
+							Edit SKU
           	</Typography>
 					</Toolbar>
 				</AppBar>
@@ -204,7 +207,10 @@ export default ({ edit, sku }: { edit: boolean, sku: SKU }) => {
 								<TableCell align='left'>
 									<div>
 										<Select {...currency} />
-										<Input variant='outlined' margin='dense' {...amount} />
+										<Input variant='outlined' margin='dense' type='number' style={{ width: '112px', marginLeft: '8px' }} value={amount.value} onChange={e => {
+											const newAmount = Math.floor(Number(e.target.value) * 100) / 100
+											amount.setValue(`${newAmount}`)
+										}} />
 									</div>
 								</TableCell>
 							</TableRow>
@@ -213,6 +219,11 @@ export default ({ edit, sku }: { edit: boolean, sku: SKU }) => {
 								<TableCell align='left'>
 									<div>
 										<Select {...inventory} />
+										{inventory.value === 'bucket' && <Select style={{ marginLeft: '8px' }} {...stockValue} />}
+										{inventory.value === 'finite' && <Input variant='outlined' margin='dense' style={{ width: '112px', marginLeft: '8px' }} type='number' value={quantity.value} onChange={e => {
+											const newQuantity = Math.floor(Number(e.target.value))
+											quantity.setValue(`${newQuantity}`)
+										}} />}
 									</div>
 								</TableCell>
 							</TableRow>
@@ -239,6 +250,7 @@ export default ({ edit, sku }: { edit: boolean, sku: SKU }) => {
 								<Button variant='contained' color='primary' onClick={async () => {
 									setLoading(true)
 									const uploadedImages = await Promise.all(uploadImages(images))
+									console.log(uploadedImages)
 									if (uploadedImages) {
 										const fileterd = uploadedImages.filter(image => !!image) as StorageFile[]
 										sku.images = fileterd
@@ -246,6 +258,13 @@ export default ({ edit, sku }: { edit: boolean, sku: SKU }) => {
 									sku.name = name.value
 									sku.caption = caption.value
 									sku.description = description.value
+									sku.amount = Number(amount.value)
+									sku.currency = currency.value as Currency
+									sku.inventory = {
+										type: inventory.value as StockType,
+										value: stockValue.value as StockValue,
+										quantity: Number(quantity.value)
+									}
 									sku.isAvailable = isAvailable.value === 'true'
 									await sku.save()
 									setEditing(false)
@@ -264,18 +283,18 @@ export default ({ edit, sku }: { edit: boolean, sku: SKU }) => {
 					<Toolbar>
 						<Grid container spacing={2} alignItems='center'>
 							<Grid item>
-								<Link href='/admin/products'>
-									<Tooltip title='Back'>
-										<IconButton>
-											<ArrowBackIcon color='inherit' />
-										</IconButton>
-									</Tooltip>
-								</Link>
+								<Tooltip title='Back' onClick={() => {
+									if (setSKU) setSKU(undefined)
+								}}>
+									<IconButton>
+										<ArrowBackIcon color='inherit' />
+									</IconButton>
+								</Tooltip>
 							</Grid>
 							<Grid item>
 								<Typography variant='h6'>
-									Product
-          			</Typography>
+									{product.name}
+								</Typography>
 							</Grid>
 						</Grid>
 					</Toolbar>
@@ -300,8 +319,18 @@ export default ({ edit, sku }: { edit: boolean, sku: SKU }) => {
 								<TableCell align='left'><div>{sku.description}</div></TableCell>
 							</TableRow>
 							<TableRow>
-								<TableCell align='right'><div>amount</div></TableCell>
-								<TableCell align='left'><div>{sku.amount}</div></TableCell>
+								<TableCell align='right'><div>price</div></TableCell>
+								<TableCell align='left'><div>{sku.currency} {sku.amount}</div></TableCell>
+							</TableRow>
+							<TableRow>
+								<TableCell align='right'><div>inventory</div></TableCell>
+								<TableCell align='left'>
+									<div>
+										{sku.inventory.type === 'infinite' && 'Infinite'}
+										{sku.inventory.type === 'bucket' && sku.inventory.value}
+										{sku.inventory.type === 'finite' && sku.inventory.quantity}
+									</div>
+								</TableCell>
 							</TableRow>
 							<TableRow>
 								<TableCell align='right'><div>Status</div></TableCell>
