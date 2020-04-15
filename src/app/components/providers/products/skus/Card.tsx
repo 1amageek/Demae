@@ -4,7 +4,10 @@ import CardActionArea from '@material-ui/core/CardActionArea';
 import CardMedia from '@material-ui/core/CardMedia';
 import CardContent from '@material-ui/core/CardContent';
 import CardActions from '@material-ui/core/CardActions';
-import Button from '@material-ui/core/Button';
+import { Button, Tooltip, IconButton } from '@material-ui/core';
+import AddCircleIcon from '@material-ui/icons/AddCircle';
+import ImageIcon from '@material-ui/icons/Image';
+import RemoveCircleIcon from '@material-ui/icons/RemoveCircle';
 import Typography from '@material-ui/core/Typography';
 import SKU from 'models/commerce/SKU'
 import { useCart } from 'hooks/commerce';
@@ -44,27 +47,42 @@ export default ({ sku }: { sku: SKU }) => {
 
 	return (
 		<Card className={classes.root}>
-			<CardActionArea>
-				{(sku.imageURLs().length > 0) &&
-					<CardMedia
-						className={classes.media}
-						image={sku.imageURLs()[0]}
-						title={sku.name}
-					/>
-				}
-				{
-					sku.caption &&
-					<CardContent>
-						<Typography variant="body2" color="textSecondary" component="p">
-							{sku.caption}
-						</Typography>
-					</CardContent>
-				}
-			</CardActionArea>
+			<CardContent>
+				<Typography variant="h5">
+					{sku.name}
+				</Typography>
+			</CardContent>
+			{(sku.imageURLs().length > 0) &&
+				<CardMedia
+					className={classes.media}
+					image={sku.imageURLs()[0]}
+					title={sku.name}
+				/>
+			}
+			{
+				sku.caption &&
+				<CardContent>
+					<Typography variant="body2" color="textSecondary" component="p">
+						{sku.caption}
+					</Typography>
+				</CardContent>
+			}
 			<CardActions>
 				<Button size="small" color="primary" onClick={addItem}>
 					Add to Bag
         </Button>
+
+				<Tooltip title='Back'>
+					<IconButton>
+						<RemoveCircleIcon color='inherit' />
+					</IconButton>
+				</Tooltip>
+
+				<Tooltip title='Back'>
+					<IconButton>
+						<AddCircleIcon color='inherit' />
+					</IconButton>
+				</Tooltip>
 			</CardActions>
 		</Card>
 	);

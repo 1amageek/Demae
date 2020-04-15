@@ -5,6 +5,7 @@ import Container from '@material-ui/core/Container';
 import CssBaseline from '@material-ui/core/CssBaseline'
 import AppBar from 'components/AppBar'
 import TabBar from 'components/TabBar'
+import Login from 'components/Login'
 import Home from 'components/home'
 import Cart from 'components/cart'
 import Account from 'components/account'
@@ -51,6 +52,7 @@ const Layout = ({ children }: { children: any }) => {
 const App = () => {
 	return (
 		<Switch>
+			<Route path={`/login`} exact component={Login} />
 			<Route path={`/home`} exact component={Home} />
 			<Route path={`/cart`} exact component={Cart} />
 			<Route path={`/account`} exact component={Account} />

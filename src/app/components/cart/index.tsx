@@ -8,9 +8,10 @@ import ListItemText from '@material-ui/core/ListItemText';
 import ImageIcon from '@material-ui/icons/Image';
 import TextField from '@material-ui/core/TextField';
 import Order, { OrderItem } from 'models/commerce/Order'
-import { useCart } from 'hooks/commerce';
+import { useCart, useAuthUser } from 'hooks/commerce';
 import Summary from './summary'
 import Loading from 'components/Loading'
+import Login from 'components/Login'
 import ISO4217 from 'common/ISO4217'
 import DataLoading from 'components/DataLoading';
 import Cart from 'models/commerce/Cart'
@@ -18,18 +19,24 @@ import Cart from 'models/commerce/Cart'
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
 		avater: {
-			width: theme.spacing(7),
-			height: theme.spacing(7),
+			width: theme.spacing(8),
+			height: theme.spacing(8),
 		}
 	}),
 );
 
 export default () => {
+	const [auth] = useAuthUser()
 	const [cart, isLoading] = useCart()
 
 	const subtotal = cart?.subtotal() || 0
 	const tax = cart?.tax() || 0
-	const symbol = cart ? ISO4217[cart!.currency]['symbol'] : ''
+	const currencyCode = cart?.currency || 'USD'
+	const symbol = cart ? ISO4217[currencyCode]['symbol'] : ''
+
+	if (!auth && !isLoading) {
+		return <Login />
+	}
 
 	return (
 		<>
@@ -53,18 +60,20 @@ export default () => {
 	)
 }
 
-const CartItemList = ({ cart, isLoading }: { cart: Cart, isLoading: boolean }) => {
+const CartItemList = ({ cart, isLoading }: { cart?: Cart, isLoading: boolean }) => {
 
 	const itemDelete = async (item: OrderItem) => {
-		cart.deleteItem(item)
-		await cart.update()
+		cart?.deleteItem(item)
+		await cart?.update()
 	}
+
+	const items = cart?.items || []
 
 	if (isLoading) {
 		return <DataLoading />
 	}
 
-	if (cart.items.length === 0) {
+	if (items.length === 0) {
 		return (
 			<Paper>
 				<Box fontSize="h6.fontSize" textAlign="center" color="textPrimary" paddingY={6}>
@@ -77,7 +86,7 @@ const CartItemList = ({ cart, isLoading }: { cart: Cart, isLoading: boolean }) =
 	return (
 		<Paper>
 			<List>
-				{cart && cart.items.map((item, index) => {
+				{items.map((item, index) => {
 					return <Cell item={item} key={String(index)} onClick={async () => {
 						await itemDelete(item)
 					}} />

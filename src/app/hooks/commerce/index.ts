@@ -261,8 +261,20 @@ export const useDocumentListen = <T extends Doc>(type: typeof Doc, documentRefer
 				}
 			})
 		}
-		if (!waiting && documentReference) {
-			listen(documentReference)
+		if (!waiting) {
+			if (documentReference) {
+				listen(documentReference)
+			} else {
+				setState({
+					...state,
+					loading: false
+				})
+			}
+		} else {
+			setState({
+				...state,
+				loading: waiting
+			})
 		}
 		return () => {
 			enabled = false
@@ -271,7 +283,7 @@ export const useDocumentListen = <T extends Doc>(type: typeof Doc, documentRefer
 	return [state.data, state.loading, state.error]
 }
 
-export const useDataSourceListen = <T extends Doc>(type: typeof Doc, query: firebase.firestore.Query, waiting: boolean = false): [T[], boolean, Error | undefined] => {
+export const useDataSourceListen = <T extends Doc>(type: typeof Doc, query?: firebase.firestore.Query, waiting: boolean = false): [T[], boolean, Error | undefined] => {
 	interface Prop {
 		data: T[]
 		loading: boolean
@@ -281,7 +293,7 @@ export const useDataSourceListen = <T extends Doc>(type: typeof Doc, query: fire
 	useEffect(() => {
 		let enabled = true
 		const listen = async () => {
-			query.onSnapshot({
+			query?.onSnapshot({
 				next: (snapshot) => {
 					const data = snapshot.docs.map(doc => type.fromSnapshot<T>(doc))
 					if (enabled) {
@@ -303,12 +315,21 @@ export const useDataSourceListen = <T extends Doc>(type: typeof Doc, query: fire
 				}
 			})
 		};
-		setState({
-			...state,
-			loading: true
-		})
+
 		if (!waiting) {
-			listen()
+			if (query) {
+				listen()
+			} else {
+				setState({
+					...state,
+					loading: false
+				})
+			}
+		} else {
+			setState({
+				...state,
+				loading: waiting
+			})
 		}
 		return () => {
 			enabled = false
@@ -318,46 +339,19 @@ export const useDataSourceListen = <T extends Doc>(type: typeof Doc, query: fire
 };
 
 export const useCart = (): [Cart | undefined, boolean, Error | undefined] => {
-	const [user, isAuthLoading] = useAuthUser()
-	const [cart, isLoading, error] = useDocumentListen<Cart>(Cart, user?.uid ? new Cart(user.uid).documentReference : undefined, isAuthLoading)
+	const [auth, isAuthLoading] = useAuthUser()
+	const [cart, isLoading, error] = useDocumentListen<Cart>(Cart, auth?.uid ? new Cart(auth.uid).documentReference : undefined, isAuthLoading)
 	return [cart, isLoading, error]
 }
 
-export const useUser = (): [User | undefined, boolean] => {
-	const [auth] = useAuthUser()
-	const [user, setUser] = useState<User | undefined>(undefined)
-	const [isLoading, setLoading] = useState(false)
-	useEffect(() => {
-		(async () => {
-			if (auth) {
-				if (!user) {
-					setLoading(true)
-					const user = await User.get<User>(auth.uid) || new User(auth.uid)
-					setUser(user)
-					setLoading(false)
-				}
-			}
-		})()
-	}, [auth?.uid, user?.id])
-	return [user, isLoading]
+export const useUser = (): [User | undefined, boolean, Error | undefined] => {
+	const [auth, isAuthLoading] = useAuthUser()
+	const [user, isLoading, error] = useDocumentListen<User>(User, auth?.uid ? new User(auth.uid).documentReference : undefined, isAuthLoading)
+	return [user, isLoading, error]
 }
 
-export const useUserShipping = (id: string): [Shipping | undefined, boolean] => {
-	const [auth] = useAuthUser()
-	const [shipping, setShipping] = useState<Shipping | undefined>(undefined)
-	const [isLoading, setLoading] = useState(true)
-	useEffect(() => {
-		(async () => {
-			if (auth) {
-				if (!shipping) {
-					const snapshot = await new User(auth.uid).shippingAddresses.collectionReference.doc(id).get()
-					let shipping = Shipping.fromSnapshot<Shipping>(snapshot)
-					setShipping(shipping)
-					setLoading(false)
-				}
-			}
-		})()
-	}, [auth?.uid, shipping?.id])
-	return [shipping, isLoading]
+export const useUserShipping = (id: string): [Shipping | undefined, boolean, Error | undefined] => {
+	const [auth, isAuthLoading] = useAuthUser()
+	const [shipping, isLoading, error] = useDocumentListen<Shipping>(Shipping, auth?.uid ? new User(auth.uid).shippingAddresses.collectionReference.doc(id) : undefined, isAuthLoading)
+	return [shipping, isLoading, error]
 }
-

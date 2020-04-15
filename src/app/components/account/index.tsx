@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useContext } from 'react';
 import Link from 'next/link'
 import Router from 'next/router'
-import firebase from 'firebase';
+import firebase, { database } from 'firebase';
 import 'firebase/auth';
 import 'firebase/functions';
 import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
@@ -16,9 +16,9 @@ import ViewListIcon from '@material-ui/icons/ViewList';
 import StoreIcon from '@material-ui/icons/Store';
 import SettingsIcon from '@material-ui/icons/Settings';
 import { UserContext } from 'context'
-import { useDataSource } from 'hooks/commerce';
+import { useDataSource, useDataSourceListen, useProvider, useDocumentListen } from 'hooks/commerce';
 import * as Commerce from 'models/commerce';
-import { Role } from 'models/commerce/User';
+import User, { Role } from 'models/commerce/User';
 import Loading from 'components/Loading'
 import Modal from '../Modal';
 import Provider from 'models/commerce/Provider';
@@ -26,136 +26,85 @@ import Account from 'models/account/Account';
 import Form from './CreateForm'
 import Login from 'components/Login'
 import Agreement from 'components/agreement'
-
-function ListItemLink(props: ListItemProps<'a', { button?: true }>) {
-	return <ListItem button component='a' {...props} />;
-}
+import DataLoading from 'components/DataLoading';
+import { Paper, Grid } from '@material-ui/core';
 
 export default () => {
-	const [open, setOpen] = useState(false)
-	const [modalOpen, setModalOpen] = useState(false)
-	const handleOpen = () => {
-		setOpen(true);
-	};
-	const handleClose = () => {
-		setOpen(false);
-	};
+	const [user, isLoading, error] = useContext(UserContext)
+	if (isLoading) {
+		return <DataLoading />
+	}
+
 	return (
-		<UserContext.Consumer>
-			{(auth) => {
-				if (auth) {
-					const provider = new Provider(auth.uid)
-					const account = new Account(auth.uid)
-					return (
-						<>
-							<List component='nav' aria-label='main mailbox folders'>
-								<ListItem button>
-									<ListItemIcon>
-										<ViewListIcon />
-									</ListItemIcon>
-									<ListItemText primary='Purchase history' />
-								</ListItem>
-							</List>
-							<ProviderList uid={auth.uid} handleOpen={handleOpen} />
-							<Divider />
-							<List component='nav' aria-label='secondary mailbox folders'>
-								<ListItemLink onClick={async () => {
-									await firebase.auth().signOut()
-								}}>
-									<ListItemText primary='SignOut' />
-								</ListItemLink>
-							</List>
-							<Agreement
-								open={open}
-								onClose={handleClose}
-								onNext={() => {
-									handleClose()
-									setModalOpen(true)
-								}}
-							/>
-							<Modal
-								open={modalOpen}
-								onClose={() => { setModalOpen(false) }}
-							>
-								<Form uid={auth.uid} provider={provider} account={account} />
-							</Modal>
-						</>
-					)
-				} else {
-					return <Login />
-				}
-			}}
-		</UserContext.Consumer>
-	);
+		<Grid container spacing={2}>
+			<Grid item xs={12}>
+				<Paper>
+					<List>
+						<ListItem button>
+							<ListItemIcon>
+								<ViewListIcon />
+							</ListItemIcon>
+							<ListItemText primary='Purchase history' />
+						</ListItem>
+					</List>
+				</Paper>
+			</Grid>
+			<Grid item xs={12}>
+				<Paper>
+					<ProviderList />
+				</Paper>
+			</Grid>
+		</Grid>
+	)
 }
 
-const ProviderList = ({ uid, handleOpen }: { uid: string, handleOpen: () => void }) => {
-	const user = new Commerce.User(uid)
-	const [data, isDataLoading] = useDataSource<Role>(Role, user.roles.collectionReference)
-	const [providers, setProviders] = useState<Provider[]>([])
-	const [isLoading, setLoading] = useState(isDataLoading)
-	const [isAttaching, setAttaching] = useState(false)
+const ProviderList = () => {
+	const [user, isLoading] = useContext(UserContext)
+	const [roles, isDataLoading] = useDataSourceListen<Role>(Role, user?.roles.collectionReference, isLoading)
 
-	useEffect(() => {
-		(async () => {
-			if (!isDataLoading) {
-				setLoading(true)
-				const providers = await Promise.all(data.map(async role => {
-					return Provider.get<Provider>(role.id)
-				}))
-				const filterd = providers.filter(value => !!value) as Provider[]
-				setProviders(filterd)
-				setLoading(false)
-			}
-			setLoading(false)
-		})()
-	}, [data.length])
+	if (isDataLoading) {
+		return <DataLoading />
+	}
+
+	return (
+		<List>
+			{roles.map(role => {
+				return <ProviderListItem role={role} />
+			})}
+		</List>
+	)
+}
+
+const ProviderListItem = ({ role }: { role: Role }) => {
+	const [provider, isLoading] = useDocumentListen<Provider>(Provider, new Provider(role.id).documentReference)
 
 	if (isLoading) {
-		return <Loading />
-	} else {
-		if (providers.length === 0) {
-			return (
-				<ListItemLink onClick={handleOpen}>
-					<ListItemText primary='Add Provider' />
-				</ListItemLink>
-			)
-		} else {
-			return (
-				<>
-					<List component='nav' aria-label='main mailbox folders'>
-						{providers
-							.map(provider => {
-								return (
-									<Link href={`/providers/${provider.id}`} key={provider.id}>
-										<ListItem button>
-											<ListItemIcon>
-												<StoreIcon />
-											</ListItemIcon>
-											<ListItemText primary={provider.name} />
-											<ListItemSecondaryAction onClick={async () => {
-												setAttaching(true)
-												const adminAttach = firebase.functions().httpsCallable('v1-commerce-admin-attach')
-												try {
-													await adminAttach({ providerID: provider.id })
-													Router.push(`/admin`)
-												} catch (error) {
-													console.log(error)
-												}
-												setAttaching(false)
-											}}>
-												<IconButton edge='end' aria-label='comments'>
-													<SettingsIcon />
-												</IconButton>
-											</ListItemSecondaryAction>
-										</ListItem>
-									</Link>
-								)
-							})}
-					</List>
-					{isAttaching && <Loading />}
-				</>
-			)
-		}
+		return (
+			<ListItem>
+				<DataLoading />
+			</ListItem>
+		)
 	}
+
+	return (
+		<ListItem button>
+			<ListItemIcon>
+				<StoreIcon />
+			</ListItemIcon>
+			<ListItemText primary={provider!.name} />
+			<ListItemSecondaryAction onClick={async () => {
+				const adminAttach = firebase.functions().httpsCallable('v1-commerce-admin-attach')
+				try {
+					await adminAttach({ providerID: provider!.id })
+					Router.push(`/admin`)
+				} catch (error) {
+					console.log(error)
+				}
+			}}>
+				<IconButton>
+					<SettingsIcon />
+				</IconButton>
+			</ListItemSecondaryAction>
+		</ListItem>
+	)
 }

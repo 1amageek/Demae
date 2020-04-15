@@ -1,4 +1,5 @@
 import { Doc, Field, Collection, SubCollection, firestore, CollectionReference, File } from '@1amageek/ballcap'
+import { CurrencyCode } from 'common/Currency'
 import Plan from './Plan'
 import SKU from './SKU'
 
@@ -15,6 +16,7 @@ export default class Product extends Doc {
 	@Field name: string = ''
 	@Field caption?: string
 	@Field description?: string
+	@Field price?: { [key in CurrencyCode]: number }
 	@Field isAvailable: boolean = true
 	@Field metadata?: any
 	@SubCollection skus: Collection<SKU> = new Collection()

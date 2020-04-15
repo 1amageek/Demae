@@ -13,7 +13,7 @@ import { useAuthUser, useProvider } from 'hooks/commerce'
 import Loading from 'components/Loading'
 import Input, { useInput } from 'components/Input'
 import Provider from 'models/commerce/Provider'
-import { UserContext } from 'context'
+import { UserContext, AuthContext } from 'context'
 import { Create, Individual } from 'common/commerce/account'
 
 
@@ -21,7 +21,7 @@ export default () => {
 
 	const [provider, isLoading] = useProvider()
 	return (
-		<UserContext.Consumer>
+		<AuthContext.Consumer>
 			{user => {
 				if (user) {
 					if (isLoading) {
@@ -38,7 +38,7 @@ export default () => {
 					return <Login />
 				}
 			}}
-		</UserContext.Consumer>
+		</AuthContext.Consumer>
 	)
 }
 

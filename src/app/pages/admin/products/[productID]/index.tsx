@@ -77,12 +77,12 @@ const Page = ({ product }: { product: Product }) => {
 		<>
 			<Layout>
 				<Grid container spacing={3}>
-					<Grid item xs={6}>
+					<Grid item xs={12} md={6}>
 						<Paper className={classes.paper}>
 							<ProductTable edit={isEditing} product={product!} />
 						</Paper>
 					</Grid>
-					<Grid item xs={6}>
+					<Grid item xs={12} md={6}>
 						<Paper className={classes.paper}>
 							{product && <SKUPage product={product} skus={skus} sku={sku} setSKU={setSKU} edit={skuEdit} />}
 						</Paper>

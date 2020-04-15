@@ -1,12 +1,12 @@
 import { createContext, useState, useEffect } from 'react'
 import firebase from "firebase"
-import User from "../models/social/User"
-import { useAuthUser } from 'hooks/commerce'
+import User from "../models/commerce/User"
+import { useAuthUser, useUser } from 'hooks/commerce'
 
-export const UserContext = createContext<firebase.User | undefined>(undefined)
-export const UserProvider = ({ children }) => {
+export const AuthContext = createContext<firebase.User | undefined>(undefined)
+export const AuthProvider = ({ children }) => {
 	const [user] = useAuthUser()
-	return <UserContext.Provider value={user}> {children} </UserContext.Provider>
+	return <AuthContext.Provider value={user}> {children} </AuthContext.Provider>
 }
 
 interface AppContent {
@@ -19,4 +19,10 @@ export const AppContext = createContext<[AppContent, (content: AppContent) => vo
 export const AppProvider = ({ children }) => {
 	const [appContent, setAppContent] = useState<AppContent>({ appBar: { title: 'Home' } })
 	return <AppContext.Provider value={[appContent, setAppContent]}> {children} </AppContext.Provider>
+}
+
+export const UserContext = createContext<[User | undefined, boolean, Error | undefined]>([undefined, true, undefined])
+export const UserProvider = ({ children }: { children: any }) => {
+	const [user, isLoading, error] = useUser()
+	return <UserContext.Provider value={[user, isLoading, error]}>{children}</UserContext.Provider>
 }
