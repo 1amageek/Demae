@@ -229,24 +229,52 @@ export const useDataSource = <T extends Doc>(type: typeof Doc, query: firebase.f
 	return [state.data, state.loading, state.error]
 };
 
-
-export const useCart = (): [Cart | undefined, boolean] => {
-	const [user] = useAuthUser()
-	const [cart, setCart] = useState<Cart | undefined>(undefined)
-	const [isLoading, setLoading] = useState(false)
+export const useDocumentListen = <T extends Doc>(type: typeof Doc, documentReference?: DocumentReference, waiting: boolean = false): [T | undefined, boolean, Error?] => {
+	interface Prop {
+		data?: T
+		loading: boolean
+		error?: Error
+	}
+	const [state, setState] = useState<Prop>({ loading: true })
 	useEffect(() => {
-		(async () => {
-			if (user) {
-				if (!cart) {
-					setLoading(true)
-					const cart = await Cart.get<Cart>(user.uid) || new Cart(user.uid)
-					setCart(cart)
-					setLoading(false)
+		let enabled = true
+		const listen = async (documentReference: DocumentReference) => {
+			documentReference.onSnapshot({
+				next: (snapshot) => {
+					const data = type.fromSnapshot<T>(snapshot)
+					if (enabled) {
+						setState({
+							...state,
+							loading: false,
+							data
+						})
+					}
+				},
+				error: (error) => {
+					if (enabled) {
+						setState({
+							...state,
+							loading: false,
+							error
+						})
+					}
 				}
-			}
-		})()
-	}, [user?.uid, cart?.id])
-	return [cart, isLoading]
+			})
+		}
+		if (!waiting && documentReference) {
+			listen(documentReference)
+		}
+		return () => {
+			enabled = false
+		}
+	}, [documentReference?.path, waiting])
+	return [state.data, state.loading, state.error]
+}
+
+export const useCart = (): [Cart | undefined, boolean, Error | undefined] => {
+	const [user, isAuthLoading] = useAuthUser()
+	const [cart, isLoading, error] = useDocumentListen<Cart>(Cart, user?.uid ? new Cart(user.uid).documentReference : undefined, isAuthLoading)
+	return [cart, isLoading, error]
 }
 
 export const useUser = (): [User | undefined, boolean] => {

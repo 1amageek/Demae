@@ -1,82 +1,108 @@
 import React from 'react';
 import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
-import AppBar from '@material-ui/core/AppBar';
-import CssBaseline from '@material-ui/core/CssBaseline';
-import Button from '@material-ui/core/Button';
-import Typography from '@material-ui/core/Typography';
+import { Box, Paper, Typography, Button, Grid, ListItemAvatar, Avatar } from '@material-ui/core';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import ListItemText from '@material-ui/core/ListItemText';
+import ImageIcon from '@material-ui/icons/Image';
 import TextField from '@material-ui/core/TextField';
 import Order, { OrderItem } from 'models/commerce/Order'
 import { useCart } from 'hooks/commerce';
 import Summary from './summary'
 import Loading from 'components/Loading'
+import DataLoading from 'components/DataLoading';
+import Cart from 'models/commerce/Cart'
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
-		text: {
-			padding: theme.spacing(2, 2, 0),
-		},
-		paper: {
-			paddingBottom: 50,
-		},
-		list: {
-			marginBottom: theme.spacing(2),
+		avater: {
+			width: theme.spacing(7),
+			height: theme.spacing(7),
 		}
 	}),
 );
 
 export default () => {
-	const classes = useStyles()
 	const [cart, isLoading] = useCart()
-
-	const itemDelete = async (item: OrderItem) => {
-		cart?.deleteItem(item)
-		await cart?.update()
+	if (isLoading) {
+		return <DataLoading />
 	}
-
 	return (
 		<>
-			<Typography className={classes.text} gutterBottom>
-				Cart
-      </Typography>
-			{isLoading ? (
-				<Loading />
-			) : (
-					<List className={classes.list}>
-						{cart && cart.items.map((item, index) => {
-							return <Cell item={item} key={String(index)} onClick={async () => {
-								await itemDelete(item)
-							}} />
-						})}
-					</List>
-				)}
-			<Summary items={[{
-				type: 'subtotal',
-				title: 'Subtotal',
-				detail: cart?.subtotal().toLocaleString() || '0'
-			}, {
-				type: 'tax',
-				title: 'tax',
-				detail: cart?.tax().toLocaleString() || '0'
-			}]} />
+			<Grid container spacing={2}>
+				<Grid item xs={12}>
+					<CartItemList cart={cart!} />
+				</Grid>
+				<Grid item xs={12}>
+					<Summary items={[{
+						type: 'subtotal',
+						title: 'Subtotal',
+						detail: cart?.subtotal().toLocaleString() || '0'
+					}, {
+						type: 'tax',
+						title: 'tax',
+						detail: cart?.tax().toLocaleString() || '0'
+					}]} />
+				</Grid>
+			</Grid>
 		</>
 	)
 }
 
+const CartItemList = ({ cart }: { cart: Cart }) => {
+
+	const itemDelete = async (item: OrderItem) => {
+		cart.deleteItem(item)
+		await cart.update()
+	}
+
+	return (
+		<Paper>
+			<List>
+				{cart && cart.items.map((item, index) => {
+					return <Cell item={item} key={String(index)} onClick={async () => {
+						await itemDelete(item)
+					}} />
+				})}
+			</List>
+		</Paper>
+	)
+}
+
 const Cell = ({ item, key, onClick }: { item: OrderItem, key: string, onClick: () => void }) => {
+
+	const classes = useStyles()
+
 	return (
 		<>
-			<ListItem button key={key}>
-				<ListItemText primary={item.name} secondary={item.caption} />
-				<ListItemText primary={`Price ${item.subtotal().toLocaleString()}`} secondary={`Tax ${item.tax().toLocaleString()}`} />
+			<ListItem key={key}>
+				<ListItemAvatar>
+					<Avatar className={classes.avater} variant="rounded">
+						<ImageIcon />
+					</Avatar>
+				</ListItemAvatar>
+				<ListItemText
+					primary={
+						<>
+							<Box fontWeight="fontWeightMedium" fontSize="h6.fontSize" mx={1} my={0} >
+								{`${item.name}`}
+							</Box>
+						</>
+					}
+					secondary={
+						<>
+							<Box fontWeight="fontWeightMedium" fontSize="subtitle1" mx={1} my={0}>
+								{`${item.subtotal().toLocaleString()}`}
+							</Box>
+						</>
+					} />
 				<ListItemSecondaryAction>
-					<TextField value={item.quantity} />
+					{/* <TextField value={item.quantity} /> */}
 					<Button onClick={onClick}>Delete</Button>
 				</ListItemSecondaryAction>
 			</ListItem>
 		</>
 	)
 }
+

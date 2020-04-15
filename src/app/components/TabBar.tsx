@@ -1,12 +1,13 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom'
 import { makeStyles } from '@material-ui/core/styles';
-import BottomNavigation from '@material-ui/core/BottomNavigation';
+import { BottomNavigation, Badge } from '@material-ui/core';
 import BottomNavigationAction from '@material-ui/core/BottomNavigationAction';
 import StorefrontIcon from '@material-ui/icons/Storefront';
 import ShoppingCartIcon from '@material-ui/icons/ShoppingCart';
 import MenuIcon from '@material-ui/icons/Menu';
+import { useCart } from 'hooks/commerce'
 
 const useStyles = makeStyles({
 	root: {
@@ -36,7 +37,7 @@ export default () => {
 				to='/cart'
 				label='Cart'
 				value='cart'
-				icon={<ShoppingCartIcon />} />
+				icon={<CartIcon />} />
 			<BottomNavigationAction
 				component={Link}
 				to='/account'
@@ -45,4 +46,15 @@ export default () => {
 				icon={<MenuIcon />} />
 		</BottomNavigation>
 	);
+}
+
+const CartIcon = () => {
+	const [cart] = useCart()
+	const items = cart?.items || []
+	const badgeContent = items.length
+	return (
+		<Badge badgeContent={badgeContent} color="primary">
+			<ShoppingCartIcon />
+		</Badge>
+	)
 }
