@@ -26,24 +26,26 @@ const useStyles = makeStyles((theme: Theme) =>
 
 export default () => {
 	const [cart, isLoading] = useCart()
-	if (isLoading) {
-		return <DataLoading />
-	}
+
+	const subtotal = cart?.subtotal() || 0
+	const tax = cart?.tax() || 0
+	const symbol = cart ? ISO4217[cart!.currency]['symbol'] : ''
+
 	return (
 		<>
 			<Grid container spacing={2}>
 				<Grid item xs={12}>
-					<CartItemList cart={cart!} />
+					<CartItemList cart={cart!} isLoading={isLoading} />
 				</Grid>
 				<Grid item xs={12}>
 					<Summary items={[{
 						type: 'subtotal',
 						title: 'Subtotal',
-						detail: `${ISO4217[cart!.currency]['symbol']}${cart!.subtotal().toLocaleString()}`
+						detail: `${symbol}${subtotal.toLocaleString()}`
 					}, {
 						type: 'tax',
 						title: 'Tax',
-						detail: `${ISO4217[cart!.currency]['symbol']}${cart!.tax().toLocaleString()}`
+						detail: `${symbol}${tax.toLocaleString()}`
 					}]} />
 				</Grid>
 			</Grid>
@@ -51,11 +53,25 @@ export default () => {
 	)
 }
 
-const CartItemList = ({ cart }: { cart: Cart }) => {
+const CartItemList = ({ cart, isLoading }: { cart: Cart, isLoading: boolean }) => {
 
 	const itemDelete = async (item: OrderItem) => {
 		cart.deleteItem(item)
 		await cart.update()
+	}
+
+	if (isLoading) {
+		return <DataLoading />
+	}
+
+	if (cart.items.length === 0) {
+		return (
+			<Paper>
+				<Box fontSize="h6.fontSize" textAlign="center" color="textPrimary" paddingY={6}>
+					You have no items in your cart.
+				</Box>
+			</Paper>
+		)
 	}
 
 	return (
