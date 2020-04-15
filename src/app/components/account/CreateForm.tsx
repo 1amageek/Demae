@@ -3,7 +3,7 @@ import Input, { useInput } from 'components/Input';
 import Provider from 'models/commerce/Provider';
 import User, { Role } from 'models/commerce/User';
 import Account from 'models/account/Account';
-import { Currency, Currencies } from 'common/Currency';
+import { CurrencyCodes, CurrencyCode } from 'common/Currency';
 import { Country, Countries } from 'common/Country';
 import Button from '@material-ui/core/Button';
 import FormControl from '@material-ui/core/FormControl';
@@ -35,7 +35,7 @@ export default ({ uid, provider, account }: { uid: string, provider: Provider, a
 	const defaultCurrency = useSelect({
 		initValue: provider.defaultCurrency,
 		inputProps: {
-			menu: Currencies.map(c => {
+			menu: CurrencyCodes.map(c => {
 				return { label: c, value: c }
 			})
 		}
@@ -60,7 +60,7 @@ export default ({ uid, provider, account }: { uid: string, provider: Provider, a
 		setLoading(true)
 		provider.name = name.value
 		provider.country = country.value as Country
-		provider.defaultCurrency = defaultCurrency.value as Currency
+		provider.defaultCurrency = defaultCurrency.value as CurrencyCode
 		account.businessType = businessType.value as BusinessType
 		const user = new User(uid)
 		const role = user.roles.doc(provider.id, Role)

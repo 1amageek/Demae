@@ -1,5 +1,5 @@
 import { Doc, Model, Field, File, DocumentReference, Timestamp, Codable } from '@1amageek/ballcap-admin'
-import { Currency } from '../../common/Currency'
+import { CurrencyCode } from '../../common/Currency'
 import { OrderItemType, OrderItemStatus, DeliveryStatus, OrderPaymentStatus, Discount } from '../../common/commerce/Types'
 import Shipping from './Shipping'
 
@@ -8,7 +8,7 @@ export class OrderItem extends Model {
 	@Field productReference?: DocumentReference
 	@Field skuReference?: DocumentReference
 	@Field quantity: number = 1
-	@Field currency: Currency = 'USD'
+	@Field currency: CurrencyCode = 'USD'
 	@Field amount: number = 0
 	@Field discount: Discount | null = null
 	@Field taxRate: number = 0
@@ -31,7 +31,7 @@ export default class Order extends Doc {
 	@Field paidAt?: Timestamp
 	@Field shippingDate?: any
 	@Field estimatedArrivalDate?: any
-	@Field currency: Currency = 'USD'
+	@Field currency: CurrencyCode = 'USD'
 	@Field amount: number = 0
 	@Codable(OrderItem)
 	@Field items: OrderItem[] = []

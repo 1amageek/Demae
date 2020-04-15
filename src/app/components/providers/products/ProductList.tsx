@@ -1,12 +1,12 @@
 import React from 'react';
 import Grid from '@material-ui/core/Grid';
 import Card from 'components/providers/products/Card'
-import { useDataSource } from 'hooks/commerce';
+import { useDataSourceListen } from 'hooks/commerce';
 import { Provider, Product } from 'models/commerce';
 import DataLoading from 'components/DataLoading'
 
 export default ({ providerID }: { providerID: string }) => {
-	const [data, isLoading] = useDataSource<Product>(Product, new Provider(providerID).products.collectionReference.limit(30))
+	const [data, isLoading] = useDataSourceListen<Product>(Product, new Provider(providerID).products.collectionReference.limit(30))
 
 	if (isLoading) {
 		return <DataLoading />

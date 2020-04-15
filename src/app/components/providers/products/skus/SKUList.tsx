@@ -2,12 +2,12 @@ import React from 'react';
 import Grid from '@material-ui/core/Grid';
 import Card from 'components/providers/products/skus/Card'
 import DataLoading from 'components/DataLoading';
-import { useDataSource } from 'hooks/commerce';
+import { useDataSourceListen } from 'hooks/commerce';
 import { Provider, Product, SKU } from 'models/commerce';
 
 export default ({ providerID, productID }: { providerID: string, productID: string }) => {
 
-	const [data, isLoading] = useDataSource<SKU>(SKU,
+	const [data, isLoading] = useDataSourceListen<SKU>(SKU,
 		new Provider(providerID)
 			.products.doc(productID, Product)
 			.skus

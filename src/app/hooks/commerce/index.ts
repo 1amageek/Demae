@@ -271,6 +271,52 @@ export const useDocumentListen = <T extends Doc>(type: typeof Doc, documentRefer
 	return [state.data, state.loading, state.error]
 }
 
+export const useDataSourceListen = <T extends Doc>(type: typeof Doc, query: firebase.firestore.Query, waiting: boolean = false): [T[], boolean, Error | undefined] => {
+	interface Prop {
+		data: T[]
+		loading: boolean
+		error?: Error
+	}
+	const [state, setState] = useState<Prop>({ data: [], loading: true })
+	useEffect(() => {
+		let enabled = true
+		const listen = async () => {
+			query.onSnapshot({
+				next: (snapshot) => {
+					const data = snapshot.docs.map(doc => type.fromSnapshot<T>(doc))
+					if (enabled) {
+						setState({
+							...state,
+							loading: false,
+							data
+						});
+					}
+				},
+				error: (error) => {
+					if (enabled) {
+						setState({
+							...state,
+							loading: false,
+							error
+						});
+					}
+				}
+			})
+		};
+		setState({
+			...state,
+			loading: true
+		})
+		if (!waiting) {
+			listen()
+		}
+		return () => {
+			enabled = false
+		}
+	}, [waiting])
+	return [state.data, state.loading, state.error]
+};
+
 export const useCart = (): [Cart | undefined, boolean, Error | undefined] => {
 	const [user, isAuthLoading] = useAuthUser()
 	const [cart, isLoading, error] = useDocumentListen<Cart>(Cart, user?.uid ? new Cart(user.uid).documentReference : undefined, isAuthLoading)

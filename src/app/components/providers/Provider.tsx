@@ -3,11 +3,11 @@ import Grid from '@material-ui/core/Grid';
 import Card from 'components/providers/Card'
 import DataLoading from 'components/DataLoading';
 import ProductList from 'components/providers/products/ProductList'
-import { useDocument } from 'hooks/commerce';
+import { useDocumentListen } from 'hooks/commerce';
 import { Provider } from 'models/commerce';
 
 export default ({ providerID }: { providerID: string }) => {
-	const [data, isLoading] = useDocument<Provider>(Provider, Provider.collectionReference().doc(providerID))
+	const [data, isLoading] = useDocumentListen<Provider>(Provider, Provider.collectionReference().doc(providerID))
 	if (isLoading) {
 		return <DataLoading />
 	}

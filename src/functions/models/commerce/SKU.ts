@@ -1,5 +1,5 @@
 import { Doc, Field, DocumentReference, SubCollection, Collection } from '@1amageek/ballcap-admin'
-import { Currency } from '../../common/Currency'
+import { CurrencyCode } from '../../common/Currency'
 import { Inventory, Discount } from '../../common/commerce/Types'
 import { ShardType, ShardCharacters } from '../../common/Shard'
 
@@ -12,7 +12,7 @@ export default class SKU extends Doc {
 	@Field selledBy!: string
 	@Field createdBy!: string
 	@Field shardCharacters: ShardType[] = ShardCharacters.slice(0, 3)
-	@Field currency: Currency = 'USD'
+	@Field currency: CurrencyCode = 'USD'
 	@Field productReference?: DocumentReference
 	@Field name!: string
 	@Field caption!: string

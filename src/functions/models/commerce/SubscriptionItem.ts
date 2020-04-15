@@ -1,5 +1,5 @@
 import { Model, Field, DocumentReference } from '@1amageek/ballcap-admin'
-import { Currency } from '../../common/Currency'
+import { CurrencyCode } from '../../common/Currency'
 
 export default class SubscriptionItem extends Model {
 	@Field subscribedBy!: string
@@ -10,6 +10,6 @@ export default class SubscriptionItem extends Model {
 	@Field quantity: number = 0
 	@Field taxRates: number = 0
 	@Field amount: number = 0
-	@Field currency: Currency = 'USD'
+	@Field currency: CurrencyCode = 'USD'
 	@Field metadata?: any
 }

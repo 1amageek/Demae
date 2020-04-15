@@ -1,6 +1,6 @@
 import { Doc, Field, firestore, CollectionReference } from '@1amageek/ballcap'
 import { BusinessType } from 'common/commerce/account'
-import { Currency } from 'common/Currency'
+import { CurrencyCode } from 'common/Currency'
 
 export default class Account extends Doc {
 
@@ -10,7 +10,7 @@ export default class Account extends Doc {
 
 	@Field accountID!: string
 	@Field country: string = 'US'
-	@Field defaultCurrency: Currency = 'USD'
+	@Field defaultCurrency: CurrencyCode = 'USD'
 	@Field businessType: BusinessType = 'individual'
 	@Field company?: { [key: string]: any }
 	@Field individual?: { [key: string]: any }

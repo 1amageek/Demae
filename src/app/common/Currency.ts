@@ -1,4 +1,4 @@
-export type Currency =
+export type CurrencyCode =
 	'AFN' | // Afghan Afghani, AFN*
 	'ALL' | // Albanian Lek, ALL
 	'DZD' | // Algerian Dinar, DZD
@@ -136,7 +136,7 @@ export type Currency =
 	'YER' | // Yemeni Rial, YER
 	'ZMW'  // Zambian Kwacha, ZMW
 
-export const Currencies: Currency[] = [
+export const CurrencyCodes: CurrencyCode[] = [
 	'AFN', // Afghan Afghani, AFN*
 	'ALL', // Albanian Lek, ALL
 	'DZD', // Algerian Dinar, DZD

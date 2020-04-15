@@ -21,7 +21,7 @@ import Box from '@material-ui/core/Box';
 import Input, { useInput } from 'components/Input'
 import Select, { useSelect } from 'components/Select'
 import { SKU, Product } from 'models/commerce';
-import { Currencies, Currency } from 'common/Currency'
+import { CurrencyCodes, CurrencyCode } from 'common/Currency'
 import { StockType, StockValue } from 'common/commerce/Types';
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -65,7 +65,7 @@ export default ({ product, sku, edit, setSKU }: { product: Product, sku: SKU, ed
 	const description = useInput(sku?.description)
 	const currency = useSelect({
 		initValue: sku?.currency, inputProps: {
-			menu: Currencies.map(c => {
+			menu: CurrencyCodes.map(c => {
 				return {
 					label: c,
 					value: c,
@@ -259,7 +259,7 @@ export default ({ product, sku, edit, setSKU }: { product: Product, sku: SKU, ed
 									sku.caption = caption.value
 									sku.description = description.value
 									sku.amount = Number(amount.value)
-									sku.currency = currency.value as Currency
+									sku.currency = currency.value as CurrencyCode
 									sku.inventory = {
 										type: inventory.value as StockType,
 										value: stockValue.value as StockValue,

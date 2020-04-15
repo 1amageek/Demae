@@ -1,5 +1,5 @@
 import { Doc, Field, Collection, SubCollection, firestore, CollectionReference, GeoPoint, File } from '@1amageek/ballcap'
-import { Currency } from 'common/Currency'
+import { CurrencyCode } from 'common/Currency'
 import Product from './Product'
 import Order from './Order'
 
@@ -15,7 +15,7 @@ export default class Provider extends Doc {
 	@Field caption?: string
 	@Field description?: string
 	@Field country: string = 'US'
-	@Field defaultCurrency: Currency = 'USD'
+	@Field defaultCurrency: CurrencyCode = 'USD'
 	@Field email: string = ''
 	@Field phone: string = ''
 	@Field location?: GeoPoint

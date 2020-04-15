@@ -11,6 +11,7 @@ import Order, { OrderItem } from 'models/commerce/Order'
 import { useCart } from 'hooks/commerce';
 import Summary from './summary'
 import Loading from 'components/Loading'
+import ISO4217 from 'common/ISO4217'
 import DataLoading from 'components/DataLoading';
 import Cart from 'models/commerce/Cart'
 
@@ -38,11 +39,11 @@ export default () => {
 					<Summary items={[{
 						type: 'subtotal',
 						title: 'Subtotal',
-						detail: cart?.subtotal().toLocaleString() || '0'
+						detail: `${ISO4217[cart!.currency]['symbol']}${cart!.subtotal().toLocaleString()}`
 					}, {
 						type: 'tax',
-						title: 'tax',
-						detail: cart?.tax().toLocaleString() || '0'
+						title: 'Tax',
+						detail: `${ISO4217[cart!.currency]['symbol']}${cart!.tax().toLocaleString()}`
 					}]} />
 				</Grid>
 			</Grid>
@@ -85,15 +86,15 @@ const Cell = ({ item, key, onClick }: { item: OrderItem, key: string, onClick: (
 				<ListItemText
 					primary={
 						<>
-							<Box fontWeight="fontWeightMedium" fontSize="h6.fontSize" mx={1} my={0} >
+							<Box fontWeight="fontWeightMedium" fontSize="h6.fontSize" mx={2} my={0} >
 								{`${item.name}`}
 							</Box>
 						</>
 					}
 					secondary={
 						<>
-							<Box fontWeight="fontWeightMedium" fontSize="subtitle1" mx={1} my={0}>
-								{`${item.subtotal().toLocaleString()}`}
+							<Box fontWeight="fontWeightMedium" fontSize="subtitle1" mx={2} my={0} >
+								{`${ISO4217[item.currency]['symbol']}${item.subtotal().toLocaleString()}`}
 							</Box>
 						</>
 					} />
