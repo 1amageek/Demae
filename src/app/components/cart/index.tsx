@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
 import { Box, Paper, Typography, Button, Grid, ListItemAvatar, Avatar } from '@material-ui/core';
 import List from '@material-ui/core/List';
@@ -8,7 +8,8 @@ import ListItemText from '@material-ui/core/ListItemText';
 import ImageIcon from '@material-ui/icons/Image';
 import TextField from '@material-ui/core/TextField';
 import Order, { OrderItem } from 'models/commerce/Order'
-import { useCart, useAuthUser } from 'hooks/commerce';
+import { useAuthUser } from 'hooks/commerce';
+import { CartContext } from 'hooks/commerce'
 import Summary from './summary'
 import Loading from 'components/Loading'
 import Login from 'components/Login'
@@ -27,7 +28,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 export default () => {
 	const [auth] = useAuthUser()
-	const [cart, isLoading] = useCart()
+	const [cart, isLoading] = useContext(CartContext)
 
 	const subtotal = cart?.subtotal() || 0
 	const tax = cart?.tax() || 0

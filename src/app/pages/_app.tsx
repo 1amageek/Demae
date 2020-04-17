@@ -5,8 +5,7 @@ import * as Ballcap from "@1amageek/ballcap"
 import firebase from "firebase"
 import "@firebase/firestore"
 import "@firebase/auth"
-import * as Social from 'models/social'
-import { UserProvider, CartProvider } from 'context'
+import { AuthProvider, UserProvider, CartProvider } from 'hooks/commerce'
 
 const config = require(`../config/${process.env.FIREBASE_CONFIG!}`)
 const isEmulated = process.env.EMULATE_ENV === "emulator"
@@ -30,11 +29,13 @@ interface Props {
 
 const Provider = ({ children }: { children: any }) => {
 	return (
-		<UserProvider>
-			<CartProvider>
-				{children}
-			</CartProvider>
-		</UserProvider>
+		<AuthProvider>
+			<UserProvider>
+				<CartProvider>
+					{children}
+				</CartProvider>
+			</UserProvider>
+		</AuthProvider>
 	)
 }
 
@@ -56,29 +57,29 @@ const Router = ({ children }: { children: any }) => {
 
 const App = ({ Component, pageProps, router }: AppProps) => {
 
-	const [state, setState] = useState<Props>({ authUser: null })
+	// const [state, setState] = useState<Props>({ authUser: null })
 
-	useEffect(() => {
-		console.log('[App] start auth listening')
-		const listener = firebase.auth().onAuthStateChanged(async (auth) => {
-			if (auth) {
-				console.log('auth id: ', auth.uid)
-				const authUser = JSON.stringify(auth)
-				localStorage.setItem('authUser', authUser)
-				setState({
-					authUser: auth
-				})
-			} else {
-				localStorage.removeItem('authUser')
-				setState({
-					authUser: null
-				})
-			}
-		})
-		return () => {
-			listener()
-		}
-	}, [state.authUser?.uid])
+	// useEffect(() => {
+	// 	console.log('[App] start auth listening')
+	// 	const listener = firebase.auth().onAuthStateChanged(async (auth) => {
+	// 		if (auth) {
+	// 			console.log('auth id: ', auth.uid)
+	// 			const authUser = JSON.stringify(auth)
+	// 			localStorage.setItem('authUser', authUser)
+	// 			setState({
+	// 				authUser: auth
+	// 			})
+	// 		} else {
+	// 			localStorage.removeItem('authUser')
+	// 			setState({
+	// 				authUser: null
+	// 			})
+	// 		}
+	// 	})
+	// 	return () => {
+	// 		listener()
+	// 	}
+	// }, [state.authUser?.uid])
 
 	useEffect(() => {
 		console.log('[App] start Token listening')

@@ -15,7 +15,7 @@ import IconButton from '@material-ui/core/IconButton';
 import ViewListIcon from '@material-ui/icons/ViewList';
 import StoreIcon from '@material-ui/icons/Store';
 import SettingsIcon from '@material-ui/icons/Settings';
-import { UserContext } from 'context'
+import { UserContext } from 'hooks/commerce'
 import { useDataSource, useDataSourceListen, useProvider, useDocumentListen } from 'hooks/commerce';
 import * as Commerce from 'models/commerce';
 import User, { Role } from 'models/commerce/User';

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState, createContext, useContext } from 'react'
 import firebase from "firebase"
 import "@firebase/firestore"
 import "@firebase/auth"
@@ -10,39 +10,34 @@ import Cart from 'models/commerce/Cart'
 import User from 'models/commerce/User'
 import Shipping from 'models/commerce/Shipping'
 
-export const useAuthUser = (): [firebase.User | undefined, boolean, Error?] => {
+export const useAuthUser = (): [firebase.User | undefined, boolean, firebase.auth.Error?] => {
 	interface Prop {
 		data?: firebase.User
 		loading: boolean
-		error?: Error
+		error?: firebase.auth.Error
 	}
 	const [state, setState] = useState<Prop>({ loading: true })
 	useEffect(() => {
 		let enabled = true
-		const user = localStorage.getItem('authUser')
-		if (user) {
-			const parsedUser = JSON.parse(user)
-			if (state.data?.uid !== parsedUser.uid) {
-				if (enabled) {
-					setState({
-						data: parsedUser as firebase.User,
-						loading: false
-					})
-				}
-			} else {
-				if (enabled) {
-					setState({
-						loading: false
-					})
-				}
+		let listener = firebase.auth().onAuthStateChanged(auth => {
+			if (enabled) {
+				setState({
+					data: auth as firebase.User,
+					loading: false
+				})
 			}
-		} else {
-			setState({
-				loading: false
-			})
-		}
+		}, error => {
+			if (enabled) {
+				setState({
+					...state,
+					loading: false,
+					error: error
+				})
+			}
+		})
 		return () => {
 			enabled = false
+			listener()
 		}
 	}, []);
 	return [state.data, state.loading, state.error]
@@ -84,6 +79,26 @@ export const useAdmin = (): [string | undefined, boolean, Error?] => {
 		}
 	}, []);
 	return [state.data, state.loading, state.error]
+}
+
+export const AuthContext = createContext<[firebase.User | undefined, boolean, firebase.auth.Error | undefined]>([undefined, true, undefined])
+export const AuthProvider = ({ children }: { children: any }) => {
+	const [auth, isLoading, error] = useAuthUser()
+	return <AuthContext.Provider value={[auth, isLoading, error]}> {children} </AuthContext.Provider>
+}
+
+export const UserContext = createContext<[User | undefined, boolean, Error | undefined]>([undefined, true, undefined])
+export const UserProvider = ({ children }: { children: any }) => {
+	const [auth, waiting] = useContext(AuthContext)
+	const [user, isLoading, error] = useDocumentListen<User>(User, auth?.uid ? new User(auth.uid).documentReference : undefined, waiting)
+	return <UserContext.Provider value={[user, isLoading, error]}> {children} </UserContext.Provider>
+}
+
+export const CartContext = createContext<[Cart | undefined, boolean, Error | undefined]>([undefined, true, undefined])
+export const CartProvider = ({ children }: { children: any }) => {
+	const [auth, waiting] = useContext(AuthContext)
+	const [cart, isLoading, error] = useDocumentListen<Cart>(Cart, auth?.uid ? new User(auth.uid).documentReference : undefined, waiting)
+	return <CartContext.Provider value={[cart, isLoading, error]}> {children} </CartContext.Provider>
 }
 
 export const useProvider = (): [Provider | undefined, boolean, Error?] => {
@@ -166,7 +181,7 @@ export const useDocument = <T extends Doc>(type: typeof Doc, documentReference?:
 			} catch (error) {
 				if (enabled) {
 					setState({
-						...state,
+						data: undefined,
 						loading: false,
 						error
 					})
@@ -208,7 +223,7 @@ export const useDataSource = <T extends Doc>(type: typeof Doc, query: firebase.f
 			} catch (error) {
 				if (enabled) {
 					setState({
-						...state,
+						data: [],
 						loading: false,
 						error
 					});
@@ -254,7 +269,7 @@ export const useDocumentListen = <T extends Doc>(type: typeof Doc, documentRefer
 				error: (error) => {
 					if (enabled) {
 						setState({
-							...state,
+							data: undefined,
 							loading: false,
 							error
 						})
@@ -312,10 +327,10 @@ export const useDataSourceListen = <T extends Doc>(type: typeof Doc, query?: fir
 				error: (error) => {
 					if (enabled) {
 						setState({
-							...state,
+							data: [],
 							loading: false,
 							error
-						});
+						})
 					}
 				}
 			})
@@ -347,15 +362,11 @@ export const useDataSourceListen = <T extends Doc>(type: typeof Doc, query?: fir
 };
 
 export const useCart = (): [Cart | undefined, boolean, Error | undefined] => {
-	const [auth, isAuthLoading] = useAuthUser()
-	const [cart, isLoading, error] = useDocumentListen<Cart>(Cart, auth?.uid ? new Cart(auth.uid).documentReference : undefined, isAuthLoading)
-	return [cart, isLoading, error]
+	return useContext(CartContext)
 }
 
 export const useUser = (): [User | undefined, boolean, Error | undefined] => {
-	const [auth, isAuthLoading] = useAuthUser()
-	const [user, isLoading, error] = useDocumentListen<User>(User, auth?.uid ? new User(auth.uid).documentReference : undefined, isAuthLoading)
-	return [user, isLoading, error]
+	return useContext(UserContext)
 }
 
 export const useUserShipping = (id: string): [Shipping | undefined, boolean, Error | undefined] => {

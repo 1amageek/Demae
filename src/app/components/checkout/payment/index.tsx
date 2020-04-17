@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useContext } from 'react'
 import { createStyles, Theme, makeStyles } from '@material-ui/core/styles'
 import { loadStripe } from '@stripe/stripe-js'
 import {
@@ -13,8 +13,8 @@ import Paper from '@material-ui/core/Paper'
 import Button from '@material-ui/core/Button'
 import Typography from '@material-ui/core/Typography'
 import Loading from 'components/Loading'
-import { useUser, useAuthUser } from 'hooks/commerce'
 import User from 'models/commerce/User'
+import { UserContext, AuthContext } from 'hooks/commerce'
 
 const STRIPE_KEY = process.env.STRIPE_KEY!
 const stripePromise = loadStripe(STRIPE_KEY)
@@ -72,8 +72,8 @@ const useStyles = makeStyles((theme: Theme) =>
 
 const CheckoutForm = () => {
 	const classes = useStyles()
-	const [auth] = useAuthUser()
-	const [user, isUserLoading] = useUser()
+	const [auth] = useContext(AuthContext)
+	const [user, isUserLoading] = useContext(UserContext)
 	const stripe = useStripe();
 	const elements = useElements()
 	const [isDisabled, setDisable] = useState(true)

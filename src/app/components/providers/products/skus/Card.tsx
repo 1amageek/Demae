@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import Card from '@material-ui/core/Card';
 import CardActionArea from '@material-ui/core/CardActionArea';
 import CardMedia from '@material-ui/core/CardMedia';
@@ -11,7 +11,7 @@ import RemoveCircleIcon from '@material-ui/icons/RemoveCircle';
 import { Typography, Avatar } from '@material-ui/core';
 import Input, { useInput } from 'components/Input'
 import SKU from 'models/commerce/SKU'
-import { useCart } from 'hooks/commerce';
+import { CartContext } from 'hooks/commerce';
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -42,7 +42,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 export default ({ sku }: { sku: SKU }) => {
 	const classes = useStyles();
-	const [cart] = useCart()
+	const [cart] = useContext(CartContext)
 	const qty = useInput("0")
 
 	const addItem = async () => {

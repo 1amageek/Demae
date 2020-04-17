@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import firebase from 'firebase'
 import 'firebase/functions'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
@@ -13,33 +13,29 @@ import { useAuthUser, useProvider } from 'hooks/commerce'
 import Loading from 'components/Loading'
 import Input, { useInput } from 'components/Input'
 import Provider from 'models/commerce/Provider'
-import { UserContext, AuthContext } from 'context'
+import { UserContext, AuthContext } from 'hooks/commerce'
 import { Create, Individual } from 'common/commerce/account'
 
 
 export default () => {
 
+	const [auth] = useContext(AuthContext)
 	const [provider, isLoading] = useProvider()
-	return (
-		<AuthContext.Consumer>
-			{user => {
-				if (user) {
-					if (isLoading) {
-						return <Loading />
-					} else {
-						if (provider) {
-							return <Form provider={provider} />
-						} else {
-							const provider = new Provider(user.uid)
-							return <Form provider={provider} />
-						}
-					}
-				} else {
-					return <Login />
-				}
-			}}
-		</AuthContext.Consumer>
-	)
+
+	if (isLoading) {
+		return <Loading />
+	}
+
+	if (!auth) {
+		return <Login />
+	}
+
+	if (provider) {
+		return <Form provider={provider} />
+	}
+
+	const loadedProvider = new Provider(auth.uid)
+	return <Form provider={loadedProvider} />
 }
 
 const Form = ({ provider }: { provider: Provider }) => {

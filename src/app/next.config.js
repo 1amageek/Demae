@@ -23,7 +23,7 @@ module.exports = withWorkers({
 			...config.resolve.alias,
 			'common': path.resolve(__dirname, 'common'),
 			'components': path.resolve(__dirname, 'components'),
-			'context': path.resolve(__dirname, 'context'),
+			'hooks/commerce': path.resolve(__dirname, 'hooks/commerce'),
 			'hooks': path.resolve(__dirname, 'hooks'),
 			'models': path.resolve(__dirname, 'models'),
 			'config': path.resolve(__dirname, 'config'),

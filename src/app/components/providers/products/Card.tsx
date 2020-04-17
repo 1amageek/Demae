@@ -7,7 +7,7 @@ import Typography from '@material-ui/core/Typography';
 import { red } from '@material-ui/core/colors';
 import FavoriteIcon from '@material-ui/icons/Favorite';
 import ShareIcon from '@material-ui/icons/Share';
-import { UserContext } from 'context'
+import { UserContext } from 'hooks/commerce'
 import { useDataSourceListen } from 'hooks/commerce';
 import { Provider, Product } from 'models/commerce';
 import ImageIcon from '@material-ui/icons/Image';
@@ -61,16 +61,9 @@ export default ({ providerID, product }: { providerID: string, product: Product 
 		<Card className={classes.root}>
 			<Link to={`/providers/${providerID}/products/${product.id}`}>
 				<CardActionArea>
-					{/* {(product.imageURLs().length > 0) &&
-						<CardMedia
-							className={classes.media}
-							image={product.imageURLs()[0]}
-							title={product.name}
-						/>
-					} */}
 					<CardMedia
 						className={classes.media}
-						image={product.imageURLs()[0]}
+						image={imageURL}
 						title={product.name}
 					>
 						<Avatar className={classes.media} variant="square" src={imageURL}>

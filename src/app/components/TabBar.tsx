@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useContext } from 'react';
 import { Link } from 'react-router-dom'
 import { makeStyles } from '@material-ui/core/styles';
 import { BottomNavigation, Badge } from '@material-ui/core';
@@ -7,7 +7,7 @@ import BottomNavigationAction from '@material-ui/core/BottomNavigationAction';
 import StorefrontIcon from '@material-ui/icons/Storefront';
 import ShoppingCartIcon from '@material-ui/icons/ShoppingCart';
 import MenuIcon from '@material-ui/icons/Menu';
-import { useCart } from 'hooks/commerce'
+import { CartContext } from 'hooks/commerce'
 
 const useStyles = makeStyles({
 	root: {
@@ -49,7 +49,7 @@ export default () => {
 }
 
 const CartIcon = () => {
-	const [cart] = useCart()
+	const [cart] = useContext(CartContext)
 	const items = cart?.items || []
 	const badgeContent = items.reduce((prev, current) => {
 		return current.quantity + prev

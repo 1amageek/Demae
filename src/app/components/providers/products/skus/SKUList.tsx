@@ -12,7 +12,7 @@ import DataLoading from 'components/DataLoading';
 import { useDataSourceListen } from 'hooks/commerce';
 import { Provider, Product, SKU } from 'models/commerce';
 import Input, { useInput } from 'components/Input'
-import { CartContext } from 'context'
+import { CartContext } from 'hooks/commerce'
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
@@ -127,29 +127,3 @@ const SKUListItem = ({ sku }: { sku: SKU }) => {
 		</>
 	)
 }
-
-// export CountQueuingStrategy a = ({ providerID, productID }: { providerID: string, productID: string }) => {
-
-// 	const [data, isLoading] = useDataSourceListen<SKU>(SKU,
-// 		new Provider(providerID)
-// 			.products.doc(productID, Product)
-// 			.skus
-// 			.collectionReference
-// 			.limit(100))
-
-// 	if (isLoading) {
-// 		return <DataLoading />
-// 	}
-
-// 	return (
-// 		<Grid container spacing={2}>
-// 			{data.map(doc => {
-// 				return (
-// 					<Grid key={doc.id} item xs={12} container>
-// 						<Card sku={doc} />
-// 					</Grid>
-// 				)
-// 			})}
-// 		</Grid>
-// 	);
-// }

@@ -14,7 +14,7 @@ import Product from 'components/providers/products'
 import Checkout from 'components/checkout'
 import Shipping from 'components/checkout/shipping'
 import PaymentMethod from 'components/checkout/payment'
-import { AppContext } from 'context'
+
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
@@ -33,11 +33,9 @@ export default ({ children }: { children: any }) => {
 
 const Layout = ({ children }: { children: any }) => {
 	const classes = useStyles()
-	const [appContent] = useContext(AppContext)
-
 	return (
 		<>
-			<AppBar title={appContent.appBar.title} />
+			<AppBar title={'Demae'} />
 			<main className={classes.content}>
 				<Container maxWidth='sm'>
 					<CssBaseline />

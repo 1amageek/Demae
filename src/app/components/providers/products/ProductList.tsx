@@ -8,7 +8,7 @@ import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import ListItemText from '@material-ui/core/ListItemText';
 import Card from './Card'
 import ImageIcon from '@material-ui/icons/Image';
-import { UserContext } from 'context'
+import { UserContext } from 'hooks/commerce'
 import { useDataSourceListen } from 'hooks/commerce';
 import { Provider, Product } from 'models/commerce';
 import DataLoading from 'components/DataLoading'
@@ -49,7 +49,7 @@ export default ({ providerID }: { providerID: string }) => {
 		<Grid container spacing={2}>
 			{data.map(doc => {
 				return (
-					<Grid item xs={6} key={providerID}>
+					<Grid item xs={6} key={doc.id}>
 						<Card providerID={providerID} product={doc} />
 					</Grid>
 				)

@@ -1,3 +1,4 @@
+import React, { useContext } from 'react'
 import Paper from '@material-ui/core/Paper';
 import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
 import { Link } from 'react-router-dom'
@@ -6,7 +7,8 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import Button from '@material-ui/core/Button';
-import { useUser, useDataSource, useAuthUser, useCart } from 'hooks/commerce'
+import { useDataSource, useAuthUser } from 'hooks/commerce'
+import { UserContext, CartContext } from 'hooks/commerce'
 import { usePaymentMethods } from 'hooks/stripe'
 import User from 'models/commerce/User'
 import Shipping from 'models/commerce/Shipping';
@@ -36,8 +38,8 @@ const useStyles = makeStyles((theme: Theme) =>
 export default () => {
 	const classes = useStyles()
 	const [auth] = useAuthUser()
-	const [user, isUserLoading] = useUser()
-	const [cart, isCartLoading] = useCart()
+	const [user, isUserLoading] = useContext(UserContext)
+	const [cart, isCartLoading] = useContext(CartContext)
 	const [paymentMethods, isPaymentMethodsLoading] = usePaymentMethods()
 	const [shippingAddresses, isAddressLoading] = useDataSource<Shipping>(Shipping, new User(auth?.uid).shippingAddresses.collectionReference.limit(10))
 

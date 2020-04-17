@@ -1,20 +1,9 @@
-import Paper from '@material-ui/core/Paper';
+import React from 'react'
 import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
 import { Link } from 'react-router-dom'
-import AppBar from '@material-ui/core/AppBar';
-import CssBaseline from '@material-ui/core/CssBaseline';
-import Toolbar from '@material-ui/core/Toolbar';
-import Typography from '@material-ui/core/Typography';
-import IconButton from '@material-ui/core/IconButton';
-import Fab from '@material-ui/core/Fab';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
-import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import ListItemText from '@material-ui/core/ListItemText';
-import Button from '@material-ui/core/Button';
-import { useUser, useDataSource, useAuthUser } from 'hooks/commerce'
-import { usePaymentMethods } from 'hooks/stripe'
-import Loading from 'components/Loading'
 import { PaymentMethod } from '@stripe/stripe-js';
 
 
