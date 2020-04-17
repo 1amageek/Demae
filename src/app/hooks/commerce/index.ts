@@ -238,8 +238,9 @@ export const useDocumentListen = <T extends Doc>(type: typeof Doc, documentRefer
 	const [state, setState] = useState<Prop>({ loading: true })
 	useEffect(() => {
 		let enabled = true
+		let listener: (() => void) | undefined
 		const listen = async (documentReference: DocumentReference) => {
-			documentReference.onSnapshot({
+			listener = documentReference.onSnapshot({
 				next: (snapshot) => {
 					const data = type.fromSnapshot<T>(snapshot)
 					if (enabled) {
@@ -278,6 +279,9 @@ export const useDocumentListen = <T extends Doc>(type: typeof Doc, documentRefer
 		}
 		return () => {
 			enabled = false
+			if (listener) {
+				listener()
+			}
 		}
 	}, [documentReference?.path, waiting])
 	return [state.data, state.loading, state.error]
@@ -292,6 +296,7 @@ export const useDataSourceListen = <T extends Doc>(type: typeof Doc, query?: fir
 	const [state, setState] = useState<Prop>({ data: [], loading: true })
 	useEffect(() => {
 		let enabled = true
+		let listener: (() => void) | undefined
 		const listen = async () => {
 			query?.onSnapshot({
 				next: (snapshot) => {
@@ -333,6 +338,9 @@ export const useDataSourceListen = <T extends Doc>(type: typeof Doc, query?: fir
 		}
 		return () => {
 			enabled = false
+			if (listener) {
+				listener()
+			}
 		}
 	}, [waiting])
 	return [state.data, state.loading, state.error]

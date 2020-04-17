@@ -21,6 +21,7 @@ import * as Commerce from 'models/commerce';
 import User, { Role } from 'models/commerce/User';
 import Loading from 'components/Loading'
 import Modal from '../Modal';
+import MeetingRoomIcon from '@material-ui/icons/MeetingRoom';
 import Provider from 'models/commerce/Provider';
 import Account from 'models/account/Account';
 import Form from './CreateForm'
@@ -54,6 +55,18 @@ export default () => {
 					<ProviderList />
 				</Paper>
 			</Grid>
+			<Grid item xs={12}>
+				<List>
+					<ListItem button>
+						<ListItemIcon>
+							<MeetingRoomIcon />
+						</ListItemIcon>
+						<ListItemText primary='SignOut' color='text.secondary' onClick={async () => {
+							await firebase.auth().signOut()
+						}} />
+					</ListItem>
+				</List>
+			</Grid>
 		</Grid>
 	)
 }
@@ -64,6 +77,10 @@ const ProviderList = () => {
 
 	if (isDataLoading) {
 		return <DataLoading />
+	}
+
+	if (roles.length === 0) {
+		return <></>
 	}
 
 	return (

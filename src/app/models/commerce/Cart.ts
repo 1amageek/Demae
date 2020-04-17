@@ -45,7 +45,7 @@ export default class Cart extends Order {
 			}, 0)
 	}
 
-	addItem(sku: SKU) {
+	addSKU(sku: SKU) {
 		const orderItem = this.items.find(value => value.skuReference!.path == sku.path)
 		if (orderItem) {
 			orderItem.quantity += 1
@@ -60,6 +60,19 @@ export default class Cart extends Order {
 			orderItem.name = sku.name
 			orderItem.quantity = 1
 			this.items.push(orderItem)
+		}
+	}
+
+	deleteSKU(sku: SKU) {
+		const orderItem = this.items.find(value => value.skuReference!.path == sku.path)
+		if (orderItem) {
+			orderItem.quantity -= 1
+			if (orderItem.quantity <= 0) {
+				orderItem.quantity = 0
+				this.items = this.items.filter(item => item.skuReference!.path !== sku.path)
+			}
+		} else {
+			this.items = this.items.filter(item => item.skuReference!.path !== sku.path)
 		}
 	}
 

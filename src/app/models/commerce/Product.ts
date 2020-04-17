@@ -16,18 +16,18 @@ export default class Product extends Doc {
 	@Field name: string = ''
 	@Field caption?: string
 	@Field description?: string
-	@Field price?: { [key in CurrencyCode]: number }
+	@Field price: { [key in CurrencyCode]?: number } = {}
 	@Field isAvailable: boolean = true
 	@Field metadata?: any
 	@SubCollection skus: Collection<SKU> = new Collection()
 	@SubCollection plans: Collection<Plan> = new Collection()
 
-	imageURLs() {
+	imageURLs(): string[] {
 		return this.images.map(image => {
 			if (image) {
 				return `https://demae-210ed.firebaseapp.com/assets/${image.path}`
 			}
 			return undefined
-		}).filter(value => !!value)
+		}).filter(value => !!value) as string[]
 	}
 }

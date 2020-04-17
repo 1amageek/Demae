@@ -51,7 +51,9 @@ export default () => {
 const CartIcon = () => {
 	const [cart] = useCart()
 	const items = cart?.items || []
-	const badgeContent = items.length
+	const badgeContent = items.reduce((prev, current) => {
+		return current.quantity + prev
+	}, 0)
 	return (
 		<Badge badgeContent={badgeContent} color="primary">
 			<ShoppingCartIcon />

@@ -1,22 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Link } from 'react-router-dom'
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
-import Card from '@material-ui/core/Card';
-import CardActionArea from '@material-ui/core/CardActionArea';
-import ImageIcon from '@material-ui/icons/Image';
-import CardMedia from '@material-ui/core/CardMedia';
-import CardContent from '@material-ui/core/CardContent';
-import CardActions from '@material-ui/core/CardActions';
-import Collapse from '@material-ui/core/Collapse';
-import Avatar from '@material-ui/core/Avatar';
+import { Box, Card, CardActionArea, CardMedia, CardContent, CardActions, Avatar } from '@material-ui/core';
 import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
 import { red } from '@material-ui/core/colors';
 import FavoriteIcon from '@material-ui/icons/Favorite';
 import ShareIcon from '@material-ui/icons/Share';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import MoreVertIcon from '@material-ui/icons/MoreVert';
-import { Product, Provider } from 'models/commerce';
+import { UserContext } from 'context'
+import { useDataSourceListen } from 'hooks/commerce';
+import { Provider, Product } from 'models/commerce';
+import ImageIcon from '@material-ui/icons/Image';
+import ISO4217 from 'common/ISO4217'
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
@@ -24,8 +19,10 @@ const useStyles = makeStyles((theme: Theme) =>
 			flexGrow: 1
 		},
 		media: {
-			height: 0,
-			paddingTop: '56.25%', // 16:9
+			// height: '56%',
+			minHeight: '200px',
+			width: '100%'
+			// paddingTop: '56.25%', // 16:9
 		},
 		expand: {
 			transform: 'rotate(0deg)',
@@ -40,12 +37,21 @@ const useStyles = makeStyles((theme: Theme) =>
 		avatar: {
 			backgroundColor: red[500],
 		},
+
 	}),
 );
 
 export default ({ providerID, product }: { providerID: string, product: Product }) => {
 	const classes = useStyles();
 	const [expanded, setExpanded] = useState(false);
+
+	const [user] = useContext(UserContext)
+
+	const price = product.price || {}
+	const currency = user?.currency || 'USD'
+	const symbol = ISO4217[currency].symbol
+	const amount = price[currency]
+	const imageURL = product.imageURLs().length > 0 ? product.imageURLs()[0] : undefined
 
 	const handleExpandClick = () => {
 		setExpanded(!expanded);
@@ -55,24 +61,29 @@ export default ({ providerID, product }: { providerID: string, product: Product 
 		<Card className={classes.root}>
 			<Link to={`/providers/${providerID}/products/${product.id}`}>
 				<CardActionArea>
-					{(product.imageURLs().length > 0) &&
+					{/* {(product.imageURLs().length > 0) &&
 						<CardMedia
 							className={classes.media}
 							image={product.imageURLs()[0]}
 							title={product.name}
 						/>
-					}
-					{
-						product.caption &&
-						<CardContent>
-							<Typography variant="body2" color="textSecondary" component="p">
-								{product.caption}
-							</Typography>
-						</CardContent>
-					}
+					} */}
+					<CardMedia
+						className={classes.media}
+						image={product.imageURLs()[0]}
+						title={product.name}
+					>
+						<Avatar className={classes.media} variant="square" src={imageURL}>
+							<ImageIcon />
+						</Avatar>
+					</CardMedia>
 				</CardActionArea>
 			</Link >
-
+			<CardContent>
+				<Typography variant="h6">{product.name}</Typography>
+				<Typography>{amount && symbol}{amount && amount.toLocaleString()}</Typography>
+				<Typography variant="body2" color="textSecondary" component="p">{product.caption}</Typography>
+			</CardContent>
 			<CardActions disableSpacing>
 				<IconButton aria-label="add to favorites">
 					<FavoriteIcon />

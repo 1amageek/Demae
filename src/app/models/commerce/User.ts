@@ -2,6 +2,7 @@ import { Doc, Field, firestore, CollectionReference, SubCollection, Collection, 
 import { Country } from 'common/Country'
 import Shipping from './Shipping'
 import Order from './Order'
+import { CurrencyCode } from 'common/Currency'
 
 export class Role extends Doc {
 
@@ -16,6 +17,7 @@ export default class User extends Doc {
 	@Field customerID?: string
 	@Field isAvailable: boolean = false
 	@Field country: Country = 'US'
+	@Field currency: CurrencyCode = 'USD'
 	@Field currentOrderID?: string
 	@Codable(Shipping)
 	@Field defaultShipping?: Shipping

@@ -8,7 +8,8 @@ import { Button, Tooltip, IconButton } from '@material-ui/core';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
 import ImageIcon from '@material-ui/icons/Image';
 import RemoveCircleIcon from '@material-ui/icons/RemoveCircle';
-import Typography from '@material-ui/core/Typography';
+import { Typography, Avatar } from '@material-ui/core';
+import Input, { useInput } from 'components/Input'
 import SKU from 'models/commerce/SKU'
 import { useCart } from 'hooks/commerce';
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
@@ -31,6 +32,10 @@ const useStyles = makeStyles((theme: Theme) =>
 		},
 		expandOpen: {
 			transform: 'rotate(180deg)',
+		},
+		avater: {
+			width: theme.spacing(16),
+			height: theme.spacing(16),
 		}
 	}),
 );
@@ -38,10 +43,11 @@ const useStyles = makeStyles((theme: Theme) =>
 export default ({ sku }: { sku: SKU }) => {
 	const classes = useStyles();
 	const [cart] = useCart()
+	const qty = useInput("0")
 
 	const addItem = async () => {
 		if (!cart) { return }
-		cart.addItem(sku)
+		cart.addSKU(sku)
 		await cart.save()
 	}
 
@@ -52,6 +58,9 @@ export default ({ sku }: { sku: SKU }) => {
 					{sku.name}
 				</Typography>
 			</CardContent>
+			<Avatar className={classes.avater} variant="rounded">
+				<ImageIcon />
+			</Avatar>
 			{(sku.imageURLs().length > 0) &&
 				<CardMedia
 					className={classes.media}
@@ -77,7 +86,8 @@ export default ({ sku }: { sku: SKU }) => {
 						<RemoveCircleIcon color='inherit' />
 					</IconButton>
 				</Tooltip>
-
+				aaaa
+				<Input label='' variant='outlined' margin='dense' size='small' {...qty} />
 				<Tooltip title='Back'>
 					<IconButton>
 						<AddCircleIcon color='inherit' />

@@ -18,10 +18,10 @@ export default ({ providerID, productID }: { providerID: string, productID: stri
 
 	return (
 		<Grid container spacing={2}>
-			<Grid item xs={12} container>
+			<Grid item xs={12}>
 				<Card providerID={providerID} product={data!} />
 			</Grid>
-			<Grid item xs={12} container>
+			<Grid item xs={12}>
 				<SKUList providerID={providerID} productID={productID} />
 			</Grid>
 		</Grid>

@@ -6,7 +6,7 @@ import firebase from "firebase"
 import "@firebase/firestore"
 import "@firebase/auth"
 import * as Social from 'models/social'
-import { UserProvider } from 'context'
+import { UserProvider, CartProvider } from 'context'
 
 const config = require(`../config/${process.env.FIREBASE_CONFIG!}`)
 const isEmulated = process.env.EMULATE_ENV === "emulator"
@@ -31,7 +31,9 @@ interface Props {
 const Provider = ({ children }: { children: any }) => {
 	return (
 		<UserProvider>
-			{children}
+			<CartProvider>
+				{children}
+			</CartProvider>
 		</UserProvider>
 	)
 }

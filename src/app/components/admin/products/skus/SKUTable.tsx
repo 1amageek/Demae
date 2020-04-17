@@ -250,7 +250,6 @@ export default ({ product, sku, edit, setSKU }: { product: Product, sku: SKU, ed
 								<Button variant='contained' color='primary' onClick={async () => {
 									setLoading(true)
 									const uploadedImages = await Promise.all(uploadImages(images))
-									console.log(uploadedImages)
 									if (uploadedImages) {
 										const fileterd = uploadedImages.filter(image => !!image) as StorageFile[]
 										sku.images = fileterd
@@ -266,7 +265,15 @@ export default ({ product, sku, edit, setSKU }: { product: Product, sku: SKU, ed
 										quantity: Number(quantity.value)
 									}
 									sku.isAvailable = isAvailable.value === 'true'
-									await sku.save()
+
+									const price = product.price || {}
+									var productAmount = price[sku.currency] || Infinity
+									productAmount = Math.max(productAmount, sku.amount)
+									product.price = {
+										...price,
+										[sku.currency]: productAmount
+									}
+									await Promise.all([sku.save(), product.update()])
 									setEditing(false)
 									setLoading(false)
 								}}>SAVE</Button>

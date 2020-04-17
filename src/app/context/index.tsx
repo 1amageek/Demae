@@ -1,7 +1,8 @@
-import { createContext, useState, useEffect } from 'react'
+import { createContext, useState } from 'react'
 import firebase from "firebase"
 import User from "../models/commerce/User"
-import { useAuthUser, useUser } from 'hooks/commerce'
+import { useAuthUser, useUser, useCart } from 'hooks/commerce'
+import Cart from 'models/commerce/Cart'
 
 export const AuthContext = createContext<firebase.User | undefined>(undefined)
 export const AuthProvider = ({ children }) => {
@@ -25,4 +26,10 @@ export const UserContext = createContext<[User | undefined, boolean, Error | und
 export const UserProvider = ({ children }: { children: any }) => {
 	const [user, isLoading, error] = useUser()
 	return <UserContext.Provider value={[user, isLoading, error]}>{children}</UserContext.Provider>
+}
+
+export const CartContext = createContext<[Cart | undefined, boolean, Error | undefined]>([undefined, true, undefined])
+export const CartProvider = ({ children }: { children: any }) => {
+	const [cart, isLoading, error] = useCart()
+	return <CartContext.Provider value={[cart, isLoading, error]}>{children}</CartContext.Provider>
 }
