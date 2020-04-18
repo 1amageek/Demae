@@ -2,6 +2,7 @@ import { Doc, Field, DocumentReference, SubCollection, Collection, Batch, File }
 import { CurrencyCode } from 'common/Currency'
 import { Inventory, Discount } from 'common/commerce/Types'
 import { ShardType, ShardCharacters } from './Shard'
+import ISO4217 from 'common/ISO4217'
 
 export class Stock extends Doc {
 	@Field count: number = 0
@@ -27,6 +28,12 @@ export default class SKU extends Doc {
 	@Field metadata?: any
 
 	@SubCollection inventories: Collection<Stock> = new Collection()
+
+	displayPrice() {
+		const symbol = ISO4217[this.currency].symbol
+		const amount = this.amount
+		return `${symbol}${amount.toLocaleString()}`
+	}
 
 	tax() {
 		return Math.floor(this.amount * this.taxRate)

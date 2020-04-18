@@ -268,7 +268,8 @@ export default ({ product, sku, edit, setSKU }: { product: Product, sku: SKU, ed
 
 									const price = product.price || {}
 									var productAmount = price[sku.currency] || Infinity
-									productAmount = Math.max(productAmount, sku.amount)
+									productAmount = Math.min(productAmount, sku.amount)
+									productAmount = Math.max(productAmount, 0)
 									product.price = {
 										...price,
 										[sku.currency]: productAmount

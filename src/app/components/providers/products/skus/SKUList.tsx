@@ -11,7 +11,6 @@ import RemoveCircleIcon from '@material-ui/icons/RemoveCircle';
 import DataLoading from 'components/DataLoading';
 import { useDataSourceListen } from 'hooks/commerce';
 import { Provider, Product, SKU } from 'models/commerce';
-import Input, { useInput } from 'components/Input'
 import { CartContext } from 'hooks/commerce'
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -29,7 +28,6 @@ const useStyles = makeStyles((theme: Theme) =>
 export default ({ providerID, productID }: { providerID: string, productID: string }) => {
 
 	const classes = useStyles()
-	const [cart] = useContext(CartContext)
 	const [data, isLoading] = useDataSourceListen<SKU>(SKU,
 		new Provider(providerID)
 			.products.doc(productID, Product)
@@ -60,8 +58,9 @@ export default ({ providerID, productID }: { providerID: string, productID: stri
 
 const SKUListItem = ({ sku }: { sku: SKU }) => {
 	const classes = useStyles()
-	// const qty = useInput("1")
 	const [cart] = useContext(CartContext)
+
+	const imageURL = sku.imageURLs.length > 0 ? sku.imageURLs[0] : undefined
 
 	const addSKU = async (sku: SKU) => {
 		if (!cart) { return }
@@ -79,7 +78,7 @@ const SKUListItem = ({ sku }: { sku: SKU }) => {
 		<>
 			<ListItem key={sku.id} >
 				<ListItemAvatar>
-					<Avatar className={classes.avater} variant="rounded">
+					<Avatar className={classes.avater} variant="rounded" src={imageURL}>
 						<ImageIcon />
 					</Avatar>
 				</ListItemAvatar>
@@ -87,8 +86,9 @@ const SKUListItem = ({ sku }: { sku: SKU }) => {
 					primary={
 						<>
 							<Box mx={2} my={0} >
-								<Typography variant='h6'>{`${sku.name}`}</Typography>
-								<Typography variant='caption'>{`${sku.caption}`}</Typography>
+								<Typography variant="h6">{sku.name}</Typography>
+								<Typography>{sku.displayPrice()}</Typography>
+								<Typography variant="body2" color="textSecondary" component="p">{sku.caption}</Typography>
 							</Box>
 						</>
 					}

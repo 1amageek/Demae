@@ -23,13 +23,14 @@ export const useAuthUser = (): [firebase.User | undefined, boolean, firebase.aut
 			if (enabled) {
 				setState({
 					data: auth as firebase.User,
-					loading: false
+					loading: false,
+					error: undefined
 				})
 			}
 		}, error => {
 			if (enabled) {
 				setState({
-					...state,
+					data: undefined,
 					loading: false,
 					error: error
 				})
@@ -97,7 +98,7 @@ export const UserProvider = ({ children }: { children: any }) => {
 export const CartContext = createContext<[Cart | undefined, boolean, Error | undefined]>([undefined, true, undefined])
 export const CartProvider = ({ children }: { children: any }) => {
 	const [auth, waiting] = useContext(AuthContext)
-	const [cart, isLoading, error] = useDocumentListen<Cart>(Cart, auth?.uid ? new User(auth.uid).documentReference : undefined, waiting)
+	const [cart, isLoading, error] = useDocumentListen<Cart>(Cart, auth?.uid ? new Cart(auth.uid).documentReference : undefined, waiting)
 	return <CartContext.Provider value={[cart, isLoading, error]}> {children} </CartContext.Provider>
 }
 
@@ -260,9 +261,9 @@ export const useDocumentListen = <T extends Doc>(type: typeof Doc, documentRefer
 					const data = type.fromSnapshot<T>(snapshot)
 					if (enabled) {
 						setState({
-							...state,
+							data,
 							loading: false,
-							data
+							error: undefined
 						})
 					}
 				},
@@ -282,14 +283,16 @@ export const useDocumentListen = <T extends Doc>(type: typeof Doc, documentRefer
 				listen(documentReference)
 			} else {
 				setState({
-					...state,
-					loading: false
+					data: undefined,
+					loading: false,
+					error: undefined
 				})
 			}
 		} else {
 			setState({
-				...state,
-				loading: waiting
+				data: undefined,
+				loading: waiting,
+				error: undefined
 			})
 		}
 		return () => {
@@ -318,9 +321,9 @@ export const useDataSourceListen = <T extends Doc>(type: typeof Doc, query?: fir
 					const data = snapshot.docs.map(doc => type.fromSnapshot<T>(doc))
 					if (enabled) {
 						setState({
-							...state,
+							data,
 							loading: false,
-							data
+							error: undefined
 						});
 					}
 				},
@@ -341,14 +344,16 @@ export const useDataSourceListen = <T extends Doc>(type: typeof Doc, query?: fir
 				listen()
 			} else {
 				setState({
-					...state,
-					loading: false
+					data: [],
+					loading: false,
+					error: undefined
 				})
 			}
 		} else {
 			setState({
-				...state,
-				loading: waiting
+				data: [],
+				loading: waiting,
+				error: undefined
 			})
 		}
 		return () => {

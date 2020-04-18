@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useContext } from 'react';
+import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
 import Input, { useInput } from 'components/Input';
 import Provider from 'models/commerce/Provider';
 import User, { Role } from 'models/commerce/User';
@@ -8,32 +9,91 @@ import { Country, Countries } from 'common/Country';
 import Button from '@material-ui/core/Button';
 import FormControl from '@material-ui/core/FormControl';
 import Typography from '@material-ui/core/Typography';
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
-import DialogTitle from '@material-ui/core/DialogTitle';
+import Paper from '@material-ui/core/Paper';
+import AppBar from '@material-ui/core/AppBar';
+import Toolbar from '@material-ui/core/Toolbar';
+import Box from '@material-ui/core/Toolbar';
+import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@material-ui/core';
+import { List, ListItem } from '@material-ui/core';
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableRow from '@material-ui/core/TableRow';
 import Select, { useSelect } from 'components/Select'
 import { BusinessType } from 'common/commerce/account';
 import Router from 'next/router';
 import Loading from 'components/Loading';
 import { Batch } from '@1amageek/ballcap';
+import { useDialog, DialogProps } from 'components/Dialog'
+import { AuthContext } from 'hooks/commerce';
 
+const useStyles = makeStyles((theme: Theme) =>
+	createStyles({
+		box: {
+			padding: theme.spacing(2),
+			backgroundColor: '#fafafa'
+		},
+		bottomBox: {
+			padding: theme.spacing(2),
+			display: 'flex',
+			justifyContent: 'flex-end'
+		},
+		input: {
+			backgroundColor: '#fff'
+		},
+		cell: {
+			borderBottom: 'none',
+			padding: theme.spacing(1),
+		},
+		cellStatus: {
+			borderBottom: 'none',
+			padding: theme.spacing(1),
+			width: '48px',
+		},
+		cellStatusBox: {
+			display: 'flex',
+			justifyContent: 'center',
+			alignItems: 'center'
+		}
+	})
+)
 
-export default ({ uid, provider, account }: { uid: string, provider: Provider, account: Account }) => {
+const _ErrorDialog = (props: DialogProps) => (
+	<Dialog
+		open={props.open}
+		onClose={props.onClose}
+	>
+		<DialogTitle>Error</DialogTitle>
+		<DialogContent>
+			<DialogContentText>
+				Creation of provider failed. Please try again with good communication conditions.
+					</DialogContentText>
+		</DialogContent>
+		<DialogActions>
+			<Button onClick={props.onNext} color='primary' autoFocus>
+				OK
+      </Button>
+		</DialogActions>
+	</Dialog>
+)
 
-	const [open, setOpen] = useState(false)
-	const [isLoading, setLoading] = useState(false)
+export default () => {
+	const classes = useStyles()
+	const [auth] = useContext(AuthContext)
+	const [isProcessing, setProcessing] = useState(false)
+	const [setOpen, ErrorDialog] = useDialog(_ErrorDialog, () => {
+		setOpen(false)
 
-	const name = useInput(provider.name)
+	})
+	const name = useInput("")
 	const country = useSelect({
-		initValue: provider.country,
+		initValue: "US",
 		inputProps: {
 			menu: Countries
 		}
 	})
 	const defaultCurrency = useSelect({
-		initValue: provider.defaultCurrency,
+		initValue: "USD",
 		inputProps: {
 			menu: CurrencyCodes.map(c => {
 				return { label: c, value: c }
@@ -41,7 +101,7 @@ export default ({ uid, provider, account }: { uid: string, provider: Provider, a
 		}
 	})
 	const businessType = useSelect({
-		initValue: account.businessType, inputProps: {
+		initValue: "individual", inputProps: {
 			menu: [
 				{
 					label: 'Individual',
@@ -57,7 +117,11 @@ export default ({ uid, provider, account }: { uid: string, provider: Provider, a
 
 	const onSubmit = async (event) => {
 		event.preventDefault()
-		setLoading(true)
+		if (!auth) return;
+		const uid = auth.uid
+		setProcessing(true)
+		const provider = new Provider(uid)
+		const account = new Account(uid)
 		provider.name = name.value
 		provider.country = country.value as Country
 		provider.defaultCurrency = defaultCurrency.value as CurrencyCode
@@ -73,46 +137,63 @@ export default ({ uid, provider, account }: { uid: string, provider: Provider, a
 			Router.push(`/providers/${provider.id}`)
 		} catch (error) {
 			console.error(error)
-			setLoading(false)
+			setProcessing(false)
 			setOpen(true)
 		}
 	}
 
-	const handleClose = () => setOpen(false)
-
 	return (
-		<>
+		<Paper>
+			<AppBar position='static' color='transparent' elevation={0}>
+				<Toolbar>
+					<Typography variant='h6'>
+						Create new provider
+          </Typography>
+				</Toolbar>
+			</AppBar>
 			<form autoComplete='off' onSubmit={onSubmit}>
-				<Typography variant='h6' gutterBottom>
-					Create new provider
-    		</Typography>
-				<FormControl fullWidth style={{ marginBottom: '24px' }}>
-					<Input label='name' variant='outlined' margin='dense' size='small' {...name} style={{ marginBottom: '12px' }} />
-					<Select label='businessType' {...businessType} />
-					<Select label='country' {...country} />
-					<Select label='currency' {...defaultCurrency} />
-				</FormControl>
-				<Button fullWidth variant='contained' size='large' color='primary' type='submit'>
-					Save
-				</Button>
+				<Box className={classes.box}>
+					<Table size='small'>
+						<TableBody>
+							<TableRow>
+								<TableCell className={classes.cellStatus}></TableCell>
+								<TableCell className={classes.cell} align='right'>BusinessType</TableCell>
+								<TableCell className={classes.cell} align='left'>
+									<Select {...businessType} />
+								</TableCell>
+							</TableRow>
+							<TableRow>
+								<TableCell className={classes.cellStatus}></TableCell>
+								<TableCell className={classes.cell} align='right'>store name</TableCell>
+								<TableCell className={classes.cell} align='left'>
+									<Input className={classes.input} label='name' variant='outlined' margin='dense' size='small' {...name} />
+								</TableCell>
+							</TableRow>
+							<TableRow>
+								<TableCell className={classes.cellStatus}></TableCell>
+								<TableCell className={classes.cell} align='right'>country</TableCell>
+								<TableCell className={classes.cell} align='left'>
+									<Select {...country} />
+								</TableCell>
+							</TableRow>
+							<TableRow>
+								<TableCell className={classes.cellStatus}></TableCell>
+								<TableCell className={classes.cell} align='right'>currency</TableCell>
+								<TableCell className={classes.cell} align='left'>
+									<Select {...defaultCurrency} />
+								</TableCell>
+							</TableRow>
+						</TableBody>
+					</Table>
+				</Box>
+				<Box className={classes.bottomBox} >
+					<Button fullWidth variant='contained' size='large' color='primary' type='submit'>
+						Save
+					</Button>
+				</Box>
 			</form>
-			{isLoading && <Loading />}
-			<Dialog
-				open={open}
-				onClose={handleClose}
-			>
-				<DialogTitle>Error</DialogTitle>
-				<DialogContent>
-					<DialogContentText>
-						Creation of provider failed. Please try again with good communication conditions.
-					</DialogContentText>
-				</DialogContent>
-				<DialogActions>
-					<Button onClick={handleClose} color='primary' autoFocus>
-						OK
-          </Button>
-				</DialogActions>
-			</Dialog>
-		</>
+			{isProcessing && <Loading />}
+			<ErrorDialog />
+		</Paper>
 	)
 }

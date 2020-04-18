@@ -14,6 +14,7 @@ import Product from 'components/providers/products'
 import Checkout from 'components/checkout'
 import Shipping from 'components/checkout/shipping'
 import PaymentMethod from 'components/checkout/payment'
+import CreateForm from 'components/account/CreateForm'
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -54,6 +55,7 @@ const App = () => {
 			<Route path={`/home`} exact component={Home} />
 			<Route path={`/cart`} exact component={Cart} />
 			<Route path={`/account`} exact component={Account} />
+			<Route path={`/account/new`} exact component={CreateForm} />
 			<Route path={`/providers`} exact component={Provider} />
 			<Route path={`/providers/:providerID`} exact component={Provider} />
 			<Route path={`/providers/:providerID/products`} exact component={Product} />

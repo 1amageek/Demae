@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import firebase from 'firebase'
 import 'firebase/auth'
 import Link from 'next/link'
@@ -14,7 +14,7 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import Input, { useInput } from 'components/Input'
 import Shipping from 'models/commerce/Shipping'
-import { useAuthUser, useUserShipping } from 'hooks/commerce';
+import { useAuthUser, useUserShipping, AuthContext } from 'hooks/commerce';
 import Loading from 'components/Loading'
 import { User } from 'models/commerce';
 
@@ -50,7 +50,11 @@ export default () => {
 		if (isLoading) {
 			return <Loading />
 		} else {
-			return <Form shipping={shipping!} />
+			return (
+				<Paper>
+					<Form shipping={shipping!} />
+				</Paper>
+			)
 		}
 	} else {
 		const [authUser, isLoading] = useAuthUser()
@@ -58,13 +62,17 @@ export default () => {
 			return <Loading />
 		} else {
 			const shipping: Shipping = new Shipping(new User(authUser!.uid).shippingAddresses.collectionReference.doc())
-			return <Form shipping={shipping} />
+			return (
+				<Paper>
+					<Form shipping={shipping} />
+				</Paper>
+			)
 		}
 	}
 }
 
 const Form = ({ shipping }: { shipping: Shipping }) => {
-	const [authUser, isLoading] = useAuthUser()
+	const [authUser, isLoading] = useContext(AuthContext)
 	const country = useInput(shipping.address?.country)
 	const state = useInput(shipping.address?.state)
 	const city = useInput(shipping.address?.city)
@@ -98,31 +106,31 @@ const Form = ({ shipping }: { shipping: Shipping }) => {
 			<List >
 				<ListItem key={'country'} >
 					<ListItemText primary={'country'} />
-					<Input {...country} />
+					<Input variant='outlined' margin='dense' label='country' {...country} />
 				</ListItem>
 				<ListItem key={'state'}>
 					<ListItemText primary={'state'} />
-					<Input {...state} />
+					<Input variant='outlined' margin='dense' label='state' {...state} />
 				</ListItem>
 				<ListItem key={'city'}>
 					<ListItemText primary={'city'} />
-					<Input {...city} />
+					<Input variant='outlined' margin='dense' label='city' {...city} />
 				</ListItem>
 				<ListItem key={'line1'}>
 					<ListItemText primary={'line1'} />
-					<Input {...line1} />
+					<Input variant='outlined' margin='dense' label='line1' {...line1} />
 				</ListItem>
 				<ListItem key={'line2'}>
 					<ListItemText primary={'line2'} />
-					<Input {...line2} />
+					<Input variant='outlined' margin='dense' label='line2' {...line2} />
 				</ListItem>
 				<ListItem key={'postal_code'}>
 					<ListItemText primary={'postal_code'} />
-					<Input {...postal_code} />
+					<Input variant='outlined' margin='dense' label='postal code' {...postal_code} />
 				</ListItem>
 				<ListItem key={'name'}>
 					<ListItemText primary={'name'} />
-					<Input {...name} />
+					<Input variant='outlined' margin='dense' label='name' {...name} />
 				</ListItem>
 			</List>
 			<Button variant='contained' color='primary' onClick={onClick}>Continue to Payment</Button>

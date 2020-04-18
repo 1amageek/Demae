@@ -45,6 +45,8 @@ export default ({ sku }: { sku: SKU }) => {
 	const [cart] = useContext(CartContext)
 	const qty = useInput("0")
 
+
+
 	const addItem = async () => {
 		if (!cart) { return }
 		cart.addSKU(sku)

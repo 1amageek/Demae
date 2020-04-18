@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useContext } from 'react';
-import Link from 'next/link'
+import { withRouter } from 'react-router-dom'
 import Router from 'next/router'
 import firebase, { database } from 'firebase';
 import 'firebase/auth';
@@ -11,6 +11,7 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import ListItemText from '@material-ui/core/ListItemText';
 import Divider from '@material-ui/core/Divider';
+import StorefrontIcon from '@material-ui/icons/Storefront';
 import IconButton from '@material-ui/core/IconButton';
 import ViewListIcon from '@material-ui/icons/ViewList';
 import StoreIcon from '@material-ui/icons/Store';
@@ -26,9 +27,11 @@ import Provider from 'models/commerce/Provider';
 import Account from 'models/account/Account';
 import Form from './CreateForm'
 import Login from 'components/Login'
-import Agreement from 'components/agreement'
 import DataLoading from 'components/DataLoading';
 import { Paper, Grid } from '@material-ui/core';
+import Agreement from './agreement'
+import { useDialog, DialogProps } from 'components/Dialog'
+import { useErrorDialog } from 'components/ErrorDialog';
 
 export default () => {
 	const [user, isLoading, error] = useContext(UserContext)
@@ -71,16 +74,34 @@ export default () => {
 	)
 }
 
-const ProviderList = () => {
+
+const ProviderList = withRouter(props => {
 	const [user, isLoading] = useContext(UserContext)
 	const [roles, isDataLoading] = useDataSourceListen<Role>(Role, user?.roles.collectionReference, isLoading)
-
+	const [setOpen, Dialog] = useDialog(Agreement, () => {
+		setOpen(false)
+		props.history.push('/account/new')
+	})
 	if (isDataLoading) {
 		return <DataLoading />
 	}
 
 	if (roles.length === 0) {
-		return <></>
+		return (
+			<>
+				<List>
+					<ListItem button onClick={() => {
+						setOpen(true)
+					}}>
+						<ListItemIcon>
+							<StorefrontIcon />
+						</ListItemIcon>
+						<ListItemText primary={'Add your store'} />
+					</ListItem>
+				</List>
+				<Dialog />
+			</>
+		)
 	}
 
 	return (
@@ -90,11 +111,12 @@ const ProviderList = () => {
 			})}
 		</List>
 	)
-}
+})
 
 const ProviderListItem = ({ role }: { role: Role }) => {
 	const [provider, isLoading] = useDocumentListen<Provider>(Provider, new Provider(role.id).documentReference)
-
+	const [setOpen, ErrorDialog] = useErrorDialog('Error')
+	const [isProcessing, setProcessing] = useState(false)
 	if (isLoading) {
 		return (
 			<ListItem>
@@ -104,24 +126,30 @@ const ProviderListItem = ({ role }: { role: Role }) => {
 	}
 
 	return (
-		<ListItem button>
-			<ListItemIcon>
-				<StoreIcon />
-			</ListItemIcon>
-			<ListItemText primary={provider!.name} />
-			<ListItemSecondaryAction onClick={async () => {
-				const adminAttach = firebase.functions().httpsCallable('v1-commerce-admin-attach')
-				try {
-					await adminAttach({ providerID: provider!.id })
-					Router.push(`/admin`)
-				} catch (error) {
-					console.log(error)
-				}
-			}}>
-				<IconButton>
-					<SettingsIcon />
-				</IconButton>
-			</ListItemSecondaryAction>
-		</ListItem>
+		<>
+			<ListItem button>
+				<ListItemIcon>
+					<StorefrontIcon />
+				</ListItemIcon>
+				<ListItemText primary={provider!.name} />
+				<ListItemSecondaryAction onClick={async () => {
+					setProcessing(true)
+					const adminAttach = firebase.functions().httpsCallable('v1-commerce-admin-attach')
+					try {
+						await adminAttach({ providerID: provider!.id })
+						Router.push(`/admin`)
+					} catch (error) {
+						setOpen(true)
+						console.error(error)
+					}
+				}}>
+					<IconButton>
+						<SettingsIcon />
+					</IconButton>
+				</ListItemSecondaryAction>
+			</ListItem>
+			<ErrorDialog />
+			{isProcessing && <Loading />}
+		</>
 	)
 }

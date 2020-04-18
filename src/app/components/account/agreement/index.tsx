@@ -5,13 +5,14 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Button from '@material-ui/core/Button';
 import TOS from 'config/TOS';
+import { DialogProps } from 'components/Dialog'
 
-export default ({ open, onClose, onNext }) => {
+export default (props: DialogProps) => {
 	const code = 'us'
 	return (
 		<Dialog
-			open={open}
-			onClose={onClose}
+			open={props.open}
+			onClose={props.onClose}
 		>
 			<DialogTitle>Services agreement</DialogTitle>
 			<DialogContent>
@@ -24,10 +25,10 @@ export default ({ open, onClose, onNext }) => {
 				</DialogContentText>
 			</DialogContent>
 			<DialogActions>
-				<Button onClick={onClose} color='primary'>
+				<Button onClick={props.onClose} color='primary'>
 					DISAGREE
         </Button>
-				<Button onClick={onNext} variant='contained' color='primary' autoFocus>
+				<Button onClick={props.onNext} variant='contained' color='primary' autoFocus>
 					AGREE
         </Button>
 			</DialogActions>

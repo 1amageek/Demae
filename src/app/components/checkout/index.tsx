@@ -64,7 +64,6 @@ export default () => {
 		cart.currency = 'USD'
 		cart.amount = cart.total()
 		const data = cart.data({ convertDocumentReference: true })
-		console.log(data.items)
 		const checkoutCreate = firebase.functions().httpsCallable('v1-commerce-checkout-create')
 
 		try {
