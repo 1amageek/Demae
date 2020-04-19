@@ -13,7 +13,7 @@ export default class Shipping extends Doc {
 	formatted(country: Country = 'US') {
 		return `${
 			(this.name || "") +
-			" " +
+			", " +
 			(this.address?.line1 || "") +
 			" " +
 			(this.address?.line2 || "") +

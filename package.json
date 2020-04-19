@@ -49,6 +49,7 @@
 		"material-table": "^1.57.2",
 		"next": "latest",
 		"npm": "^6.14.3",
+		"paymentfont": "^1.2.5",
 		"prop-types": "latest",
 		"react": "latest",
 		"react-dnd": "^10.0.2",

@@ -1,5 +1,7 @@
 import React, { useState, useContext } from 'react'
 import { createStyles, Theme, makeStyles } from '@material-ui/core/styles'
+import { Tooltip, IconButton, Box } from '@material-ui/core';
+import { useHistory } from 'react-router-dom'
 import { loadStripe } from '@stripe/stripe-js'
 import {
 	CardElement,
@@ -9,9 +11,8 @@ import {
 } from '@stripe/react-stripe-js'
 import firebase from 'firebase'
 import 'firebase/functions'
-import Paper from '@material-ui/core/Paper'
-import Button from '@material-ui/core/Button'
-import Typography from '@material-ui/core/Typography'
+import { Paper, AppBar, Toolbar, Button, Typography } from '@material-ui/core'
+import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import Loading from 'components/Loading'
 import User from 'models/commerce/User'
 import { UserContext, AuthContext } from 'hooks/commerce'
@@ -52,15 +53,8 @@ export default () => (
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
-		paper: {
-			marginTop: theme.spacing(3),
-			bottom: 50,
-			width: '100%',
-			flexGrow: 1,
-			padding: theme.spacing(1),
-		},
-		title: {
-			marginBottom: theme.spacing(3),
+		box: {
+			padding: theme.spacing(3),
 		},
 		button: {
 			width: '100%',
@@ -78,6 +72,7 @@ const CheckoutForm = () => {
 	const elements = useElements()
 	const [isDisabled, setDisable] = useState(true)
 	const [isLoading, setLoading] = useState(false)
+	const history = useHistory()
 
 	const handleSubmit = async (event) => {
 		event.preventDefault()
@@ -133,6 +128,7 @@ const CheckoutForm = () => {
 			}
 			await new User(auth.uid).documentReference.set(updateData, { merge: true })
 			setLoading(false)
+			history.goBack()
 		} catch (error) {
 			setLoading(false)
 			console.log(error)
@@ -143,23 +139,37 @@ const CheckoutForm = () => {
 		return <Loading />
 	} else {
 		return (
-			<Paper className={classes.paper}>
-				<Typography variant={'h5'} className={classes.title}>
-					Card
-      	</Typography>
-				<form>
-					<CardElement
-						options={CARD_OPTIONS}
-						onChange={(e) => {
-							setDisable(!e.complete)
-						}}
-					/>
-					<Button className={classes.button}
-						variant="contained"
-						color="primary"
-						disabled={isDisabled}
-						onClick={handleSubmit}>Continue to Payment</Button>
-				</form>
+			<Paper>
+				<AppBar position='static' color='transparent' elevation={0}>
+					<Toolbar disableGutters>
+						<Tooltip title='Back' onClick={() => {
+							history.goBack()
+						}}>
+							<IconButton>
+								<ArrowBackIcon color='inherit' />
+							</IconButton>
+						</Tooltip>
+						<Typography variant='h6'>
+							Card
+						</Typography>
+					</Toolbar>
+				</AppBar>
+				<Box p={2}>
+					<form>
+						<CardElement
+							options={CARD_OPTIONS}
+							onChange={(e) => {
+								setDisable(!e.complete)
+							}}
+						/>
+						<Button className={classes.button}
+							variant="contained"
+							color="primary"
+							size="large"
+							disabled={isDisabled}
+							onClick={handleSubmit}>Continue to Payment</Button>
+					</form>
+				</Box>
 				{isLoading && <Loading />}
 			</Paper>
 		)

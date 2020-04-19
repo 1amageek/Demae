@@ -259,7 +259,6 @@ export const useDocumentListen = <T extends Doc>(type: typeof Doc, documentRefer
 			listener = documentReference.onSnapshot({
 				next: (snapshot) => {
 					const data = type.fromSnapshot<T>(snapshot)
-					console.log(snapshot.data())
 					if (enabled) {
 						setState({
 							data,

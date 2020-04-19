@@ -25,3 +25,59 @@ export const usePaymentMethods = (): [PaymentMethod[], boolean] => {
 	}, [paymentMethods.length])
 	return [paymentMethods, isLoading]
 }
+
+export const useFunctions = <T>(query: string, option: any, waiting: boolean = false): [T[], boolean, Error | undefined] => {
+
+	interface Prop {
+		data: T[]
+		loading: boolean
+		error?: Error
+	}
+
+	const [state, setState] = useState<Prop>({ data: [], loading: true })
+	useEffect(() => {
+		let enabled = true
+		const fetchData = async () => {
+			try {
+				const list = await firebase.functions().httpsCallable(query)
+				const result = await list(option)
+				if (enabled) {
+					const data = result.data.data as T[]
+					if (data) {
+						setState({
+							error: undefined,
+							loading: false,
+							data
+						});
+					} else {
+						setState({
+							error: undefined,
+							loading: false,
+							data: []
+						});
+					}
+				}
+			} catch (error) {
+				if (enabled) {
+					setState({
+						data: [],
+						loading: false,
+						error
+					});
+				}
+			}
+		};
+		setState({
+			data: [],
+			loading: true,
+			error: undefined
+		})
+		if (!waiting) {
+			fetchData()
+		}
+		return () => {
+			enabled = false
+		}
+	}, [waiting])
+	return [state.data, state.loading, state.error]
+};

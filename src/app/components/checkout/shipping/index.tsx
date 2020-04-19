@@ -2,10 +2,7 @@ import { useState, useContext } from 'react';
 import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
 import { withRouter, useHistory } from 'react-router-dom'
 import Input, { useInput } from 'components/Input';
-import Provider from 'models/commerce/Provider';
 import User, { Role } from 'models/commerce/User';
-import Account from 'models/account/Account';
-import { CurrencyCodes, CurrencyCode } from 'common/Currency';
 import { Country, Countries } from 'common/Country';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
@@ -148,7 +145,7 @@ const Form = ({ shipping }: { shipping: Shipping }) => {
 	return (
 		<Paper>
 			<AppBar position='static' color='transparent' elevation={0}>
-				<Toolbar>
+				<Toolbar disableGutters>
 					<Tooltip title='Back' onClick={() => {
 						history.goBack()
 					}}>

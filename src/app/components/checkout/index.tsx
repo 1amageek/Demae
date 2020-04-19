@@ -1,52 +1,27 @@
 import React, { useContext, useState } from 'react'
 import Paper from '@material-ui/core/Paper';
-import { withRouter, useHistory } from 'react-router-dom'
-import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
+import { useHistory } from 'react-router-dom'
 import firebase from 'firebase'
-import { Dialog, DialogContent, DialogContentText, DialogActions, DialogTitle, AppBar, Toolbar, Checkbox, FormControlLabel } from '@material-ui/core';
+import { Grid, Dialog, DialogContent, DialogContentText, DialogActions, DialogTitle, AppBar, Toolbar, Checkbox, FormControlLabel } from '@material-ui/core';
+import { List, ListItem, ListItemText, ListItemIcon } from '@material-ui/core';
 import Button from '@material-ui/core/Button';
-import { useDataSource, useAuthUser, useUserShippingAddresses, useUser } from 'hooks/commerce'
+import AddIcon from '@material-ui/icons/Add';
+import { useUserShippingAddresses } from 'hooks/commerce'
 import { UserContext, CartContext } from 'hooks/commerce'
-import { usePaymentMethods } from 'hooks/stripe'
-import User from 'models/commerce/User'
+import { useFunctions } from 'hooks/stripe'
 import Shipping from 'models/commerce/Shipping';
 import Loading from 'components/Loading'
-import PaymentMethodList from './payment/PaymentMethodList'
-import { ExpansionPanel, ExpansionPanelSummary, ExpansionPanelDetails, ExpansionPanelActions, Divider } from '@material-ui/core';
+import { ExpansionPanel, ExpansionPanelSummary, ExpansionPanelDetails, ExpansionPanelActions, Divider, Box } from '@material-ui/core';
 import Typography from '@material-ui/core/Typography';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import DataLoading from 'components/DataLoading';
 import { useDialog, DialogProps } from 'components/Dialog'
 import * as Commerce from 'models/commerce'
-
-
-const useStyles = makeStyles((theme: Theme) =>
-	createStyles({
-		paper: {
-			// postion: 'fixed',
-			bottom: 50,
-			width: '100%',
-			flexGrow: 1,
-			padding: theme.spacing(1),
-		},
-		list: {
-			marginBottom: theme.spacing(2),
-		},
-		button: {
-			width: '100%',
-			flexGrow: 1,
-		}
-	}),
-);
-
+import { PaymentMethod } from '@stripe/stripe-js';
 
 export default () => {
-	const classes = useStyles()
-	const [auth] = useAuthUser()
 	const [user, isUserLoading] = useContext(UserContext)
-	const [cart, isCartLoading] = useContext(CartContext)
-	const [paymentMethods, isPaymentMethodsLoading] = usePaymentMethods()
-	const [shippingAddresses, isAddressLoading] = useUserShippingAddresses()
+	const [cart] = useContext(CartContext)
 
 	const checkout = async () => {
 		if (!user) { return }
@@ -104,48 +79,41 @@ export default () => {
 	}
 
 	return (
-		<ShippingAddresses user={user!} />
+		<Grid container spacing={2}>
+			<Grid item xs={12}>
+				<ShippingAddresses user={user!} />
+			</Grid>
+			<Grid item xs={12}>
+				<PaymentMethods user={user!} />
+			</Grid>
+		</Grid>
 	)
-
-	// return (
-	// 	<>
-	// 		<Paper className={classes.paper}>
-	// 			{isAddressLoading ? (
-	// 				<Loading />
-	// 			) : (
-	// 					<List className={classes.list} >
-	// 						{shippingAddresses.map(address => {
-	// 							return (
-	// 								<ListItem button key={address.id} component={Link} to={`/checkout/shipping/${address.id}`}>
-	// 									<ListItemText primary={`${address.formatted()}`} />
-	// 								</ListItem>
-	// 							)
-	// 						})}
-	// 						<ListItem button component={Link} to='/checkout/shipping'>
-	// 							<ListItemText primary={`Add Shpping Address`} />
-	// 						</ListItem>
-	// 					</List>
-	// 				)}
-	// 		</Paper>
-
-	// 		<Paper className={classes.paper}>
-	// 			{isPaymentMethodsLoading ? (
-	// 				<Loading />
-	// 			) : (
-	// 					<PaymentMethodList paymentMethods={paymentMethods!} />
-	// 				)}
-	// 		</Paper>
-
-
-	// 		<Button className={classes.button} variant='contained' color='primary' onClick={checkout} disabled={!(user?.customerID)}>
-	// 			Payment
-	//     </Button>
-	// 	</>
-
-	// )
 }
 
 const ShippingAddresses = ({ user }: { user: Commerce.User }) => {
+
+	const _AlertDialog = (props: DialogProps) => (
+		<Dialog
+			open={props.open}
+			onClose={props.onClose}
+		>
+			<DialogTitle>Delete Shipping address</DialogTitle>
+			<DialogContent>
+				<DialogContentText>
+					Are you sure you want to delete it?
+			</DialogContentText>
+			</DialogContent>
+			<DialogActions>
+				<Button onClick={props.onClose}>
+					Cancel
+      </Button>
+				<Button onClick={props.onNext} color='primary' autoFocus>
+					OK
+      </Button>
+			</DialogActions>
+		</Dialog>
+	)
+
 	const [shippingAddresses, isLoading] = useUserShippingAddresses()
 	const history = useHistory()
 	const [deleteShipping, setDeleteShipping] = useState<Shipping | undefined>(undefined)
@@ -185,6 +153,7 @@ const ShippingAddresses = ({ user }: { user: Commerce.User }) => {
 									onFocus={(event) => event.stopPropagation()}
 									control={<Checkbox checked={user.defaultShipping?.id === shipping.id} />}
 									label={
+
 										<Typography>{shipping.format(['postal_code', 'line1'])}</Typography>
 									}
 								/>
@@ -211,29 +180,127 @@ const ShippingAddresses = ({ user }: { user: Commerce.User }) => {
 					)
 				})
 			}
+			<List>
+				<ListItem button onClick={() => {
+					history.push(`/checkout/shipping`)
+				}}>
+					<ListItemIcon>
+						<AddIcon color="secondary" />
+					</ListItemIcon>
+					<ListItemText primary={`Add new shpping address`} />
+				</ListItem>
+			</List>
 			<AlertDialog />
 		</Paper>
 	)
 }
 
-const _AlertDialog = (props: DialogProps) => (
-	<Dialog
-		open={props.open}
-		onClose={props.onClose}
-	>
-		<DialogTitle>Delete Shipping address</DialogTitle>
-		<DialogContent>
-			<DialogContentText>
-				Are you sure you want to delete it?
+
+const PaymentMethods = ({ user }: { user: Commerce.User }) => {
+
+	const _AlertDialog = (props: DialogProps) => (
+		<Dialog
+			open={props.open}
+			onClose={props.onClose}
+		>
+			<DialogTitle>Delete Payment method</DialogTitle>
+			<DialogContent>
+				<DialogContentText>
+					Are you sure you want to delete it?
 			</DialogContentText>
-		</DialogContent>
-		<DialogActions>
-			<Button onClick={props.onClose}>
-				Cancel
+			</DialogContent>
+			<DialogActions>
+				<Button onClick={props.onClose}>
+					Cancel
       </Button>
-			<Button onClick={props.onNext} color='primary' autoFocus>
-				OK
+				<Button onClick={props.onNext} color='primary' autoFocus>
+					OK
       </Button>
-		</DialogActions>
-	</Dialog>
-)
+			</DialogActions>
+		</Dialog>
+	)
+	const history = useHistory()
+	const [paymentMethods, isLoading] = useFunctions<PaymentMethod>('v1-stripe-paymentMethod-list', { type: 'card' })
+	const [setOpen, AlertDialog] = useDialog(_AlertDialog, async () => {
+		// await deleteShipping?.delete()
+		setOpen(false)
+	})
+
+	if (isLoading) {
+		return (
+			<Paper>
+				<DataLoading />
+			</Paper>
+		)
+	}
+
+	return (
+		<Paper>
+			<AppBar position='static' color='transparent' elevation={0}>
+				<Toolbar>
+					<Typography variant='h6'>
+						Payments
+          </Typography>
+				</Toolbar>
+			</AppBar>
+			{
+				paymentMethods.map(method => {
+					return (
+						<ExpansionPanel key={method.id} >
+							<ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
+								<FormControlLabel
+									onClick={async (event) => {
+										event.stopPropagation()
+										user.defaultPaymentMethodID = method.id
+										await user.save()
+									}}
+									onFocus={(event) => event.stopPropagation()}
+									control={<Checkbox checked={user.defaultPaymentMethodID === method.id} />}
+									label={
+										<Box display="flex" alignItems="center" flexGrow={1} style={{ width: '140px' }}>
+											<Box display="flex" alignItems="center" flexGrow={1}>
+												<i className={`pf pf-${method.card?.brand}`}></i>
+											</Box>
+											<Box justifySelf="flex-end">
+												{`• • • •  ${method.card?.last4}`}
+											</Box>
+										</Box>
+									}
+								/>
+							</ExpansionPanelSummary>
+							<ExpansionPanelDetails>
+								<Typography>
+
+								</Typography>
+							</ExpansionPanelDetails>
+							<Divider />
+							<ExpansionPanelActions>
+								<Button size="small" onClick={async () => {
+									// await shipping.delete()
+									// setDeleteShipping(shipping)
+									// setOpen(true)
+								}}>Delete</Button>
+								<Button size="small" color="primary" onClick={() => {
+									// history.push(`/checkout/shipping/${shipping.id}`)
+								}}>
+									Edit
+          			</Button>
+							</ExpansionPanelActions>
+						</ExpansionPanel>
+					)
+				})
+			}
+			<List>
+				<ListItem button onClick={() => {
+					history.push(`/checkout/paymentMethod`)
+				}}>
+					<ListItemIcon>
+						<AddIcon color="secondary" />
+					</ListItemIcon>
+					<ListItemText primary={`Add new payment method`} />
+				</ListItem>
+			</List>
+			<AlertDialog />
+		</Paper>
+	)
+}
