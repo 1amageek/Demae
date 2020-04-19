@@ -32,7 +32,7 @@ export default class User extends Doc {
 	@Field country: Country = 'US'
 	@Field currentOrderID?: string
 	@Field currency: CurrencyCode = 'USD'
-	@Codable(Shipping)
+	@Codable(Shipping, true)
 	@Field defaultShipping?: Shipping
 	@Field defaultPaymentMethodID?: string
 

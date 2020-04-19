@@ -76,6 +76,15 @@ export default class Cart extends Order {
 		}
 	}
 
+	addItem(item: OrderItem) {
+		const orderItem = this.items.find(value => value.skuReference!.path == item.skuReference!.path)
+		if (orderItem) {
+			orderItem.quantity += 1
+		} else {
+			this.items.push(item)
+		}
+	}
+
 	subtractItem(item: OrderItem) {
 		const orderItem = this.items.find(value => value.skuReference!.path == item.skuReference!.path)
 		if (orderItem) {

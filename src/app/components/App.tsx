@@ -60,10 +60,10 @@ const App = () => {
 			<Route path={`/providers/:providerID`} exact component={Provider} />
 			<Route path={`/providers/:providerID/products`} exact component={Product} />
 			<Route path={`/providers/:providerID/products/:productID`} exact component={Product} />
-			<Route path={`/checkout/shipping/:id`} exact component={Shipping} />
+			<Route path={`/checkout/shipping/:shippingID`} exact component={Shipping} />
 			<Route path={`/checkout/shipping`} exact component={Shipping} />
 			<Route path={`/checkout`} exact component={Checkout} />
-			<Route path={`/checkout/paymentMethod/:id`} exact component={PaymentMethod} />
+			<Route path={`/checkout/paymentMethod/:paymentMethodID`} exact component={PaymentMethod} />
 			<Route path={`/checkout/paymentMethod`} exact component={PaymentMethod} />
 		</Switch>
 	)

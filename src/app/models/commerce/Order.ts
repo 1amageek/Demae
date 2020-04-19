@@ -2,6 +2,7 @@ import { Doc, Model, Field, File, DocumentReference, Timestamp, Codable } from '
 import { CurrencyCode } from 'common/Currency'
 import { OrderItemType, OrderItemStatus, DeliveryStatus, OrderPaymentStatus, Discount } from 'common/commerce/Types'
 import Shipping from './Shipping'
+import ISO4217 from 'common/ISO4217'
 
 export class OrderItem extends Model {
 	@Field type: OrderItemType = 'sku'
@@ -18,6 +19,12 @@ export class OrderItem extends Model {
 	@Field caption: string = ''
 	@Field metadata?: any
 
+	displayPrice() {
+		const symbol = ISO4217[this.currency].symbol
+		const amount = this.amount
+		return `${symbol}${amount.toLocaleString()}`
+	}
+
 	tax() {
 		return Math.floor(this.amount * this.taxRate)
 	}
@@ -30,7 +37,7 @@ export class OrderItem extends Model {
 				return Math.max(this.amount - this.discount.amount!, 0)
 			}
 		}
-		return this.amount
+		return this.amount * this.quantity
 	}
 
 	total() {

@@ -1,89 +1,131 @@
-import React, { useState, useEffect, useContext } from 'react'
-import firebase from 'firebase'
-import 'firebase/auth'
-import Link from 'next/link'
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
+import { useState, useContext } from 'react';
+import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
+import { withRouter, useHistory } from 'react-router-dom'
+import Input, { useInput } from 'components/Input';
+import Provider from 'models/commerce/Provider';
+import User, { Role } from 'models/commerce/User';
+import Account from 'models/account/Account';
+import { CurrencyCodes, CurrencyCode } from 'common/Currency';
+import { Country, Countries } from 'common/Country';
+import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import Paper from '@material-ui/core/Paper';
-import Grid from '@material-ui/core/Grid';
-import Button from '@material-ui/core/Button';
-import { makeStyles, useTheme, Theme, createStyles } from '@material-ui/core/styles';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemText from '@material-ui/core/ListItemText';
-import Input, { useInput } from 'components/Input'
-import Shipping from 'models/commerce/Shipping'
-import { useAuthUser, useUserShipping, AuthContext } from 'hooks/commerce';
-import Loading from 'components/Loading'
-import { User } from 'models/commerce';
+import AppBar from '@material-ui/core/AppBar';
+import Toolbar from '@material-ui/core/Toolbar';
+import Box from '@material-ui/core/Toolbar';
+import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Tooltip, IconButton } from '@material-ui/core';
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableRow from '@material-ui/core/TableRow';
+import Select, { useSelect } from 'components/Select'
+import ArrowBackIcon from '@material-ui/icons/ArrowBack';
+import Login from 'components/Login';
+import Loading from 'components/Loading';
+import { useDialog, DialogProps } from 'components/Dialog'
+import { AuthContext, useUserShipping } from 'hooks/commerce';
+import Shipping from 'models/commerce/Shipping';
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
-		paper: {
-			maxWidth: 936,
-			margin: 'auto',
-			overflow: 'hidden',
+		box: {
+			padding: theme.spacing(2),
+			backgroundColor: '#fafafa'
 		},
-		searchBar: {
-			borderBottom: '1px solid rgba(0, 0, 0, 0.12)',
+		bottomBox: {
+			padding: theme.spacing(2),
+			display: 'flex',
+			justifyContent: 'flex-end'
 		},
-		searchInput: {
-			fontSize: theme.typography.fontSize,
+		input: {
+			backgroundColor: '#fff'
 		},
-		block: {
-			display: 'block',
+		cell: {
+			borderBottom: 'none',
+			padding: theme.spacing(1),
 		},
-		addAction: {
-			marginRight: theme.spacing(1),
+		cellStatus: {
+			borderBottom: 'none',
+			padding: theme.spacing(1),
+			width: '48px',
 		},
-		contentWrapper: {
-			margin: '40px 16px',
-		},
-	}),
-);
+		cellStatusBox: {
+			display: 'flex',
+			justifyContent: 'center',
+			alignItems: 'center'
+		}
+	})
+)
 
-export default () => {
-	const shippingID = ''
-	if (shippingID) {
-		const [shipping, isLoading] = useUserShipping(shippingID!);
-		if (isLoading) {
-			return <Loading />
-		} else {
-			return (
-				<Paper>
-					<Form shipping={shipping!} />
-				</Paper>
-			)
-		}
+const _ErrorDialog = (props: DialogProps) => (
+	<Dialog
+		open={props.open}
+		onClose={props.onClose}
+	>
+		<DialogTitle>Error</DialogTitle>
+		<DialogContent>
+			<DialogContentText>
+				Creation of provider failed. Please try again with good communication conditions.
+					</DialogContentText>
+		</DialogContent>
+		<DialogActions>
+			<Button onClick={props.onNext} color='primary' autoFocus>
+				OK
+      </Button>
+		</DialogActions>
+	</Dialog>
+)
+
+export default (props: any) => {
+	const { shippingID } = props.match.params
+	const [auth, isAuthLoading] = useContext(AuthContext);
+	const [shipping, isLoading] = useUserShipping(shippingID);
+
+	if (isAuthLoading || isLoading) {
+		return <Loading />
+	}
+
+	if (!auth) {
+		return <Login />
+	}
+
+	if (shipping) {
+		return <Form shipping={shipping} />
 	} else {
-		const [authUser, isLoading] = useAuthUser()
-		if (isLoading) {
-			return <Loading />
-		} else {
-			const shipping: Shipping = new Shipping(new User(authUser!.uid).shippingAddresses.collectionReference.doc())
-			return (
-				<Paper>
-					<Form shipping={shipping} />
-				</Paper>
-			)
-		}
+		const user = new User(auth?.uid)
+		const shipping = new Shipping(user.shippingAddresses.collectionReference.doc())
+		return <Form shipping={shipping} />
 	}
 }
 
 const Form = ({ shipping }: { shipping: Shipping }) => {
-	const [authUser, isLoading] = useContext(AuthContext)
-	const country = useInput(shipping.address?.country)
+	const classes = useStyles()
+	const history = useHistory()
+	const [auth] = useContext(AuthContext)
+	const [isProcessing, setProcessing] = useState(false)
+	const [setOpen, ErrorDialog] = useDialog(_ErrorDialog, () => {
+		setOpen(false)
+
+	})
+	const country = useSelect({
+		initValue: shipping.address?.country || "US",
+		inputProps: {
+			menu: Countries
+		}
+	})
 	const state = useInput(shipping.address?.state)
 	const city = useInput(shipping.address?.city)
 	const line1 = useInput(shipping.address?.line1)
 	const line2 = useInput(shipping.address?.line2)
 	const postal_code = useInput(shipping.address?.postal_code)
-
 	const name = useInput(shipping.name)
 
-	const onClick = async () => {
-		const user = new User(authUser!.uid)
+	const onSubmit = async (event) => {
+		event.preventDefault()
+		if (!auth) return;
+		const uid = auth.uid
+		setProcessing(true)
+		const user = new User(uid)
 		// shipping.country = country.value
 		shipping.address = {
 			// country: country.value,
@@ -94,46 +136,95 @@ const Form = ({ shipping }: { shipping: Shipping }) => {
 			postal_code: postal_code.value
 		}
 		shipping.name = name.value
-		shipping.phone = authUser!.phoneNumber || ''
+		shipping.phone = auth!.phoneNumber || ''
 		await Promise.all([
 			shipping.save(),
 			user.documentReference.set({ defaultShipping: shipping.data() }, { merge: true })
 		])
+		history.goBack()
+		setProcessing(false)
 	}
 
 	return (
-		<>
-			<List >
-				<ListItem key={'country'} >
-					<ListItemText primary={'country'} />
-					<Input variant='outlined' margin='dense' label='country' {...country} />
-				</ListItem>
-				<ListItem key={'state'}>
-					<ListItemText primary={'state'} />
-					<Input variant='outlined' margin='dense' label='state' {...state} />
-				</ListItem>
-				<ListItem key={'city'}>
-					<ListItemText primary={'city'} />
-					<Input variant='outlined' margin='dense' label='city' {...city} />
-				</ListItem>
-				<ListItem key={'line1'}>
-					<ListItemText primary={'line1'} />
-					<Input variant='outlined' margin='dense' label='line1' {...line1} />
-				</ListItem>
-				<ListItem key={'line2'}>
-					<ListItemText primary={'line2'} />
-					<Input variant='outlined' margin='dense' label='line2' {...line2} />
-				</ListItem>
-				<ListItem key={'postal_code'}>
-					<ListItemText primary={'postal_code'} />
-					<Input variant='outlined' margin='dense' label='postal code' {...postal_code} />
-				</ListItem>
-				<ListItem key={'name'}>
-					<ListItemText primary={'name'} />
-					<Input variant='outlined' margin='dense' label='name' {...name} />
-				</ListItem>
-			</List>
-			<Button variant='contained' color='primary' onClick={onClick}>Continue to Payment</Button>
-		</>
+		<Paper>
+			<AppBar position='static' color='transparent' elevation={0}>
+				<Toolbar>
+					<Tooltip title='Back' onClick={() => {
+						history.goBack()
+					}}>
+						<IconButton>
+							<ArrowBackIcon color='inherit' />
+						</IconButton>
+					</Tooltip>
+					<Typography variant='h6'>
+						Shipping Address
+          </Typography>
+				</Toolbar>
+			</AppBar>
+			<form autoComplete='off' onSubmit={onSubmit}>
+				<Box className={classes.box}>
+					<Table size='small'>
+						<TableBody>
+							<TableRow>
+								<TableCell className={classes.cellStatus}></TableCell>
+								<TableCell className={classes.cell} align='right'>country</TableCell>
+								<TableCell className={classes.cell} align='left'>
+									<Select {...country} />
+								</TableCell>
+							</TableRow>
+							<TableRow>
+								<TableCell className={classes.cellStatus}></TableCell>
+								<TableCell className={classes.cell} align='right'>state</TableCell>
+								<TableCell className={classes.cell} align='left'>
+									<Input className={classes.input} label='state' variant='outlined' margin='dense' size='small' required {...state} />
+								</TableCell>
+							</TableRow>
+							<TableRow>
+								<TableCell className={classes.cellStatus}></TableCell>
+								<TableCell className={classes.cell} align='right'>city</TableCell>
+								<TableCell className={classes.cell} align='left'>
+									<Input className={classes.input} label='city' variant='outlined' margin='dense' size='small' required {...city} />
+								</TableCell>
+							</TableRow>
+							<TableRow>
+								<TableCell className={classes.cellStatus}></TableCell>
+								<TableCell className={classes.cell} align='right'>line1</TableCell>
+								<TableCell className={classes.cell} align='left'>
+									<Input className={classes.input} label='line1' variant='outlined' margin='dense' size='small' {...line1} />
+								</TableCell>
+							</TableRow>
+							<TableRow>
+								<TableCell className={classes.cellStatus}></TableCell>
+								<TableCell className={classes.cell} align='right'>line2</TableCell>
+								<TableCell className={classes.cell} align='left'>
+									<Input className={classes.input} label='line2' variant='outlined' margin='dense' size='small' {...line2} />
+								</TableCell>
+							</TableRow>
+							<TableRow>
+								<TableCell className={classes.cellStatus}></TableCell>
+								<TableCell className={classes.cell} align='right'>postal code</TableCell>
+								<TableCell className={classes.cell} align='left'>
+									<Input className={classes.input} label='postal code' variant='outlined' margin='dense' size='small' required  {...postal_code} />
+								</TableCell>
+							</TableRow>
+							<TableRow>
+								<TableCell className={classes.cellStatus}></TableCell>
+								<TableCell className={classes.cell} align='right'>name</TableCell>
+								<TableCell className={classes.cell} align='left'>
+									<Input className={classes.input} label='name' variant='outlined' margin='dense' size='small' required  {...name} />
+								</TableCell>
+							</TableRow>
+						</TableBody>
+					</Table>
+				</Box>
+				<Box className={classes.bottomBox} >
+					<Button fullWidth variant='contained' size='large' color='primary' type='submit'>
+						Continue to Payment
+					</Button>
+				</Box>
+			</form>
+			{isProcessing && <Loading />}
+			<ErrorDialog />
+		</Paper>
 	)
 }

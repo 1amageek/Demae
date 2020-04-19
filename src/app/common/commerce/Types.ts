@@ -38,7 +38,6 @@ export interface Address {
 	line2?: string
 	postal_code?: string
 	state?: string
-	town?: string
 }
 
 export type DiscountType = 'absolute' | 'rate'

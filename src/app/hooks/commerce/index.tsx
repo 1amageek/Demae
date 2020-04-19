@@ -259,6 +259,7 @@ export const useDocumentListen = <T extends Doc>(type: typeof Doc, documentRefer
 			listener = documentReference.onSnapshot({
 				next: (snapshot) => {
 					const data = type.fromSnapshot<T>(snapshot)
+					console.log(snapshot.data())
 					if (enabled) {
 						setState({
 							data,
@@ -374,8 +375,17 @@ export const useUser = (): [User | undefined, boolean, Error | undefined] => {
 	return useContext(UserContext)
 }
 
-export const useUserShipping = (id: string): [Shipping | undefined, boolean, Error | undefined] => {
-	const [auth, isAuthLoading] = useAuthUser()
-	const [shipping, isLoading, error] = useDocumentListen<Shipping>(Shipping, auth?.uid ? new User(auth.uid).shippingAddresses.collectionReference.doc(id) : undefined, isAuthLoading)
+export const useUserShipping = (id?: string): [Shipping | undefined, boolean, Error | undefined] => {
+	const [auth, isAuthLoading] = useContext(AuthContext)
+	const collectionReference = new User(auth?.uid).shippingAddresses.collectionReference
+	const [ref] = useState(id ? collectionReference.doc(id) : collectionReference.doc())
+	const [shipping, isLoading, error] = useDocumentListen<Shipping>(Shipping, ref, isAuthLoading)
 	return [shipping, isLoading, error]
+}
+
+export const useUserShippingAddresses = (): [Shipping[], boolean, Error | undefined] => {
+	const [auth, isAuthLoading] = useContext(AuthContext)
+	const collectionReference = new User(auth?.uid).shippingAddresses.collectionReference
+	const [data, isLoading, error] = useDataSourceListen<Shipping>(Shipping, collectionReference, isAuthLoading)
+	return [data, isLoading, error]
 }
