@@ -6,6 +6,7 @@ import firebase from "firebase"
 import "@firebase/firestore"
 import "@firebase/auth"
 import { AuthProvider, UserProvider, CartProvider } from 'hooks/commerce'
+import { ProcessingProvider } from 'components/Processing'
 
 const config = require(`../config/${process.env.FIREBASE_CONFIG!}`)
 const isEmulated = process.env.EMULATE_ENV === "emulator"
@@ -29,13 +30,15 @@ interface Props {
 
 const Provider = ({ children }: { children: any }) => {
 	return (
-		<AuthProvider>
-			<UserProvider>
-				<CartProvider>
-					{children}
-				</CartProvider>
-			</UserProvider>
-		</AuthProvider>
+		<ProcessingProvider>
+			<AuthProvider>
+				<UserProvider>
+					<CartProvider>
+						{children}
+					</CartProvider>
+				</UserProvider>
+			</AuthProvider>
+		</ProcessingProvider>
 	)
 }
 

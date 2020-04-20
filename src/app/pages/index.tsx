@@ -1,5 +1,5 @@
 import React from 'react'
-import { Box } from '@material-ui/core';
+import { Box, Button } from '@material-ui/core';
 
 const index = ({ uid }: { uid?: string }) => {
 
@@ -7,6 +7,10 @@ const index = ({ uid }: { uid?: string }) => {
 		<Box bgcolor="primary.main" style={{ width: '100%', height: '300px' }}>
 			aaaa
 			<i className="pf pf-stripe"></i>
+
+			<Button onClick={() => {
+
+			}}>Reload </Button>
 		</Box>
 	)
 }

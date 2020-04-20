@@ -18,10 +18,16 @@ import DataLoading from 'components/DataLoading';
 import { useDialog, DialogProps } from 'components/Dialog'
 import * as Commerce from 'models/commerce'
 import { PaymentMethod } from '@stripe/stripe-js';
+import { useProcessing } from 'components/Processing';
+import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 
 export default () => {
 	const [user, isUserLoading] = useContext(UserContext)
 	const [cart] = useContext(CartContext)
+
+	const enabled = (user?.customerID && user?.defaultPaymentMethodID && user.defaultShipping)
+
+	console.log("enabled", enabled)
 
 	const checkout = async () => {
 		if (!user) { return }
@@ -85,6 +91,18 @@ export default () => {
 			</Grid>
 			<Grid item xs={12}>
 				<PaymentMethods user={user!} />
+			</Grid>
+			<Grid item xs={12}>
+				<Button
+					fullWidth
+					variant="contained"
+					size="large"
+					color="primary"
+					startIcon={<CheckCircleIcon />}
+					disabled={!enabled}
+				>
+					Checkout
+				</Button>
 			</Grid>
 		</Grid>
 	)
@@ -195,7 +213,6 @@ const ShippingAddresses = ({ user }: { user: Commerce.User }) => {
 	)
 }
 
-
 const PaymentMethods = ({ user }: { user: Commerce.User }) => {
 
 	const _AlertDialog = (props: DialogProps) => (
@@ -220,11 +237,60 @@ const PaymentMethods = ({ user }: { user: Commerce.User }) => {
 		</Dialog>
 	)
 	const history = useHistory()
-	const [paymentMethods, isLoading] = useFunctions<PaymentMethod>('v1-stripe-paymentMethod-list', { type: 'card' })
+	const [_, setProcessing] = useProcessing()
+	const [paymentMethods, isLoading, error, setPaymentMethods] = useFunctions<PaymentMethod>('v1-stripe-paymentMethod-list', { type: 'card' })
+	const [deletePaymentMethod, setDeletePaymentMethod] = useState<PaymentMethod | undefined>(undefined)
 	const [setOpen, AlertDialog] = useDialog(_AlertDialog, async () => {
-		// await deleteShipping?.delete()
 		setOpen(false)
+		await paymentMethodDetach()
 	})
+
+	const setDefaultPaymentMethod = async (method: PaymentMethod) => {
+		setProcessing(true)
+		const customerUpdate = firebase.functions().httpsCallable('v1-stripe-customer-update')
+		try {
+			const result = await customerUpdate({
+				payment_method: method.id,
+				invoice_settings: {
+					default_payment_method: method.id
+				}
+			})
+			user.defaultPaymentMethodID = method.id
+			await user.save()
+			console.log('[APP] set default payment method', result)
+		} catch (error) {
+			console.error(error)
+		}
+		setProcessing(false)
+	}
+
+	const paymentMethodDetach = async () => {
+		if (!deletePaymentMethod) {
+			return
+		}
+		setProcessing(true)
+		try {
+			const detach = firebase.functions().httpsCallable('v1-stripe-paymentMethod-detach')
+			const result = await detach({
+				paymentMethodID: deletePaymentMethod.id
+			})
+			console.log('[APP] detach payment method', result)
+			const data = paymentMethods.filter(method => method.id !== deletePaymentMethod.id)
+			if (deletePaymentMethod.id === user.defaultPaymentMethodID) {
+				if (data.length > 0) {
+					const method = data[0]
+					await setDefaultPaymentMethod(method)
+				} else {
+					user.defaultPaymentMethodID = undefined
+					await user.save()
+				}
+			}
+			setPaymentMethods(data)
+		} catch (error) {
+			console.error(error)
+		}
+		setProcessing(false)
+	}
 
 	if (isLoading) {
 		return (
@@ -251,8 +317,7 @@ const PaymentMethods = ({ user }: { user: Commerce.User }) => {
 								<FormControlLabel
 									onClick={async (event) => {
 										event.stopPropagation()
-										user.defaultPaymentMethodID = method.id
-										await user.save()
+										await setDefaultPaymentMethod(method)
 									}}
 									onFocus={(event) => event.stopPropagation()}
 									control={<Checkbox checked={user.defaultPaymentMethodID === method.id} />}
@@ -270,21 +335,20 @@ const PaymentMethods = ({ user }: { user: Commerce.User }) => {
 							</ExpansionPanelSummary>
 							<ExpansionPanelDetails>
 								<Typography>
-
+									expire {`${method.card?.exp_year}/${method.card?.exp_month}`}
 								</Typography>
 							</ExpansionPanelDetails>
 							<Divider />
 							<ExpansionPanelActions>
 								<Button size="small" onClick={async () => {
-									// await shipping.delete()
-									// setDeleteShipping(shipping)
-									// setOpen(true)
+									setDeletePaymentMethod(method)
+									setOpen(true)
 								}}>Delete</Button>
-								<Button size="small" color="primary" onClick={() => {
+								{/* <Button size="small" color="primary" onClick={() => {
 									// history.push(`/checkout/shipping/${shipping.id}`)
 								}}>
 									Edit
-          			</Button>
+          			</Button> */}
 							</ExpansionPanelActions>
 						</ExpansionPanel>
 					)
@@ -301,6 +365,7 @@ const PaymentMethods = ({ user }: { user: Commerce.User }) => {
 				</ListItem>
 			</List>
 			<AlertDialog />
+
 		</Paper>
 	)
 }

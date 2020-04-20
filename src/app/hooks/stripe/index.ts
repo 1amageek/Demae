@@ -26,7 +26,7 @@ export const usePaymentMethods = (): [PaymentMethod[], boolean] => {
 	return [paymentMethods, isLoading]
 }
 
-export const useFunctions = <T>(query: string, option: any, waiting: boolean = false): [T[], boolean, Error | undefined] => {
+export const useFunctions = <T>(query: string, option: any, waiting: boolean = false): [T[], boolean, Error | undefined, (data: T[]) => void] => {
 
 	interface Prop {
 		data: T[]
@@ -35,6 +35,15 @@ export const useFunctions = <T>(query: string, option: any, waiting: boolean = f
 	}
 
 	const [state, setState] = useState<Prop>({ data: [], loading: true })
+
+	const setData = (data: T[]) => {
+		setState({
+			error: undefined,
+			loading: false,
+			data: data
+		});
+	}
+
 	useEffect(() => {
 		let enabled = true
 		const fetchData = async () => {
@@ -79,5 +88,5 @@ export const useFunctions = <T>(query: string, option: any, waiting: boolean = f
 			enabled = false
 		}
 	}, [waiting])
-	return [state.data, state.loading, state.error]
+	return [state.data, state.loading, state.error, setData]
 };
