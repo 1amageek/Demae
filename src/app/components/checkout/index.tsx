@@ -25,7 +25,7 @@ export default () => {
 	const [user, isUserLoading] = useContext(UserContext)
 	const [cart] = useContext(CartContext)
 
-	const enabled = (user?.customerID && user?.defaultPaymentMethodID && user.defaultShipping)
+	const enabled = (user?.customerID && user?.defaultPaymentMethodID && user?.defaultShipping)
 
 	console.log("enabled", enabled)
 

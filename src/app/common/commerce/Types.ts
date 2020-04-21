@@ -17,7 +17,7 @@ export type Tier = {
 };
 
 // Product
-export type ProductType = 'service' | 'good'
+export type ProductType = 'service' | 'good' | 'ticket'
 
 // SKU
 export type StockType = 'bucket' | 'finite' | 'infinite'

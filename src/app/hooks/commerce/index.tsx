@@ -88,6 +88,13 @@ export const AuthProvider = ({ children }: { children: any }) => {
 	return <AuthContext.Provider value={[auth, isLoading, error]}> {children} </AuthContext.Provider>
 }
 
+export const AdminProviderContext = createContext<[Provider | undefined, boolean, Error | undefined]>([undefined, true, undefined])
+export const AdminProviderProvider = ({ children }: { children: any }) => {
+	const [auth, waiting] = useContext(AuthContext)
+	const [data, isLoading, error] = useDocumentListen<Provider>(Provider, auth?.uid ? new Provider(auth.uid).documentReference : undefined, waiting)
+	return <AdminProviderContext.Provider value={[data, isLoading, error]}> {children} </AdminProviderContext.Provider>
+}
+
 export const UserContext = createContext<[User | undefined, boolean, Error | undefined]>([undefined, true, undefined])
 export const UserProvider = ({ children }: { children: any }) => {
 	const [auth, waiting] = useContext(AuthContext)
@@ -102,49 +109,16 @@ export const CartProvider = ({ children }: { children: any }) => {
 	return <CartContext.Provider value={[cart, isLoading, error]}> {children} </CartContext.Provider>
 }
 
-export const useProvider = (): [Provider | undefined, boolean, Error?] => {
-	const [adminID, isAdminLoading] = useAdmin()
-	interface Prop {
-		data?: Provider
-		loading: boolean
-		error?: Error
-	}
-	const [state, setState] = useState<Prop>({ loading: true })
-	useEffect(() => {
-		let enabled = true
-		const fetchData = async (adminID: string) => {
-			try {
-				const data = await Provider.get<Provider>(adminID)
-				if (enabled) {
-					setState({
-						...state,
-						loading: false,
-						data
-					})
-				}
-			} catch (error) {
-				if (enabled) {
-					setState({
-						...state,
-						loading: false,
-						error
-					})
-				}
-			}
-		}
-		if (adminID) {
-			fetchData(adminID)
-		} else {
-			setState({
-				...state,
-				loading: isAdminLoading
-			})
-		}
-		return () => {
-			enabled = false
-		}
-	}, [adminID, isAdminLoading])
-	return [state.data, state.loading, state.error]
+export const ProviderContext = createContext<[Provider | undefined, boolean, Error | undefined]>([undefined, true, undefined])
+export const ProviderProvider = ({ id, children }: { id: string, children: any }) => {
+	const [data, isLoading, error] = useDocumentListen<Provider>(Provider, new Provider(id).documentReference)
+	return <ProviderContext.Provider value={[data, isLoading, error]}> {children} </ProviderContext.Provider>
+}
+
+export const ProductContext = createContext<[Product | undefined, boolean, Error | undefined]>([undefined, true, undefined])
+export const ProductProvider = ({ id, children }: { id: string, children: any }) => {
+	const [data, isLoading, error] = useDocumentListen<Product>(Product, new Product(id).documentReference)
+	return <ProductContext.Provider value={[data, isLoading, error]}> {children} </ProductContext.Provider>
 }
 
 export const useProviderProduct = (id: string): [Product | undefined, boolean, Error?] => {
@@ -366,6 +340,10 @@ export const useDataSourceListen = <T extends Doc>(type: typeof Doc, query?: fir
 	return [state.data, state.loading, state.error]
 };
 
+export const useAdminProvider = (): [Provider | undefined, boolean, Error | undefined] => {
+	return useContext(AdminProviderContext)
+}
+
 export const useCart = (): [Cart | undefined, boolean, Error | undefined] => {
 	return useContext(CartContext)
 }
@@ -387,4 +365,14 @@ export const useUserShippingAddresses = (): [Shipping[], boolean, Error | undefi
 	const collectionReference = new User(auth?.uid).shippingAddresses.collectionReference
 	const [data, isLoading, error] = useDataSourceListen<Shipping>(Shipping, collectionReference, isAuthLoading)
 	return [data, isLoading, error]
+}
+
+//
+
+export const useProvider = (): [Provider | undefined, boolean, Error | undefined] => {
+	return useContext(ProviderContext)
+}
+
+export const useProduct = (): [Product | undefined, boolean, Error | undefined] => {
+	return useContext(ProductContext)
 }

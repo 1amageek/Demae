@@ -9,7 +9,7 @@ export class Stock extends Doc {
 
 export default class SKU extends Doc {
 	@Field isAvailable: boolean = true
-	@Field selledBy!: string
+	@Field providedBy!: string
 	@Field createdBy!: string
 	@Field shardCharacters: ShardType[] = ShardCharacters.slice(0, 3)
 	@Field currency: CurrencyCode = 'USD'
@@ -17,7 +17,7 @@ export default class SKU extends Doc {
 	@Field name!: string
 	@Field caption!: string
 	@Field amount: number = 0
-	@Field discount: Discount | null = null
+	@Field discount?: Discount
 	@Field taxRate: number = 0
 	@Field inventory: Inventory = { type: 'finite', quantity: 1 }
 	@Field isPrivate: boolean = false

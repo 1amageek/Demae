@@ -1,10 +1,11 @@
 import { Doc, Model, Field, File, DocumentReference, Timestamp, Codable } from '@1amageek/ballcap-admin'
 import { CurrencyCode } from '../../common/Currency'
-import { OrderItemType, OrderItemStatus, DeliveryStatus, OrderPaymentStatus, Discount } from '../../common/commerce/Types'
+import { OrderItemType, OrderItemStatus, DeliveryStatus, OrderPaymentStatus, Discount, ProductType } from '../../common/commerce/Types'
 import Shipping from './Shipping'
 
 export class OrderItem extends Model {
 	@Field type: OrderItemType = 'sku'
+	@Field productType?: ProductType
 	@Field productReference?: DocumentReference
 	@Field skuReference?: DocumentReference
 	@Field quantity: number = 1

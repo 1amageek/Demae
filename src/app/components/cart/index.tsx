@@ -7,7 +7,6 @@ import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import ListItemText from '@material-ui/core/ListItemText';
 import ImageIcon from '@material-ui/icons/Image';
 import TextField from '@material-ui/core/TextField';
-import Order, { OrderItem } from 'models/commerce/Order'
 import { useAuthUser } from 'hooks/commerce';
 import { CartContext } from 'hooks/commerce'
 import Summary from './summary'
@@ -16,7 +15,7 @@ import RemoveCircleIcon from '@material-ui/icons/RemoveCircle';
 import Login from 'components/Login'
 import ISO4217 from 'common/ISO4217'
 import DataLoading from 'components/DataLoading';
-import Cart from 'models/commerce/Cart'
+import Cart, { CartItem } from 'models/commerce/Cart'
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
@@ -64,12 +63,12 @@ export default () => {
 
 const CartItemList = ({ cart, isLoading }: { cart?: Cart, isLoading: boolean }) => {
 
-	const itemDelete = async (item: OrderItem) => {
+	const itemDelete = async (item: CartItem) => {
 		cart?.deleteItem(item)
 		await cart?.update()
 	}
 
-	const items = cart?.items || []
+	const items = cart?.items() || []
 
 	if (isLoading) {
 		return <DataLoading />
@@ -98,7 +97,7 @@ const CartItemList = ({ cart, isLoading }: { cart?: Cart, isLoading: boolean }) 
 	)
 }
 
-const Cell = ({ item, key, onClick }: { item: OrderItem, key: string, onClick: () => void }) => {
+const Cell = ({ item, key, onClick }: { item: CartItem, key: string, onClick: () => void }) => {
 
 	const classes = useStyles()
 	const [cart] = useContext(CartContext)

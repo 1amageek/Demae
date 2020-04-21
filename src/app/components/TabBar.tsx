@@ -50,7 +50,7 @@ export default () => {
 
 const CartIcon = () => {
 	const [cart] = useContext(CartContext)
-	const items = cart?.items || []
+	const items = cart?.items() || []
 	const badgeContent = items.reduce((prev, current) => {
 		return current.quantity + prev
 	}, 0)

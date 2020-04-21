@@ -1,6 +1,6 @@
 import { Doc, Field, DocumentReference, SubCollection, Collection, Batch, File } from '@1amageek/ballcap'
 import { CurrencyCode } from 'common/Currency'
-import { Inventory, Discount } from 'common/commerce/Types'
+import { Inventory, Discount, ProductType } from 'common/commerce/Types'
 import { ShardType, ShardCharacters } from './Shard'
 import ISO4217 from 'common/ISO4217'
 
@@ -11,7 +11,7 @@ export class Stock extends Doc {
 export default class SKU extends Doc {
 
 	@Field images: File[] = []
-	@Field selledBy!: string
+	@Field providedBy!: string
 	@Field createdBy!: string
 	@Field shardCharacters: ShardType[] = ShardCharacters.slice(0, 3)
 	@Field currency: CurrencyCode = 'USD'
@@ -20,7 +20,7 @@ export default class SKU extends Doc {
 	@Field caption?: string
 	@Field description?: string
 	@Field amount: number = 0
-	@Field discount: Discount | null = null
+	@Field discount?: Discount
 	@Field taxRate: number = 0
 	@Field inventory: Inventory = { type: 'finite', quantity: 1 }
 	@Field isPrivate: boolean = false

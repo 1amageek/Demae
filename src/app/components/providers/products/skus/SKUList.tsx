@@ -9,7 +9,7 @@ import ImageIcon from '@material-ui/icons/Image';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
 import RemoveCircleIcon from '@material-ui/icons/RemoveCircle';
 import DataLoading from 'components/DataLoading';
-import { useDataSourceListen } from 'hooks/commerce';
+import { useDataSourceListen, ProductContext } from 'hooks/commerce';
 import { Provider, Product, SKU } from 'models/commerce';
 import { CartContext } from 'hooks/commerce'
 
@@ -59,12 +59,14 @@ export default ({ providerID, productID }: { providerID: string, productID: stri
 const SKUListItem = ({ sku }: { sku: SKU }) => {
 	const classes = useStyles()
 	const [cart] = useContext(CartContext)
+	const [product] = useContext(ProductContext)
 
 	const imageURL = sku.imageURLs.length > 0 ? sku.imageURLs[0] : undefined
 
 	const addSKU = async (sku: SKU) => {
-		if (!cart) { return }
-		cart.addSKU(sku)
+		if (!product) return
+		if (!cart) return
+		cart.addSKU(product, sku)
 		await cart.save()
 	}
 

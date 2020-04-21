@@ -3,7 +3,7 @@ import { CurrencyCode } from 'common/Currency'
 import Plan from './Plan'
 import SKU from './SKU'
 
-export type ProductType = 'service' | 'good'
+export type ProductType = 'service' | 'good' | 'ticket'
 
 export default class Product extends Doc {
 
@@ -11,6 +11,7 @@ export default class Product extends Doc {
 		return firestore.collection('commerce/v1/products')
 	}
 
+	@Field providedBy!: string
 	@Field images: File[] = []
 	@Field type: ProductType = 'good'
 	@Field name: string = ''

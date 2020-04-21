@@ -1,103 +1,268 @@
-import { firestore, CollectionReference } from '@1amageek/ballcap'
-import Order, { OrderItem } from './Order'
+import { firestore, Doc, Model, Field, File, DocumentReference, CollectionReference, Timestamp, Codable } from '@1amageek/ballcap'
+import { CurrencyCode } from 'common/Currency'
+import { OrderItemType, Discount, ProductType } from 'common/commerce/Types'
+import Shipping from './Shipping'
 import SKU from './SKU'
+import Product from './Product'
+import ISO4217 from 'common/ISO4217'
 
 
-export default class Cart extends Order {
-	static collectionReference(): CollectionReference {
-		return firestore.collection('commerce/v1/carts')
+interface TotalTax {
+	taxRate: number
+	total: number
+}
+
+interface Accounting {
+
+	// Price per item
+	price(): number
+
+	// Total price not tax included
+	subtotal(): number
+
+	// subtotal * taxRate
+	tax(): number
+
+	// Kind of tax rates
+	taxRates(): number[]
+
+	// total tax for tax rate
+	taxes(): TotalTax[]
+
+	// Total price tax included
+	total(): number
+}
+
+class Deliverable extends Model {
+	@Field shippingDate?: any
+	@Field estimatedArrivalDate?: any
+	@Codable(Shipping)
+	@Field shipping?: Shipping
+}
+
+export class CartItem extends Deliverable implements Accounting {
+	@Field providedBy!: string
+	@Field productType?: ProductType
+	@Field productReference?: DocumentReference
+	@Field skuReference?: DocumentReference
+	@Field quantity: number = 1
+	@Field currency: CurrencyCode = 'USD'
+	@Field amount: number = 0
+	@Field discount?: Discount
+	@Field taxRate: number = 0
+	@Field category: string = ''
+	@Field name: string = ''
+	@Field caption: string = ''
+	@Field metadata?: any
+
+	displayPrice() {
+		const symbol = ISO4217[this.currency].symbol
+		const amount = this.amount
+		return `${symbol}${amount.toLocaleString()}`
+	}
+
+	price() {
+		return this.amount
 	}
 
 	subtotal() {
-		return this.items
-			.filter(item => item.type === 'sku')
-			.reduce((prev, current) => {
-				return prev + current.subtotal()
-			}, 0)
+		if (this.discount) {
+			if (this.discount.type === 'rate') {
+				return this.amount - Math.floor(this.amount * this.discount.rate!)
+			} else {
+				return Math.max(this.amount - this.discount.amount!, 0)
+			}
+		}
+		return this.amount * this.quantity
+	}
+
+	tax() {
+		return Math.floor(this.subtotal() * this.taxRate)
 	}
 
 	taxRates() {
-		const taxItems = this.items.filter(item => item.type === 'tax')
-		const taxItemRates = taxItems.map(item => item.taxRate)
-		return Array.from(new Set(taxItemRates))
+		return [this.taxRate]
+	}
+
+	taxes() {
+		return [{ taxRate: this.taxRate, total: this.tax() }]
+	}
+
+	total() {
+		return this.subtotal() + this.tax()
+	}
+}
+
+export class CartGroup extends Deliverable implements Accounting {
+	@Field providerID!: string
+	@Field items: CartItem[] = []
+
+	price() {
+		return this.items.reduce((prev, current) => {
+			return prev + current.price()
+		}, 0)
+	}
+
+	subtotal() {
+		return this.items.reduce((prev, current) => {
+			return prev + current.subtotal()
+		}, 0)
+	}
+
+	tax() {
+		return this.items.reduce((prev, current) => {
+			return prev + current.tax()
+		}, 0)
+	}
+
+	taxRates() {
+		const taxes = this.items.reduce<number[]>((prev, current) => {
+			return prev.concat(current.taxRates())
+		}, [])
+		return Array.from(new Set(taxes))
 	}
 
 	taxes() {
 		return this.taxRates().map(taxRate => {
-			return this.items
-				.filter(item => item.taxRate === taxRate)
-				.reduce((prev, current) => {
-					return prev + current.tax()
-				}, 0)
+			const tatal = this.items.reduce((prev, current) => {
+				const tax = current.taxes().find(item => item.taxRate === taxRate)
+				return prev + (tax?.total || 0)
+			}, 0)
+			return { taxRate: taxRate, total: tatal }
 		})
 	}
 
-	tax() {
-		return this.taxes().reduce((prev, current) => {
-			return prev + current
+	total() {
+		return this.subtotal() + this.tax()
+	}
+}
+
+export default class Cart extends Doc {
+
+	static collectionReference(): CollectionReference {
+		return firestore.collection('commerce/v1/carts')
+	}
+
+	@Field purchasedBy!: string
+	@Field currency: CurrencyCode = 'USD'
+	@Field amount: number = 0
+	@Codable(Shipping)
+	@Field shipping?: Shipping
+	@Codable(CartItem)
+	@Field groups: CartGroup[] = []
+	@Field metadata?: any
+
+	items() {
+		return this.groups.reduce<CartItem[]>((prev, group) => {
+			return prev.concat(group.items)
+		}, [])
+	}
+
+	price() {
+		return this.groups.reduce((prev, current) => {
+			return prev + current.price()
 		}, 0)
 	}
 
-	total() {
-		return this.subtotal() +
-			this.taxes().reduce((prev, current) => {
-				return prev + current
-			}, 0)
+	subtotal() {
+		return this.groups.reduce((prev, current) => {
+			return prev + current.subtotal()
+		}, 0)
 	}
 
-	addSKU(sku: SKU) {
-		const orderItem = this.items.find(value => value.skuReference!.path == sku.path)
-		if (orderItem) {
-			orderItem.quantity += 1
+	tax() {
+		return this.groups.reduce((prev, current) => {
+			return prev + current.tax()
+		}, 0)
+	}
+
+	taxRates() {
+		const taxes = this.groups.reduce<number[]>((prev, current) => {
+			return prev.concat(current.taxRates())
+		}, [])
+		return Array.from(new Set(taxes))
+	}
+
+	taxes() {
+		return this.taxRates().map(taxRate => {
+			const tatal = this.groups.reduce((prev, current) => {
+				const tax = current.taxes().find(item => item.taxRate === taxRate)
+				return prev + (tax?.total || 0)
+			}, 0)
+			return { taxRate: taxRate, total: tatal }
+		})
+	}
+
+	total() {
+		return this.subtotal() + this.tax()
+	}
+
+	addSKU(product: Product, sku: SKU) {
+		if (product.providedBy !== sku.providedBy) return
+		const group = this.groups.find(group => group.providerID === sku.providedBy) || new CartGroup()
+		group.providerID = sku.providedBy
+		const cartItem = group.items.find(value => value.skuReference!.path == sku.path)
+		if (cartItem) {
+			cartItem.quantity += 1
 		} else {
-			const orderItem: OrderItem = new OrderItem()
-			orderItem.type = 'sku'
-			orderItem.productReference = sku.productReference
-			orderItem.skuReference = sku.documentReference
-			orderItem.currency = sku.currency
-			orderItem.amount = sku.amount
-			orderItem.discount = sku.discount
-			orderItem.name = sku.name
-			orderItem.quantity = 1
-			this.items.push(orderItem)
+			const cartItem: CartItem = new CartItem()
+			cartItem.providedBy = sku.providedBy
+			cartItem.productType = product.type
+			cartItem.productReference = sku.productReference
+			cartItem.skuReference = sku.documentReference
+			cartItem.currency = sku.currency
+			cartItem.amount = sku.amount
+			cartItem.discount = sku.discount
+			cartItem.name = sku.name
+			cartItem.taxRate = sku.taxRate
+			cartItem.quantity = 1
+			group.items.push(cartItem)
 		}
 	}
 
 	deleteSKU(sku: SKU) {
-		const orderItem = this.items.find(value => value.skuReference!.path == sku.path)
-		if (orderItem) {
-			orderItem.quantity -= 1
-			if (orderItem.quantity <= 0) {
-				orderItem.quantity = 0
-				this.items = this.items.filter(item => item.skuReference!.path !== sku.path)
+		const group = this.groups.find(group => group.providerID === sku.providedBy)
+		if (!group) return
+		const cartItem = group.items.find(value => value.skuReference!.path == sku.path)
+		if (cartItem) {
+			cartItem.quantity -= 1
+			if (cartItem.quantity <= 0) {
+				cartItem.quantity = 0
+				group.items = group.items.filter(item => item.skuReference!.path !== sku.path)
 			}
 		} else {
-			this.items = this.items.filter(item => item.skuReference!.path !== sku.path)
+			group.items = group.items.filter(item => item.skuReference!.path !== sku.path)
 		}
 	}
 
-	addItem(item: OrderItem) {
-		const orderItem = this.items.find(value => value.skuReference!.path == item.skuReference!.path)
-		if (orderItem) {
-			orderItem.quantity += 1
+	addItem(item: CartItem) {
+		const group = this.groups.find(group => group.providerID === item.providedBy)
+		if (!group) return
+		const cartItem = group.items.find(value => value.skuReference!.path == item.skuReference!.path)
+		if (cartItem) {
+			cartItem.quantity += 1
 		} else {
-			this.items.push(item)
+			group.items.push(item)
 		}
 	}
 
-	subtractItem(item: OrderItem) {
-		const orderItem = this.items.find(value => value.skuReference!.path == item.skuReference!.path)
-		if (orderItem) {
-			orderItem.quantity -= 1
-			if (orderItem.quantity == 0) {
+	subtractItem(item: CartItem) {
+		const group = this.groups.find(group => group.providerID === item.providedBy)
+		if (!group) return
+		const cartItem = group.items.find(value => value.skuReference!.path == item.skuReference!.path)
+		if (cartItem) {
+			cartItem.quantity -= 1
+			if (cartItem.quantity == 0) {
 				this.deleteItem(item)
 			}
 		} else {
-			this.items.push(item)
+			group.items.push(item)
 		}
 	}
 
-	deleteItem(item: OrderItem) {
-		this.items = this.items.filter(value => value.skuReference!.path !== item.skuReference!.path)
+	deleteItem(item: CartItem) {
+		const group = this.groups.find(group => group.providerID === item.providedBy)
+		if (!group) return
+		group.items = group.items.filter(value => value.skuReference!.path !== item.skuReference!.path)
 	}
 }
