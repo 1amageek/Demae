@@ -15,7 +15,7 @@ import RemoveCircleIcon from '@material-ui/icons/RemoveCircle';
 import Login from 'components/Login'
 import ISO4217 from 'common/ISO4217'
 import DataLoading from 'components/DataLoading';
-import Cart, { CartItem } from 'models/commerce/Cart'
+import Cart, { CartGroup, CartItem } from 'models/commerce/Cart'
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
@@ -40,83 +40,63 @@ export default () => {
 	}
 
 	return (
-		<>
-			<Grid container spacing={2}>
-				<Grid item xs={12}>
-					<CartItemList cart={cart!} isLoading={isLoading} />
-				</Grid>
-				<Grid item xs={12}>
-					<Summary items={[{
-						type: 'subtotal',
-						title: 'Subtotal',
-						detail: `${symbol}${subtotal.toLocaleString()}`
-					}, {
-						type: 'tax',
-						title: 'Tax',
-						detail: `${symbol}${tax.toLocaleString()}`
-					}]} />
-				</Grid>
-			</Grid>
-		</>
+		<Grid container spacing={2}>
+			{cart?.groups.map(group => {
+				return (
+					<Grid item xs={12} key={group.providerID}>
+						<CartGroupList cartGroup={group} />
+					</Grid>
+				)
+			})}
+		</Grid>
 	)
 }
 
-const CartItemList = ({ cart, isLoading }: { cart?: Cart, isLoading: boolean }) => {
-
-	const itemDelete = async (item: CartItem) => {
-		cart?.deleteItem(item)
-		await cart?.update()
-	}
-
-	const items = cart?.items() || []
-
-	if (isLoading) {
-		return <DataLoading />
-	}
-
-	if (items.length === 0) {
-		return (
-			<Paper>
-				<Box fontSize="h6.fontSize" textAlign="center" color="textPrimary" paddingY={6}>
-					You have no items in your cart.
-				</Box>
-			</Paper>
-		)
-	}
-
+const CartGroupList = ({ cartGroup }: { cartGroup: CartGroup }) => {
+	const subtotal = cartGroup.subtotal() || 0
+	const tax = cartGroup.tax() || 0
+	const currencyCode = cartGroup.currency || 'USD'
+	const symbol = ISO4217[currencyCode]['symbol']
 	return (
 		<Paper>
-			<List>
-				{items.map((item, index) => {
-					return <Cell item={item} key={String(index)} onClick={async () => {
-						await itemDelete(item)
-					}} />
+			<Box padding={2}>
+				{cartGroup.items.map(cartItem => {
+					return <CartItemCell cartItem={cartItem} />
 				})}
-			</List>
+				<Summary cartGroup={cartGroup} items={[{
+					type: 'subtotal',
+					title: 'Subtotal',
+					detail: `${symbol}${subtotal.toLocaleString()}`
+				}, {
+					type: 'tax',
+					title: 'Tax',
+					detail: `${symbol}${tax.toLocaleString()}`
+				}]} />
+			</Box>
 		</Paper>
 	)
 }
 
-const Cell = ({ item, key, onClick }: { item: CartItem, key: string, onClick: () => void }) => {
+const CartItemCell = ({ cartItem }: { cartItem: CartItem }) => {
 
 	const classes = useStyles()
 	const [cart] = useContext(CartContext)
 
 	const addItem = async () => {
 		if (!cart) { return }
-		cart.addItem(item)
+		cart.addItem(cartItem)
 		await cart.save()
 	}
 
 	const deleteItem = async () => {
 		if (!cart) { return }
-		cart.subtractItem(item)
+		cart.subtractItem(cartItem)
 		await cart.save()
 	}
 
 	return (
 		<>
-			<ListItem key={key}>
+			<ListItem key={cartItem.skuReference!.path}>
 				<ListItemAvatar>
 					<Avatar className={classes.avater} variant="rounded">
 						<ImageIcon />
@@ -126,10 +106,10 @@ const Cell = ({ item, key, onClick }: { item: CartItem, key: string, onClick: ()
 					primary={
 						<Box display="flex" mx={2} my={1} >
 							<Box flexGrow={1} fontWeight="fontWeightMedium" fontSize="h6.fontSize">
-								<Typography variant='h6'>{`${item.name}`}</Typography>
-								<Typography>{`${item.displayPrice()}`}</Typography>
+								<Typography variant='h6'>{`${cartItem.name}`}</Typography>
+								<Typography>{`${cartItem.displayPrice()}`}</Typography>
 							</Box>
-							<Box fontWeight="fontWeightMedium" fontSize="h6.fontSize">{`${ISO4217[item.currency]['symbol']}${item.subtotal().toLocaleString()}`}</Box>
+							<Box fontWeight="fontWeightMedium" fontSize="h6.fontSize">{`${ISO4217[cartItem.currency]['symbol']}${cartItem.subtotal().toLocaleString()}`}</Box>
 						</Box>
 					}
 					secondary={
@@ -140,7 +120,7 @@ const Cell = ({ item, key, onClick }: { item: CartItem, key: string, onClick: ()
 								</IconButton>
 							</Tooltip>
 							<Box fontWeight="fontWeightMedium" fontSize="h6.fontSize" mx={1}>
-								{item.quantity}
+								{cartItem.quantity}
 							</Box>
 							<Tooltip title='Add' onClick={addItem}>
 								<IconButton>

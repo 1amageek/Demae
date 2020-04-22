@@ -63,6 +63,7 @@ const App = () => {
 			<Route path={`/checkout/shipping/:shippingID`} exact component={Shipping} />
 			<Route path={`/checkout/shipping`} exact component={Shipping} />
 			<Route path={`/checkout`} exact component={Checkout} />
+			<Route path={`/checkout/:providerID`} exact component={Checkout} />
 			<Route path={`/checkout/paymentMethod/:paymentMethodID`} exact component={PaymentMethod} />
 			<Route path={`/checkout/paymentMethod`} exact component={PaymentMethod} />
 		</Switch>

@@ -1,22 +1,22 @@
 import { Doc, Model, Field, File, DocumentReference, Timestamp, Codable } from '@1amageek/ballcap-admin'
 import { CurrencyCode } from '../../common/Currency'
-import { OrderItemType, OrderItemStatus, DeliveryStatus, OrderPaymentStatus, Discount, ProductType } from '../../common/commerce/Types'
+import { OrderItemStatus, DeliveryStatus, OrderPaymentStatus, Discount, ProductType } from '../../common/commerce/Types'
 import Shipping from './Shipping'
 
 export class OrderItem extends Model {
-	@Field type: OrderItemType = 'sku'
 	@Field productType?: ProductType
 	@Field productReference?: DocumentReference
 	@Field skuReference?: DocumentReference
 	@Field quantity: number = 1
 	@Field currency: CurrencyCode = 'USD'
 	@Field amount: number = 0
-	@Field discount: Discount | null = null
+	@Field discount?: Discount
 	@Field taxRate: number = 0
 	@Field status: OrderItemStatus = 'none'
 	@Field category: string = ''
 	@Field name: string = ''
-	@Field caption: string = ''
+	@Field caption?: string
+	@Field description?: string
 	@Field metadata?: any
 }
 

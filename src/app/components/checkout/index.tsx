@@ -21,13 +21,12 @@ import { PaymentMethod } from '@stripe/stripe-js';
 import { useProcessing } from 'components/Processing';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 
-export default () => {
+export default (props: any) => {
+	const { providerID } = props.match.params
 	const [user, isUserLoading] = useContext(UserContext)
 	const [cart] = useContext(CartContext)
 
 	const enabled = (user?.customerID && user?.defaultPaymentMethodID && user?.defaultShipping)
-
-	console.log("enabled", enabled)
 
 	const checkout = async () => {
 		if (!user) { return }
@@ -45,11 +44,9 @@ export default () => {
 		const paymentMethodID = user.defaultPaymentMethodID
 		if (!paymentMethodID) { return }
 
-		cart.purchasedBy = user.id
-		cart.shipping = defaultShipping
-		cart.currency = 'USD'
-		cart.amount = cart.total()
-		const data = cart.data({ convertDocumentReference: true })
+		const cartGroup = cart.groups[providerID]
+		cartGroup.shipping = defaultShipping
+		const data = cart.order(user.id, cartGroup)
 		const checkoutCreate = firebase.functions().httpsCallable('v1-commerce-checkout-create')
 
 		try {
@@ -100,6 +97,7 @@ export default () => {
 					color="primary"
 					startIcon={<CheckCircleIcon />}
 					disabled={!enabled}
+					onClick={checkout}
 				>
 					Checkout
 				</Button>

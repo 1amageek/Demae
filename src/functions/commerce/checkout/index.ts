@@ -122,7 +122,7 @@ export const confirm = regionFunctions.https.onCall(async (data, context) => {
 			try {
 				// Check the stock status.
 				const SKUs = await checkOrder(order)
-				const skuItems: OrderItem[] = order.items.filter(item => item.type === 'sku')
+				const skuItems: OrderItem[] = order.items
 				const finiteSKUs = SKUs.filter(sku => sku.inventory.type === 'finite')
 				const result = await stripe.paymentIntents.confirm(paymentIntentID, {
 					idempotencyKey: orderID
@@ -168,7 +168,7 @@ export const confirm = regionFunctions.https.onCall(async (data, context) => {
 
 const checkOrder = async (order: Order) => {
 
-	const skuItems: OrderItem[] = order.items.filter(item => item.type === 'sku')
+	const skuItems: OrderItem[] = order.items
 	const skuValidation = skuItems.find(item => { return !(item.skuReference) })
 	if (skuValidation) {
 		throw new OrderError(`OrderItem contains items that do not have SKUReference.`, '')

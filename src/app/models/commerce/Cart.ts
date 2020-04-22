@@ -1,10 +1,11 @@
-import { firestore, Doc, Model, Field, File, DocumentReference, CollectionReference, Timestamp, Codable } from '@1amageek/ballcap'
+import { firestore, Doc, Model, Field, File, DocumentReference, CollectionReference, Codable } from '@1amageek/ballcap'
 import { CurrencyCode } from 'common/Currency'
-import { OrderItemType, Discount, ProductType } from 'common/commerce/Types'
+import { Discount, ProductType } from 'common/commerce/Types'
 import Shipping from './Shipping'
 import SKU from './SKU'
 import Product from './Product'
 import ISO4217 from 'common/ISO4217'
+import Order, { OrderItem } from './Order'
 
 
 interface TotalTax {
@@ -100,8 +101,10 @@ export class CartGroup extends Model implements Accounting {
 	@Field items: CartItem[] = []
 	@Field shippingDate?: any
 	@Field estimatedArrivalDate?: any
+	@Field currency: CurrencyCode = 'USD'
 	@Codable(Shipping)
 	@Field shipping?: Shipping
+	@Field metadata?: any
 
 	price() {
 		return this.items.reduce((prev, current) => {
@@ -208,11 +211,16 @@ export default class Cart extends Doc {
 		let group = this.groups.find(group => group.providerID === sku.providedBy)
 		if (!group) {
 			group = new CartGroup()
-			console.log(group.data())
+			group.providerID = sku.providedBy
+			group.currency = sku.currency
 			this.groups.push(group)
 		}
-		console.log(group.data())
-		group.providerID = sku.providedBy
+
+		if ((group.currency !== null) && (group.currency !== sku.currency)) {
+			console.log(`[APP] invalid currency. The cart now contains ${group.currency}, but the added item is ${sku.currency}.`)
+			return
+		}
+
 		const cartItem = group.items.find(value => value.skuReference!.path == sku.path)
 		if (cartItem) {
 			cartItem.quantity += 1
@@ -278,5 +286,39 @@ export default class Cart extends Doc {
 		const group = this.groups.find(group => group.providerID === item.providedBy)
 		if (!group) return
 		group.items = group.items.filter(value => value.skuReference!.path !== item.skuReference!.path)
+	}
+
+	order(purchasedBy: string, group: CartGroup) {
+		const items = group.items.map(item => {
+			const orderItem: OrderItem = new OrderItem()
+			orderItem.name = item.name
+			orderItem.productReference = item.productReference
+			orderItem.skuReference = item.skuReference
+			orderItem.productType = item.productType
+			orderItem.quantity = item.quantity
+			orderItem.currency = item.currency
+			orderItem.discount = item.discount
+			orderItem.taxRate = item.taxRate
+			orderItem.category = item.category
+			orderItem.description = item.description
+			orderItem.metadata = item.metadata
+			orderItem.status = 'none'
+			return orderItem
+		})
+		const order: Order = new Order()
+		order.purchasedBy = purchasedBy
+		order.providerID = group.providerID
+		order.title = `${items.map(item => item.name).join(', ')}`
+		order.shipping = group.shipping
+		order.shippingDate = group.shippingDate
+		order.estimatedArrivalDate = group.estimatedArrivalDate
+		order.currency = group.currency
+		order.amount = group.total()
+		order.items = items
+		order.deliveryStatus = 'none'
+		order.paymentStatus = 'none'
+		order.isCancelled = false
+		order.metadata = group.metadata
+		return order.data({ convertDocumentReference: true })
 	}
 }
