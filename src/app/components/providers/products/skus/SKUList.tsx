@@ -9,7 +9,7 @@ import ImageIcon from '@material-ui/icons/Image';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
 import RemoveCircleIcon from '@material-ui/icons/RemoveCircle';
 import DataLoading from 'components/DataLoading';
-import { useDataSourceListen } from 'hooks/firestore';
+import { useDataSourceListen, useDocumentListen } from 'hooks/firestore';
 import { Provider, Product, SKU } from 'models/commerce';
 import { CartContext } from 'hooks/commerce'
 
@@ -33,7 +33,8 @@ export default ({ providerID, productID }: { providerID: string, productID: stri
 		.skus
 		.collectionReference
 
-	const [data, isLoading] = useDataSourceListen<SKU>(SKU, { path: ref.path, limit: 100 })
+	const [skus, isLoading] = useDataSourceListen<SKU>(SKU, { path: ref.path, limit: 100 })
+	const [product] = useDocumentListen<Product>(Product, new Provider(providerID).products.collectionReference.doc(productID))
 
 	if (isLoading) {
 		return (
@@ -46,9 +47,9 @@ export default ({ providerID, productID }: { providerID: string, productID: stri
 	return (
 		<Paper className={classes.paper} >
 			<List>
-				{data.map(doc => {
+				{skus.map(doc => {
 					return (
-						<SKUListItem sku={doc} />
+						<SKUListItem product={product} sku={doc} />
 					)
 				})}
 			</List>
@@ -56,18 +57,17 @@ export default ({ providerID, productID }: { providerID: string, productID: stri
 	)
 }
 
-const SKUListItem = ({ sku }: { sku: SKU }) => {
+const SKUListItem = ({ product, sku }: { product?: Product, sku: SKU }) => {
 	const classes = useStyles()
 	const [cart] = useContext(CartContext)
-	// const [product] = useContext(ProductContext)
 
 	const imageURL = sku.imageURLs.length > 0 ? sku.imageURLs[0] : undefined
 
 	const addSKU = async (sku: SKU) => {
-		// if (!product) return
-		// if (!cart) return
-		// cart.addSKU(product, sku)
-		// await cart.save()
+		if (!product) return
+		if (!cart) return
+		cart.addSKU(product, sku)
+		await cart.save()
 	}
 
 	const deleteSKU = async (sku: SKU) => {

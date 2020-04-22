@@ -52,7 +52,8 @@ export class CartItem extends Deliverable implements Accounting {
 	@Field taxRate: number = 0
 	@Field category: string = ''
 	@Field name: string = ''
-	@Field caption: string = ''
+	@Field caption?: string
+	@Field description?: string
 	@Field metadata?: any
 
 	displayPrice() {
@@ -93,9 +94,14 @@ export class CartItem extends Deliverable implements Accounting {
 	}
 }
 
-export class CartGroup extends Deliverable implements Accounting {
+export class CartGroup extends Model implements Accounting {
 	@Field providerID!: string
+	@Codable(CartItem)
 	@Field items: CartItem[] = []
+	@Field shippingDate?: any
+	@Field estimatedArrivalDate?: any
+	@Codable(Shipping)
+	@Field shipping?: Shipping
 
 	price() {
 		return this.items.reduce((prev, current) => {
@@ -148,7 +154,7 @@ export default class Cart extends Doc {
 	@Field amount: number = 0
 	@Codable(Shipping)
 	@Field shipping?: Shipping
-	@Codable(CartItem)
+	@Codable(CartGroup)
 	@Field groups: CartGroup[] = []
 	@Field metadata?: any
 
@@ -199,7 +205,13 @@ export default class Cart extends Doc {
 
 	addSKU(product: Product, sku: SKU) {
 		if (product.providedBy !== sku.providedBy) return
-		const group = this.groups.find(group => group.providerID === sku.providedBy) || new CartGroup()
+		let group = this.groups.find(group => group.providerID === sku.providedBy)
+		if (!group) {
+			group = new CartGroup()
+			console.log(group.data())
+			this.groups.push(group)
+		}
+		console.log(group.data())
 		group.providerID = sku.providedBy
 		const cartItem = group.items.find(value => value.skuReference!.path == sku.path)
 		if (cartItem) {
@@ -210,6 +222,8 @@ export default class Cart extends Doc {
 			cartItem.productType = product.type
 			cartItem.productReference = sku.productReference
 			cartItem.skuReference = sku.documentReference
+			cartItem.caption = sku.caption
+			cartItem.description = sku.description
 			cartItem.currency = sku.currency
 			cartItem.amount = sku.amount
 			cartItem.discount = sku.discount

@@ -30,7 +30,7 @@ export default ({ title }: { title: string }) => {
 
 	return (
 		<div className={classes.root}>
-			<AppBar position='static' color='transparent' elevation={1}>
+			<AppBar position='static' color='transparent' elevation={0}>
 				<Container maxWidth='md'>
 					<Toolbar>
 						<Typography variant='h6' className={classes.title}>
