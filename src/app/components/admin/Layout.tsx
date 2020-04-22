@@ -14,7 +14,7 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import Typography from '@material-ui/core/Typography';
 import Divider from '@material-ui/core/Divider';
-import Container from '@material-ui/core/Container';
+import Box from '@material-ui/core/Box';
 import MenuItem from '@material-ui/core/MenuItem';
 import Menu from '@material-ui/core/Menu';
 import AccountCircle from '@material-ui/icons/AccountCircle';
@@ -22,7 +22,7 @@ import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
-import { useAdmin, useDataSource, useAuthUser } from 'hooks/commerce';
+import { useAdmin, useAuthUser } from 'hooks/commerce';
 import Loading from 'components/Loading';
 import { Role } from 'models/commerce/User';
 import Provider from 'models/commerce/Provider'
@@ -35,6 +35,7 @@ const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
 		root: {
 			display: 'flex',
+			height: '100%'
 		},
 		appBar: {
 			transition: theme.transitions.create(['margin', 'width'], {
@@ -76,7 +77,6 @@ const useStyles = makeStyles((theme: Theme) =>
 		},
 		content: {
 			flexGrow: 1,
-			padding: theme.spacing(2, 0),
 			transition: theme.transitions.create('margin', {
 				easing: theme.transitions.easing.sharp,
 				duration: theme.transitions.duration.leavingScreen,
@@ -95,17 +95,9 @@ const useStyles = makeStyles((theme: Theme) =>
 
 export default ({ children }: { children: any }) => {
 	const classes = useStyles()
-	const [admin, isLoading] = useAdmin()
 	const [auth] = useAuthUser()
 	const theme = useTheme()
 	const [open, setOpen] = useState(false)
-
-	useEffect(() => {
-		if (!isLoading && !admin) {
-			Router.push('/')
-		}
-	}, [isLoading])
-
 
 	const handleDrawerOpen = () => {
 		setOpen(true);
@@ -114,10 +106,6 @@ export default ({ children }: { children: any }) => {
 	const handleDrawerClose = () => {
 		setOpen(false);
 	};
-
-	if (isLoading || !admin) {
-		return <Loading />
-	}
 
 	return (
 		<div className={classes.root}>
@@ -189,10 +177,9 @@ export default ({ children }: { children: any }) => {
 				})}
 			>
 				<div className={classes.drawerHeader} />
-
-				<Container>
+				<Box height="100%">
 					{children}
-				</Container>
+				</Box>
 			</main>
 		</div>
 	);

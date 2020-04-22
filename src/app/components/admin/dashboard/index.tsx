@@ -122,111 +122,23 @@ export default () => {
 
 	if (isLoading) {
 		return (
-			<Board>
+			<Board header={
+				<Typography variant='h1'>
+					Dashboard
+				</Typography>
+			}>
 				<DataLoading />
 			</Board>
 		)
 	}
 
 	return (
-		<>
-			<Board>
-				<Box className={classes.box} >
-					<Grid container spacing={2}>
-						<Grid item xs={12} sm={6}>
-							<DndCard
-								defaultText={'Thumbnail Image Drop the files here ...'}
-								onDrop={(files) => {
-									const file = files[0] as File
-									setThumbnail(file)
-								}} />
-						</Grid>
-						<Grid item xs={12} sm={6}>
-							<DndCard
-								defaultText={'Cover Image Drop the files here ...'}
-								onDrop={(files) => {
-									const file = files[0] as File
-									setCover(file)
-								}} />
-						</Grid>
-					</Grid>
-					<Table>
-						<TableBody>
-							<TableRow>
-								<TableCell align='right'><div>ID</div></TableCell>
-								<TableCell align='left'><div>{provider!.id}</div></TableCell>
-							</TableRow>
-							<TableRow>
-								<TableCell align='right'><div>name</div></TableCell>
-								<TableCell align='left'>
-									<div>
-										<Input variant='outlined' margin='dense' {...name} />
-									</div>
-								</TableCell>
-							</TableRow>
-							<TableRow>
-								<TableCell align='right'><div>caption</div></TableCell>
-								<TableCell align='left'>
-									<div>
-										<Input variant='outlined' margin='dense' {...caption} />
-									</div>
-								</TableCell>
-							</TableRow>
-							<TableRow>
-								<TableCell align='right'><div>description</div></TableCell>
-								<TableCell align='left'>
-									<div>
-										<Input variant='outlined' margin='dense' {...description} />
-									</div>
-								</TableCell>
-							</TableRow>
-							<TableRow>
-								<TableCell align='right'><div>Status</div></TableCell>
-								<TableCell align='left'>
-									<div>
-										<Select fullWidth {...isAvailable} />
-									</div>
-								</TableCell>
-							</TableRow>
-						</TableBody>
-					</Table>
-				</Box>
-				<Box className={classes.bottomBox} >
-					<Toolbar>
-						<Grid container spacing={2} alignItems='center'>
-							<Grid item>
-								<Button variant='contained' color='primary' onClick={async () => {
-									if (!provider) return
-									setProcessing(true)
-									if (thumbnail) {
-										const thumbnailImage = await uploadThumbnail(thumbnail)
-										if (thumbnailImage) {
-											provider.thumbnailImage = thumbnailImage
-										}
-									}
-									if (cover) {
-										const coverImage = await uploadCover(cover)
-										if (coverImage) {
-											provider.coverImage = coverImage
-										}
-									}
-									try {
-										provider.name = name.value
-										provider.caption = caption.value
-										provider.description = description.value
-										provider.isAvailable = isAvailable.value === 'true'
-										await provider.save()
-									} catch (error) {
-										console.log(error)
-									}
-									setProcessing(false)
-								}
-								}>SAVE</Button>
-							</Grid>
-						</Grid>
-					</Toolbar>
-				</Box>
-			</Board>
-		</>
+		<Board header={
+			<Typography variant='h1'>
+				Dashboard
+				</Typography>
+		}>
+			<DataLoading />
+		</Board>
 	)
 }

@@ -7,7 +7,7 @@ import Provider from 'models/commerce/Provider'
 import Product from 'models/commerce/Product'
 import SKU from 'models/commerce/SKU'
 import Cart from 'models/commerce/Cart'
-import User from 'models/commerce/User'
+import User, { Role } from 'models/commerce/User'
 import Shipping from 'models/commerce/Shipping'
 
 export const useAuthUser = (): [firebase.User | undefined, boolean, firebase.auth.Error?] => {
@@ -44,39 +44,58 @@ export const useAuthUser = (): [firebase.User | undefined, boolean, firebase.aut
 	return [state.data, state.loading, state.error]
 }
 
-export const useAdmin = (): [string | undefined, boolean, Error?] => {
+export const useAdmin = (): [Role | undefined, boolean, firebase.auth.Error?] => {
 	interface Prop {
-		data?: string
+		data?: Role
 		loading: boolean
-		error?: Error
+		error?: firebase.auth.Error
 	}
 	const [state, setState] = useState<Prop>({ loading: true })
 	useEffect(() => {
 		let enabled = true
-		const claims = localStorage.getItem('claims')
-		if (claims) {
-			const parsedClaims = JSON.parse(claims)
-			if (state.data !== parsedClaims.admin) {
+		let listener = firebase.auth().onIdTokenChanged(async (auth) => {
+			if (auth) {
+				const result = await auth?.getIdTokenResult()
 				if (enabled) {
-					setState({
-						data: parsedClaims.admin,
-						loading: false
-					})
+					const adminID = result.claims.admin
+					if (adminID) {
+						const user: User = new User(auth.uid)
+						const snapshot = await user.roles.collectionReference.doc(adminID).get()
+						const role: Role = Role.fromSnapshot(snapshot)
+						setState({
+							data: role,
+							loading: false,
+							error: undefined
+						})
+					} else {
+						setState({
+							data: undefined,
+							loading: false,
+							error: undefined
+						})
+					}
 				}
 			} else {
 				if (enabled) {
 					setState({
-						loading: false
+						data: undefined,
+						loading: false,
+						error: undefined
 					})
 				}
 			}
-		} else {
-			setState({
-				loading: false
-			})
-		}
+		}, (error) => {
+			if (enabled) {
+				setState({
+					data: undefined,
+					loading: false,
+					error: error
+				})
+			}
+		})
 		return () => {
 			enabled = false
+			listener()
 		}
 	}, []);
 	return [state.data, state.loading, state.error]
@@ -86,6 +105,12 @@ export const AuthContext = createContext<[firebase.User | undefined, boolean, fi
 export const AuthProvider = ({ children }: { children: any }) => {
 	const [auth, isLoading, error] = useAuthUser()
 	return <AuthContext.Provider value={[auth, isLoading, error]}> {children} </AuthContext.Provider>
+}
+
+export const RoleContext = createContext<[Role | undefined, boolean, firebase.auth.Error | undefined]>([undefined, true, undefined])
+export const RoleProvider = ({ children }: { children: any }) => {
+	const [auth, isLoading, error] = useAdmin()
+	return <RoleContext.Provider value={[auth, isLoading, error]}> {children} </RoleContext.Provider>
 }
 
 export const AdminProviderContext = createContext<[Provider | undefined, boolean, Error | undefined]>([undefined, true, undefined])
@@ -115,109 +140,39 @@ export const ProviderProvider = ({ id, children }: { id: string, children: any }
 	return <ProviderContext.Provider value={[data, isLoading, error]}> {children} </ProviderContext.Provider>
 }
 
-export const ProductContext = createContext<[Product | undefined, boolean, Error | undefined]>([undefined, true, undefined])
-export const ProductProvider = ({ id, children }: { id: string, children: any }) => {
-	const [data, isLoading, error] = useDocumentListen<Product>(Product, new Product(id).documentReference)
-	return <ProductContext.Provider value={[data, isLoading, error]}> {children} </ProductContext.Provider>
+export const ProviderProductContext = createContext<[Product | undefined, boolean, Error | undefined]>([undefined, true, undefined])
+export const ProviderProductProvider = ({ id, children }: { id: string, children: any }) => {
+	const [user, isAuthLoading] = useAuthUser()
+	const documentReference = (user && id) ? new Provider(user.uid).products.collectionReference.doc(id) : undefined
+	const [data, isLoading, error] = useDocumentListen<Product>(Product, documentReference, isAuthLoading)
+	return <ProviderProductContext.Provider value={[data, isLoading, error]}> {children} </ProviderProductContext.Provider>
 }
 
-export const useProviderProduct = (id: string): [Product | undefined, boolean, Error?] => {
+// export const ProviderProductSKUContext = createContext<[SKU | undefined, boolean, Error | undefined]>([undefined, true, undefined])
+// export const ProviderProductSKUProvider = ({ productID, children }: { id: string, children: any }) => {
+// 	const [user, isAuthLoading] = useAuthUser()
+// 	const documentReference = (user && id) ? new Provider(user.uid).products.collectionReference.doc(productID) : undefined
+// 	const [data, isLoading, error] = useDocumentListen<SKU>(SKU, documentReference, isAuthLoading)
+// 	return <ProviderProductSKUContext.Provider value={[data, isLoading, error]}> {children} </ProviderProductSKUContext.Provider>
+// }
+
+export const useProviderProducts = (): [Product[], boolean, Error?] => {
 	const [user, isLoading] = useAuthUser()
-	const documentReference = user ? new Provider(user.uid).products.collectionReference.doc(id) : undefined
-	return useDocument<Product>(Product, documentReference, isLoading)
+	const collectionReference = user ? new Provider(user.uid).products.collectionReference : undefined
+	return useDataSourceListen<Product>(Product, collectionReference, isLoading)
 }
 
-export const useProviderProductSKU = (productID: string, skuID: string): [SKU | undefined, boolean, Error?] => {
+export const useProviderProductSKUs = (id?: string): [Product[], boolean, Error?] => {
 	const [user, isLoading] = useAuthUser()
-	const documentReference = user ? new Provider(user.uid).products.doc(productID, Product).skus.collectionReference.doc(skuID) : undefined
-	return useDocument<SKU>(SKU, documentReference, isLoading)
+	const collectionReference = (user && id) ? new Provider(user.uid).products.collectionReference.doc(id).collection('skus') : undefined
+	return useDataSourceListen<Product>(Product, collectionReference, isLoading)
 }
 
-export const useDocument = <T extends Doc>(type: typeof Doc, documentReference?: DocumentReference, waiting: boolean = false): [T | undefined, boolean, Error?] => {
-	interface Prop {
-		data?: T
-		loading: boolean
-		error?: Error
-	}
-	const [state, setState] = useState<Prop>({ loading: true })
-	useEffect(() => {
-		let enabled = true
-		const fetchData = async (documentReference: DocumentReference) => {
-			try {
-				const snapshot = await documentReference.get()
-				const data = type.fromSnapshot<T>(snapshot)
-				if (enabled) {
-					setState({
-						...state,
-						loading: false,
-						data
-					})
-				}
-			} catch (error) {
-				if (enabled) {
-					setState({
-						data: undefined,
-						loading: false,
-						error
-					})
-				}
-			}
-		}
-		if (!waiting && documentReference) {
-			fetchData(documentReference)
-		}
-		return () => {
-			enabled = false
-		}
-	}, [documentReference?.path, waiting])
-	return [state.data, state.loading, state.error]
+export const useProviderProductSKU = (productID?: string, skuID?: string): [SKU | undefined, boolean, Error?] => {
+	const [user, isLoading] = useAuthUser()
+	const documentReference = (user && productID && skuID) ? new Provider(user.uid).products.doc(productID, Product).skus.collectionReference.doc(skuID) : undefined
+	return useDocumentListen<SKU>(SKU, documentReference, isLoading)
 }
-
-export const useDataSource = <T extends Doc>(type: typeof Doc, query: firebase.firestore.Query, waiting: boolean = false): [T[], boolean, Error | undefined] => {
-
-	interface Prop {
-		data: T[]
-		loading: boolean
-		error?: Error
-	}
-
-	const [state, setState] = useState<Prop>({ data: [], loading: true })
-	useEffect(() => {
-		let enabled = true
-		const fetchData = async () => {
-			try {
-				const snapshot = await query.get()
-				const data = snapshot.docs.map(doc => type.fromSnapshot<T>(doc))
-				if (enabled) {
-					setState({
-						...state,
-						loading: false,
-						data
-					});
-				}
-			} catch (error) {
-				if (enabled) {
-					setState({
-						data: [],
-						loading: false,
-						error
-					});
-				}
-			}
-		};
-		setState({
-			...state,
-			loading: true
-		})
-		if (!waiting) {
-			fetchData()
-		}
-		return () => {
-			enabled = false
-		}
-	}, [waiting])
-	return [state.data, state.loading, state.error]
-};
 
 export const useDocumentListen = <T extends Doc>(type: typeof Doc, documentReference?: DocumentReference, waiting: boolean = false): [T | undefined, boolean, Error?] => {
 	interface Prop {
@@ -373,6 +328,6 @@ export const useProvider = (): [Provider | undefined, boolean, Error | undefined
 	return useContext(ProviderContext)
 }
 
-export const useProduct = (): [Product | undefined, boolean, Error | undefined] => {
-	return useContext(ProductContext)
+export const useProviderProduct = (): [Product | undefined, boolean, Error | undefined] => {
+	return useContext(ProviderProductContext)
 }

@@ -34,7 +34,7 @@ export default () => {
 		<Layout>
 			<Container maxWidth='md' >
 				<Paper className={classes.paper}>
-					<Provider provider={provider!} />
+					{/* <Provider provider={provider!} /> */}
 				</Paper>
 			</Container>
 		</Layout >

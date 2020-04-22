@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import NextApp, { AppProps, AppContext } from "next/app"
-import { StaticRouter, BrowserRouter, Switch, Route, Link, Redirect } from 'react-router-dom'
+import { StaticRouter, BrowserRouter } from 'react-router-dom'
 import * as Ballcap from "@1amageek/ballcap"
 import firebase from "firebase"
 import "@firebase/firestore"
 import "@firebase/auth"
-import { AuthProvider, UserProvider, CartProvider } from 'hooks/commerce'
+import { AuthProvider, UserProvider, CartProvider, RoleProvider } from 'hooks/commerce'
 import { ProcessingProvider } from 'components/Processing'
 
 const config = require(`../config/${process.env.FIREBASE_CONFIG!}`)
@@ -32,11 +32,13 @@ const Provider = ({ children }: { children: any }) => {
 	return (
 		<ProcessingProvider>
 			<AuthProvider>
-				<UserProvider>
-					<CartProvider>
-						{children}
-					</CartProvider>
-				</UserProvider>
+				<RoleProvider>
+					<UserProvider>
+						<CartProvider>
+							{children}
+						</CartProvider>
+					</UserProvider>
+				</RoleProvider>
 			</AuthProvider>
 		</ProcessingProvider>
 	)
@@ -59,21 +61,21 @@ const Router = ({ children }: { children: any }) => {
 }
 
 const App = ({ Component, pageProps, router }: AppProps) => {
-	useEffect(() => {
-		console.log('[App] start Token listening')
-		const listener = firebase.auth().onIdTokenChanged(async (auth) => {
-			if (auth) {
-				const result = await auth.getIdTokenResult()
-				const claims = JSON.stringify(result.claims)
-				localStorage.setItem('claims', claims)
-			} else {
-				localStorage.removeItem('claims')
-			}
-		})
-		return () => {
-			listener()
-		}
-	}, [])
+	// useEffect(() => {
+	// 	console.log('[App] start Token listening')
+	// 	const listener = firebase.auth().onIdTokenChanged(async (auth) => {
+	// 		if (auth) {
+	// 			const result = await auth.getIdTokenResult()
+	// 			const claims = JSON.stringify(result.claims)
+	// 			localStorage.setItem('claims', claims)
+	// 		} else {
+	// 			localStorage.removeItem('claims')
+	// 		}
+	// 	})
+	// 	return () => {
+	// 		listener()
+	// 	}
+	// }, [])
 
 	return (
 		<Provider>

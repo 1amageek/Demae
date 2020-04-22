@@ -14,7 +14,7 @@ export default class Product extends Doc {
 	@Field providedBy!: string
 	@Field images: File[] = []
 	@Field type: ProductType = 'good'
-	@Field name: string = ''
+	@Field name: string = 'No Name'
 	@Field caption?: string
 	@Field description?: string
 	@Field price: { [key in CurrencyCode]?: number } = {}
@@ -30,5 +30,11 @@ export default class Product extends Doc {
 			}
 			return undefined
 		}).filter(value => !!value) as string[]
+	}
+}
+
+export class ProductDraft extends Product {
+	static collectionReference(): CollectionReference {
+		return firestore.collection('commerce/v1/productdrafts')
 	}
 }

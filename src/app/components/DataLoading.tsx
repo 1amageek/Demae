@@ -6,7 +6,7 @@ const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
 		box: {
 			flexGrow: 1,
-			padding: theme.spacing(3),
+			padding: theme.spacing(4),
 			display: 'flex',
 			justifyContent: 'center',
 			alignItems: 'center'

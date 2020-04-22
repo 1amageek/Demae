@@ -17,21 +17,17 @@ import ViewListIcon from '@material-ui/icons/ViewList';
 import StoreIcon from '@material-ui/icons/Store';
 import SettingsIcon from '@material-ui/icons/Settings';
 import { UserContext } from 'hooks/commerce'
-import { useDataSource, useDataSourceListen, useProvider, useDocumentListen } from 'hooks/commerce';
+import { useDataSourceListen, useDocumentListen } from 'hooks/commerce';
 import * as Commerce from 'models/commerce';
 import User, { Role } from 'models/commerce/User';
-import Loading from 'components/Loading'
-import Modal from '../Modal';
 import MeetingRoomIcon from '@material-ui/icons/MeetingRoom';
 import Provider from 'models/commerce/Provider';
-import Account from 'models/account/Account';
-import Form from './CreateForm'
-import Login from 'components/Login'
 import DataLoading from 'components/DataLoading';
 import { Paper, Grid } from '@material-ui/core';
 import Agreement from './agreement'
 import { useDialog, DialogProps } from 'components/Dialog'
 import { useErrorDialog } from 'components/ErrorDialog';
+import { useProcessing } from 'components/Processing';
 
 export default () => {
 	const [user, isLoading, error] = useContext(UserContext)
@@ -116,7 +112,7 @@ const ProviderList = withRouter(props => {
 const ProviderListItem = ({ role }: { role: Role }) => {
 	const [provider, isLoading] = useDocumentListen<Provider>(Provider, new Provider(role.id).documentReference)
 	const [setOpen, ErrorDialog] = useErrorDialog('Error')
-	const [isProcessing, setProcessing] = useState(false)
+	const [isProcessing, setProcessing] = useProcessing()
 	if (isLoading) {
 		return (
 			<ListItem>
@@ -142,6 +138,7 @@ const ProviderListItem = ({ role }: { role: Role }) => {
 						setOpen(true)
 						console.error(error)
 					}
+					setProcessing(false)
 				}}>
 					<IconButton>
 						<SettingsIcon />
@@ -149,7 +146,6 @@ const ProviderListItem = ({ role }: { role: Role }) => {
 				</ListItemSecondaryAction>
 			</ListItem>
 			<ErrorDialog />
-			{isProcessing && <Loading />}
 		</>
 	)
 }

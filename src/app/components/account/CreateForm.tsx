@@ -1,5 +1,6 @@
 import { useState, useContext } from 'react';
 import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
+import { useHistory } from 'react-router-dom'
 import Input, { useInput } from 'components/Input';
 import Provider from 'models/commerce/Provider';
 import User, { Role } from 'models/commerce/User';
@@ -19,8 +20,7 @@ import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
 import Select, { useSelect } from 'components/Select'
 import { BusinessType } from 'common/commerce/account';
-import Router from 'next/router';
-import Loading from 'components/Loading';
+import { useProcessing } from 'components/Processing'
 import { Batch } from '@1amageek/ballcap';
 import { useDialog, DialogProps } from 'components/Dialog'
 import { AuthContext } from 'hooks/commerce';
@@ -78,7 +78,8 @@ const _ErrorDialog = (props: DialogProps) => (
 export default () => {
 	const classes = useStyles()
 	const [auth] = useContext(AuthContext)
-	const [isProcessing, setProcessing] = useState(false)
+	const history = useHistory()
+	const [isProcessing, setProcessing] = useProcessing()
 	const [setOpen, ErrorDialog] = useDialog(_ErrorDialog, () => {
 		setOpen(false)
 
@@ -132,12 +133,12 @@ export default () => {
 			batch.save(account)
 			batch.save(role)
 			await batch.commit()
-			Router.push(`/providers/${provider.id}`)
+			history.push('/admin')
 		} catch (error) {
 			console.error(error)
-			setProcessing(false)
 			setOpen(true)
 		}
+		setProcessing(false)
 	}
 
 	return (
@@ -190,7 +191,6 @@ export default () => {
 					</Button>
 				</Box>
 			</form>
-			{isProcessing && <Loading />}
 			<ErrorDialog />
 		</Paper>
 	)
