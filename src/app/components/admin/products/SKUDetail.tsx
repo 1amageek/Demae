@@ -3,8 +3,6 @@ import React, { useState, useRef } from 'react'
 import firebase from 'firebase'
 import Link from 'next/link'
 import { File as StorageFile } from '@1amageek/ballcap'
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -14,9 +12,9 @@ import Table from '@material-ui/core/Table';
 import TableRow from '@material-ui/core/TableRow';
 import TableCell from '@material-ui/core/TableCell';
 import TableBody from '@material-ui/core/TableBody';
-import IconButton from '@material-ui/core/IconButton';
+import { Avatar, Box } from '@material-ui/core';
+import ImageIcon from '@material-ui/icons/Image';
 import DndCard from 'components/DndCard'
-import Box from '@material-ui/core/Box';
 import Input, { useInput } from 'components/Input'
 import Select, { useSelect } from 'components/Select'
 import { CurrencyCode, CurrencyCodes } from 'common/Currency'
@@ -27,15 +25,118 @@ import DataLoading from 'components/DataLoading';
 import Board from '../Board';
 import { useProcessing } from 'components/Processing';
 import { StockType, StockValue } from 'common/commerce/Types';
+import { SKU, Product } from 'models/commerce';
 
 export default ({ productID, skuID }: { productID?: string, skuID?: string }) => {
 
 	const [product] = useProviderProduct()
 	const [sku, isLoading] = useProviderProductSKU(productID, skuID)
-	const [processing, setProcessing] = useProcessing()
 	const [isEditing, setEdit] = useState(false)
 
 
+	if (isLoading) {
+		return (
+			<Board header={
+				<Typography variant='h6'>
+					No choise product
+				</Typography>
+			}>
+				<Box flexGrow={1} alignItems='center' justifyContent='center'>
+					<DataLoading />
+				</Box>
+			</Board>
+		)
+	}
+
+	if (!sku || !product) {
+		return (
+			<Board header={
+				<Typography variant='h6'>
+					No choise sku
+				</Typography>
+			}>
+				<Box flexGrow={1} alignItems='center' justifyContent='center'>
+					<Typography variant='h6'>No choise sku</Typography>
+				</Box>
+			</Board>
+		)
+	}
+
+	if (isEditing) {
+		return <Edit product={product} sku={sku} onClose={() => {
+			setEdit(false)
+		}} />
+	}
+
+	return (
+		<Board header={
+			<Box display="flex" flexGrow={1}>
+				<Typography variant='h6'>{sku.name}</Typography>
+				<Box flexGrow={1} />
+				<Button
+					variant="contained"
+					color="primary"
+					startIcon={
+						<EditIcon />
+					}
+					onClick={async () => {
+						setEdit(true)
+					}}
+				>Edit</Button>
+			</Box>
+		}>
+			<Avatar variant="square" src={sku.imageURLs()[0]} style={{
+				minHeight: '200px',
+				width: '100%'
+			}}>
+				<ImageIcon />
+			</Avatar>
+			<Table>
+				<TableBody>
+					<TableRow>
+						<TableCell align='right'><div>ID</div></TableCell>
+						<TableCell align='left'><div>{sku.id}</div></TableCell>
+					</TableRow>
+					<TableRow>
+						<TableCell align='right'><div>name</div></TableCell>
+						<TableCell align='left'><div>{sku.name}</div></TableCell>
+					</TableRow>
+					<TableRow>
+						<TableCell align='right'><div>caption</div></TableCell>
+						<TableCell align='left'><div>{sku.caption}</div></TableCell>
+					</TableRow>
+					<TableRow>
+						<TableCell align='right'><div>description</div></TableCell>
+						<TableCell align='left'><div>{sku.description}</div></TableCell>
+					</TableRow>
+					<TableRow>
+						<TableCell align='right'><div>price</div></TableCell>
+						<TableCell align='left'><div>{sku.currency} {sku.amount}</div></TableCell>
+					</TableRow>
+					<TableRow>
+						<TableCell align='right'><div>inventory</div></TableCell>
+						<TableCell align='left'>
+							<div>
+								{sku.inventory.type === 'infinite' && 'Infinite'}
+								{sku.inventory.type === 'bucket' && sku.inventory.value}
+								{sku.inventory.type === 'finite' && sku.inventory.quantity}
+							</div>
+						</TableCell>
+					</TableRow>
+					<TableRow>
+						<TableCell align='right'><div>Status</div></TableCell>
+						<TableCell align='left'><div>{sku.isAvailable ? 'Available' : 'Disabled'}</div></TableCell>
+					</TableRow>
+				</TableBody>
+			</Table>
+		</Board>
+	)
+}
+
+
+const Edit = ({ product, sku, onClose }: { product: Product, sku: SKU, onClose: () => void }) => {
+
+	const [processing, setProcessing] = useProcessing()
 	const [images, setImages] = useState<File[]>([])
 	const name = useInput(sku?.name)
 	const caption = useInput(sku?.caption)
@@ -90,7 +191,7 @@ export default ({ productID, skuID }: { productID?: string, skuID?: string }) =>
 		}
 	})
 	const isAvailable = useSelect({
-		initValue: sku?.isAvailable || 'true',
+		initValue: sku?.isAvailable.toString() || 'true',
 		inputProps: {
 			menu: [
 				{
@@ -137,7 +238,7 @@ export default ({ productID, skuID }: { productID?: string, skuID?: string }) =>
 		}
 		await Promise.all([sku.save(), product.update()])
 		setProcessing(false)
-		setEdit(false)
+		onClose()
 	}
 
 	const uploadImages = (files: File[]) => {
@@ -170,192 +271,99 @@ export default ({ productID, skuID }: { productID?: string, skuID?: string }) =>
 		})
 	}
 
-	if (isLoading) {
-		return (
-			<Board header={
-				<Typography variant='h6'>
-					No choise product
-				</Typography>
-			}>
-				<Box flexGrow={1} alignItems='center' justifyContent='center'>
-					<DataLoading />
-				</Box>
-			</Board>
-		)
-	}
-
-	if (!sku) {
-		return (
-			<Board header={
-				<Typography variant='h6'>
-					No choise sku
-				</Typography>
-			}>
-				<Box flexGrow={1} alignItems='center' justifyContent='center'>
-					<Typography variant='h6'>No choise sku</Typography>
-				</Box>
-			</Board>
-		)
-	}
-
-	if (isEditing) {
-		return (
-			<form onSubmit={onSubmit}>
-				<Board header={
-					<Box display="flex" flexGrow={1}>
-						<Typography variant='h6'>{sku.name}</Typography>
-						<Box flexGrow={1} />
-						<Button
-							color="primary"
-							onClick={async () => {
-								setEdit(false)
-							}}
-						>Cancel</Button>
-						<Button
-							variant="contained"
-							color="primary"
-							type='submit'
-							startIcon={
-								<SaveIcon />
-							}
-						>Save</Button>
-					</Box>
-				}>
-					<Grid container spacing={2}>
-						<Grid item xs={12} sm={6}>
-							<DndCard
-								defaultText={'Images Image Drop the files here ...'}
-								onDrop={(files) => {
-									setImages(files)
-								}} />
-						</Grid>
-					</Grid>
-					<Table>
-						<TableBody>
-							<TableRow>
-								<TableCell align='right'><div>ID</div></TableCell>
-								<TableCell align='left'><div>{sku.id}</div></TableCell>
-							</TableRow>
-							<TableRow>
-								<TableCell align='right'><div>name</div></TableCell>
-								<TableCell align='left'>
-									<div>
-										<Input variant='outlined' margin='dense' {...name} />
-									</div>
-								</TableCell>
-							</TableRow>
-							<TableRow>
-								<TableCell align='right'><div>caption</div></TableCell>
-								<TableCell align='left'>
-									<div>
-										<Input variant='outlined' margin='dense' {...caption} />
-									</div>
-								</TableCell>
-							</TableRow>
-							<TableRow>
-								<TableCell align='right'><div>description</div></TableCell>
-								<TableCell align='left'>
-									<div>
-										<Input variant='outlined' margin='dense' {...description} />
-									</div>
-								</TableCell>
-							</TableRow>
-							<TableRow>
-								<TableCell align='right'><div>amount</div></TableCell>
-								<TableCell align='left'>
-									<div>
-										<Select {...currency} />
-										<Input variant='outlined' margin='dense' type='number' style={{ width: '112px', marginLeft: '8px' }} value={amount.value} onChange={e => {
-											const newAmount = Math.floor(Number(e.target.value) * 100) / 100
-											amount.setValue(`${newAmount}`)
-										}} />
-									</div>
-								</TableCell>
-							</TableRow>
-							<TableRow>
-								<TableCell align='right'><div>inventory</div></TableCell>
-								<TableCell align='left'>
-									<div>
-										<Select {...inventory} />
-										{inventory.value === 'bucket' && <Select style={{ marginLeft: '8px' }} {...stockValue} />}
-										{inventory.value === 'finite' && <Input variant='outlined' margin='dense' style={{ width: '112px', marginLeft: '8px' }} type='number' value={quantity.value} onChange={e => {
-											const newQuantity = Math.floor(Number(e.target.value))
-											quantity.setValue(`${newQuantity}`)
-										}} />}
-									</div>
-								</TableCell>
-							</TableRow>
-							<TableRow>
-								<TableCell align='right'><div>Status</div></TableCell>
-								<TableCell align='left'>
-									<div>
-										<Select fullWidth {...isAvailable} />
-									</div>
-								</TableCell>
-							</TableRow>
-						</TableBody>
-					</Table>
-				</Board>
-			</form>
-		)
-	}
-
 	return (
-		<Board header={
-			<Box display="flex" flexGrow={1}>
-				<Typography variant='h6'>{sku.name}</Typography>
-				<Box flexGrow={1} />
-				<Button
-					variant="contained"
-					color="primary"
-					startIcon={
-						<EditIcon />
-					}
-					onClick={async () => {
-						setEdit(true)
-					}}
-				>Edit SKU</Button>
-			</Box>
-		}>
-			<Table>
-				<TableBody>
-					<TableRow>
-						<TableCell align='right'><div>ID</div></TableCell>
-						<TableCell align='left'><div>{sku.id}</div></TableCell>
-					</TableRow>
-					<TableRow>
-						<TableCell align='right'><div>name</div></TableCell>
-						<TableCell align='left'><div>{sku.name}</div></TableCell>
-					</TableRow>
-					<TableRow>
-						<TableCell align='right'><div>caption</div></TableCell>
-						<TableCell align='left'><div>{sku.caption}</div></TableCell>
-					</TableRow>
-					<TableRow>
-						<TableCell align='right'><div>description</div></TableCell>
-						<TableCell align='left'><div>{sku.description}</div></TableCell>
-					</TableRow>
-					<TableRow>
-						<TableCell align='right'><div>price</div></TableCell>
-						<TableCell align='left'><div>{sku.currency} {sku.amount}</div></TableCell>
-					</TableRow>
-					<TableRow>
-						<TableCell align='right'><div>inventory</div></TableCell>
-						<TableCell align='left'>
-							<div>
-								{sku.inventory.type === 'infinite' && 'Infinite'}
-								{sku.inventory.type === 'bucket' && sku.inventory.value}
-								{sku.inventory.type === 'finite' && sku.inventory.quantity}
-							</div>
-						</TableCell>
-					</TableRow>
-					<TableRow>
-						<TableCell align='right'><div>Status</div></TableCell>
-						<TableCell align='left'><div>{sku.isAvailable ? 'Available' : 'Disabled'}</div></TableCell>
-					</TableRow>
-				</TableBody>
-			</Table>
-		</Board>
+		<form onSubmit={onSubmit}>
+			<Board header={
+				<Box display="flex" flexGrow={1}>
+					<Typography variant='h6'>{sku.name}</Typography>
+					<Box flexGrow={1} />
+					<Button
+						color="primary"
+						onClick={async () => {
+							onClose()
+						}}
+					>Cancel</Button>
+					<Button
+						variant="contained"
+						color="primary"
+						type='submit'
+						startIcon={
+							<SaveIcon />
+						}
+					>Save</Button>
+				</Box>
+			}>
+				<DndCard
+					url={sku.imageURLs()[0]}
+					onDrop={(files) => {
+						setImages(files)
+					}} />
+				<Table>
+					<TableBody>
+						<TableRow>
+							<TableCell align='right'><div>ID</div></TableCell>
+							<TableCell align='left'><div>{sku.id}</div></TableCell>
+						</TableRow>
+						<TableRow>
+							<TableCell align='right'><div>name</div></TableCell>
+							<TableCell align='left'>
+								<div>
+									<Input variant='outlined' margin='dense' required {...name} />
+								</div>
+							</TableCell>
+						</TableRow>
+						<TableRow>
+							<TableCell align='right'><div>caption</div></TableCell>
+							<TableCell align='left'>
+								<div>
+									<Input variant='outlined' margin='dense' {...caption} />
+								</div>
+							</TableCell>
+						</TableRow>
+						<TableRow>
+							<TableCell align='right'><div>description</div></TableCell>
+							<TableCell align='left'>
+								<div>
+									<Input variant='outlined' margin='dense' {...description} />
+								</div>
+							</TableCell>
+						</TableRow>
+						<TableRow>
+							<TableCell align='right'><div>amount</div></TableCell>
+							<TableCell align='left'>
+								<div>
+									<Select {...currency} />
+									<Input variant='outlined' margin='dense' type='number' style={{ width: '112px', marginLeft: '8px' }} value={amount.value} onChange={e => {
+										const newAmount = Math.floor(Number(e.target.value) * 100) / 100
+										amount.setValue(`${newAmount}`)
+									}} />
+								</div>
+							</TableCell>
+						</TableRow>
+						<TableRow>
+							<TableCell align='right'><div>inventory</div></TableCell>
+							<TableCell align='left'>
+								<div>
+									<Select {...inventory} />
+									{inventory.value === 'bucket' && <Select style={{ marginLeft: '8px' }} {...stockValue} />}
+									{inventory.value === 'finite' && <Input variant='outlined' margin='dense' style={{ width: '112px', marginLeft: '8px' }} type='number' value={quantity.value} onChange={e => {
+										const newQuantity = Math.floor(Number(e.target.value))
+										quantity.setValue(`${newQuantity}`)
+									}} />}
+								</div>
+							</TableCell>
+						</TableRow>
+						<TableRow>
+							<TableCell align='right'><div>Status</div></TableCell>
+							<TableCell align='left'>
+								<div>
+									<Select fullWidth {...isAvailable} />
+								</div>
+							</TableCell>
+						</TableRow>
+					</TableBody>
+				</Table>
+			</Board>
+		</form>
 	)
 }
-

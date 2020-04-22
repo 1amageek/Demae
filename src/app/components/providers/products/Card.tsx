@@ -8,8 +8,8 @@ import { red } from '@material-ui/core/colors';
 import FavoriteIcon from '@material-ui/icons/Favorite';
 import ShareIcon from '@material-ui/icons/Share';
 import { UserContext } from 'hooks/commerce'
-import { useDataSourceListen } from 'hooks/commerce';
-import { Provider, Product } from 'models/commerce';
+import { useDataSourceListen } from 'hooks/firestore';
+import { Product } from 'models/commerce';
 import ImageIcon from '@material-ui/icons/Image';
 import ISO4217 from 'common/ISO4217'
 

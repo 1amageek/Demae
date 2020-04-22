@@ -9,7 +9,7 @@ import ImageIcon from '@material-ui/icons/Image';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
 import RemoveCircleIcon from '@material-ui/icons/RemoveCircle';
 import DataLoading from 'components/DataLoading';
-import { useDataSourceListen } from 'hooks/commerce';
+import { useDataSourceListen } from 'hooks/firestore';
 import { Provider, Product, SKU } from 'models/commerce';
 import { CartContext } from 'hooks/commerce'
 
@@ -28,12 +28,12 @@ const useStyles = makeStyles((theme: Theme) =>
 export default ({ providerID, productID }: { providerID: string, productID: string }) => {
 
 	const classes = useStyles()
-	const [data, isLoading] = useDataSourceListen<SKU>(SKU,
-		new Provider(providerID)
-			.products.doc(productID, Product)
-			.skus
-			.collectionReference
-			.limit(100))
+	const ref = new Provider(providerID)
+		.products.doc(productID, Product)
+		.skus
+		.collectionReference
+
+	const [data, isLoading] = useDataSourceListen<SKU>(SKU, { path: ref.path, limit: 100 })
 
 	if (isLoading) {
 		return (

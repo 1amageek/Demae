@@ -6,7 +6,7 @@ import Typography from '@material-ui/core/Typography';
 import ButtonBase from '@material-ui/core/ButtonBase';
 import Card from 'components/providers/Card'
 import DataLoading from 'components/DataLoading'
-import { useDataSourceListen } from 'hooks/commerce';
+import { useDataSourceListen } from 'hooks/firestore';
 import { Provider } from 'models/commerce';
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -33,7 +33,8 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 export default () => {
-	const [data, isLoading] = useDataSourceListen<Provider>(Provider, Provider.collectionReference().limit(30))
+	const ref = Provider.collectionReference()
+	const [data, isLoading] = useDataSourceListen<Provider>(Provider, { path: ref.path, limit: 30 })
 
 	if (isLoading) {
 		return <DataLoading />

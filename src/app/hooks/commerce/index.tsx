@@ -2,7 +2,7 @@ import React, { useEffect, useState, createContext, useContext } from 'react'
 import firebase from "firebase"
 import "@firebase/firestore"
 import "@firebase/auth"
-import { Doc, DocumentReference } from '@1amageek/ballcap'
+import { useDocumentListen, useDataSourceListen } from '../firestore'
 import Provider from 'models/commerce/Provider'
 import Product from 'models/commerce/Product'
 import SKU from 'models/commerce/SKU'
@@ -148,24 +148,24 @@ export const ProviderProductProvider = ({ id, children }: { id: string, children
 	return <ProviderProductContext.Provider value={[data, isLoading, error]}> {children} </ProviderProductContext.Provider>
 }
 
-// export const ProviderProductSKUContext = createContext<[SKU | undefined, boolean, Error | undefined]>([undefined, true, undefined])
-// export const ProviderProductSKUProvider = ({ productID, children }: { id: string, children: any }) => {
-// 	const [user, isAuthLoading] = useAuthUser()
-// 	const documentReference = (user && id) ? new Provider(user.uid).products.collectionReference.doc(productID) : undefined
-// 	const [data, isLoading, error] = useDocumentListen<SKU>(SKU, documentReference, isAuthLoading)
-// 	return <ProviderProductSKUContext.Provider value={[data, isLoading, error]}> {children} </ProviderProductSKUContext.Provider>
-// }
+export const ProviderProductSKUContext = createContext<[SKU | undefined, boolean, Error | undefined]>([undefined, true, undefined])
+export const ProviderProductSKUProvider = ({ id, children }: { id: string, children: any }) => {
+	const [product, waiting] = useProviderProduct()
+	const documentReference = (product && id) ? product.skus.collectionReference.doc(id) : undefined
+	const [data, isLoading, error] = useDocumentListen<SKU>(SKU, documentReference, waiting)
+	return <ProviderProductSKUContext.Provider value={[data, isLoading, error]}> {children} </ProviderProductSKUContext.Provider>
+}
 
 export const useProviderProducts = (): [Product[], boolean, Error?] => {
 	const [user, isLoading] = useAuthUser()
 	const collectionReference = user ? new Provider(user.uid).products.collectionReference : undefined
-	return useDataSourceListen<Product>(Product, collectionReference, isLoading)
+	return useDataSourceListen<Product>(Product, { path: collectionReference?.path }, isLoading)
 }
 
 export const useProviderProductSKUs = (id?: string): [Product[], boolean, Error?] => {
 	const [user, isLoading] = useAuthUser()
 	const collectionReference = (user && id) ? new Provider(user.uid).products.collectionReference.doc(id).collection('skus') : undefined
-	return useDataSourceListen<Product>(Product, collectionReference, isLoading)
+	return useDataSourceListen<Product>(Product, { path: collectionReference?.path }, isLoading)
 }
 
 export const useProviderProductSKU = (productID?: string, skuID?: string): [SKU | undefined, boolean, Error?] => {
@@ -173,127 +173,6 @@ export const useProviderProductSKU = (productID?: string, skuID?: string): [SKU 
 	const documentReference = (user && productID && skuID) ? new Provider(user.uid).products.doc(productID, Product).skus.collectionReference.doc(skuID) : undefined
 	return useDocumentListen<SKU>(SKU, documentReference, isLoading)
 }
-
-export const useDocumentListen = <T extends Doc>(type: typeof Doc, documentReference?: DocumentReference, waiting: boolean = false): [T | undefined, boolean, Error?] => {
-	interface Prop {
-		data?: T
-		loading: boolean
-		error?: Error
-	}
-	const [state, setState] = useState<Prop>({ loading: true })
-	useEffect(() => {
-		let enabled = true
-		let listener: (() => void) | undefined
-		const listen = async (documentReference: DocumentReference) => {
-			listener = documentReference.onSnapshot({
-				next: (snapshot) => {
-					const data = type.fromSnapshot<T>(snapshot)
-					if (enabled) {
-						setState({
-							data,
-							loading: false,
-							error: undefined
-						})
-					}
-				},
-				error: (error) => {
-					if (enabled) {
-						setState({
-							data: undefined,
-							loading: false,
-							error
-						})
-					}
-				}
-			})
-		}
-		if (!waiting) {
-			if (documentReference) {
-				listen(documentReference)
-			} else {
-				setState({
-					data: undefined,
-					loading: false,
-					error: undefined
-				})
-			}
-		} else {
-			setState({
-				data: undefined,
-				loading: waiting,
-				error: undefined
-			})
-		}
-		return () => {
-			enabled = false
-			if (listener) {
-				listener()
-			}
-		}
-	}, [documentReference?.path, waiting])
-	return [state.data, state.loading, state.error]
-}
-
-export const useDataSourceListen = <T extends Doc>(type: typeof Doc, query?: firebase.firestore.Query, waiting: boolean = false): [T[], boolean, Error | undefined] => {
-	interface Prop {
-		data: T[]
-		loading: boolean
-		error?: Error
-	}
-	const [state, setState] = useState<Prop>({ data: [], loading: true })
-	useEffect(() => {
-		let enabled = true
-		let listener: (() => void) | undefined
-		const listen = async () => {
-			query?.onSnapshot({
-				next: (snapshot) => {
-					const data = snapshot.docs.map(doc => type.fromSnapshot<T>(doc))
-					if (enabled) {
-						setState({
-							data,
-							loading: false,
-							error: undefined
-						});
-					}
-				},
-				error: (error) => {
-					if (enabled) {
-						setState({
-							data: [],
-							loading: false,
-							error
-						})
-					}
-				}
-			})
-		};
-
-		if (!waiting) {
-			if (query) {
-				listen()
-			} else {
-				setState({
-					data: [],
-					loading: false,
-					error: undefined
-				})
-			}
-		} else {
-			setState({
-				data: [],
-				loading: waiting,
-				error: undefined
-			})
-		}
-		return () => {
-			enabled = false
-			if (listener) {
-				listener()
-			}
-		}
-	}, [waiting])
-	return [state.data, state.loading, state.error]
-};
 
 export const useAdminProvider = (): [Provider | undefined, boolean, Error | undefined] => {
 	return useContext(AdminProviderContext)
@@ -318,7 +197,7 @@ export const useUserShipping = (id?: string): [Shipping | undefined, boolean, Er
 export const useUserShippingAddresses = (): [Shipping[], boolean, Error | undefined] => {
 	const [auth, isAuthLoading] = useContext(AuthContext)
 	const collectionReference = new User(auth?.uid).shippingAddresses.collectionReference
-	const [data, isLoading, error] = useDataSourceListen<Shipping>(Shipping, collectionReference, isAuthLoading)
+	const [data, isLoading, error] = useDataSourceListen<Shipping>(Shipping, { path: collectionReference?.path }, isAuthLoading)
 	return [data, isLoading, error]
 }
 

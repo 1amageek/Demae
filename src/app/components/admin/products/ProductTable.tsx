@@ -115,7 +115,6 @@ export default ({ edit, product }: { edit: boolean, product: Product }) => {
 					<Grid container spacing={2}>
 						<Grid item xs={12} sm={6}>
 							<DndCard
-								defaultText={'Images Image Drop the files here ...'}
 								onDrop={(files) => {
 									setImages(files)
 								}} />

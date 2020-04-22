@@ -7,7 +7,7 @@ import Card from 'components/providers/products/Card'
 import { Provider, Product } from 'models/commerce';
 import DataLoading from 'components/DataLoading';
 import SKUList from './skus/SKUList';
-import { useDocumentListen } from 'hooks/commerce';
+import { useDocumentListen } from 'hooks/firestore';
 
 export default ({ providerID, productID }: { providerID: string, productID: string }) => {
 	const [data, isLoading] = useDocumentListen<Product>(Product, new Provider(providerID).products.collectionReference.doc(productID))

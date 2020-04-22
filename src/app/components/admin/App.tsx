@@ -21,7 +21,7 @@ const useStyles = makeStyles((theme: Theme) =>
 export default () => {
 	return (
 		<AdminProviderProvider>
-			<Route path="/" component={Root} />
+			<Route path="/admin" component={Root} />
 		</AdminProviderProvider>
 	);
 }

@@ -4,21 +4,17 @@ import Router from 'next/router'
 import firebase, { database } from 'firebase';
 import 'firebase/auth';
 import 'firebase/functions';
-import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
 import List from '@material-ui/core/List';
 import ListItem, { ListItemProps } from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import ListItemText from '@material-ui/core/ListItemText';
-import Divider from '@material-ui/core/Divider';
 import StorefrontIcon from '@material-ui/icons/Storefront';
 import IconButton from '@material-ui/core/IconButton';
 import ViewListIcon from '@material-ui/icons/ViewList';
-import StoreIcon from '@material-ui/icons/Store';
 import SettingsIcon from '@material-ui/icons/Settings';
 import { UserContext } from 'hooks/commerce'
-import { useDataSourceListen, useDocumentListen } from 'hooks/commerce';
-import * as Commerce from 'models/commerce';
+import { useDataSourceListen, useDocumentListen } from 'hooks/firestore';
 import User, { Role } from 'models/commerce/User';
 import MeetingRoomIcon from '@material-ui/icons/MeetingRoom';
 import Provider from 'models/commerce/Provider';
@@ -73,7 +69,8 @@ export default () => {
 
 const ProviderList = withRouter(props => {
 	const [user, isLoading] = useContext(UserContext)
-	const [roles, isDataLoading] = useDataSourceListen<Role>(Role, user?.roles.collectionReference, isLoading)
+	const ref = user?.roles.collectionReference
+	const [roles, isDataLoading] = useDataSourceListen<Role>(Role, { path: ref?.path }, isLoading)
 	const [setOpen, Dialog] = useDialog(Agreement, () => {
 		setOpen(false)
 		props.history.push('/account/new')

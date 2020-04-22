@@ -3,7 +3,7 @@ import { CurrencyCode } from 'common/Currency'
 import Plan from './Plan'
 import SKU from './SKU'
 
-export type ProductType = 'service' | 'good' | 'ticket'
+export type ProductType = 'service' | 'good'
 
 export default class Product extends Doc {
 

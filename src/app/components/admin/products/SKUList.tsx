@@ -77,7 +77,7 @@ export default ({ productID }: { productID?: string }) => {
 						await sku.save()
 						history.push(`/admin/products/${productID}/skus/${sku.id}`)
 					}}
-				>New SKU</Button>
+				>New</Button>
 			</Box>
 		}>
 			<List>
@@ -87,7 +87,7 @@ export default ({ productID }: { productID?: string }) => {
 							history.push(`/admin/products/${productID}/skus/${data.id}`)
 						}}>
 							<ListItemAvatar>
-								<Avatar>
+								<Avatar variant="rounded" src={data.imageURLs()[0]} >
 									<ImageIcon />
 								</Avatar>
 							</ListItemAvatar>

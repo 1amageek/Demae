@@ -27,12 +27,14 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import ListItemAvatar from '@material-ui/core/ListItemAvatar';
 import Avatar from '@material-ui/core/Avatar';
-import AddCircleIcon from '@material-ui/icons/AddCircle';
 import ImageIcon from '@material-ui/icons/Image';
-import { useProviderProducts, useAdminProvider } from 'hooks/commerce';
+import AddCircleIcon from '@material-ui/icons/AddCircle';
+import { useProviderProducts, useAdminProvider, useUser } from 'hooks/commerce';
 import DataLoading from 'components/DataLoading';
 import Board from '../Board';
 import { useHistory } from 'react-router-dom';
+import ISO4217 from 'common/ISO4217'
+import { ListItemSecondaryAction, Switch } from '@material-ui/core';
 
 
 export default ({ productID }: { productID?: string }) => {
@@ -75,26 +77,52 @@ export default ({ productID }: { productID?: string }) => {
 						await product.save()
 						history.push(`/admin/products/${product.id}`)
 					}}
-				>New product</Button>
+				>New</Button>
 			</Box>
 		}>
 			<List>
 				{products.map(data => {
-					return (
-						<ListItem key={data.id} button selected={productID === data.id} onClick={() => {
-							history.push(`/admin/products/${data.id}`)
-						}}>
-							<ListItemAvatar>
-								<Avatar>
-									<ImageIcon />
-								</Avatar>
-							</ListItemAvatar>
-							<ListItemText primary={data.name} secondary={data.caption} />
-						</ListItem>
-					)
+					return <ProductListItem productID={productID} product={data} />
 				})}
 			</List>
 		</Board>
 	)
 }
 
+const ProductListItem = ({ productID, product }: { productID?: string, product: Product }) => {
+	const [user] = useUser()
+	const history = useHistory()
+	const price = product.price || {}
+	const currency = user?.currency || 'USD'
+	const symbol = ISO4217[currency].symbol
+	const amount = price[currency]
+	const imageURL = product.imageURLs().length > 0 ? product.imageURLs()[0] : undefined
+
+	return (
+		<ListItem key={product.id} button selected={productID === product.id} onClick={() => {
+			history.push(`/admin/products/${product.id}`)
+		}}>
+			<ListItemAvatar>
+				<Avatar variant="rounded" src={product.imageURLs()[0]} >
+					<ImageIcon />
+				</Avatar>
+			</ListItemAvatar>
+			<ListItemText primary={product.name} secondary={
+				<>
+					<Typography>{product.caption}</Typography>
+					{amount && <Typography>{`${symbol}${amount}`}</Typography>}
+				</>
+			} />
+			<ListItemSecondaryAction>
+				<Switch
+					edge="end"
+					onChange={async () => {
+						product.isAvailable = !product.isAvailable
+						await product.save()
+					}}
+					checked={product.isAvailable}
+				/>
+			</ListItemSecondaryAction>
+		</ListItem>
+	)
+}

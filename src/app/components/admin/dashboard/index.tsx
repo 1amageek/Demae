@@ -60,65 +60,6 @@ const useStyles = makeStyles((theme: Theme) =>
 export default () => {
 	const classes = useStyles()
 	const [provider, isLoading, error] = useAdminProvider()
-	const [processing, setProcessing] = useProcessing()
-	const [thumbnail, setThumbnail] = useState<File | undefined>()
-	const [cover, setCover] = useState<File | undefined>()
-	const name = useInput(provider?.name)
-	const caption = useInput(provider?.caption)
-	const description = useInput(provider?.description)
-	const isAvailable = useSelect({
-		initValue: provider?.isAvailable || 'true',
-		inputProps: {
-			menu: [
-				{
-					label: 'Available',
-					value: 'true'
-				},
-				{
-					label: 'Unavailable',
-					value: 'false'
-				}
-			]
-		}
-	})
-
-	console.log(error)
-
-	const uploadThumbnail = (file: File): Promise<StorageFile | undefined> => {
-		const ref = firebase.storage().ref(provider!.documentReference.path + '/thumbnail.jpg')
-		return new Promise((resolve, reject) => {
-			ref.put(file).then(async (snapshot) => {
-				if (snapshot.state === 'success') {
-					const storageFile = new StorageFile()
-					if (snapshot.metadata.contentType) {
-						storageFile.mimeType = snapshot.metadata.contentType
-					}
-					storageFile.path = ref.fullPath
-					resolve(storageFile)
-				} else {
-					reject(undefined)
-				}
-			})
-		})
-	}
-
-	const uploadCover = (file: File): Promise<StorageFile | undefined> => {
-		const ref = firebase.storage().ref(provider!.documentReference.path + '/cover.jpg')
-		return new Promise((resolve, reject) => {
-			ref.put(file).then(async (snapshot) => {
-				if (snapshot.state === 'success') {
-					const storageFile = new StorageFile()
-					if (snapshot.metadata.contentType) {
-						storageFile.mimeType = snapshot.metadata.contentType
-					}
-					storageFile.path = ref.fullPath
-					resolve(storageFile)
-				} else {
-					reject(undefined)
-				}
-			})
-		})
-	}
 
 	if (isLoading) {
 		return (
@@ -138,7 +79,7 @@ export default () => {
 				Dashboard
 				</Typography>
 		}>
-			<DataLoading />
+			loaded
 		</Board>
 	)
 }

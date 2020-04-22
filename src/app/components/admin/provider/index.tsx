@@ -135,7 +135,6 @@ export default () => {
 					<Grid container spacing={2}>
 						<Grid item xs={12} sm={6}>
 							<DndCard
-								defaultText={'Thumbnail Image Drop the files here ...'}
 								onDrop={(files) => {
 									const file = files[0] as File
 									setThumbnail(file)
@@ -143,7 +142,6 @@ export default () => {
 						</Grid>
 						<Grid item xs={12} sm={6}>
 							<DndCard
-								defaultText={'Cover Image Drop the files here ...'}
 								onDrop={(files) => {
 									const file = files[0] as File
 									setCover(file)
