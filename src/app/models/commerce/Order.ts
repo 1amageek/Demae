@@ -4,6 +4,7 @@ import { OrderItemStatus, DeliveryStatus, OrderPaymentStatus, Discount, ProductT
 import Shipping from './Shipping'
 
 export class OrderItem extends Model {
+	@Field images: File[] = []
 	@Field productType?: ProductType
 	@Field productReference?: DocumentReference
 	@Field skuReference?: DocumentReference
@@ -23,8 +24,6 @@ export class OrderItem extends Model {
 export default class Order extends Doc {
 	@Field parentID?: string
 	@Field title?: string
-	@Field image?: string
-	@Field assets: File[] = []
 	@Field purchasedBy!: string
 	@Field providerID!: string
 	@Codable(Shipping)
@@ -41,4 +40,17 @@ export default class Order extends Doc {
 	@Field isCancelled: boolean = false
 	@Field paymentResult?: any
 	@Field metadata?: any
+
+	imageURLs() {
+		return this.items
+			.reduce<File[]>((prev, item) => {
+				return prev.concat(item.images)
+			}, [])
+			.map(image => {
+				if (image) {
+					return `https://demae-210ed.firebaseapp.com/assets/${image.path}`
+				}
+				return undefined
+			}).filter(value => !!value)
+	}
 }

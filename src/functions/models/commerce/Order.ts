@@ -4,6 +4,7 @@ import { OrderItemStatus, DeliveryStatus, OrderPaymentStatus, Discount, ProductT
 import Shipping from './Shipping'
 
 export class OrderItem extends Model {
+	@Field images: File[] = []
 	@Field productType?: ProductType
 	@Field productReference?: DocumentReference
 	@Field skuReference?: DocumentReference
@@ -23,8 +24,6 @@ export class OrderItem extends Model {
 export default class Order extends Doc {
 	@Field parentID?: string
 	@Field title?: string
-	@Field image?: string
-	@Field assets: File[] = []
 	@Field purchasedBy!: string
 	@Field providerID!: string
 	@Codable(Shipping)

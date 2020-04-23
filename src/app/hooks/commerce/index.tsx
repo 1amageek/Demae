@@ -9,6 +9,7 @@ import SKU from 'models/commerce/SKU'
 import Cart from 'models/commerce/Cart'
 import User, { Role } from 'models/commerce/User'
 import Shipping from 'models/commerce/Shipping'
+import Order from 'models/commerce/Order'
 
 export const useAuthUser = (): [firebase.User | undefined, boolean, firebase.auth.Error?] => {
 	interface Prop {
@@ -166,6 +167,12 @@ export const useProviderProductSKUs = (id?: string): [Product[], boolean, Error?
 	const [user, isLoading] = useAuthUser()
 	const collectionReference = (user && id) ? new Provider(user.uid).products.collectionReference.doc(id).collection('skus') : undefined
 	return useDataSourceListen<Product>(Product, { path: collectionReference?.path }, isLoading)
+}
+
+export const useProviderOrders = (): [Order[], boolean, Error?] => {
+	const [user, isLoading] = useAuthUser()
+	const collectionReference = user ? new Provider(user.uid).orders.collectionReference : undefined
+	return useDataSourceListen<Order>(Order, { path: collectionReference?.path }, isLoading)
 }
 
 export const useProviderProductSKU = (productID?: string, skuID?: string): [SKU | undefined, boolean, Error?] => {

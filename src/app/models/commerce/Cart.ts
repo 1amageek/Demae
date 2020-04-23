@@ -43,6 +43,7 @@ class Deliverable extends Model {
 
 export class CartItem extends Deliverable implements Accounting {
 	@Field providedBy!: string
+	@Field images: File[] = []
 	@Field productType?: ProductType
 	@Field productReference?: DocumentReference
 	@Field skuReference?: DocumentReference
@@ -226,6 +227,7 @@ export default class Cart extends Doc {
 			cartItem.quantity += 1
 		} else {
 			const cartItem: CartItem = new CartItem()
+			cartItem.images = sku.images
 			cartItem.providedBy = sku.providedBy
 			cartItem.productType = product.type
 			cartItem.productReference = sku.productReference
@@ -291,6 +293,7 @@ export default class Cart extends Doc {
 	order(purchasedBy: string, group: CartGroup) {
 		const items = group.items.map(item => {
 			const orderItem: OrderItem = new OrderItem()
+			orderItem.images = item.images
 			orderItem.name = item.name
 			orderItem.productReference = item.productReference
 			orderItem.skuReference = item.skuReference
