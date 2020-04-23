@@ -4,6 +4,7 @@ import { makeStyles, useTheme, Theme, createStyles } from '@material-ui/core/sty
 import Container from '@material-ui/core/Container'
 import CssBaseline from '@material-ui/core/CssBaseline'
 import Product from 'components/admin/products'
+import Order from 'components/admin/orders'
 import Layout from './Layout'
 import Dashboard from 'components/admin/dashboard'
 import Provider from 'components/admin/provider'
@@ -50,6 +51,8 @@ const App = () => {
 			<Route path={`/admin/products/:productID`} exact component={Product} />
 			<Route path={`/admin/products/:productID/skus`} exact component={Product} />
 			<Route path={`/admin/products/:productID/skus/:skuID`} exact component={Product} />
+			<Route path={`/admin/orders`} exact component={Order} />
+			<Route path={`/admin/orders/:orderID`} exact component={Order} />
 		</Switch>
 	)
 }

@@ -1,7 +1,6 @@
 
 import React, { useState } from 'react'
 import firebase from 'firebase'
-import Link from 'next/link'
 import { File as StorageFile } from '@1amageek/ballcap'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';

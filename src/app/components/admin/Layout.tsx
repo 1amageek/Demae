@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import Link from 'next/link'
-import Router from 'next/router'
+import React, { useState } from 'react';
+import { Link, useHistory } from 'react-router-dom'
+
 import clsx from 'clsx';
 import firebase from 'firebase'
-import '@firebase/auth'
+import 'firebase/auth'
 import { makeStyles, useTheme, Theme, createStyles } from '@material-ui/core/styles';
 import Drawer from '@material-ui/core/Drawer';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -23,7 +23,6 @@ import MenuIcon from '@material-ui/icons/Menu';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import { useAdmin, useAuthUser } from 'hooks/commerce';
-import Loading from 'components/Loading';
 import { Role } from 'models/commerce/User';
 import Provider from 'models/commerce/Provider'
 import { User, Product } from 'models/commerce';
@@ -149,22 +148,22 @@ export default ({ children }: { children: any }) => {
 				</div>
 				<Divider />
 				<List>
-					<Link href='/admin/products'>
+					<Link to='/admin/products'>
 						<ListItem button key={'product'}>
 							<ListItemText primary={'Product'} />
 						</ListItem>
 					</Link>
-					<Link href='/admin/orders'>
+					<Link to='/admin/orders'>
 						<ListItem button key={'orders'}>
 							<ListItemText primary={'Orders'} />
 						</ListItem>
 					</Link>
-					<Link href='/admin/provider'>
+					<Link to='/admin/provider'>
 						<ListItem button key={'provider'}>
 							<ListItemText primary={'provider'} />
 						</ListItem>
 					</Link>
-					<Link href='/admin/account'>
+					<Link to='/admin/account'>
 						<ListItem button key={'account'}>
 							<ListItemText primary={'Account'} />
 						</ListItem>
@@ -186,6 +185,7 @@ export default ({ children }: { children: any }) => {
 }
 
 const AccountMenu = ({ uid }: { uid?: string }) => {
+	const history = useHistory()
 	if (uid) {
 		const datasource = DataSource.ref(new User(uid).roles.collectionReference).get(Role).map(doc => {
 			return Provider.get<Provider>(doc.id)
@@ -219,7 +219,7 @@ const AccountMenu = ({ uid }: { uid?: string }) => {
 					{datasource.data.map(p => {
 						return (
 							<MenuItem key={p.id} onClick={() => {
-								Router.push('/admin')
+								history.push('/admin')
 							}}>{p.name}</MenuItem>
 						)
 					})}

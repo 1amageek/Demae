@@ -1,7 +1,7 @@
 import React, { useEffect, useState, createContext, useContext } from 'react'
 import firebase from "firebase"
-import "@firebase/firestore"
-import "@firebase/auth"
+import "firebase/firestore"
+import "firebase/auth"
 import { useDocumentListen, useDataSourceListen } from '../firestore'
 import Provider from 'models/commerce/Provider'
 import Product from 'models/commerce/Product'

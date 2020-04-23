@@ -1,7 +1,7 @@
-import React, { useEffect, useState, createContext, useContext } from 'react'
+import { useEffect, useState } from 'react'
 import firebase from "firebase"
-import "@firebase/firestore"
-import "@firebase/auth"
+import "firebase/firestore"
+import "firebase/auth"
 import { firestore, Doc, DocumentReference } from '@1amageek/ballcap'
 
 export const useDocumentListen = <T extends Doc>(type: typeof Doc, documentReference?: DocumentReference, waiting: boolean = false): [T | undefined, boolean, Error?] => {
@@ -64,13 +64,24 @@ export const useDocumentListen = <T extends Doc>(type: typeof Doc, documentRefer
 	return [state.data, state.loading, state.error]
 }
 
+export const Where = (fieldPath: string | firebase.firestore.FieldPath,
+	opStr: firebase.firestore.WhereFilterOp,
+	value: any) => {
+	return { fieldPath, opStr, value }
+}
+
+export const OrderBy = (fieldPath: string | firebase.firestore.FieldPath,
+	directionStr?: firebase.firestore.OrderByDirection) => {
+	return { fieldPath, directionStr }
+}
+
 export interface Query {
 	path?: string
-	where?: {
+	wheres?: {
 		fieldPath: string | firebase.firestore.FieldPath,
 		opStr: firebase.firestore.WhereFilterOp,
 		value: any
-	}
+	}[]
 	orderBy?: {
 		fieldPath: string | firebase.firestore.FieldPath,
 		directionStr?: firebase.firestore.OrderByDirection
@@ -85,7 +96,23 @@ export const useDataSourceListen = <T extends Doc>(type: typeof Doc, query?: Que
 		error?: Error
 	}
 	const [state, setState] = useState<Prop>({ data: [], loading: true })
-	const ref = (query && query.path) ? firestore.collection(query.path) : undefined
+	let ref: firebase.firestore.Query | undefined = (query && query.path) ? firestore.collection(query.path) : undefined
+
+	if (query?.wheres) {
+		query.wheres.forEach(where => {
+			const { fieldPath, opStr, value } = where
+			ref = ref?.where(fieldPath, opStr, value)
+		})
+	}
+
+	if (query?.orderBy) {
+		const { fieldPath, directionStr } = query.orderBy
+		ref = ref?.orderBy(fieldPath, directionStr)
+	}
+
+	if (query?.limit) {
+		ref = ref?.limit(query.limit)
+	}
 
 	useEffect(() => {
 		let enabled = true
@@ -137,6 +164,6 @@ export const useDataSourceListen = <T extends Doc>(type: typeof Doc, query?: Que
 				listener()
 			}
 		}
-	}, [query?.path, waiting])
+	}, [query?.path, JSON.stringify(query?.wheres), query?.orderBy, query?.limit, waiting])
 	return [state.data, state.loading, state.error]
 };

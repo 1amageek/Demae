@@ -18,12 +18,15 @@ export default (props: any) => {
 		<Box height='100%'>
 			<ProviderProductProvider id={productID}>
 				<ProviderProductSKUProvider id={skuID}>
-					<Breadcrumbs style={{ height: '40px' }}>
-						<Link to='/admin/products'>Products</Link>
-						{productID && <Link to={`/admin/products/${productID}`}>{productID}</Link>}
-						{productID && skuID && <Link to={`/admin/products/${productID}/skus`}>SKUs</Link>}
-						{productID && skuID && <Link to={`/admin/products/${productID}/skus`}>{skuID}</Link>}
-					</Breadcrumbs>
+					<Box py={2}>
+						<Breadcrumbs>
+							<Link to='/admin/products'>Products</Link>
+							{productID && <Link to={`/admin/products/${productID}`}>{productID}</Link>}
+							{productID && skuID && <Link to={`/admin/products/${productID}/skus`}>SKUs</Link>}
+							{productID && skuID && <Link to={`/admin/products/${productID}/skus`}>{skuID}</Link>}
+						</Breadcrumbs>
+					</Box>
+
 					<Grid container alignItems="stretch" spacing={0} style={{ width: '100%' }}>
 						<Grid item xs>
 							<ProductList productID={productID} />

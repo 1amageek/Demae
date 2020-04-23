@@ -1,10 +1,10 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import NextApp, { AppProps, AppContext } from "next/app"
 import { StaticRouter, BrowserRouter } from 'react-router-dom'
 import * as Ballcap from "@1amageek/ballcap"
 import firebase from "firebase"
-import "@firebase/firestore"
-import "@firebase/auth"
+import "firebase/firestore"
+import "firebase/auth"
 import { AuthProvider, UserProvider, CartProvider, RoleProvider } from 'hooks/commerce'
 import { ProcessingProvider } from 'components/Processing'
 
@@ -24,10 +24,6 @@ if (firebase.apps.length === 0) {
 	Ballcap.initialize(app)
 }
 
-interface Props {
-	authUser: firebase.User | null
-}
-
 const Provider = ({ children }: { children: any }) => {
 	return (
 		<ProcessingProvider>
@@ -44,7 +40,7 @@ const Provider = ({ children }: { children: any }) => {
 	)
 }
 
-const Router = ({ children }: { children: any }) => {
+const Router = ({ location, children }: { location: string, children: any }) => {
 	if (process.browser) {
 		return (
 			<BrowserRouter>
@@ -53,7 +49,7 @@ const Router = ({ children }: { children: any }) => {
 		)
 	} else {
 		return (
-			<StaticRouter>
+			<StaticRouter location={location}>
 				{children}
 			</StaticRouter>
 		)
@@ -61,25 +57,9 @@ const Router = ({ children }: { children: any }) => {
 }
 
 const App = ({ Component, pageProps, router }: AppProps) => {
-	// useEffect(() => {
-	// 	console.log('[App] start Token listening')
-	// 	const listener = firebase.auth().onIdTokenChanged(async (auth) => {
-	// 		if (auth) {
-	// 			const result = await auth.getIdTokenResult()
-	// 			const claims = JSON.stringify(result.claims)
-	// 			localStorage.setItem('claims', claims)
-	// 		} else {
-	// 			localStorage.removeItem('claims')
-	// 		}
-	// 	})
-	// 	return () => {
-	// 		listener()
-	// 	}
-	// }, [])
-
 	return (
 		<Provider>
-			<Router>
+			<Router location={router.asPath}>
 				<Component {...pageProps} />
 			</Router >
 		</Provider>
@@ -87,7 +67,6 @@ const App = ({ Component, pageProps, router }: AppProps) => {
 }
 
 App.getInitialProps = async (context: AppContext) => {
-	// const { ctx: { query, asPath, req, res }, Component } = context;
 	const appProps = await NextApp.getInitialProps(context);
 	return { ...appProps };
 }
