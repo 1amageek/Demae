@@ -7,6 +7,7 @@ import "firebase/firestore"
 import "firebase/auth"
 import { AuthProvider, UserProvider, CartProvider, RoleProvider } from 'hooks/commerce'
 import { ProcessingProvider } from 'components/Processing'
+import { SnackbarProvider } from 'components/Snackbar'
 
 const config = require(`../config/${process.env.FIREBASE_CONFIG!}`)
 const isEmulated = process.env.EMULATE_ENV === "emulator"
@@ -27,15 +28,17 @@ if (firebase.apps.length === 0) {
 const Provider = ({ children }: { children: any }) => {
 	return (
 		<ProcessingProvider>
-			<AuthProvider>
-				<RoleProvider>
-					<UserProvider>
-						<CartProvider>
-							{children}
-						</CartProvider>
-					</UserProvider>
-				</RoleProvider>
-			</AuthProvider>
+			<SnackbarProvider>
+				<AuthProvider>
+					<RoleProvider>
+						<UserProvider>
+							<CartProvider>
+								{children}
+							</CartProvider>
+						</UserProvider>
+					</RoleProvider>
+				</AuthProvider>
+			</SnackbarProvider>
 		</ProcessingProvider>
 	)
 }

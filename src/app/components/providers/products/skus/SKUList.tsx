@@ -9,9 +9,10 @@ import ImageIcon from '@material-ui/icons/Image';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
 import RemoveCircleIcon from '@material-ui/icons/RemoveCircle';
 import DataLoading from 'components/DataLoading';
-import { useDataSourceListen, useDocumentListen } from 'hooks/firestore';
+import { useDataSourceListen, useDocumentListen, Where } from 'hooks/firestore';
 import { Provider, Product, SKU } from 'models/commerce';
-import { CartContext } from 'hooks/commerce'
+import { CartContext, useCart, useUser } from 'hooks/commerce'
+import Cart from 'models/commerce/Cart';
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
@@ -33,7 +34,7 @@ export default ({ providerID, productID }: { providerID: string, productID: stri
 		.skus
 		.collectionReference
 
-	const [skus, isLoading] = useDataSourceListen<SKU>(SKU, { path: ref.path, limit: 100 })
+	const [skus, isLoading] = useDataSourceListen<SKU>(SKU, { path: ref.path, wheres: [Where('isAvailable', '==', true)], limit: 100 })
 	const [product] = useDocumentListen<Product>(Product, new Provider(providerID).products.collectionReference.doc(productID))
 
 	if (isLoading) {
@@ -59,15 +60,23 @@ export default ({ providerID, productID }: { providerID: string, productID: stri
 
 const SKUListItem = ({ product, sku }: { product?: Product, sku: SKU }) => {
 	const classes = useStyles()
-	const [cart] = useContext(CartContext)
+	const [user] = useUser()
+	const [cart] = useCart()
 
 	const imageURL = sku.imageURLs.length > 0 ? sku.imageURLs[0] : undefined
 
 	const addSKU = async (sku: SKU) => {
 		if (!product) return
-		if (!cart) return
-		cart.addSKU(product, sku)
-		await cart.save()
+		if (user) {
+			if (cart) {
+				cart.addSKU(product, sku)
+				await cart.save()
+			} else {
+				const cart = new Cart(user.id)
+				cart.addSKU(product, sku)
+				await cart.save()
+			}
+		}
 	}
 
 	const deleteSKU = async (sku: SKU) => {
@@ -77,55 +86,53 @@ const SKUListItem = ({ product, sku }: { product?: Product, sku: SKU }) => {
 	}
 
 	return (
-		<>
-			<ListItem key={sku.id} >
-				<ListItemAvatar>
-					<Avatar className={classes.avater} variant="rounded" src={imageURL}>
-						<ImageIcon />
-					</Avatar>
-				</ListItemAvatar>
-				<ListItemText
-					primary={
-						<>
-							<Box mx={2} my={0} >
-								<Typography variant="h6">{sku.name}</Typography>
-								<Typography>{sku.displayPrice()}</Typography>
-								<Typography variant="body2" color="textSecondary" component="p">{sku.caption}</Typography>
-							</Box>
-						</>
-					}
-					secondary={
-						<>
-							{/* <Box fontWeight="fontWeightMedium" fontSize="subtitle1" mx={2} my={0} >
+		<ListItem key={sku.id} >
+			<ListItemAvatar>
+				<Avatar className={classes.avater} variant="rounded" src={imageURL}>
+					<ImageIcon />
+				</Avatar>
+			</ListItemAvatar>
+			<ListItemText
+				primary={
+					<>
+						<Box mx={2} my={0} >
+							<Typography variant="h6">{sku.name}</Typography>
+							<Typography>{sku.displayPrice()}</Typography>
+							<Typography variant="body2" color="textSecondary" component="p">{sku.caption}</Typography>
+						</Box>
+					</>
+				}
+				secondary={
+					<>
+						{/* <Box fontWeight="fontWeightMedium" fontSize="subtitle1" mx={2} my={0} >
 								{`${ISO4217[product.currency]['symbol']}${item.subtotal().toLocaleString()}`}
 							</Box> */}
-						</>
-					} />
-				<ListItemSecondaryAction>
-					<Tooltip title='Delete' onClick={() => {
-						deleteSKU(sku)
-						// const value = Number(qty.value) - 1
-						// qty.setValue(`${Math.max(0, value)}`)
-					}}>
-						<IconButton>
-							<RemoveCircleIcon color='inherit' />
-						</IconButton>
-					</Tooltip>
-					{/* <Input variant='outlined' margin='dense' size='small' {...qty} style={{ width: '60px' }} /> */}
-					<Tooltip title='Add' onClick={() => {
-						addSKU(sku)
-						// const value = Number(qty.value) + 1
-						// qty.setValue(`${value}`)
-					}}>
-						<IconButton>
-							<AddCircleIcon color='inherit' />
-						</IconButton>
-					</Tooltip>
-					{/* <Button variant="contained" color="primary" onClick={() => {
+					</>
+				} />
+			<ListItemSecondaryAction>
+				<Tooltip title='Delete' onClick={() => {
+					deleteSKU(sku)
+					// const value = Number(qty.value) - 1
+					// qty.setValue(`${Math.max(0, value)}`)
+				}}>
+					<IconButton>
+						<RemoveCircleIcon color='inherit' />
+					</IconButton>
+				</Tooltip>
+				{/* <Input variant='outlined' margin='dense' size='small' {...qty} style={{ width: '60px' }} /> */}
+				<Tooltip title='Add' onClick={() => {
+					addSKU(sku)
+					// const value = Number(qty.value) + 1
+					// qty.setValue(`${value}`)
+				}}>
+					<IconButton>
+						<AddCircleIcon color='inherit' />
+					</IconButton>
+				</Tooltip>
+				{/* <Button variant="contained" color="primary" onClick={() => {
 						cart
 					}}>Add to Bag</Button> */}
-				</ListItemSecondaryAction>
-			</ListItem>
-		</>
+			</ListItemSecondaryAction>
+		</ListItem>
 	)
 }

@@ -6,7 +6,7 @@ export interface DialogProps {
 	onNext: () => void
 }
 
-export const useDialog = <T extends DialogProps>(Component: React.FC<T>, onNext?: () => void): [(open: boolean) => void, React.FC] => {
+export const useDialog = <T extends DialogProps>(Component: React.FC<T>, onNext?: () => void): [React.FC, (open: boolean) => void] => {
 	const [open, setOpen] = useState(false)
 	const _Dialog = props => (
 		<Component
@@ -17,5 +17,5 @@ export const useDialog = <T extends DialogProps>(Component: React.FC<T>, onNext?
 			onNext={onNext}
 			{...props} />
 	)
-	return [setOpen, _Dialog]
+	return [_Dialog, setOpen]
 }

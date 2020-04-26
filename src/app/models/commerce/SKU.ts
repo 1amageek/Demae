@@ -19,7 +19,7 @@ export default class SKU extends Doc {
 	@Field name!: string
 	@Field caption?: string
 	@Field description?: string
-	@Field amount: number = 0
+	@Field price: number = 0
 	@Field discount?: Discount
 	@Field taxRate: number = 0
 	@Field inventory: Inventory = { type: 'finite', quantity: 1 }
@@ -31,16 +31,12 @@ export default class SKU extends Doc {
 
 	displayPrice() {
 		const symbol = ISO4217[this.currency].symbol
-		const amount = this.amount
-		return `${symbol}${amount.toLocaleString()}`
+		const price = this.price
+		return `${symbol}${price.toLocaleString()}`
 	}
 
 	tax() {
-		return Math.floor(this.amount * this.taxRate)
-	}
-
-	price() {
-		return Math.floor(this.amount + this.tax())
+		return Math.floor(this.price * this.taxRate)
 	}
 
 	imageURLs() {

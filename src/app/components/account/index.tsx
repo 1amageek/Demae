@@ -19,8 +19,10 @@ import User, { Role } from 'models/commerce/User';
 import MeetingRoomIcon from '@material-ui/icons/MeetingRoom';
 import Provider from 'models/commerce/Provider';
 import DataLoading from 'components/DataLoading';
-import { Paper, Grid } from '@material-ui/core';
+import { Paper, Grid, Typography, Box } from '@material-ui/core';
 import Agreement from './agreement'
+import Modal from 'components/Modal'
+import Login from 'components/Login'
 import { useDialog, DialogProps } from 'components/Dialog'
 import { useErrorDialog } from 'components/ErrorDialog';
 import { useProcessing } from 'components/Processing';
@@ -71,8 +73,9 @@ const ProviderList = withRouter(props => {
 	const [user, isLoading] = useContext(UserContext)
 	const ref = user?.roles.collectionReference
 	const [roles, isDataLoading] = useDataSourceListen<Role>(Role, { path: ref?.path }, isLoading)
-	const [setOpen, Dialog] = useDialog(Agreement, () => {
-		setOpen(false)
+	const [modalOpen, setModalOpen] = useState(false)
+	const [Dialog, openDialog] = useDialog(Agreement, () => {
+		openDialog(false)
 		props.history.push('/account/new')
 	})
 	if (isDataLoading) {
@@ -84,7 +87,12 @@ const ProviderList = withRouter(props => {
 			<>
 				<List>
 					<ListItem button onClick={() => {
-						setOpen(true)
+						console.log(user)
+						if (user) {
+							openDialog(true)
+						} else {
+							setModalOpen(true)
+						}
 					}}>
 						<ListItemIcon>
 							<StorefrontIcon />
@@ -93,6 +101,18 @@ const ProviderList = withRouter(props => {
 					</ListItem>
 				</List>
 				<Dialog />
+				<Modal
+					open={modalOpen}
+					onClose={() => {
+						setModalOpen(false)
+					}}>
+					<Paper>
+						<Box paddingX={3} paddingY={2} fontSize={18} sizeWidth='fontWeightMedium'>
+							Sign in to create a new store.
+						</Box>
+						<Login />
+					</Paper>
+				</Modal>
 			</>
 		)
 	}
@@ -108,8 +128,8 @@ const ProviderList = withRouter(props => {
 
 const ProviderListItem = ({ role }: { role: Role }) => {
 	const [provider, isLoading] = useDocumentListen<Provider>(Provider, new Provider(role.id).documentReference)
-	const [setOpen, ErrorDialog] = useErrorDialog('Error')
-	const [isProcessing, setProcessing] = useProcessing()
+	const [ErrorDialog, openDailog] = useErrorDialog('Error')
+	const [setProcessing] = useProcessing()
 	if (isLoading) {
 		return (
 			<ListItem>
@@ -132,7 +152,7 @@ const ProviderListItem = ({ role }: { role: Role }) => {
 						await adminAttach({ providerID: provider!.id })
 						Router.push(`/admin`)
 					} catch (error) {
-						setOpen(true)
+						openDailog(true)
 						console.error(error)
 					}
 					setProcessing(false)

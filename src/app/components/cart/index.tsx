@@ -6,8 +6,7 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import ListItemText from '@material-ui/core/ListItemText';
 import ImageIcon from '@material-ui/icons/Image';
-import TextField from '@material-ui/core/TextField';
-import { useAuthUser } from 'hooks/commerce';
+import { useAuthUser, useUser, useCart } from 'hooks/commerce';
 import { CartContext } from 'hooks/commerce'
 import Summary from './summary'
 import AddCircleIcon from '@material-ui/icons/AddCircle';
@@ -59,10 +58,12 @@ const CartGroupList = ({ cartGroup }: { cartGroup: CartGroup }) => {
 	const symbol = ISO4217[currencyCode]['symbol']
 	return (
 		<Paper>
-			<Box padding={2}>
+			<List dense>
 				{cartGroup.items.map(cartItem => {
-					return <CartItemCell cartItem={cartItem} />
+					return <CartItemCell key={cartItem.skuReference!.path} cartItem={cartItem} />
 				})}
+			</List>
+			<Box padding={2}>
 				<Summary cartGroup={cartGroup} items={[{
 					type: 'subtotal',
 					title: 'Subtotal',
@@ -77,15 +78,23 @@ const CartGroupList = ({ cartGroup }: { cartGroup: CartGroup }) => {
 	)
 }
 
-const CartItemCell = ({ cartItem }: { cartItem: CartItem }) => {
+const CartItemCell = ({ key, cartItem }: { key: string, cartItem: CartItem }) => {
 
 	const classes = useStyles()
-	const [cart] = useContext(CartContext)
+	const [user] = useUser()
+	const [cart] = useCart()
 
 	const addItem = async () => {
-		if (!cart) { return }
-		cart.addItem(cartItem)
-		await cart.save()
+		if (user) {
+			if (cart) {
+				cart.addItem(cartItem)
+				await cart.save()
+			} else {
+				const cart = new Cart(user.id)
+				cart.addItem(cartItem)
+				await cart.save()
+			}
+		}
 	}
 
 	const deleteItem = async () => {
@@ -95,42 +104,40 @@ const CartItemCell = ({ cartItem }: { cartItem: CartItem }) => {
 	}
 
 	return (
-		<>
-			<ListItem key={cartItem.skuReference!.path}>
-				<ListItemAvatar>
-					<Avatar className={classes.avater} variant="rounded">
-						<ImageIcon />
-					</Avatar>
-				</ListItemAvatar>
-				<ListItemText
-					primary={
-						<Box display="flex" mx={2} my={1} >
-							<Box flexGrow={1} fontWeight="fontWeightMedium" fontSize="h6.fontSize">
-								<Typography variant='h6'>{`${cartItem.name}`}</Typography>
-								<Typography>{`${cartItem.displayPrice()}`}</Typography>
-							</Box>
-							<Box fontWeight="fontWeightMedium" fontSize="h6.fontSize">{`${ISO4217[cartItem.currency]['symbol']}${cartItem.subtotal().toLocaleString()}`}</Box>
+		<ListItem key={key} dense>
+			<ListItemAvatar>
+				<Avatar className={classes.avater} variant="rounded">
+					<ImageIcon />
+				</Avatar>
+			</ListItemAvatar>
+			<ListItemText
+				primary={
+					<Box display="flex" mx={2} my={1} >
+						<Box flexGrow={1} fontWeight="fontWeightMedium" fontSize="h6.fontSize">
+							<Typography variant='h6'>{`${cartItem.name}`}</Typography>
+							<Typography>{`${cartItem.displayPrice()}`}</Typography>
 						</Box>
-					}
-					secondary={
-						<Box display="flex" justifyContent="flex-end" alignItems="center" mx={2} my={0}>
-							<Tooltip title='Remove' onClick={deleteItem}>
-								<IconButton>
-									<RemoveCircleIcon color='inherit' />
-								</IconButton>
-							</Tooltip>
-							<Box fontWeight="fontWeightMedium" fontSize="h6.fontSize" mx={1}>
-								{cartItem.quantity}
-							</Box>
-							<Tooltip title='Add' onClick={addItem}>
-								<IconButton>
-									<AddCircleIcon color='inherit' />
-								</IconButton>
-							</Tooltip>
+						<Box fontWeight="fontWeightMedium" fontSize="h6.fontSize">{`${ISO4217[cartItem.currency]['symbol']}${cartItem.subtotal().toLocaleString()}`}</Box>
+					</Box>
+				}
+				secondary={
+					<Box display="flex" justifyContent="flex-end" alignItems="center" mx={0} my={0}>
+						<Tooltip title='Remove' onClick={deleteItem}>
+							<IconButton>
+								<RemoveCircleIcon color='inherit' />
+							</IconButton>
+						</Tooltip>
+						<Box fontWeight="fontWeightMedium" fontSize="h6.fontSize" mx={1}>
+							{cartItem.quantity}
 						</Box>
-					} />
-			</ListItem>
-		</>
+						<Tooltip title='Add' onClick={addItem}>
+							<IconButton>
+								<AddCircleIcon color='inherit' />
+							</IconButton>
+						</Tooltip>
+					</Box>
+				} />
+		</ListItem>
 	)
 }
 

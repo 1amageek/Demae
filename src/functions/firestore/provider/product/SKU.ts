@@ -22,7 +22,7 @@ export const onCreate = regionFunctions.firestore
 			product: sku.parent.parent!.id,
 			inventory: sku.inventory,
 			currency: sku.currency,
-			price: sku.amount,
+			price: sku.price,
 			active: sku.isAvailable,
 			metadata: {
 				sku_path: sku.path,
@@ -59,7 +59,7 @@ export const onUpdate = regionFunctions.firestore
 		const data: Stripe.SkuUpdateParams = {
 			inventory: sku.inventory,
 			currency: sku.currency,
-			price: sku.amount,
+			price: sku.price,
 			active: sku.isAvailable,
 			metadata: {
 				sku_path: sku.path,

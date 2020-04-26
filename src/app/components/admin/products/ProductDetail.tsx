@@ -113,7 +113,7 @@ export default () => {
 
 
 const Edit = ({ product, onClose }: { product: Product, onClose: () => void }) => {
-	const [processing, setProcessing] = useProcessing()
+	const [setProcessing] = useProcessing()
 	const [images, setImages] = useState<File[]>([])
 	const name = useInput(product.name)
 	const caption = useInput(product.caption)

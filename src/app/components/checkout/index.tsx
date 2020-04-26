@@ -3,11 +3,9 @@ import Paper from '@material-ui/core/Paper';
 import { useHistory } from 'react-router-dom'
 import firebase from 'firebase'
 import { Grid, Dialog, DialogContent, DialogContentText, DialogActions, DialogTitle, AppBar, Toolbar, Checkbox, FormControlLabel } from '@material-ui/core';
-import { List, ListItem, ListItemText, ListItemIcon } from '@material-ui/core';
-import Button from '@material-ui/core/Button';
+import { List, ListItem, ListItemText, ListItemIcon, Button } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
-import { useUserShippingAddresses } from 'hooks/commerce'
-import { UserContext, CartContext } from 'hooks/commerce'
+import { useUserShippingAddresses, UserContext, CartContext } from 'hooks/commerce'
 import { useFunctions } from 'hooks/stripe'
 import Shipping from 'models/commerce/Shipping';
 import Loading from 'components/Loading'
@@ -19,12 +17,15 @@ import { useDialog, DialogProps } from 'components/Dialog'
 import * as Commerce from 'models/commerce'
 import { PaymentMethod } from '@stripe/stripe-js';
 import { useProcessing } from 'components/Processing';
+import { useSnackbar } from 'components/Snackbar'
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 
 export default (props: any) => {
 	const { providerID } = props.match.params
 	const [user, isUserLoading] = useContext(UserContext)
 	const [cart] = useContext(CartContext)
+	const [setProcessing] = useProcessing()
+	const [open, setMessage] = useSnackbar()
 
 	const enabled = (user?.customerID && user?.defaultPaymentMethodID && user?.defaultShipping)
 
@@ -44,12 +45,15 @@ export default (props: any) => {
 		const paymentMethodID = user.defaultPaymentMethodID
 		if (!paymentMethodID) { return }
 
-		const cartGroup = cart.groups[providerID]
+		const cartGroup = cart.groups.find(group => group.providerID === providerID)
+		if (!cartGroup) { return }
+
 		cartGroup.shipping = defaultShipping
 		const data = cart.order(user.id, cartGroup)
 		const checkoutCreate = firebase.functions().httpsCallable('v1-commerce-checkout-create')
 
 		try {
+			setProcessing(true)
 			const response = await checkoutCreate({
 				order: data,
 				paymentMethodID: paymentMethodID,
@@ -57,7 +61,9 @@ export default (props: any) => {
 			})
 			const { error, result } = response.data
 			if (error) {
-				console.log(error)
+				console.error(error)
+				setMessage("error", "Error")
+				setProcessing(false)
 				return
 			}
 
@@ -68,13 +74,13 @@ export default (props: any) => {
 				const { error, result } = response.data
 				console.log(result)
 			} catch (error) {
-				console.log(error)
-				return
+				throw error
 			}
-
 		} catch (error) {
+			setMessage("error", "Error")
 			console.log(error)
 		}
+		setProcessing(false)
 	}
 
 	if (isUserLoading) {
@@ -133,7 +139,7 @@ const ShippingAddresses = ({ user }: { user: Commerce.User }) => {
 	const [shippingAddresses, isLoading] = useUserShippingAddresses()
 	const history = useHistory()
 	const [deleteShipping, setDeleteShipping] = useState<Shipping | undefined>(undefined)
-	const [setOpen, AlertDialog] = useDialog(_AlertDialog, async () => {
+	const [AlertDialog, setOpen] = useDialog(_AlertDialog, async () => {
 		await deleteShipping?.delete()
 		setOpen(false)
 	})
@@ -235,10 +241,10 @@ const PaymentMethods = ({ user }: { user: Commerce.User }) => {
 		</Dialog>
 	)
 	const history = useHistory()
-	const [_, setProcessing] = useProcessing()
+	const [setProcessing] = useProcessing()
 	const [paymentMethods, isLoading, error, setPaymentMethods] = useFunctions<PaymentMethod>('v1-stripe-paymentMethod-list', { type: 'card' })
 	const [deletePaymentMethod, setDeletePaymentMethod] = useState<PaymentMethod | undefined>(undefined)
-	const [setOpen, AlertDialog] = useDialog(_AlertDialog, async () => {
+	const [AlertDialog, setOpen] = useDialog(_AlertDialog, async () => {
 		setOpen(false)
 		await paymentMethodDetach()
 	})

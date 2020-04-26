@@ -17,13 +17,23 @@ export const useDocumentListen = <T extends Doc>(type: typeof Doc, documentRefer
 		const listen = async (documentReference: DocumentReference) => {
 			listener = documentReference.onSnapshot({
 				next: (snapshot) => {
-					const data = type.fromSnapshot<T>(snapshot)
-					if (enabled) {
-						setState({
-							data,
-							loading: false,
-							error: undefined
-						})
+					if (snapshot.exists) {
+						const data = type.fromSnapshot<T>(snapshot)
+						if (enabled) {
+							setState({
+								data: data,
+								loading: false,
+								error: undefined
+							})
+						}
+					} else {
+						if (enabled) {
+							setState({
+								data: undefined,
+								loading: false,
+								error: undefined
+							})
+						}
 					}
 				},
 				error: (error) => {
@@ -39,20 +49,33 @@ export const useDocumentListen = <T extends Doc>(type: typeof Doc, documentRefer
 		}
 		if (!waiting) {
 			if (documentReference) {
+				if (enabled) {
+					if (!state.loading) {
+						setState({
+							data: undefined,
+							loading: true,
+							error: undefined
+						})
+					}
+				}
 				listen(documentReference)
 			} else {
+				if (enabled) {
+					setState({
+						data: undefined,
+						loading: false,
+						error: undefined
+					})
+				}
+			}
+		} else {
+			if (enabled) {
 				setState({
 					data: undefined,
-					loading: false,
+					loading: waiting,
 					error: undefined
 				})
 			}
-		} else {
-			setState({
-				data: undefined,
-				loading: waiting,
-				error: undefined
-			})
 		}
 		return () => {
 			enabled = false

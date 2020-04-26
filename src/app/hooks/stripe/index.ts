@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import firebase from "firebase"
-import "@firebase/firestore"
-import "@firebase/auth"
+import "firebase/firestore"
+import "firebase/auth"
 import { PaymentMethod } from '@stripe/stripe-js';
 
 export const usePaymentMethods = (): [PaymentMethod[], boolean] => {

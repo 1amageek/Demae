@@ -20,7 +20,10 @@ export default (props: any) => {
 			</Box>
 
 			<Grid container alignItems="stretch" spacing={0} style={{ width: '100%' }}>
-				<Grid item xs>
+				<Grid item xs={12} md={4}>
+					<OrderList orderID={orderID} />
+				</Grid>
+				<Grid item xs={12} md={8}>
 					<OrderList orderID={orderID} />
 				</Grid>
 			</Grid>

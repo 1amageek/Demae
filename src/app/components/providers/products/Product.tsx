@@ -8,14 +8,16 @@ import { Provider, Product } from 'models/commerce';
 import DataLoading from 'components/DataLoading';
 import SKUList from './skus/SKUList';
 import { useDocumentListen } from 'hooks/firestore';
+import NotFound from 'components/NotFound'
 
 export default ({ providerID, productID }: { providerID: string, productID: string }) => {
 	const [data, isLoading] = useDocumentListen<Product>(Product, new Provider(providerID).products.collectionReference.doc(productID))
-
 	if (isLoading) {
 		return <DataLoading />
 	}
-
+	if (!data) {
+		return <NotFound />
+	}
 	return (
 		<Grid container spacing={2}>
 			<Grid item xs={12}>

@@ -2,9 +2,9 @@ import React from 'react'
 import Router from 'next/router'
 import StyledFirebaseAuth from 'react-firebaseui/StyledFirebaseAuth'
 import firebase from 'firebase'
-import * as Social from 'models/social'
+import * as Commerce from 'models/commerce'
 
-export default ({ redirectURL = '/', defaultCountry = 'JP' }: { redirectURL?: string, defaultCountry?: string }) => {
+export default ({ redirectURL = '/', defaultCountry = 'JP', onNext }: { redirectURL?: string, defaultCountry?: string, onNext?: (user: Commerce.User) => void }) => {
 
 	const uiConfig: firebaseui.auth.Config = {
 		signInFlow: 'popup',
@@ -16,20 +16,24 @@ export default ({ redirectURL = '/', defaultCountry = 'JP' }: { redirectURL?: st
 			}
 		],
 		callbacks: {
-			signInSuccessWithAuthResult: (authResult, redirectUrl) => {
-				console.log(authResult);
+			signInSuccessWithAuthResult: (authResult) => {
 				const uid = authResult.user.uid
 				if (uid) {
 					(async () => {
-						const user = await Social.User.get<Social.User>(uid)
+						let user = await Commerce.User.get<Commerce.User>(uid)
 						if (!user) {
-							const user = new Social.User(uid)
+							user = new Commerce.User(uid)
 							await user.save()
 						}
-						Router.push(redirectURL)
+						if (redirectURL) {
+							Router.push(redirectURL)
+						}
+						if (onNext) {
+							onNext(user)
+						}
 					})();
 				}
-				return false
+				return true
 			},
 			signInFailure: async (error) => {
 				console.log(error)
@@ -37,9 +41,5 @@ export default ({ redirectURL = '/', defaultCountry = 'JP' }: { redirectURL?: st
 		}
 	}
 
-	return (
-		<div>
-			<StyledFirebaseAuth uiConfig={uiConfig} firebaseAuth={firebase.auth()} />
-		</div>
-	)
+	return <StyledFirebaseAuth uiConfig={uiConfig} firebaseAuth={firebase.auth()} />
 }

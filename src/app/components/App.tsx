@@ -1,8 +1,6 @@
-import React, { useContext } from 'react'
-import { Switch, Route, Redirect } from 'react-router-dom'
+import React, { useEffect } from 'react'
+import { Switch, Route, useHistory } from 'react-router-dom'
 import { makeStyles, useTheme, Theme, createStyles } from '@material-ui/core/styles';
-import Container from '@material-ui/core/Container';
-import CssBaseline from '@material-ui/core/CssBaseline'
 import AppBar from 'components/AppBar'
 import TabBar from 'components/TabBar'
 import Login from 'components/Login'
@@ -15,10 +13,15 @@ import Checkout from 'components/checkout'
 import Shipping from 'components/checkout/shipping'
 import PaymentMethod from 'components/checkout/payment'
 import CreateForm from 'components/account/CreateForm'
+import { Container, Box, CssBaseline } from '@material-ui/core';
 
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
+		box: {
+			minHeight: '100vh',
+			paddingBottom: '100px',
+		},
 		content: {
 			flexGrow: 1,
 			padding: theme.spacing(2, 0),
@@ -27,6 +30,10 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 export default ({ children }: { children: any }) => {
+	const history = useHistory()
+	useEffect(() => {
+		window.scrollTo(0, 0)
+	}, [history.location.pathname])
 	return (
 		<Route path="/" component={Layout} />
 	);
@@ -35,7 +42,7 @@ export default ({ children }: { children: any }) => {
 const Layout = ({ children }: { children: any }) => {
 	const classes = useStyles()
 	return (
-		<>
+		<Box className={classes.box}>
 			<AppBar title={'Demae'} />
 			<main className={classes.content}>
 				<Container maxWidth='sm'>
@@ -44,7 +51,7 @@ const Layout = ({ children }: { children: any }) => {
 				</Container>
 			</main>
 			<TabBar />
-		</>
+		</Box>
 	);
 }
 

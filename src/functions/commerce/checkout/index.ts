@@ -9,15 +9,15 @@ import SKU, { Stock } from '../../models/commerce/SKU'
 import { randomShard } from '../../common/Shard'
 
 class OrderError extends Error {
-	sku: string
-	constructor(message: string, sku: string) {
+	target: string
+	constructor(message: string, target: string) {
 		super(message)
-		this.sku = sku
+		this.target = target
 	}
 }
 
 type Response = {
-	error?: OrderError
+	error?: { message: string, target: string }
 	result?: any
 }
 
@@ -80,7 +80,11 @@ export const create = regionFunctions.https.onCall(async (data, context) => {
 		})
 		return { result } as Response
 	} catch (error) {
-		return { error } as Response
+		console.error(error)
+		if (error instanceof OrderError) {
+			return { error: { message: error.message, target: error.target } } as Response
+		}
+		throw error
 	}
 })
 
@@ -159,8 +163,9 @@ export const confirm = regionFunctions.https.onCall(async (data, context) => {
 		})
 		return { result } as Response
 	} catch (error) {
+		console.error(error)
 		if (error instanceof OrderError) {
-			return { error } as Response
+			return { error: { message: error.message, target: error.target } } as Response
 		}
 		throw error
 	}

@@ -100,9 +100,8 @@ const Form = ({ shipping }: { shipping: Shipping }) => {
 	const history = useHistory()
 	const [auth] = useContext(AuthContext)
 	const [isProcessing, setProcessing] = useState(false)
-	const [setOpen, ErrorDialog] = useDialog(_ErrorDialog, () => {
+	const [ErrorDialog, setOpen] = useDialog(_ErrorDialog, () => {
 		setOpen(false)
-
 	})
 	const country = useSelect({
 		initValue: shipping.address?.country || "US",

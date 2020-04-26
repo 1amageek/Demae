@@ -26,11 +26,11 @@ const Processing = ({ isProcessing }: { isProcessing: boolean }) => {
 	return <></>
 }
 
-export const ProcessingContext = createContext<[boolean, (processing: boolean) => void]>([false, () => { }])
+export const ProcessingContext = createContext<[(processing: boolean) => void, boolean]>([() => { }, false])
 export const ProcessingProvider = ({ children }: { children: any }) => {
 	const [isProcessing, setProcessing] = useState(false)
 	return (
-		<ProcessingContext.Provider value={[isProcessing, setProcessing]}>
+		<ProcessingContext.Provider value={[setProcessing, isProcessing]}>
 			<Processing isProcessing={isProcessing} />
 			{children}
 		</ProcessingContext.Provider>

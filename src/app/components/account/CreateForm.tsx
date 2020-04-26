@@ -79,8 +79,8 @@ export default () => {
 	const classes = useStyles()
 	const [auth] = useContext(AuthContext)
 	const history = useHistory()
-	const [isProcessing, setProcessing] = useProcessing()
-	const [setOpen, ErrorDialog] = useDialog(_ErrorDialog, () => {
+	const [setProcessing] = useProcessing()
+	const [ErrorDialog, setOpen] = useDialog(_ErrorDialog, () => {
 		setOpen(false)
 
 	})

@@ -55,7 +55,7 @@ const CartIcon = () => {
 		return current.quantity + prev
 	}, 0)
 	return (
-		<Badge badgeContent={badgeContent} color="primary">
+		<Badge badgeContent={badgeContent} color="secondary">
 			<ShoppingCartIcon />
 		</Badge>
 	)

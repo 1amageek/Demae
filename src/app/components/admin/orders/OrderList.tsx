@@ -59,7 +59,7 @@ export default ({ orderID }: { orderID: string }) => {
 	return (
 		<Board header={
 			<Box display="flex" flexGrow={1}>
-				<Typography variant='h6'>SKU</Typography>
+				<Typography variant='h6'>Order</Typography>
 				<Box flexGrow={1} />
 				<Button
 					variant="contained"

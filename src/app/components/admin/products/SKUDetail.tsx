@@ -111,7 +111,7 @@ export default ({ productID, skuID }: { productID?: string, skuID?: string }) =>
 					</TableRow>
 					<TableRow>
 						<TableCell align='right'><div>price</div></TableCell>
-						<TableCell align='left'><div>{sku.currency} {sku.amount}</div></TableCell>
+						<TableCell align='left'><div>{sku.currency} {sku.price}</div></TableCell>
 					</TableRow>
 					<TableRow>
 						<TableCell align='right'><div>inventory</div></TableCell>
@@ -136,11 +136,11 @@ export default ({ productID, skuID }: { productID?: string, skuID?: string }) =>
 
 const Edit = ({ product, sku, onClose }: { product: Product, sku: SKU, onClose: () => void }) => {
 
-	const [processing, setProcessing] = useProcessing()
+	const [setProcessing] = useProcessing()
 	const [images, setImages] = useState<File[]>([])
 	const name = useInput(sku?.name)
 	const caption = useInput(sku?.caption)
-	const amount = useInput(sku?.amount)
+	const price = useInput(sku?.price)
 	const description = useInput(sku?.description)
 	const currency = useSelect({
 		initValue: sku?.currency, inputProps: {
@@ -219,22 +219,23 @@ const Edit = ({ product, sku, onClose }: { product: Product, sku: SKU, onClose: 
 		sku.name = name.value
 		sku.caption = caption.value
 		sku.description = description.value
-		sku.amount = Number(amount.value)
+		sku.price = Number(price.value)
 		sku.currency = currency.value as CurrencyCode
 		sku.inventory = {
 			type: inventory.value as StockType,
 			value: stockValue.value as StockValue,
 			quantity: Number(quantity.value)
 		}
+		sku.productReference = product.documentReference
 		sku.isAvailable = isAvailable.value === 'true'
 
-		const price = product.price || {}
-		var productAmount = price[sku.currency] || Infinity
-		productAmount = Math.min(productAmount, sku.amount)
-		productAmount = Math.max(productAmount, 0)
+		const nowPrice = product.price || {}
+		var productPrice = nowPrice[sku.currency] || Infinity
+		productPrice = Math.min(productPrice, sku.price)
+		productPrice = Math.max(productPrice, 0)
 		product.price = {
-			...price,
-			[sku.currency]: productAmount
+			...nowPrice,
+			[sku.currency]: productPrice
 		}
 		await Promise.all([sku.save(), product.update()])
 		setProcessing(false)
@@ -333,9 +334,9 @@ const Edit = ({ product, sku, onClose }: { product: Product, sku: SKU, onClose: 
 							<TableCell align='left'>
 								<div>
 									<Select {...currency} />
-									<Input variant='outlined' margin='dense' type='number' style={{ width: '112px', marginLeft: '8px' }} value={amount.value} onChange={e => {
-										const newAmount = Math.floor(Number(e.target.value) * 100) / 100
-										amount.setValue(`${newAmount}`)
+									<Input variant='outlined' margin='dense' type='number' style={{ width: '112px', marginLeft: '8px' }} value={price.value} onChange={e => {
+										const newPrice = Math.floor(Number(e.target.value) * 100) / 100
+										price.setValue(`${newPrice}`)
 									}} />
 								</div>
 							</TableCell>

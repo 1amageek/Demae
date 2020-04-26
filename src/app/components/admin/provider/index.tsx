@@ -7,9 +7,6 @@ import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
-import Tooltip from '@material-ui/core/Tooltip';
-import Typography from '@material-ui/core/Typography';
-import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import Table from '@material-ui/core/Table';
 import TableRow from '@material-ui/core/TableRow';
 import TableCell from '@material-ui/core/TableCell';
@@ -60,7 +57,7 @@ const useStyles = makeStyles((theme: Theme) =>
 export default () => {
 	const classes = useStyles()
 	const [provider, isLoading, error] = useAdminProvider()
-	const [processing, setProcessing] = useProcessing()
+	const [setProcessing] = useProcessing()
 	const [thumbnail, setThumbnail] = useState<File | undefined>()
 	const [cover, setCover] = useState<File | undefined>()
 	const name = useInput(provider?.name)

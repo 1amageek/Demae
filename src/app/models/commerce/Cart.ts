@@ -235,7 +235,7 @@ export default class Cart extends Doc {
 			cartItem.caption = sku.caption
 			cartItem.description = sku.description
 			cartItem.currency = sku.currency
-			cartItem.amount = sku.amount
+			cartItem.amount = sku.price
 			cartItem.discount = sku.discount
 			cartItem.name = sku.name
 			cartItem.taxRate = sku.taxRate

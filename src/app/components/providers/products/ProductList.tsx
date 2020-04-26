@@ -7,7 +7,7 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import ListItemText from '@material-ui/core/ListItemText';
 import Card from './Card'
-import { useDataSourceListen } from 'hooks/firestore';
+import { useDataSourceListen, Where } from 'hooks/firestore';
 import { Provider, Product } from 'models/commerce';
 import DataLoading from 'components/DataLoading'
 import ISO4217 from 'common/ISO4217'
@@ -34,7 +34,7 @@ const useStyles = makeStyles((theme: Theme) =>
 export default ({ providerID }: { providerID: string }) => {
 	const classes = useStyles()
 	const ref = new Provider(providerID).products.collectionReference
-	const [data, isLoading] = useDataSourceListen<Product>(Product, { path: ref.path, limit: 30 })
+	const [data, isLoading] = useDataSourceListen<Product>(Product, { path: ref.path, wheres: [Where('isAvailable', '==', true)], limit: 30 })
 
 	if (isLoading) {
 		return (

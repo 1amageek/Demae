@@ -16,7 +16,7 @@ export default class SKU extends Doc {
 	@Field productReference?: DocumentReference
 	@Field name!: string
 	@Field caption!: string
-	@Field amount: number = 0
+	@Field price: number = 0
 	@Field discount?: Discount
 	@Field taxRate: number = 0
 	@Field inventory: Inventory = { type: 'finite', quantity: 1 }

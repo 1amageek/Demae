@@ -47,7 +47,7 @@ export default ({ providerID, product }: { providerID: string, product: Product 
 
 	const [user] = useContext(UserContext)
 
-	const price = product.price || {}
+	const price = product.price
 	const currency = user?.currency || 'USD'
 	const symbol = ISO4217[currency].symbol
 	const amount = price[currency]

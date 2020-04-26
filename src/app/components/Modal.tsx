@@ -10,17 +10,11 @@ const useStyles = makeStyles((theme: Theme) =>
 			display: 'flex',
 			alignItems: 'center',
 			justifyContent: 'center',
-		},
-		paper: {
-			backgroundColor: theme.palette.background.paper,
-			border: '2px solid #000',
-			boxShadow: theme.shadows[5],
-			padding: theme.spacing(2),
-		},
+		}
 	}),
 );
 
-export default ({ open, onClose, onNext, children }: { open: boolean, onClose: () => void, onNext?: () => void, children: any }) => {
+export default ({ open, onClose, children }: { open: boolean, onClose: () => void, children: any }) => {
 	const classes = useStyles();
 
 	const handleClose = () => {
@@ -39,9 +33,7 @@ export default ({ open, onClose, onNext, children }: { open: boolean, onClose: (
 			}}
 		>
 			<Fade in={open}>
-				<div className={classes.paper}>
-					{children}
-				</div>
+				{children}
 			</Fade>
 		</Modal>
 	);
