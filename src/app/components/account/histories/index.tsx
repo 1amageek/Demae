@@ -52,6 +52,10 @@ const OrderList = () => {
 		return <DataLoading />
 	}
 
+	if (orders.length === 0) {
+		return <Box padding={3} display='flex' justifyContent='center' fontWeight={600} fontSize={20}>There are no orders.</Box>
+	}
+
 	return (
 		<List>
 			{

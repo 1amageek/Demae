@@ -1,15 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import firebase from 'firebase'
-import Link from 'next/link';
+import { Link } from 'react-router-dom'
 import Container from '@material-ui/core/Container';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
-import IconButton from '@material-ui/core/IconButton';
-import MenuIcon from '@material-ui/icons/Menu';
 import AccountCircle from '@material-ui/icons/AccountCircle';
+import { useUser } from 'hooks/commerce'
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
@@ -45,31 +44,14 @@ export default ({ title }: { title: string }) => {
 }
 
 const LoginButton = () => {
-	const [auth, setAuth] = useState<firebase.User | null>(null)
-	const [isLoading, setLoading] = useState(true)
-	useEffect(() => {
-		const listener = firebase.auth().onAuthStateChanged(auth => {
-			setAuth(auth)
-			setLoading(false)
-		})
-		return () => {
-			listener()
-		}
-	}, [auth?.uid])
-
-	if (isLoading) {
-		return <></>
-	}
-
-	if (auth) {
+	const [user] = useUser()
+	if (user) {
 		return (
 			<AccountCircle />
 		)
 	} else {
 		return (
-			<Link href='/login'>
-				<Button variant='contained' color='primary'>Login</Button>
-			</Link>
+			<Button variant='contained' color='primary' component={Link} to='/login'>Login</Button>
 		)
 	}
 }
