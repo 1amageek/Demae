@@ -5,8 +5,10 @@ import { CurrencyCode } from '../../common/Currency'
 import Shipping from './Shipping'
 import Order from './Order'
 
-export class Role extends Doc {
+export type Permission = 'administrator'
 
+export class Role extends Doc {
+	@Field permissions: Permission[] = []
 }
 
 export default class User extends Doc {

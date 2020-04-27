@@ -1,6 +1,6 @@
 import React from 'react';
 import Document, { Head, Main, NextScript } from 'next/document';
-import { ServerStyleSheet } from 'styled-components'
+import styled, { ServerStyleSheet } from 'styled-components'
 import { ServerStyleSheets } from '@material-ui/styles';
 import theme from '../theme';
 
@@ -62,5 +62,11 @@ class MyDocument extends Document {
 		);
 	}
 }
+
+// const Body = styled.body`
+// 	min-height: 100vh;
+//   /* mobile viewport bug fix */
+//   min-height: -webkit-fill-available;
+// `
 
 export default MyDocument

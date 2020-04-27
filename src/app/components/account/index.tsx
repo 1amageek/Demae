@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useContext } from 'react';
-import { withRouter } from 'react-router-dom'
+import { withRouter, Link } from 'react-router-dom'
 import Router from 'next/router'
 import firebase, { database } from 'firebase';
 import 'firebase/auth';
@@ -38,7 +38,7 @@ export default () => {
 			<Grid item xs={12}>
 				<Paper>
 					<List>
-						<ListItem button>
+						<ListItem button component={Link} to={`/account/orders`}>
 							<ListItemIcon>
 								<ViewListIcon />
 							</ListItemIcon>

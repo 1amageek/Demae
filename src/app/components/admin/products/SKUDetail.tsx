@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from 'react'
 import firebase from 'firebase'
 import Link from 'next/link'
@@ -26,6 +25,9 @@ import Board from '../Board';
 import { useProcessing } from 'components/Processing';
 import { StockType, StockValue } from 'common/commerce/Types';
 import { SKU, Product } from 'models/commerce';
+import { useDataSourceListen } from 'hooks/firestore';
+import { Stock } from 'models/commerce/SKU';
+import StockDetail from './StockDetail';
 
 export default ({ productID, skuID }: { productID?: string, skuID?: string }) => {
 
@@ -69,67 +71,70 @@ export default ({ productID, skuID }: { productID?: string, skuID?: string }) =>
 	}
 
 	return (
-		<Board header={
-			<Box display="flex" flexGrow={1}>
-				<Typography variant='h6'>{sku.name}</Typography>
-				<Box flexGrow={1} />
-				<Button
-					variant="contained"
-					color="primary"
-					startIcon={
-						<EditIcon />
-					}
-					onClick={async () => {
-						setEdit(true)
-					}}
-				>Edit</Button>
-			</Box>
-		}>
-			<Avatar variant="square" src={sku.imageURLs()[0]} style={{
-				minHeight: '200px',
-				width: '100%'
-			}}>
-				<ImageIcon />
-			</Avatar>
-			<Table>
-				<TableBody>
-					<TableRow>
-						<TableCell align='right'><div>ID</div></TableCell>
-						<TableCell align='left'><div>{sku.id}</div></TableCell>
-					</TableRow>
-					<TableRow>
-						<TableCell align='right'><div>name</div></TableCell>
-						<TableCell align='left'><div>{sku.name}</div></TableCell>
-					</TableRow>
-					<TableRow>
-						<TableCell align='right'><div>caption</div></TableCell>
-						<TableCell align='left'><div>{sku.caption}</div></TableCell>
-					</TableRow>
-					<TableRow>
-						<TableCell align='right'><div>description</div></TableCell>
-						<TableCell align='left'><div>{sku.description}</div></TableCell>
-					</TableRow>
-					<TableRow>
-						<TableCell align='right'><div>price</div></TableCell>
-						<TableCell align='left'><div>{sku.currency} {sku.price}</div></TableCell>
-					</TableRow>
-					<TableRow>
-						<TableCell align='right'><div>inventory</div></TableCell>
-						<TableCell align='left'>
-							<div>
-								{sku.inventory.type === 'infinite' && 'Infinite'}
-								{sku.inventory.type === 'bucket' && sku.inventory.value}
-								{sku.inventory.type === 'finite' && sku.inventory.quantity}
-							</div>
-						</TableCell>
-					</TableRow>
-					<TableRow>
-						<TableCell align='right'><div>Status</div></TableCell>
-						<TableCell align='left'><div>{sku.isAvailable ? 'Available' : 'Disabled'}</div></TableCell>
-					</TableRow>
-				</TableBody>
-			</Table>
-		</Board>
+		<>
+			<Board header={
+				<Box display="flex" flexGrow={1}>
+					<Typography variant='h6'>{sku.name}</Typography>
+					<Box flexGrow={1} />
+					<Button
+						variant="contained"
+						color="primary"
+						startIcon={
+							<EditIcon />
+						}
+						onClick={async () => {
+							setEdit(true)
+						}}
+					>Edit</Button>
+				</Box>
+			}>
+				<Avatar variant="square" src={sku.imageURLs()[0]} style={{
+					minHeight: '200px',
+					width: '100%'
+				}}>
+					<ImageIcon />
+				</Avatar>
+				<Table>
+					<TableBody>
+						<TableRow>
+							<TableCell align='right'><div>ID</div></TableCell>
+							<TableCell align='left'><div>{sku.id}</div></TableCell>
+						</TableRow>
+						<TableRow>
+							<TableCell align='right'><div>name</div></TableCell>
+							<TableCell align='left'><div>{sku.name}</div></TableCell>
+						</TableRow>
+						<TableRow>
+							<TableCell align='right'><div>caption</div></TableCell>
+							<TableCell align='left'><div>{sku.caption}</div></TableCell>
+						</TableRow>
+						<TableRow>
+							<TableCell align='right'><div>description</div></TableCell>
+							<TableCell align='left'><div>{sku.description}</div></TableCell>
+						</TableRow>
+						<TableRow>
+							<TableCell align='right'><div>price</div></TableCell>
+							<TableCell align='left'><div>{sku.currency} {sku.price}</div></TableCell>
+						</TableRow>
+						<TableRow>
+							<TableCell align='right'><div>inventory</div></TableCell>
+							<TableCell align='left'>
+								<div>
+									{sku.inventory.type === 'infinite' && 'Infinite'}
+									{sku.inventory.type === 'bucket' && sku.inventory.value}
+									{sku.inventory.type === 'finite' && sku.inventory.quantity}
+								</div>
+							</TableCell>
+						</TableRow>
+						<TableRow>
+							<TableCell align='right'><div>Status</div></TableCell>
+							<TableCell align='left'><div>{sku.isAvailable ? 'Available' : 'Disabled'}</div></TableCell>
+						</TableRow>
+					</TableBody>
+				</Table>
+			</Board>
+			<StockDetail sku={sku} />
+		</>
 	)
 }
 
@@ -273,98 +278,102 @@ const Edit = ({ product, sku, onClose }: { product: Product, sku: SKU, onClose: 
 	}
 
 	return (
-		<form onSubmit={onSubmit}>
-			<Board header={
-				<Box display="flex" flexGrow={1}>
-					<Typography variant='h6'>{sku.name}</Typography>
-					<Box flexGrow={1} />
-					<Button
-						color="primary"
-						onClick={async () => {
-							onClose()
-						}}
-					>Cancel</Button>
-					<Button
-						variant="contained"
-						color="primary"
-						type='submit'
-						startIcon={
-							<SaveIcon />
-						}
-					>Save</Button>
-				</Box>
-			}>
-				<DndCard
-					url={sku.imageURLs()[0]}
-					onDrop={(files) => {
-						setImages(files)
-					}} />
-				<Table>
-					<TableBody>
-						<TableRow>
-							<TableCell align='right'><div>ID</div></TableCell>
-							<TableCell align='left'><div>{sku.id}</div></TableCell>
-						</TableRow>
-						<TableRow>
-							<TableCell align='right'><div>name</div></TableCell>
-							<TableCell align='left'>
-								<div>
-									<Input variant='outlined' margin='dense' required {...name} />
-								</div>
-							</TableCell>
-						</TableRow>
-						<TableRow>
-							<TableCell align='right'><div>caption</div></TableCell>
-							<TableCell align='left'>
-								<div>
-									<Input variant='outlined' margin='dense' {...caption} />
-								</div>
-							</TableCell>
-						</TableRow>
-						<TableRow>
-							<TableCell align='right'><div>description</div></TableCell>
-							<TableCell align='left'>
-								<div>
-									<Input variant='outlined' margin='dense' {...description} />
-								</div>
-							</TableCell>
-						</TableRow>
-						<TableRow>
-							<TableCell align='right'><div>amount</div></TableCell>
-							<TableCell align='left'>
-								<div>
-									<Select {...currency} />
-									<Input variant='outlined' margin='dense' type='number' style={{ width: '112px', marginLeft: '8px' }} value={price.value} onChange={e => {
-										const newPrice = Math.floor(Number(e.target.value) * 100) / 100
-										price.setValue(`${newPrice}`)
-									}} />
-								</div>
-							</TableCell>
-						</TableRow>
-						<TableRow>
-							<TableCell align='right'><div>inventory</div></TableCell>
-							<TableCell align='left'>
-								<div>
-									<Select {...inventory} />
-									{inventory.value === 'bucket' && <Select style={{ marginLeft: '8px' }} {...stockValue} />}
-									{inventory.value === 'finite' && <Input variant='outlined' margin='dense' style={{ width: '112px', marginLeft: '8px' }} type='number' value={quantity.value} onChange={e => {
-										const newQuantity = Math.floor(Number(e.target.value))
-										quantity.setValue(`${newQuantity}`)
-									}} />}
-								</div>
-							</TableCell>
-						</TableRow>
-						<TableRow>
-							<TableCell align='right'><div>Status</div></TableCell>
-							<TableCell align='left'>
-								<div>
-									<Select fullWidth {...isAvailable} />
-								</div>
-							</TableCell>
-						</TableRow>
-					</TableBody>
-				</Table>
-			</Board>
-		</form>
+		<>
+			<form onSubmit={onSubmit}>
+				<Board header={
+					<Box display="flex" flexGrow={1}>
+						<Typography variant='h6'>{sku.name}</Typography>
+						<Box flexGrow={1} />
+						<Button
+							color="primary"
+							onClick={async () => {
+								onClose()
+							}}
+						>Cancel</Button>
+						<Button
+							variant="contained"
+							color="primary"
+							type='submit'
+							startIcon={
+								<SaveIcon />
+							}
+						>Save</Button>
+					</Box>
+				}>
+					<DndCard
+						url={sku.imageURLs()[0]}
+						onDrop={(files) => {
+							setImages(files)
+						}} />
+					<Table>
+						<TableBody>
+							<TableRow>
+								<TableCell align='right'><div>ID</div></TableCell>
+								<TableCell align='left'><div>{sku.id}</div></TableCell>
+							</TableRow>
+							<TableRow>
+								<TableCell align='right'><div>name</div></TableCell>
+								<TableCell align='left'>
+									<div>
+										<Input variant='outlined' margin='dense' required {...name} />
+									</div>
+								</TableCell>
+							</TableRow>
+							<TableRow>
+								<TableCell align='right'><div>caption</div></TableCell>
+								<TableCell align='left'>
+									<div>
+										<Input variant='outlined' margin='dense' {...caption} />
+									</div>
+								</TableCell>
+							</TableRow>
+							<TableRow>
+								<TableCell align='right'><div>description</div></TableCell>
+								<TableCell align='left'>
+									<div>
+										<Input variant='outlined' margin='dense' {...description} />
+									</div>
+								</TableCell>
+							</TableRow>
+							<TableRow>
+								<TableCell align='right'><div>amount</div></TableCell>
+								<TableCell align='left'>
+									<div>
+										<Select {...currency} />
+										<Input variant='outlined' margin='dense' type='number' style={{ width: '110px', marginLeft: '8px' }} value={price.value} onChange={e => {
+											const newPrice = Math.floor(Number(e.target.value) * 100) / 100
+											price.setValue(`${newPrice}`)
+										}} />
+									</div>
+								</TableCell>
+							</TableRow>
+							<TableRow>
+								<TableCell align='right'><div>inventory</div></TableCell>
+								<TableCell align='left'>
+									<div>
+										<Select {...inventory} />
+										{inventory.value === 'bucket' && <Select style={{ marginLeft: '8px' }} {...stockValue} />}
+										{inventory.value === 'finite' && <Input variant='outlined' margin='dense' style={{ width: '110px', marginLeft: '8px' }} type='number' value={quantity.value} onChange={e => {
+											const newQuantity = Math.floor(Number(e.target.value))
+											quantity.setValue(`${newQuantity}`)
+										}} />}
+									</div>
+								</TableCell>
+							</TableRow>
+							<TableRow>
+								<TableCell align='right'><div>Status</div></TableCell>
+								<TableCell align='left'>
+									<div>
+										<Select fullWidth {...isAvailable} />
+									</div>
+								</TableCell>
+							</TableRow>
+						</TableBody>
+					</Table>
+				</Board>
+			</form>
+			<StockDetail sku={sku} />
+		</>
 	)
 }
+

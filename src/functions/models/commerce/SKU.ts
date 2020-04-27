@@ -8,19 +8,22 @@ export class Stock extends Doc {
 }
 
 export default class SKU extends Doc {
-	@Field isAvailable: boolean = true
+	@Field images: File[] = []
+	@Field assets: File[] = []
 	@Field providedBy!: string
 	@Field createdBy!: string
 	@Field shardCharacters: ShardType[] = ShardCharacters.slice(0, 3)
 	@Field currency: CurrencyCode = 'USD'
 	@Field productReference?: DocumentReference
 	@Field name!: string
-	@Field caption!: string
+	@Field caption?: string
+	@Field description?: string
 	@Field price: number = 0
 	@Field discount?: Discount
 	@Field taxRate: number = 0
 	@Field inventory: Inventory = { type: 'finite', quantity: 1 }
 	@Field isPrivate: boolean = false
+	@Field isAvailable: boolean = true
 	@Field metadata?: any
 
 	@SubCollection inventories: Collection<Stock> = new Collection()

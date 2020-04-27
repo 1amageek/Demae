@@ -22,6 +22,7 @@ import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 
 export default (props: any) => {
 	const { providerID } = props.match.params
+	const history = useHistory()
 	const [user, isUserLoading] = useContext(UserContext)
 	const [cart] = useContext(CartContext)
 	const [setProcessing] = useProcessing()
@@ -73,6 +74,8 @@ export default (props: any) => {
 				const response = await checkoutConfirm(token)
 				const { error, result } = response.data
 				console.log(result)
+				setMessage("success", "Success")
+				history.push(`/checkout/${providerID}/completed`)
 			} catch (error) {
 				throw error
 			}

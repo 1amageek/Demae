@@ -16,6 +16,7 @@ import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import Loading from 'components/Loading'
 import User from 'models/commerce/User'
 import { UserContext, AuthContext } from 'hooks/commerce'
+import { useProcessing } from 'components/Processing';
 
 const STRIPE_KEY = process.env.STRIPE_KEY!
 const stripePromise = loadStripe(STRIPE_KEY)
@@ -45,11 +46,13 @@ const CARD_OPTIONS = {
 	hidePostalCode: true
 };
 
-export default () => (
-	<Elements stripe={stripePromise}>
-		<CheckoutForm />
-	</Elements>
-);
+export default () => {
+	return (
+		<Elements stripe={stripePromise}>
+			<CheckoutForm />
+		</Elements>
+	)
+}
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
@@ -71,8 +74,8 @@ const CheckoutForm = () => {
 	const stripe = useStripe();
 	const elements = useElements()
 	const [isDisabled, setDisable] = useState(true)
-	const [isLoading, setLoading] = useState(false)
 	const history = useHistory()
+	const [setProcessing] = useProcessing()
 
 	const handleSubmit = async (event) => {
 		event.preventDefault()
@@ -82,7 +85,7 @@ const CheckoutForm = () => {
 		const card = elements.getElement(CardElement)
 		if (!card) { return }
 
-		setLoading(true)
+		setProcessing(true)
 
 		try {
 			const { error, paymentMethod } = await stripe.createPaymentMethod({
@@ -92,12 +95,12 @@ const CheckoutForm = () => {
 
 			if (error) {
 				console.log(error)
-				setLoading(false)
+				setProcessing(false)
 				return
 			}
 
 			if (!paymentMethod) {
-				setLoading(false)
+				setProcessing(false)
 				return
 			}
 
@@ -127,10 +130,10 @@ const CheckoutForm = () => {
 				}
 			}
 			await new User(auth.uid).documentReference.set(updateData, { merge: true })
-			setLoading(false)
+			setProcessing(false)
 			history.goBack()
 		} catch (error) {
-			setLoading(false)
+			setProcessing(false)
 			console.log(error)
 		}
 	};
@@ -170,7 +173,6 @@ const CheckoutForm = () => {
 							onClick={handleSubmit}>Continue to Payment</Button>
 					</form>
 				</Box>
-				{isLoading && <Loading />}
 			</Paper>
 		)
 	}
