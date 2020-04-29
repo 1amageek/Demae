@@ -2,9 +2,8 @@ import React from 'react';
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container'
 import Layout from 'components/admin/Layout'
-import Provider from 'components/admin/provider'
 import Paper from '@material-ui/core/Paper'
-import { useProvider } from 'hooks/commerce';
+import { useAdminProvider } from 'hooks/commerce';
 import DataLoading from 'components/DataLoading'
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -18,7 +17,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 export default () => {
 	const classes = useStyles();
-	const [provider, isLoading] = useProvider()
+	const [provider, isLoading] = useAdminProvider()
 	if (isLoading) {
 		return (
 			<Layout>

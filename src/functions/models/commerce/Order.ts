@@ -35,6 +35,7 @@ export default class Order extends Doc {
 	@Field amount: number = 0
 	@Codable(OrderItem)
 	@Field items: OrderItem[] = []
+	@Field deliveryRequired: boolean = false
 	@Field deliveryStatus: DeliveryStatus = 'none'
 	@Field paymentStatus: OrderPaymentStatus = 'none'
 	@Field isCancelled: boolean = false

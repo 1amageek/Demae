@@ -153,6 +153,7 @@ export const useDataSourceListen = <T extends Doc>(type: typeof Doc, query?: Que
 					}
 				},
 				error: (error) => {
+					console.error(error)
 					if (enabled) {
 						setState({
 							data: [],
@@ -187,6 +188,6 @@ export const useDataSourceListen = <T extends Doc>(type: typeof Doc, query?: Que
 				listener()
 			}
 		}
-	}, [query?.path, JSON.stringify(query?.wheres), query?.orderBy, query?.limit, waiting])
+	}, [query?.path, JSON.stringify(query?.wheres), JSON.stringify(query?.orderBy), query?.limit, waiting])
 	return [state.data, state.loading, state.error]
 };

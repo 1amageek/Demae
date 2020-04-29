@@ -89,6 +89,9 @@ const useStyles = makeStyles((theme: Theme) =>
 			}),
 			marginLeft: 0,
 		},
+		box: {
+			minHeight: '100vh'
+		},
 	}),
 );
 
@@ -176,7 +179,7 @@ export default ({ children }: { children: any }) => {
 				})}
 			>
 				<div className={classes.drawerHeader} />
-				<Box height="100%">
+				<Box className={classes.box} >
 					{children}
 				</Box>
 			</main>

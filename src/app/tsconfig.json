@@ -29,7 +29,7 @@
 		"baseUrl": "./",
 		"paths": {
 			"common/*": [
-				"../functions/common/*"
+				"common/*"
 			],
 			"components/*": [
 				"components/*"

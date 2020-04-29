@@ -33,7 +33,7 @@ interface Prop {
 	severity: Severity
 }
 export type Severity = 'error' | 'warning' | 'info' | 'success'
-export const SnackbarContext = createContext<[boolean, (severity: Severity, message?: string) => void]>([false, () => { }])
+export const SnackbarContext = createContext<[(severity: Severity, message?: string) => void, boolean]>([() => { }, false])
 export const SnackbarProvider = ({ children }: { children: any }) => {
 	const [state, setState] = useState<Prop>({
 		message: undefined,
@@ -53,7 +53,7 @@ export const SnackbarProvider = ({ children }: { children: any }) => {
 		setState({ message, severity })
 	}
 	return (
-		<SnackbarContext.Provider value={[open, setMessageWithSeverity]}>
+		<SnackbarContext.Provider value={[setMessageWithSeverity, open]}>
 			<Bar open={open} message={state.message} onClose={onClose} />
 			{children}
 		</SnackbarContext.Provider>

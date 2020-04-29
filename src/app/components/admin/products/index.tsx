@@ -9,7 +9,7 @@ import { Box, Hidden } from '@material-ui/core';
 import ProductList from './ProductList'
 import ProductDetail from './ProductDetail'
 import Board from '../Board';
-import { ProviderProductProvider, ProviderProductSKUProvider } from 'hooks/commerce';
+import { AdminProviderProductProvider, AdminProviderProductSKUProvider } from 'hooks/commerce';
 import SKUList from './SKUList';
 import SKUDetail from './SKUDetail';
 import StockDetail from './StockDetail';
@@ -19,8 +19,8 @@ export default (props: any) => {
 
 	return (
 		<Box height='100%'>
-			<ProviderProductProvider id={productID}>
-				<ProviderProductSKUProvider id={skuID}>
+			<AdminProviderProductProvider id={productID}>
+				<AdminProviderProductSKUProvider id={skuID}>
 					<Box py={2}>
 						<Breadcrumbs>
 							<Link to='/admin/products'>Products</Link>
@@ -33,15 +33,15 @@ export default (props: any) => {
 					<Grid container alignItems="stretch" spacing={0} style={{ width: '100%' }}>
 						<Content productID={productID} skuID={skuID} />
 					</Grid>
-				</ProviderProductSKUProvider>
-			</ProviderProductProvider>
+				</AdminProviderProductSKUProvider>
+			</AdminProviderProductProvider>
 		</Box>
 	)
 }
 
 const Content = ({ productID, skuID }: { productID?: string, skuID: string }) => {
 	const theme = useTheme();
-	const matches = useMediaQuery(theme.breakpoints.down('md'));
+	const matches = useMediaQuery(theme.breakpoints.down('sm'));
 
 	if (matches) {
 		if (productID && skuID) {
@@ -73,14 +73,12 @@ const Content = ({ productID, skuID }: { productID?: string, skuID: string }) =>
 	}
 
 	return (
-		<Grid container alignItems="stretch" spacing={0} style={{ width: '100%' }}>
+		<Grid container alignItems="stretch" spacing={1} style={{ width: '100%' }}>
 			<Grid item xs>
 				<ProductList productID={productID} />
 			</Grid>
 			<Grid item xs>
 				<ProductDetail />
-			</Grid>
-			<Grid item xs>
 				{productID && <SKUList productID={productID} />}
 			</Grid>
 			<Grid item xs>

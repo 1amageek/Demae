@@ -29,26 +29,28 @@ import ListItemAvatar from '@material-ui/core/ListItemAvatar';
 import Avatar from '@material-ui/core/Avatar';
 import ImageIcon from '@material-ui/icons/Image';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
-import { useProviderProducts, useAdminProvider, useUser } from 'hooks/commerce';
+import { useAdminProviderProducts, useAdminProvider, useUser } from 'hooks/commerce';
 import DataLoading from 'components/DataLoading';
 import Board from '../Board';
 import { useHistory } from 'react-router-dom';
 import ISO4217 from 'common/ISO4217'
 import { ListItemSecondaryAction, Switch } from '@material-ui/core';
+import { useProcessing } from 'components/Processing';
+import { useSnackbar } from 'components/Snackbar';
 
 
 export default ({ productID }: { productID?: string }) => {
 	const [provider] = useAdminProvider()
-	const [products, isLoading] = useProviderProducts()
+	const [products, isLoading] = useAdminProviderProducts()
 	const history = useHistory()
 
 	if (isLoading) {
 		return (
-			<Board header={
-				<Box display="flex" flexGrow={1}>
-					<Typography variant='h6'>Product</Typography>
+			<Board hideBackArrow header={
+				<>
+					Product
 					<Box flexGrow={1} />
-				</Box>
+				</>
 			}>
 				<Box flexGrow={1} alignItems='center' justifyContent='center'>
 					<DataLoading />
@@ -58,9 +60,9 @@ export default ({ productID }: { productID?: string }) => {
 	}
 
 	return (
-		<Board header={
-			<Box display="flex" flexGrow={1}>
-				<Typography variant='h6'>Product</Typography>
+		<Board hideBackArrow header={
+			<>
+				Product
 				<Box flexGrow={1} />
 				<Button
 					variant="contained"
@@ -78,7 +80,7 @@ export default ({ productID }: { productID?: string }) => {
 						history.push(`/admin/products/${product.id}`)
 					}}
 				>New</Button>
-			</Box>
+			</>
 		}>
 			<List>
 				{products.map(data => {
@@ -97,6 +99,8 @@ const ProductListItem = ({ productID, product }: { productID?: string, product: 
 	const symbol = ISO4217[currency].symbol
 	const amount = price[currency]
 	const imageURL = product.imageURLs().length > 0 ? product.imageURLs()[0] : undefined
+	const [setProcessing] = useProcessing()
+	const [setMessage] = useSnackbar()
 
 	return (
 		<ListItem key={product.id} button selected={productID === product.id} onClick={() => {
@@ -116,9 +120,19 @@ const ProductListItem = ({ productID, product }: { productID?: string, product: 
 			<ListItemSecondaryAction>
 				<Switch
 					edge="end"
-					onChange={async () => {
-						product.isAvailable = !product.isAvailable
-						await product.save()
+					onChange={async (e) => {
+						e.preventDefault()
+						setProcessing(true)
+						const snapshot = await product.skus.collectionReference.where('isAvailable', '==', true).get()
+						if (snapshot.empty) {
+							setProcessing(false)
+							setMessage('error', `To publish ${product.name}, add the available SKUs.`)
+						} else {
+							product.isAvailable = !product.isAvailable
+							await product.save()
+							setProcessing(false)
+							setMessage('success', `${product.name} is published`)
+						}
 					}}
 					checked={product.isAvailable}
 				/>

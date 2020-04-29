@@ -20,17 +20,9 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 export default () => {
-	return (
-		<AdminProviderProvider>
-			<Route path="/admin" component={Root} />
-		</AdminProviderProvider>
-	);
-}
-
-const Root = () => {
 	const classes = useStyles()
 	return (
-		<>
+		<AdminProviderProvider>
 			<Layout>
 				<main className={classes.content}>
 					<Container maxWidth='xl'>
@@ -39,7 +31,7 @@ const Root = () => {
 					</Container>
 				</main>
 			</Layout>
-		</>
+		</AdminProviderProvider>
 	);
 }
 

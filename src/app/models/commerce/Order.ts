@@ -19,6 +19,16 @@ export class OrderItem extends Model {
 	@Field caption?: string
 	@Field description?: string
 	@Field metadata?: any
+
+	imageURLs() {
+		return this.images
+			.map(image => {
+				if (image) {
+					return `https://demae-210ed.firebaseapp.com/assets/${image.path}`
+				}
+				return undefined
+			}).filter(value => !!value)
+	}
 }
 
 export default class Order extends Doc {
@@ -35,6 +45,7 @@ export default class Order extends Doc {
 	@Field amount: number = 0
 	@Codable(OrderItem)
 	@Field items: OrderItem[] = []
+	@Field deliveryRequired: boolean = false
 	@Field deliveryStatus: DeliveryStatus = 'none'
 	@Field paymentStatus: OrderPaymentStatus = 'none'
 	@Field isCancelled: boolean = false

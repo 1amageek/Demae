@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import MenuItem from '@material-ui/core/MenuItem'
-import Select from '@material-ui/core/Select'
+import Select, { SelectProps } from '@material-ui/core/Select'
 import InputLabel from '@material-ui/core/InputLabel'
 import FormControl from '@material-ui/core/FormControl'
 
@@ -23,6 +23,8 @@ type InputProps = {
 	style?: Object
 	menu?: MenuProp[]
 	controlProps?: any
+	onChange?: (e) => void
+	setValue?: React.Dispatch<React.SetStateAction<any>>
 }
 
 type InitProps = {
@@ -42,6 +44,7 @@ export const useSelect = (props: InitProps | InitValue) => {
 		const handleChange = e => setValue(e.target.value)
 		return {
 			value,
+			setValue,
 			onChange: handleChange
 		};
 	} else {
@@ -53,16 +56,26 @@ export const useSelect = (props: InitProps | InitValue) => {
 		return {
 			...props.inputProps,
 			value,
+			setValue,
 			onChange: handleChange
 		};
 	}
 }
 
 export default (props: InputProps) => {
+	const filterdKey = Object.keys(props).filter(key => key !== 'setValue')
+	const filterdProps = filterdKey.reduce((prev, key) => {
+		return {
+			...prev,
+			[key]: props[key]
+		}
+	}, {} as SelectProps)
 	return (
 		<FormControl variant='outlined' size='small' style={props.style} >
 			{props.label && <InputLabel id={props.id}>{props.label}</InputLabel>}
-			<Select {...props} style={{ marginTop: '8px', marginBottom: '4px' }}>
+			<Select
+				{...filterdProps}
+				style={{ marginTop: '8px', marginBottom: '4px' }}>
 				{props.menu?.map(menu => {
 					return <MenuItem key={menu.value} value={menu.value}>{menu.label}</MenuItem>
 				})}

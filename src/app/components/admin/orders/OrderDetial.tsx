@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react'
 import firebase from 'firebase'
-import Link from 'next/link'
+import { DeliveryStatus } from 'common/commerce/Types'
 import { File as StorageFile } from '@1amageek/ballcap'
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -29,27 +29,45 @@ import ListItemAvatar from '@material-ui/core/ListItemAvatar';
 import Avatar from '@material-ui/core/Avatar';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
 import ImageIcon from '@material-ui/icons/Image';
-import { useAdminProviderProductSKUs, useAdminProvider } from 'hooks/commerce';
+import { useAdminProvider, useAdminProviderOrder, } from 'hooks/commerce';
 import DataLoading from 'components/DataLoading';
 import Board from '../Board';
 import { useHistory } from 'react-router-dom';
 import { SKU } from 'models/commerce';
 
 
-export default ({ productID }: { productID?: string }) => {
+export default ({ orderID }: { orderID?: string }) => {
 	const [provider] = useAdminProvider()
-	const [skus, isLoading] = useAdminProviderProductSKUs(productID)
+	const [order, isLoading] = useAdminProviderOrder(orderID)
 	const history = useHistory()
+
+	const deliveryStatus = useSelect({
+		initValue: order?.deliveryStatus, inputProps: {
+			menu: [
+				{
+					label: 'Received',
+					value: 'none'
+				},
+				{
+					label: 'Pending',
+					value: 'pending'
+				},
+				{
+					label: 'Delivering',
+					value: 'delivering'
+				}
+				, {
+					label: 'Delivered',
+					value: 'delivered'
+				}
+			]
+		}
+	})
 
 	if (isLoading) {
 		return (
-			<Board header={
-				<Box display="flex" flexGrow={1}>
-					<Typography variant='h6'>Product</Typography>
-					<Box flexGrow={1} />
-				</Box>
-			}>
-				<Box flexGrow={1} alignItems='center' justifyContent='center'>
+			<Board>
+				<Box display="flex" flexGrow={1} fontSize={20} fontWeight={500} justifyContent='center' alignItems='center'>
 					<DataLoading />
 				</Box>
 			</Board>
@@ -58,40 +76,36 @@ export default ({ productID }: { productID?: string }) => {
 
 	return (
 		<Board header={
-			<Box display="flex" flexGrow={1} fontSize={20} fontWeight={500}>
-				SKU
+			<>
+				ID: {orderID}
 				<Box flexGrow={1} />
-				<Button
-					variant="contained"
-					color="primary"
-					startIcon={
-						<AddCircleIcon />
-					}
-					onClick={async () => {
-						if (!provider) return
-						if (!productID) return
-						const sku = new SKU(provider.products.collectionReference.doc(productID).collection('skus').doc())
-						sku.providedBy = provider.id
-						sku.name = "No name"
-						sku.isAvailable = false
-						await sku.save()
-						history.push(`/admin/products/${productID}/skus/${sku.id}`)
-					}}
-				>New</Button>
-			</Box>
-		}>
+				<Select  {...deliveryStatus} onChange={async (e) => {
+					e.preventDefault()
+					const status = String(e.target.value) as DeliveryStatus
+					deliveryStatus.setValue(status)
+
+					if (!order) return
+					order.deliveryStatus = status
+					await order.save()
+					console.log(deliveryStatus.value, e.target.value)
+				}} />
+			</>
+		} onClick={(e) => {
+			history.push('/admin/orders')
+		}}>
 			<List>
-				{skus.map(data => {
+				{order?.items.map(data => {
+					const image = (data.imageURLs().length > 0) ? data.imageURLs()[0] : undefined
 					return (
-						<ListItem key={data.id} button selected={productID === data.id} onClick={() => {
-							history.push(`/admin/products/${productID}/skus/${data.id}`)
-						}}>
+						<ListItem key={data.skuReference?.path}>
 							<ListItemAvatar>
-								<Avatar variant="rounded" src={data.imageURLs()[0]} >
+								<Avatar variant="rounded" src={image} >
 									<ImageIcon />
 								</Avatar>
 							</ListItemAvatar>
-							<ListItemText primary={data.name} secondary={data.caption} />
+							<ListItemText primary={data.name} secondary={
+								<Typography>Qty: {data.quantity.toString()}</Typography>
+							} />
 						</ListItem>
 					)
 				})}

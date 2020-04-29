@@ -19,7 +19,7 @@ import Select, { useSelect } from 'components/Select'
 import { CurrencyCode, CurrencyCodes } from 'common/Currency'
 import EditIcon from '@material-ui/icons/Edit';
 import SaveIcon from '@material-ui/icons/Save';
-import { useProviderProduct, useProviderProductSKU } from 'hooks/commerce';
+import { useAdminProviderProduct, useAdminProviderProductSKU } from 'hooks/commerce';
 import DataLoading from 'components/DataLoading';
 import Board from '../Board';
 import { useProcessing } from 'components/Processing';
@@ -31,8 +31,8 @@ import StockDetail from './StockDetail';
 
 export default ({ productID, skuID }: { productID?: string, skuID?: string }) => {
 
-	const [product] = useProviderProduct()
-	const [sku, isLoading] = useProviderProductSKU(productID, skuID)
+	const [product] = useAdminProviderProduct()
+	const [sku, isLoading] = useAdminProviderProductSKU(productID, skuID)
 	const [isEditing, setEdit] = useState(false)
 
 
@@ -53,12 +53,12 @@ export default ({ productID, skuID }: { productID?: string, skuID?: string }) =>
 	if (!sku || !product) {
 		return (
 			<Board header={
-				<Typography variant='h6'>
-					No choise sku
-				</Typography>
+				<Box display="flex" flexGrow={1} fontSize={20} fontWeight={500}>
+					Not selected
+				</Box>
 			}>
-				<Box flexGrow={1} alignItems='center' justifyContent='center'>
-					<Typography variant='h6'>No choise sku</Typography>
+				<Box display="flex" flexGrow={1} fontSize={20} fontWeight={500} padding={8}>
+					Not selected
 				</Box>
 			</Board>
 		)

@@ -23,7 +23,7 @@ export const onCreate = regionFunctions.firestore
 		}
 		const product: Product = Product.fromSnapshot(snapshot)
 		const stripe = new Stripe(STRIPE_API_KEY, { apiVersion: '2020-03-02' })
-		const data: Stripe.ProductCreateParams = {
+		let data: Stripe.ProductCreateParams = {
 			id: product.id,
 			type: product.type,
 			name: product.name,
@@ -33,6 +33,9 @@ export const onCreate = regionFunctions.firestore
 			metadata: {
 				product_path: product.path
 			}
+		}
+		if (product.type === 'service') {
+			data.unit_label = product.unitLabel
 		}
 		try {
 			await stripe.products.create(nullFilter(data))
@@ -61,16 +64,18 @@ export const onUpdate = regionFunctions.firestore
 			throw new functions.https.HttpsError('invalid-argument', 'The functions requires STRIPE_API_KEY.')
 		}
 		const stripe = new Stripe(STRIPE_API_KEY, { apiVersion: '2020-03-02' })
-		const data: Stripe.ProductUpdateParams = {
+		let data: Stripe.ProductUpdateParams = {
 			name: product.name,
 			caption: product.caption,
 			description: product.description,
 			active: product.isAvailable,
 			shippable: product.shippable,
-			unit_label: product.unitLabel,
 			metadata: {
 				product_path: product.path
 			}
+		}
+		if (product.type === 'service') {
+			data.unit_label = product.unitLabel
 		}
 		try {
 			await stripe.products.update(product.id, nullFilter(data))

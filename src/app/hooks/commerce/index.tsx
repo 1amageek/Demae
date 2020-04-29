@@ -11,7 +11,7 @@ import User, { Role } from 'models/commerce/User'
 import Shipping from 'models/commerce/Shipping'
 import Order from 'models/commerce/Order'
 
-export const useAuthUser = (): [firebase.User | undefined, boolean, firebase.auth.Error?] => {
+export const _useAuthUser = (): [firebase.User | undefined, boolean, firebase.auth.Error?] => {
 	interface Prop {
 		data?: firebase.User
 		loading: boolean
@@ -45,7 +45,7 @@ export const useAuthUser = (): [firebase.User | undefined, boolean, firebase.aut
 	return [state.data, state.loading, state.error]
 }
 
-export const useAdmin = (): [Role | undefined, boolean, firebase.auth.Error?] => {
+export const _useAdmin = (): [Role | undefined, boolean, firebase.auth.Error?] => {
 	interface Prop {
 		data?: Role
 		loading: boolean
@@ -104,23 +104,98 @@ export const useAdmin = (): [Role | undefined, boolean, firebase.auth.Error?] =>
 
 export const AuthContext = createContext<[firebase.User | undefined, boolean, firebase.auth.Error | undefined]>([undefined, true, undefined])
 export const AuthProvider = ({ children }: { children: any }) => {
-	const [auth, isLoading, error] = useAuthUser()
+	const [auth, isLoading, error] = _useAuthUser()
 	return <AuthContext.Provider value={[auth, isLoading, error]}> {children} </AuthContext.Provider>
 }
 
 export const RoleContext = createContext<[Role | undefined, boolean, firebase.auth.Error | undefined]>([undefined, true, undefined])
 export const RoleProvider = ({ children }: { children: any }) => {
-	const [auth, isLoading, error] = useAdmin()
+	const [auth, isLoading, error] = _useAdmin()
 	return <RoleContext.Provider value={[auth, isLoading, error]}> {children} </RoleContext.Provider>
 }
 
+
+export const useAuthUser = (): [firebase.User | undefined, boolean, firebase.auth.Error | undefined] => {
+	return useContext(AuthContext)
+}
+
+export const useAdmin = (): [Role | undefined, boolean, firebase.auth.Error | undefined] => {
+	return useContext(RoleContext)
+}
+
+
+// Admin
 export const AdminProviderContext = createContext<[Provider | undefined, boolean, Error | undefined]>([undefined, true, undefined])
 export const AdminProviderProvider = ({ children }: { children: any }) => {
-	const [auth, waiting] = useContext(AuthContext)
-	const [data, isLoading, error] = useDocumentListen<Provider>(Provider, auth?.uid ? new Provider(auth.uid).documentReference : undefined, waiting)
+	const [auth, waiting] = useAdmin()
+	const [data, isLoading, error] = useDocumentListen<Provider>(Provider, auth?.id ? new Provider(auth.id).documentReference : undefined, waiting)
 	return <AdminProviderContext.Provider value={[data, isLoading, error]}> {children} </AdminProviderContext.Provider>
 }
 
+export const AdminProviderProductContext = createContext<[Product | undefined, boolean, Error | undefined]>([undefined, true, undefined])
+export const AdminProviderProductProvider = ({ id, children }: { id: string, children: any }) => {
+	const [provider, waiting] = useContext(AdminProviderContext)
+	const documentReference = (provider && id) ? provider?.products.collectionReference.doc(id) : undefined
+	const [data, isLoading, error] = useDocumentListen<Product>(Product, documentReference, waiting)
+	return <AdminProviderProductContext.Provider value={[data, isLoading, error]}> {children} </AdminProviderProductContext.Provider>
+}
+
+export const AdminProviderProductSKUContext = createContext<[SKU | undefined, boolean, Error | undefined]>([undefined, true, undefined])
+export const AdminProviderProductSKUProvider = ({ id, children }: { id: string, children: any }) => {
+	const [product, waiting] = useContext(AdminProviderProductContext)
+	const documentReference = (product && id) ? product.skus.collectionReference.doc(id) : undefined
+	const [data, isLoading, error] = useDocumentListen<SKU>(SKU, documentReference, waiting)
+	return <AdminProviderProductSKUContext.Provider value={[data, isLoading, error]}> {children} </AdminProviderProductSKUContext.Provider>
+}
+
+export const AdminProviderOrderContext = createContext<[Order | undefined, boolean, Error | undefined]>([undefined, true, undefined])
+export const AdminProviderOrderProvider = ({ id, children }: { id?: string, children: any }) => {
+	const [provider, waiting] = useContext(AdminProviderContext)
+	const documentReference = (provider && id) ? provider.orders.collectionReference.doc(id) : undefined
+	const [data, isLoading, error] = useDocumentListen<Order>(Order, documentReference, waiting)
+	return <AdminProviderOrderContext.Provider value={[data, isLoading, error]}> {children} </AdminProviderOrderContext.Provider>
+}
+
+export const useAdminProvider = (): [Provider | undefined, boolean, Error | undefined] => {
+	return useContext(AdminProviderContext)
+}
+
+export const useAdminProviderProducts = (): [Product[], boolean, Error?] => {
+	const [provider, waiting] = useAdminProvider()
+	const collectionReference = provider ? provider.products.collectionReference : undefined
+	return useDataSourceListen<Product>(Product, { path: collectionReference?.path }, waiting)
+}
+
+export const useAdminProviderProduct = (): [Product | undefined, boolean, Error | undefined] => {
+	return useContext(AdminProviderProductContext)
+}
+
+export const useAdminProviderProductSKUs = (id?: string): [Product[], boolean, Error?] => {
+	const [provider, waiting] = useAdminProvider()
+	const collectionReference = (provider && id) ? provider.products.collectionReference.doc(id).collection('skus') : undefined
+	return useDataSourceListen<Product>(Product, { path: collectionReference?.path }, waiting)
+}
+
+export const useAdminProviderOrders = (): [Order[], boolean, Error?] => {
+	const [provider, waiting] = useAdminProvider()
+	const collectionReference = provider ? provider.orders.collectionReference : undefined
+	return useDataSourceListen<Order>(Order, { path: collectionReference?.path }, waiting)
+}
+
+export const useAdminProviderProductSKU = (productID?: string, skuID?: string): [SKU | undefined, boolean, Error?] => {
+	const [provider, waiting] = useAdminProvider()
+	const documentReference = (provider && productID && skuID) ? provider.products.doc(productID, Product).skus.collectionReference.doc(skuID) : undefined
+	return useDocumentListen<SKU>(SKU, documentReference, waiting)
+}
+
+export const useAdminProviderOrder = (id?: string): [Order | undefined, boolean, Error?] => {
+	const [provider, waiting] = useAdminProvider()
+	const documentReference = (provider && id) ? provider.orders.collectionReference.doc(id) : undefined
+	return useDocumentListen<Order>(Order, documentReference, waiting)
+}
+
+
+// User
 export const UserContext = createContext<[User | undefined, boolean, Error | undefined]>([undefined, true, undefined])
 export const UserProvider = ({ children }: { children: any }) => {
 	const [auth, waiting] = useContext(AuthContext)
@@ -133,64 +208,6 @@ export const CartProvider = ({ children }: { children: any }) => {
 	const [auth, waiting] = useContext(AuthContext)
 	const [cart, isLoading, error] = useDocumentListen<Cart>(Cart, auth?.uid ? new Cart(auth.uid).documentReference : undefined, waiting)
 	return <CartContext.Provider value={[cart, isLoading, error]}> {children} </CartContext.Provider>
-}
-
-export const ProviderContext = createContext<[Provider | undefined, boolean, Error | undefined]>([undefined, true, undefined])
-export const ProviderProvider = ({ id, children }: { id: string, children: any }) => {
-	const [data, isLoading, error] = useDocumentListen<Provider>(Provider, new Provider(id).documentReference)
-	return <ProviderContext.Provider value={[data, isLoading, error]}> {children} </ProviderContext.Provider>
-}
-
-export const ProviderProductContext = createContext<[Product | undefined, boolean, Error | undefined]>([undefined, true, undefined])
-export const ProviderProductProvider = ({ id, children }: { id: string, children: any }) => {
-	const [user, isAuthLoading] = useAuthUser()
-	const documentReference = (user && id) ? new Provider(user.uid).products.collectionReference.doc(id) : undefined
-	const [data, isLoading, error] = useDocumentListen<Product>(Product, documentReference, isAuthLoading)
-	return <ProviderProductContext.Provider value={[data, isLoading, error]}> {children} </ProviderProductContext.Provider>
-}
-
-export const ProviderProductSKUContext = createContext<[SKU | undefined, boolean, Error | undefined]>([undefined, true, undefined])
-export const ProviderProductSKUProvider = ({ id, children }: { id: string, children: any }) => {
-	const [product, waiting] = useProviderProduct()
-	const documentReference = (product && id) ? product.skus.collectionReference.doc(id) : undefined
-	const [data, isLoading, error] = useDocumentListen<SKU>(SKU, documentReference, waiting)
-	return <ProviderProductSKUContext.Provider value={[data, isLoading, error]}> {children} </ProviderProductSKUContext.Provider>
-}
-
-export const useProviderProducts = (): [Product[], boolean, Error?] => {
-	const [user, isLoading] = useAuthUser()
-	const collectionReference = user ? new Provider(user.uid).products.collectionReference : undefined
-	return useDataSourceListen<Product>(Product, { path: collectionReference?.path }, isLoading)
-}
-
-export const useProviderProductSKUs = (id?: string): [Product[], boolean, Error?] => {
-	const [user, isLoading] = useAuthUser()
-	const collectionReference = (user && id) ? new Provider(user.uid).products.collectionReference.doc(id).collection('skus') : undefined
-	return useDataSourceListen<Product>(Product, { path: collectionReference?.path }, isLoading)
-}
-
-export const useProviderOrders = (): [Order[], boolean, Error?] => {
-	const [user, isLoading] = useAuthUser()
-	const collectionReference = user ? new Provider(user.uid).orders.collectionReference : undefined
-	return useDataSourceListen<Order>(Order, { path: collectionReference?.path }, isLoading)
-}
-
-export const useProviderProductSKU = (productID?: string, skuID?: string): [SKU | undefined, boolean, Error?] => {
-	const [user, isLoading] = useAuthUser()
-	const documentReference = (user && productID && skuID) ? new Provider(user.uid).products.doc(productID, Product).skus.collectionReference.doc(skuID) : undefined
-	return useDocumentListen<SKU>(SKU, documentReference, isLoading)
-}
-
-export const useAdminProvider = (): [Provider | undefined, boolean, Error | undefined] => {
-	return useContext(AdminProviderContext)
-}
-
-export const useCart = (): [Cart | undefined, boolean, Error | undefined] => {
-	return useContext(CartContext)
-}
-
-export const useUser = (): [User | undefined, boolean, Error | undefined] => {
-	return useContext(UserContext)
 }
 
 export const useUserShipping = (id?: string): [Shipping | undefined, boolean, Error | undefined] => {
@@ -208,12 +225,33 @@ export const useUserShippingAddresses = (): [Shipping[], boolean, Error | undefi
 	return [data, isLoading, error]
 }
 
-//
-
-export const useProvider = (): [Provider | undefined, boolean, Error | undefined] => {
-	return useContext(ProviderContext)
+export const useCart = (): [Cart | undefined, boolean, Error | undefined] => {
+	return useContext(CartContext)
 }
 
-export const useProviderProduct = (): [Product | undefined, boolean, Error | undefined] => {
-	return useContext(ProviderProductContext)
+export const useUser = (): [User | undefined, boolean, Error | undefined] => {
+	return useContext(UserContext)
 }
+
+// Provider
+
+// export const ProviderContext = createContext<[Provider | undefined, boolean, Error | undefined]>([undefined, true, undefined])
+// export const ProviderProvider = ({ id, children }: { id?: string, children: any }) => {
+// 	const [provider, isLoading, error] = useDocumentListen<Provider>(Provider, id ? new Provider(id).documentReference : undefined)
+// 	return <ProviderContext.Provider value={[provider, isLoading, error]}> {children} </ProviderContext.Provider>
+// }
+
+// export const ProviderProductContext = createContext<[Product | undefined, boolean, Error | undefined]>([undefined, true, undefined])
+// export const ProviderProductProvider = ({ id, children }: { id?: string, children: any }) => {
+// 	const [provider, waiting] = useContext(ProviderContext)
+// 	const [product, isLoading, error] = useDocumentListen<Product>(Product, id ? provider?.products.collectionReference.doc(id) : undefined, waiting)
+// 	return <ProviderProductContext.Provider value={[product, isLoading, error]}> {children} </ProviderProductContext.Provider>
+// }
+
+// export const useProvider = (): [Provider | undefined, boolean, Error | undefined] => {
+// 	return useContext(ProviderContext)
+// }
+
+// export const useProviderProduct = (): [Product | undefined, boolean, Error | undefined] => {
+// 	return useContext(ProviderProductContext)
+// }

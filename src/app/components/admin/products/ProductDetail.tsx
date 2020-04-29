@@ -3,12 +3,7 @@ import React, { useState, useRef } from 'react'
 import firebase from 'firebase'
 import { File as StorageFile } from '@1amageek/ballcap'
 import Button from '@material-ui/core/Button';
-import Tooltip from '@material-ui/core/Tooltip';
-import Typography from '@material-ui/core/Typography';
-import Table from '@material-ui/core/Table';
-import TableRow from '@material-ui/core/TableRow';
-import TableCell from '@material-ui/core/TableCell';
-import TableBody from '@material-ui/core/TableBody';
+import { Table, TableBody, TableRow, TableCell, Typography } from '@material-ui/core';
 import Avatar from '@material-ui/core/Avatar';
 import DndCard from 'components/DndCard'
 import Box from '@material-ui/core/Box';
@@ -18,14 +13,14 @@ import Product from 'models/commerce/Product'
 import ImageIcon from '@material-ui/icons/Image';
 import EditIcon from '@material-ui/icons/Edit';
 import SaveIcon from '@material-ui/icons/Save';
-import { useProviderProduct } from 'hooks/commerce';
+import { useAdminProviderProduct } from 'hooks/commerce';
 import DataLoading from 'components/DataLoading';
 import Board from '../Board';
 import { useProcessing } from 'components/Processing';
 
 
 export default () => {
-	const [product, isLoading] = useProviderProduct()
+	const [product, isLoading] = useAdminProviderProduct()
 	const [isEditing, setEdit] = useState(false)
 
 	if (isLoading) {

@@ -26,7 +26,7 @@ export default (props: any) => {
 	const [user, isUserLoading] = useContext(UserContext)
 	const [cart] = useContext(CartContext)
 	const [setProcessing] = useProcessing()
-	const [open, setMessage] = useSnackbar()
+	const [setMessage] = useSnackbar()
 
 	const enabled = (user?.customerID && user?.defaultPaymentMethodID && user?.defaultShipping)
 

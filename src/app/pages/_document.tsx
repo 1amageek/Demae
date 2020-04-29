@@ -54,19 +54,19 @@ class MyDocument extends Document {
 						href="https://cdnjs.cloudflare.com/ajax/libs/paymentfont/1.1.2/css/paymentfont.min.css"
 					/>
 				</Head>
-				<body>
+				<Body>
 					<Main />
 					<NextScript />
-				</body>
+				</Body>
 			</html>
 		);
 	}
 }
 
-// const Body = styled.body`
-// 	min-height: 100vh;
-//   /* mobile viewport bug fix */
-//   min-height: -webkit-fill-available;
-// `
+const Body = styled.body`
+	min-height: 100vh;
+  /* mobile viewport bug fix */
+  min-height: -webkit-fill-available;
+`
 
 export default MyDocument
