@@ -64,6 +64,15 @@ export class CartItem extends Deliverable implements Accounting {
 		return `${symbol}${amount.toLocaleString()}`
 	}
 
+	imageURLs() {
+		return this.images.map(image => {
+			if (image) {
+				return `https://demae-210ed.firebaseapp.com/assets/${image.path}`
+			}
+			return undefined
+		}).filter(value => !!value)
+	}
+
 	price() {
 		return this.amount
 	}
@@ -229,7 +238,8 @@ export default class Cart extends Doc {
 			cartItem.quantity += 1
 		} else {
 			const cartItem: CartItem = new CartItem()
-			cartItem.images = sku.images
+			const images = sku.images.length > 0 ? sku.images : product.images
+			cartItem.images = images
 			cartItem.providedBy = sku.providedBy
 			cartItem.productType = product.type
 			cartItem.productReference = sku.productReference

@@ -48,13 +48,17 @@ const Status = {
 	delivered: 'Delivered'
 }
 
-export default ({ orderID, status }: { orderID?: string, status: string }) => {
+export default ({ orderID, deliveryStatus, paymentStatus }: { orderID?: string, deliveryStatus: string, paymentStatus: string }) => {
 	const [provider, waiting] = useAdminProvider()
 	const collectionReference = provider ? provider.orders.collectionReference : undefined
-	const [orderBy, setOrderBy] = useState<firebase.firestore.OrderByDirection>('asc')
+	const wheres = [
+		deliveryStatus === 'none' ? undefined : Where('deliveryStatus', '==', deliveryStatus),
+		paymentStatus === 'none' ? undefined : Where('paymentStatus', '==', paymentStatus)
+	].filter(value => !!value)
+	const [orderBy, setOrderBy] = useState<firebase.firestore.OrderByDirection>('desc')
 	const [orders, isLoading] = useDataSourceListen<Order>(Order, {
 		path: collectionReference?.path,
-		wheres: [Where('deliveryStatus', '==', status)],
+		wheres: wheres,
 		orderBy: OrderBy('createdAt', orderBy)
 	}, waiting)
 	const history = useHistory()
@@ -95,9 +99,7 @@ export default ({ orderID, status }: { orderID?: string, status: string }) => {
 		}>
 			<List>
 				{orders.map(data => {
-
 					const orderedDate = Dayjs(data.createdAt.toDate())
-
 					return (
 						<ListItem key={data.id} button selected={orderID === data.id} onClick={() => {
 							history.push(`/admin/orders/${data.id}`)
@@ -108,17 +110,15 @@ export default ({ orderID, status }: { orderID?: string, status: string }) => {
 								</Avatar>
 							</ListItemAvatar>
 							<ListItemText primary={
-								<Box fontSize={15} >
-									{data.title}
-									<Box fontSize={11}>
-										ID: {data.id}
-									</Box>
-								</Box>
-							} secondary={
-								<Box fontSize={12} >
-									{orderedDate.format('YYYY-MM-DD HH:mm:ss')}
-								</Box>
-							} />
+								<>
+									<Typography>
+										{data.title}
+									</Typography>
+									<Typography variant="subtitle2">
+										{`ID: ${data.id}`}
+									</Typography>
+								</>
+							} secondary={orderedDate.format('YYYY-MM-DD HH:mm:ss')} />
 							<ListItemSecondaryAction>
 								<Button variant='outlined' disabled>{Status[data.deliveryStatus]}</Button>
 							</ListItemSecondaryAction>

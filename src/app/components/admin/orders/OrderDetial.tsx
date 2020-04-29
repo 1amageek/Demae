@@ -74,6 +74,13 @@ export default ({ orderID }: { orderID?: string }) => {
 		)
 	}
 
+	if (!order) {
+		return (
+			<Board>
+			</Board>
+		)
+	}
+
 	return (
 		<Board header={
 			<>
@@ -93,23 +100,34 @@ export default ({ orderID }: { orderID?: string }) => {
 		} onClick={(e) => {
 			history.push('/admin/orders')
 		}}>
-			<List>
-				{order?.items.map(data => {
-					const image = (data.imageURLs().length > 0) ? data.imageURLs()[0] : undefined
-					return (
-						<ListItem key={data.skuReference?.path}>
-							<ListItemAvatar>
-								<Avatar variant="rounded" src={image} >
-									<ImageIcon />
-								</Avatar>
-							</ListItemAvatar>
-							<ListItemText primary={data.name} secondary={
-								<Typography>Qty: {data.quantity.toString()}</Typography>
-							} />
-						</ListItem>
-					)
-				})}
-			</List>
+			<Box>
+				<Box fontSize={18} fontWeight={600} padding={2}>
+					Shipping Address
+				</Box>
+				<Box padding={2}>
+					<Typography>{order?.shipping?.format(['postal_code', 'line1', 'line2', 'city', 'state'])}</Typography>
+				</Box>
+				<Box fontSize={18} fontWeight={600} padding={2}>
+					Order items
+				</Box>
+				<List>
+					{order?.items.map(data => {
+						const image = (data.imageURLs().length > 0) ? data.imageURLs()[0] : undefined
+						return (
+							<ListItem key={data.skuReference?.path}>
+								<ListItemAvatar>
+									<Avatar variant="rounded" src={image} >
+										<ImageIcon />
+									</Avatar>
+								</ListItemAvatar>
+								<ListItemText primary={data.name} secondary={
+									<Typography>Qty: {data.quantity.toString()}</Typography>
+								} />
+							</ListItem>
+						)
+					})}
+				</List>
+			</Box>
 		</Board>
 	)
 }

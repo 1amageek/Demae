@@ -203,6 +203,15 @@ export const UserProvider = ({ children }: { children: any }) => {
 	return <UserContext.Provider value={[user, isLoading, error]}> {children} </UserContext.Provider>
 }
 
+export const RolesContext = createContext<[Role[], boolean, Error | undefined]>([[], true, undefined])
+export const RolesProvider = ({ children }: { children: any }) => {
+	const [user, waiting] = useContext(UserContext)
+	const [roles, isLoading, error] = useDataSourceListen<Role>(Role, user ? {
+		path: user.roles.collectionReference.path
+	} : undefined, waiting)
+	return <RolesContext.Provider value={[roles, isLoading, error]}> {children} </RolesContext.Provider>
+}
+
 export const CartContext = createContext<[Cart | undefined, boolean, Error | undefined]>([undefined, true, undefined])
 export const CartProvider = ({ children }: { children: any }) => {
 	const [auth, waiting] = useContext(AuthContext)
@@ -231,6 +240,10 @@ export const useCart = (): [Cart | undefined, boolean, Error | undefined] => {
 
 export const useUser = (): [User | undefined, boolean, Error | undefined] => {
 	return useContext(UserContext)
+}
+
+export const useRoles = (): [Role[], boolean, Error | undefined] => {
+	return useContext(RolesContext)
 }
 
 // Provider

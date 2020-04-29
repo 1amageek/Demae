@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useHistory } from 'react-router-dom'
 import { useTheme } from '@material-ui/core/styles';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 import Grid from '@material-ui/core/Grid';
@@ -12,23 +12,39 @@ import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import OrderList from './OrderList'
 import OrderDetial from './OrderDetial'
-import { DeliveryStatus } from 'common/commerce/Types'
 
-
-const Status = ['none', 'pending', 'delivering', 'delivered']
-const StatusLabel = {
+const DeliveryStatus = ['none', 'pending', 'delivering', 'delivered']
+const DeliveryStatusLabel = {
 	none: 'Received',
 	pending: 'pending',
 	delivering: 'Delivering',
 	delivered: 'Delivered'
 }
 
+const PaymentStatus = ['none', 'rejected', 'authorized', 'paid', 'cancelled', 'failure', 'cancel_failure']
+const PaymentStatusLabel = {
+	none: 'Received',
+	rejected: 'rejected',
+	authorized: 'authorized',
+	paid: 'paid',
+	cancelled: 'cancelled',
+	failure: 'failure',
+	cancel_failure: 'cancel failure'
+}
+
 export default (props: any) => {
 	const { orderID } = props.match.params
-	const [value, setValue] = useState(0)
-	const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
-		setValue(newValue);
-	};
+	const history = useHistory()
+	const [deliveryState, setDeliveryState] = useState(0)
+	const [paymentState, setPaymentState] = useState(0)
+	const handleChangeDeliveryStatus = (event: React.ChangeEvent<{}>, newValue: number) => {
+		setDeliveryState(newValue)
+		history.push('/admin/orders')
+	}
+	const handleChangePaymentStatus = (event: React.ChangeEvent<{}>, newValue: number) => {
+		setPaymentState(newValue)
+		history.push('/admin/orders')
+	}
 
 	return (
 		<AdminProviderOrderProvider id={orderID}>
@@ -40,49 +56,58 @@ export default (props: any) => {
 					</Breadcrumbs>
 				</Box>
 				<AppBar position="static" color='inherit' elevation={1}>
-					<Tabs value={value} onChange={handleChange} aria-label="simple tabs example">
-						{Status.map(value => {
-							return <Tab label={StatusLabel[value]} id={value} />
+					<Tabs value={deliveryState} onChange={handleChangeDeliveryStatus}>
+						{DeliveryStatus.map(value => {
+							return <Tab key={value} label={DeliveryStatusLabel[value]} id={value} />
 						})}
 					</Tabs>
 				</AppBar>
-				<Grid container alignItems="stretch" spacing={0} style={{ width: '100%' }}>
-					<Content orderID={orderID} status={Status[value]} />
-				</Grid>
+				<AppBar position="static" color='inherit' elevation={1}>
+					<Tabs value={paymentState} onChange={handleChangePaymentStatus}>
+						{PaymentStatus.map(value => {
+							return <Tab key={value} label={PaymentStatusLabel[value]} id={value} />
+						})}
+					</Tabs>
+				</AppBar>
+				<Content orderID={orderID} deliveryStatus={DeliveryStatus[deliveryState]} paymentStatus={PaymentStatus[paymentState]} />
 			</Box>
 		</AdminProviderOrderProvider>
 	)
 }
 
 
-const Content = ({ status, orderID }: { status: string, orderID?: string }) => {
+const Content = ({ deliveryStatus, paymentStatus, orderID }: { deliveryStatus: string, paymentStatus: string, orderID?: string }) => {
 	const theme = useTheme();
 	const matches = useMediaQuery(theme.breakpoints.down('sm'));
 
 	if (matches) {
 		if (orderID) {
 			return (
-				<Grid item xs={12}>
-					<OrderDetial orderID={orderID} />
+				<Grid container alignItems="stretch" spacing={0} style={{ width: '100%' }}>
+					<Grid item xs={12}>
+						<OrderDetial orderID={orderID} />
+					</Grid>
 				</Grid>
 			)
 		}
 
 		return (
-			<Grid item xs={12}>
-				<OrderList orderID={orderID} status={status} />
+			<Grid container alignItems="stretch" spacing={0} style={{ width: '100%' }}>
+				<Grid item xs={12}>
+					<OrderList orderID={orderID} deliveryStatus={deliveryStatus} paymentStatus={paymentStatus} />
+				</Grid>
 			</Grid>
 		)
 	}
 
 	return (
-		<>
-			<Grid item xs={12} md={4} alignItems='stretch'>
-				<OrderList orderID={orderID} status={status} />
+		<Grid container alignItems="stretch" spacing={0} style={{ width: '100%' }}>
+			<Grid item xs={12} md={4}>
+				<OrderList orderID={orderID} deliveryStatus={deliveryStatus} paymentStatus={paymentStatus} />
 			</Grid>
 			<Grid item xs={12} md={8}>
 				<OrderDetial orderID={orderID} />
 			</Grid>
-		</>
+		</Grid>
 	)
 }

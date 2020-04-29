@@ -19,8 +19,8 @@ import Cart, { CartGroup, CartItem } from 'models/commerce/Cart'
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
 		avater: {
-			width: theme.spacing(14),
-			height: theme.spacing(14),
+			width: theme.spacing(10),
+			height: theme.spacing(10),
 		}
 	}),
 );
@@ -28,11 +28,6 @@ const useStyles = makeStyles((theme: Theme) =>
 export default () => {
 	const [auth] = useAuthUser()
 	const [cart, isLoading] = useContext(CartContext)
-
-	const subtotal = cart?.subtotal() || 0
-	const tax = cart?.tax() || 0
-	const currencyCode = cart?.currency || 'USD'
-	const symbol = cart ? ISO4217[currencyCode]['symbol'] : ''
 
 	if (!auth && !isLoading) {
 		return <Login />
@@ -103,21 +98,23 @@ const CartItemCell = ({ key, cartItem }: { key: string, cartItem: CartItem }) =>
 		await cart.save()
 	}
 
+	const imageURL = (cartItem.imageURLs().length > 0) ? cartItem.imageURLs()[0] : undefined
+
 	return (
 		<ListItem key={key} dense>
 			<ListItemAvatar>
-				<Avatar className={classes.avater} variant="rounded">
+				<Avatar className={classes.avater} variant="rounded" src={imageURL}>
 					<ImageIcon />
 				</Avatar>
 			</ListItemAvatar>
 			<ListItemText
 				primary={
 					<Box display="flex" mx={2} my={1} >
-						<Box flexGrow={1} fontWeight="fontWeightMedium" fontSize="h6.fontSize">
+						<Box flexGrow={1} fontWeight={600} fontSize={20}>
 							<Typography variant='h6'>{`${cartItem.name}`}</Typography>
 							<Typography>{`${cartItem.displayPrice()}`}</Typography>
 						</Box>
-						<Box fontWeight="fontWeightMedium" fontSize="h6.fontSize">{`${ISO4217[cartItem.currency]['symbol']}${cartItem.subtotal().toLocaleString()}`}</Box>
+						<Box fontWeight={600} fontSize={20}>{`${ISO4217[cartItem.currency]['symbol']}${cartItem.subtotal().toLocaleString()}`}</Box>
 					</Box>
 				}
 				secondary={
@@ -127,7 +124,7 @@ const CartItemCell = ({ key, cartItem }: { key: string, cartItem: CartItem }) =>
 								<RemoveCircleIcon color='inherit' />
 							</IconButton>
 						</Tooltip>
-						<Box fontWeight="fontWeightMedium" fontSize="h6.fontSize" mx={1}>
+						<Box fontWeight={600} fontSize={20} mx={1}>
 							{cartItem.quantity}
 						</Box>
 						<Tooltip title='Add' onClick={addItem}>

@@ -84,7 +84,13 @@ export default ({ productID }: { productID?: string }) => {
 		}>
 			<List>
 				{products.map(data => {
-					return <ProductListItem productID={productID} product={data} />
+					return (
+						<ListItem key={data.id} button selected={productID === data.id} onClick={() => {
+							history.push(`/admin/products/${data.id}`)
+						}}>
+							<ProductListItem key={data.id} productID={productID} product={data} />
+						</ListItem>
+					)
 				})}
 			</List>
 		</Board>
@@ -97,26 +103,20 @@ const ProductListItem = ({ productID, product }: { productID?: string, product: 
 	const price = product.price || {}
 	const currency = user?.currency || 'USD'
 	const symbol = ISO4217[currency].symbol
-	const amount = price[currency]
+	const amount = price[currency] || 0
 	const imageURL = product.imageURLs().length > 0 ? product.imageURLs()[0] : undefined
+	const priceWithSymbol = amount > 0 ? `${symbol}${amount}` : ''
 	const [setProcessing] = useProcessing()
 	const [setMessage] = useSnackbar()
 
 	return (
-		<ListItem key={product.id} button selected={productID === product.id} onClick={() => {
-			history.push(`/admin/products/${product.id}`)
-		}}>
+		<>
 			<ListItemAvatar>
-				<Avatar variant="rounded" src={product.imageURLs()[0]} >
+				<Avatar variant="rounded" src={imageURL} >
 					<ImageIcon />
 				</Avatar>
 			</ListItemAvatar>
-			<ListItemText primary={product.name} secondary={
-				<>
-					<Typography>{product.caption}</Typography>
-					{amount && <Typography>{`${symbol}${amount}`}</Typography>}
-				</>
-			} />
+			<ListItemText primary={product.name} secondary={priceWithSymbol} />
 			<ListItemSecondaryAction>
 				<Switch
 					edge="end"
@@ -137,6 +137,6 @@ const ProductListItem = ({ productID, product }: { productID?: string, product: 
 					checked={product.isAvailable}
 				/>
 			</ListItemSecondaryAction>
-		</ListItem>
+		</>
 	)
 }

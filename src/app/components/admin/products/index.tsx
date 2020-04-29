@@ -74,14 +74,14 @@ const Content = ({ productID, skuID }: { productID?: string, skuID: string }) =>
 
 	return (
 		<Grid container alignItems="stretch" spacing={1} style={{ width: '100%' }}>
-			<Grid item xs>
+			<Grid item xs={4}>
 				<ProductList productID={productID} />
 			</Grid>
-			<Grid item xs>
+			<Grid item xs={4}>
 				<ProductDetail />
 				{productID && <SKUList productID={productID} />}
 			</Grid>
-			<Grid item xs>
+			<Grid item xs={4}>
 				{productID && skuID && <SKUDetail productID={productID} skuID={skuID} />}
 			</Grid>
 		</Grid>

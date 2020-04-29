@@ -2,10 +2,9 @@
 
 
 // Order
-export type OrderItemType = 'sku' | 'tax' | 'shipping' | 'discount'
 export type OrderItemStatus = 'none' | 'ordered' | 'changed' | 'cancelled'
 export type DeliveryStatus = 'none' | 'pending' | 'delivering' | 'delivered' | 'failure'
-export type OrderPaymentStatus = 'none' | 'rejected' | 'authorized' | 'paid' | 'cancelled' | 'failure' | 'cancel_failure'
+export type PaymentStatus = 'none' | 'rejected' | 'authorized' | 'paid' | 'cancelled' | 'failure' | 'cancel_failure'
 
 // Plan
 export type Interval = 'day' | 'week' | 'month' | 'year'

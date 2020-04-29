@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import firebase from "firebase"
+import firebase, { database } from "firebase"
 import "firebase/firestore"
 import "firebase/auth"
 import { firestore, Doc, DocumentReference } from '@1amageek/ballcap'
@@ -87,28 +87,32 @@ export const useDocumentListen = <T extends Doc>(type: typeof Doc, documentRefer
 	return [state.data, state.loading, state.error]
 }
 
+export interface WhereQuery {
+	fieldPath: string | firebase.firestore.FieldPath
+	opStr: firebase.firestore.WhereFilterOp
+	value: any
+}
+
+export interface OrderByQuery {
+	fieldPath: string | firebase.firestore.FieldPath,
+	directionStr?: firebase.firestore.OrderByDirection
+}
+
 export const Where = (fieldPath: string | firebase.firestore.FieldPath,
 	opStr: firebase.firestore.WhereFilterOp,
-	value: any) => {
+	value: any): WhereQuery => {
 	return { fieldPath, opStr, value }
 }
 
 export const OrderBy = (fieldPath: string | firebase.firestore.FieldPath,
-	directionStr?: firebase.firestore.OrderByDirection) => {
+	directionStr?: firebase.firestore.OrderByDirection): OrderByQuery => {
 	return { fieldPath, directionStr }
 }
 
 export interface Query {
 	path?: string
-	wheres?: {
-		fieldPath: string | firebase.firestore.FieldPath,
-		opStr: firebase.firestore.WhereFilterOp,
-		value: any
-	}[]
-	orderBy?: {
-		fieldPath: string | firebase.firestore.FieldPath,
-		directionStr?: firebase.firestore.OrderByDirection
-	}
+	wheres?: Array<WhereQuery | undefined>
+	orderBy?: OrderByQuery
 	limit?: number
 }
 
@@ -123,8 +127,10 @@ export const useDataSourceListen = <T extends Doc>(type: typeof Doc, query?: Que
 
 	if (query?.wheres) {
 		query.wheres.forEach(where => {
-			const { fieldPath, opStr, value } = where
-			ref = ref?.where(fieldPath, opStr, value)
+			if (where) {
+				const { fieldPath, opStr, value } = where
+				ref = ref?.where(fieldPath, opStr, value)
+			}
 		})
 	}
 
@@ -141,7 +147,7 @@ export const useDataSourceListen = <T extends Doc>(type: typeof Doc, query?: Que
 		let enabled = true
 		let listener: (() => void) | undefined
 		const listen = async () => {
-			ref?.onSnapshot({
+			listener = ref?.onSnapshot({
 				next: (snapshot) => {
 					const data = snapshot.docs.map(doc => type.fromSnapshot<T>(doc))
 					if (enabled) {

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useHistory } from 'react-router-dom'
-
+import Router from 'next/router'
 import clsx from 'clsx';
 import firebase from 'firebase'
 import 'firebase/auth'
@@ -22,11 +22,14 @@ import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
-import { useAdmin, useAuthUser } from 'hooks/commerce';
 import { Role } from 'models/commerce/User';
 import Provider from 'models/commerce/Provider'
 import { User, Product } from 'models/commerce';
 import DataSource from 'lib/DataSource';
+import { useAuthUser, useRoles, useUser } from 'hooks/commerce'
+import { useDataSourceListen, useDocumentListen } from 'hooks/firestore'
+import { useProcessing } from 'components/Processing';
+import { useSnackbar } from 'components/Snackbar';
 
 const drawerWidth = 180;
 
@@ -132,7 +135,7 @@ export default ({ children }: { children: any }) => {
 						Admin
           </Typography>
 					<div style={{ flexGrow: 1 }}></div>
-					<AccountMenu uid={auth?.uid} />
+					<AccountMenu />
 				</Toolbar>
 			</AppBar>
 			<Drawer
@@ -187,21 +190,21 @@ export default ({ children }: { children: any }) => {
 	);
 }
 
-const AccountMenu = ({ uid }: { uid?: string }) => {
-	const history = useHistory()
-	if (uid) {
-		const datasource = DataSource.ref(new User(uid).roles.collectionReference).get(Role).map(doc => {
-			return Provider.get<Provider>(doc.id)
-		})
-		const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
-		const menuOpen = Boolean(anchorEl)
-		const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
-			setAnchorEl(event.currentTarget);
-		}
-		const handleClose = () => {
-			setAnchorEl(null);
-		}
+const AccountMenu = () => {
 
+	const [user] = useUser()
+	const [roles] = useRoles()
+
+	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
+	const menuOpen = Boolean(anchorEl)
+	const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
+		setAnchorEl(event.currentTarget);
+	}
+	const handleClose = () => {
+		setAnchorEl(null);
+	}
+
+	if (user) {
 		return (
 			<>
 				<IconButton
@@ -219,13 +222,7 @@ const AccountMenu = ({ uid }: { uid?: string }) => {
 					open={menuOpen}
 					onClose={handleClose}
 				>
-					{datasource.data.map(p => {
-						return (
-							<MenuItem key={p.id} onClick={() => {
-								history.push('/admin')
-							}}>{p.name}</MenuItem>
-						)
-					})}
+					{roles.map(role => <UserMenuItem key={role.id} role={role} />)}
 					<Divider />
 					<MenuItem key={'signout'} onClick={async () => {
 						await firebase.auth().signOut()
@@ -243,3 +240,25 @@ const AccountMenu = ({ uid }: { uid?: string }) => {
 		)
 	}
 }
+
+const UserMenuItem = React.forwardRef(({ role }: { role: Role }, ref) => {
+	const history = useHistory()
+	const [setProcessing] = useProcessing()
+	const [setMessage] = useSnackbar()
+	const [provider] = useDocumentListen<Provider>(Provider, new Provider(role.id).documentReference)
+	return (
+		<MenuItem key={role.id} onClick={async () => {
+			setProcessing(true)
+			const adminAttach = firebase.functions().httpsCallable('v1-commerce-admin-attach')
+			try {
+				await adminAttach({ providerID: provider!.id })
+				setMessage('success', 'Change admin')
+				history.push(`/admin`)
+			} catch (error) {
+				setMessage('error', 'Error')
+				console.error(error)
+			}
+			setProcessing(false)
+		}}>{provider?.name || ''}</MenuItem>
+	)
+})

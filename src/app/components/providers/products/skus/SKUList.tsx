@@ -62,9 +62,7 @@ const SKUListItem = ({ product, sku }: { product?: Product, sku: SKU }) => {
 	const classes = useStyles()
 	const [user] = useUser()
 	const [cart] = useCart()
-
-	const imageURL = sku.imageURLs.length > 0 ? sku.imageURLs[0] : undefined
-
+	const imageURL = (sku.imageURLs().length > 0) ? sku.imageURLs()[0] : undefined
 	const addSKU = async (sku: SKU) => {
 		if (!product) return
 		if (user) {

@@ -1,6 +1,6 @@
 import { Doc, Model, Field, File, DocumentReference, Timestamp, Codable } from '@1amageek/ballcap'
 import { CurrencyCode } from 'common/Currency'
-import { OrderItemStatus, DeliveryStatus, OrderPaymentStatus, Discount, ProductType } from 'common/commerce/Types'
+import { OrderItemStatus, DeliveryStatus, PaymentStatus, Discount, ProductType } from 'common/commerce/Types'
 import Shipping from './Shipping'
 
 export class OrderItem extends Model {
@@ -47,7 +47,7 @@ export default class Order extends Doc {
 	@Field items: OrderItem[] = []
 	@Field deliveryRequired: boolean = false
 	@Field deliveryStatus: DeliveryStatus = 'none'
-	@Field paymentStatus: OrderPaymentStatus = 'none'
+	@Field paymentStatus: PaymentStatus = 'none'
 	@Field isCancelled: boolean = false
 	@Field paymentResult?: any
 	@Field metadata?: any
