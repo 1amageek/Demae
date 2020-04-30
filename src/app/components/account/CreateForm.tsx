@@ -23,7 +23,7 @@ import { BusinessType } from 'common/commerce/account';
 import { useProcessing } from 'components/Processing'
 import { Batch } from '@1amageek/ballcap';
 import { useDialog, DialogProps } from 'components/Dialog'
-import { AuthContext } from 'hooks/commerce';
+import { useAuthUser } from 'hooks/auth';
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
@@ -77,7 +77,7 @@ const _ErrorDialog = (props: DialogProps) => (
 
 export default () => {
 	const classes = useStyles()
-	const [auth] = useContext(AuthContext)
+	const [auth] = useAuthUser()
 	const history = useHistory()
 	const [setProcessing] = useProcessing()
 	const [ErrorDialog, setOpen] = useDialog(_ErrorDialog, () => {

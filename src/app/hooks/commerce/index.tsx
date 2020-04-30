@@ -10,40 +10,7 @@ import Cart from 'models/commerce/Cart'
 import User, { Role } from 'models/commerce/User'
 import Shipping from 'models/commerce/Shipping'
 import Order from 'models/commerce/Order'
-
-const _useAuthUser = (): [firebase.User | undefined, boolean, firebase.auth.Error?] => {
-	interface Prop {
-		data?: firebase.User
-		loading: boolean
-		error?: firebase.auth.Error
-	}
-	const [state, setState] = useState<Prop>({ loading: true })
-	useEffect(() => {
-		let enabled = true
-		let listener = firebase.auth().onAuthStateChanged(auth => {
-			if (enabled) {
-				setState({
-					data: auth as firebase.User,
-					loading: false,
-					error: undefined
-				})
-			}
-		}, error => {
-			if (enabled) {
-				setState({
-					data: undefined,
-					loading: false,
-					error: error
-				})
-			}
-		})
-		return () => {
-			enabled = false
-			listener()
-		}
-	}, []);
-	return [state.data, state.loading, state.error]
-}
+import { AuthContext } from '../auth'
 
 const _useAdmin = (): [Role | undefined, boolean, firebase.auth.Error?] => {
 	interface Prop {
@@ -102,21 +69,10 @@ const _useAdmin = (): [Role | undefined, boolean, firebase.auth.Error?] => {
 	return [state.data, state.loading, state.error]
 }
 
-export const AuthContext = createContext<[firebase.User | undefined, boolean, firebase.auth.Error | undefined]>([undefined, true, undefined])
-export const AuthProvider = ({ children }: { children: any }) => {
-	const [auth, isLoading, error] = _useAuthUser()
-	return <AuthContext.Provider value={[auth, isLoading, error]}> {children} </AuthContext.Provider>
-}
-
 export const RoleContext = createContext<[Role | undefined, boolean, firebase.auth.Error | undefined]>([undefined, true, undefined])
 export const RoleProvider = ({ children }: { children: any }) => {
 	const [auth, isLoading, error] = _useAdmin()
 	return <RoleContext.Provider value={[auth, isLoading, error]}> {children} </RoleContext.Provider>
-}
-
-
-export const useAuthUser = (): [firebase.User | undefined, boolean, firebase.auth.Error | undefined] => {
-	return useContext(AuthContext)
 }
 
 export const useAdmin = (): [Role | undefined, boolean, firebase.auth.Error | undefined] => {

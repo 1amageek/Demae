@@ -26,7 +26,8 @@ import { Role } from 'models/commerce/User';
 import Provider from 'models/commerce/Provider'
 import { User, Product } from 'models/commerce';
 import DataSource from 'lib/DataSource';
-import { useAuthUser, useRoles, useUser } from 'hooks/commerce'
+import { useAuthUser } from 'hooks/auth'
+import { useRoles, useUser } from 'hooks/commerce'
 import { useDataSourceListen, useDocumentListen } from 'hooks/firestore'
 import { useProcessing } from 'components/Processing';
 import { useSnackbar } from 'components/Snackbar';

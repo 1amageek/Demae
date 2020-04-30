@@ -17,7 +17,7 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import DoneIcon from '@material-ui/icons/Done';
 import Button from '@material-ui/core/Button';
-import { useAuthUser } from 'hooks/commerce'
+import { useAuthUser } from 'hooks/auth'
 import Input, { useInput } from 'components/Input'
 import Select, { useSelect } from 'components/Select'
 import Account from 'models/account/Account'

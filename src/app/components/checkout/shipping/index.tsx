@@ -20,7 +20,8 @@ import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import Login from 'components/Login';
 import Loading from 'components/Loading';
 import { useDialog, DialogProps } from 'components/Dialog'
-import { AuthContext, useUserShipping } from 'hooks/commerce';
+import { useAuthUser } from 'hooks/auth'
+import { useUserShipping } from 'hooks/commerce';
 import Shipping from 'models/commerce/Shipping';
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -75,7 +76,7 @@ const _ErrorDialog = (props: DialogProps) => (
 
 export default (props: any) => {
 	const { shippingID } = props.match.params
-	const [auth, isAuthLoading] = useContext(AuthContext);
+	const [auth, isAuthLoading] = useAuthUser();
 	const [shipping, isLoading] = useUserShipping(shippingID);
 
 	if (isAuthLoading || isLoading) {
@@ -98,7 +99,7 @@ export default (props: any) => {
 const Form = ({ shipping }: { shipping: Shipping }) => {
 	const classes = useStyles()
 	const history = useHistory()
-	const [auth] = useContext(AuthContext)
+	const [auth] = useAuthUser();
 	const [isProcessing, setProcessing] = useState(false)
 	const [ErrorDialog, setOpen] = useDialog(_ErrorDialog, () => {
 		setOpen(false)

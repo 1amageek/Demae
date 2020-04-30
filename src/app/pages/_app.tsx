@@ -5,7 +5,9 @@ import * as Ballcap from "@1amageek/ballcap"
 import firebase from "firebase"
 import "firebase/firestore"
 import "firebase/auth"
-import { AuthProvider, UserProvider, RolesProvider, RoleProvider, AdminProviderProvider, CartProvider } from 'hooks/commerce'
+import { AuthProvider } from 'hooks/auth'
+import { AccountProvider } from 'hooks/account'
+import { UserProvider, RolesProvider, RoleProvider, AdminProviderProvider, CartProvider } from 'hooks/commerce'
 import { ProcessingProvider } from 'components/Processing'
 import { SnackbarProvider } from 'components/Snackbar'
 
@@ -30,17 +32,19 @@ const Provider = ({ children }: { children: any }) => {
 		<ProcessingProvider>
 			<SnackbarProvider>
 				<AuthProvider>
-					<AdminProviderProvider>
-						<UserProvider>
-							<RolesProvider>
-								<RoleProvider>
-									<CartProvider>
-										{children}
-									</CartProvider>
-								</RoleProvider>
-							</RolesProvider>
-						</UserProvider>
-					</AdminProviderProvider>
+					<AccountProvider>
+						<RolesProvider>
+							<AdminProviderProvider>
+								<UserProvider>
+									<RoleProvider>
+										<CartProvider>
+											{children}
+										</CartProvider>
+									</RoleProvider>
+								</UserProvider>
+							</AdminProviderProvider>
+						</RolesProvider>
+					</AccountProvider>
 				</AuthProvider>
 			</SnackbarProvider>
 		</ProcessingProvider>

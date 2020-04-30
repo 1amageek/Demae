@@ -52,9 +52,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 
 export default () => {
-
-	const [provider, isLoading, error] = useAdminProvider()
-
+	const [provider, isLoading] = useAdminProvider()
 	if (isLoading || !provider) {
 		return (
 			<Container maxWidth='sm'>

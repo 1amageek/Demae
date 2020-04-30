@@ -15,7 +15,8 @@ import { Paper, AppBar, Toolbar, Button, Typography } from '@material-ui/core'
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import Loading from 'components/Loading'
 import User from 'models/commerce/User'
-import { UserContext, AuthContext } from 'hooks/commerce'
+import { useAuthUser } from 'hooks/auth'
+import { UserContext } from 'hooks/commerce'
 import { useProcessing } from 'components/Processing';
 
 const STRIPE_KEY = process.env.STRIPE_KEY!
@@ -69,7 +70,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 const CheckoutForm = () => {
 	const classes = useStyles()
-	const [auth] = useContext(AuthContext)
+	const [auth] = useAuthUser()
 	const [user, isUserLoading] = useContext(UserContext)
 	const stripe = useStripe();
 	const elements = useElements()

@@ -6,7 +6,8 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import ListItemText from '@material-ui/core/ListItemText';
 import ImageIcon from '@material-ui/icons/Image';
-import { useAuthUser, useUser, useCart } from 'hooks/commerce';
+import { useAuthUser } from 'hooks/auth'
+import { useUser, useCart } from 'hooks/commerce';
 import { CartContext } from 'hooks/commerce'
 import Summary from './summary'
 import AddCircleIcon from '@material-ui/icons/AddCircle';
