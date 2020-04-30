@@ -1,12 +1,21 @@
 import React, { useContext } from 'react'
+import { Container } from '@material-ui/core'
 import ProductList from 'components/providers/products/ProductList'
 import Product from 'components/providers/products/Product'
 
 export default (props: any) => {
 	const { providerID, productID } = props.match.params
 	if (productID) {
-		return <Product providerID={providerID} productID={productID} />
+		return (
+			<Container maxWidth='sm'>
+				<Product providerID={providerID} productID={productID} />
+			</Container>
+		)
 	} else {
-		return <ProductList providerID={providerID} />
+		return (
+			<Container maxWidth='sm'>
+				<ProductList providerID={providerID} />
+			</Container>
+		)
 	}
 }

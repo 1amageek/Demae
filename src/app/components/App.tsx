@@ -7,6 +7,7 @@ import Login from 'components/Login'
 import Home from 'components/home'
 import Cart from 'components/cart'
 import Account from 'components/account'
+import AccountCreateWorkFlow from 'components/account/workflow'
 import Order from 'components/account/histories'
 import Provider from 'components/providers'
 import Product from 'components/providers/products'
@@ -41,10 +42,8 @@ export default () => {
 		<Box className={classes.box}>
 			<AppBar title={'Demae'} />
 			<main className={classes.content}>
-				<Container maxWidth='sm'>
-					<CssBaseline />
-					<App />
-				</Container>
+				<CssBaseline />
+				<App />
 			</main>
 			<TabBar />
 		</Box>
@@ -59,7 +58,7 @@ const App = () => {
 			<Route path={`/home`} exact component={Home} />
 			<Route path={`/cart`} exact component={Cart} />
 			<Route path={`/account`} exact component={Account} />
-			<Route path={`/account/new`} exact component={CreateForm} />
+			<Route path={`/account/create`} exact component={AccountCreateWorkFlow} />
 			<Route path={`/account/orders`} exact component={Order} />
 			<Route path={`/providers`} exact component={Provider} />
 			<Route path={`/providers/:providerID`} exact component={Provider} />

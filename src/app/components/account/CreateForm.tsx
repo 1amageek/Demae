@@ -75,7 +75,7 @@ const _ErrorDialog = (props: DialogProps) => (
 	</Dialog>
 )
 
-export default () => {
+export default ({ onCallback }: { onCallback?: () => void }) => {
 	const classes = useStyles()
 	const [auth] = useAuthUser()
 	const history = useHistory()
@@ -133,7 +133,11 @@ export default () => {
 			batch.save(account)
 			batch.save(role)
 			await batch.commit()
-			history.push('/admin')
+			if (onCallback) {
+				onCallback()
+			} else {
+				history.push('/admin')
+			}
 		} catch (error) {
 			console.error(error)
 			setOpen(true)

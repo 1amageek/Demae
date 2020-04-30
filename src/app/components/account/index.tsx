@@ -13,6 +13,7 @@ import StorefrontIcon from '@material-ui/icons/Storefront';
 import IconButton from '@material-ui/core/IconButton';
 import ViewListIcon from '@material-ui/icons/ViewList';
 import SettingsIcon from '@material-ui/icons/Settings';
+import { Container } from '@material-ui/core'
 import { UserContext } from 'hooks/commerce'
 import { useDataSourceListen, useDocumentListen } from 'hooks/firestore';
 import User, { Role } from 'models/commerce/User';
@@ -34,37 +35,39 @@ export default () => {
 	}
 
 	return (
-		<Grid container spacing={2}>
-			<Grid item xs={12}>
-				<Paper>
+		<Container maxWidth='sm'>
+			<Grid container spacing={2}>
+				<Grid item xs={12}>
+					<Paper>
+						<List>
+							<ListItem button component={Link} to={`/account/orders`}>
+								<ListItemIcon>
+									<ViewListIcon />
+								</ListItemIcon>
+								<ListItemText primary='Purchase history' />
+							</ListItem>
+						</List>
+					</Paper>
+				</Grid>
+				<Grid item xs={12}>
+					<Paper>
+						<ProviderList />
+					</Paper>
+				</Grid>
+				<Grid item xs={12}>
 					<List>
-						<ListItem button component={Link} to={`/account/orders`}>
+						<ListItem button>
 							<ListItemIcon>
-								<ViewListIcon />
+								<MeetingRoomIcon />
 							</ListItemIcon>
-							<ListItemText primary='Purchase history' />
+							<ListItemText primary='SignOut' color='text.secondary' onClick={async () => {
+								await firebase.auth().signOut()
+							}} />
 						</ListItem>
 					</List>
-				</Paper>
+				</Grid>
 			</Grid>
-			<Grid item xs={12}>
-				<Paper>
-					<ProviderList />
-				</Paper>
-			</Grid>
-			<Grid item xs={12}>
-				<List>
-					<ListItem button>
-						<ListItemIcon>
-							<MeetingRoomIcon />
-						</ListItemIcon>
-						<ListItemText primary='SignOut' color='text.secondary' onClick={async () => {
-							await firebase.auth().signOut()
-						}} />
-					</ListItem>
-				</List>
-			</Grid>
-		</Grid>
+		</Container>
 	)
 }
 
@@ -107,7 +110,7 @@ const ProviderList = withRouter(props => {
 						setModalOpen(false)
 					}}>
 					<Paper>
-						<Box paddingX={3} paddingY={2} fontSize={18} sizeWidth='fontWeightMedium'>
+						<Box paddingX={3} paddingY={2} fontSize={18} fontWeight={500}>
 							Sign in to create a new store.
 						</Box>
 						<Login />

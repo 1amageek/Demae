@@ -1,10 +1,19 @@
+import { Container } from '@material-ui/core'
 import ProviderList from 'components/providers/ProviderList'
 import Provider from 'components/providers/Provider'
 
 export default (props: any) => {
 	const { providerID, productID, skuID } = props.match.params
 	if (providerID) {
-		return <Provider providerID={providerID} />
+		return (
+			<Container maxWidth='sm'>
+				<Provider providerID={providerID} />
+			</Container>
+		)
 	}
-	return <ProviderList />
+	return (
+		<Container maxWidth='sm'>
+			<ProviderList />
+		</Container>
+	)
 }

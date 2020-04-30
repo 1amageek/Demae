@@ -26,7 +26,7 @@ export const usePaymentMethods = (): [PaymentMethod[], boolean] => {
 	return [paymentMethods, isLoading]
 }
 
-export const useFunctions = <T>(query: string, option: any, waiting: boolean = false): [T[], boolean, Error | undefined, (data: T[]) => void] => {
+export const useFunctions = <T>(query: string, option: any = {}, waiting: boolean = false): [T[], boolean, Error | undefined, (data: T[]) => void] => {
 
 	interface Prop {
 		data: T[]
@@ -50,6 +50,7 @@ export const useFunctions = <T>(query: string, option: any, waiting: boolean = f
 			try {
 				const list = await firebase.functions().httpsCallable(query)
 				const result = await list(option)
+				console.log(result)
 				if (enabled) {
 					const data = result.data.data as T[]
 					if (data) {
@@ -67,6 +68,7 @@ export const useFunctions = <T>(query: string, option: any, waiting: boolean = f
 					}
 				}
 			} catch (error) {
+				console.log(error)
 				if (enabled) {
 					setState({
 						data: [],
