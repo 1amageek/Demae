@@ -10,6 +10,7 @@ export class Stock extends Doc {
 export default class SKU extends Doc {
 	@Field images: File[] = []
 	@Field assets: File[] = []
+	@Field tags: string[] = []
 	@Field providedBy!: string
 	@Field createdBy!: string
 	@Field shardCharacters: ShardType[] = ShardCharacters.slice(0, 3)

@@ -8,6 +8,7 @@ import Order from 'components/admin/orders'
 import Layout from './Layout'
 import Dashboard from 'components/admin/dashboard'
 import Provider from 'components/admin/provider'
+import Account from 'components/admin/account'
 import { AdminProviderProvider } from 'hooks/commerce';
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -45,6 +46,8 @@ const App = () => {
 			<Route path={`/admin/products/:productID/skus/:skuID`} exact component={Product} />
 			<Route path={`/admin/orders`} exact component={Order} />
 			<Route path={`/admin/orders/:orderID`} exact component={Order} />
+			<Route path={`/admin/provider`} exact component={Provider} />
+			<Route path={`/admin/account`} exact component={Account} />
 		</Switch>
 	)
 }

@@ -1,9 +1,18 @@
 import React, { createContext, useContext, useState } from 'react'
-import Snackbar from '@material-ui/core/Snackbar';
-import IconButton from '@material-ui/core/IconButton';
+import { Snackbar, IconButton, Box } from '@material-ui/core';
 import CloseIcon from '@material-ui/icons/Close';
 
-const Bar = ({ open, message, onClose }: { open: boolean, message?: string, onClose: (event: React.SyntheticEvent | React.MouseEvent, reason?: string) => void }) => {
+import CheckCircleIcon from '@material-ui/icons/CheckCircle';
+import ErrorIcon from '@material-ui/icons/Error';
+import WarningIcon from '@material-ui/icons/Warning';
+import InfoIcon from '@material-ui/icons/Info';
+
+const ErrorColor = "#dd0000"
+const WarningColor = "#ffb300"
+const InfoColor = "#1a4fff"
+const SuccessColor = "#3ace55"
+
+const Bar = ({ open, severity, message, onClose }: { open: boolean, severity: Severity, message?: string, onClose: (event: React.SyntheticEvent | React.MouseEvent, reason?: string) => void }) => {
 	if (open) {
 		return (
 			<Snackbar
@@ -12,9 +21,17 @@ const Bar = ({ open, message, onClose }: { open: boolean, message?: string, onCl
 					horizontal: 'center',
 				}}
 				open={open}
-				autoHideDuration={2500}
+				autoHideDuration={2800}
 				onClose={onClose}
-				message={message}
+				message={
+					<Box display='flex' alignItems='center' fontSize={14} fontWeight={400}>
+						{severity === 'error' && <ErrorIcon fontSize="small" style={{ marginRight: '8px', color: ErrorColor }} />}
+						{severity === 'warning' && <WarningIcon fontSize="small" style={{ marginRight: '8px', color: WarningColor }} />}
+						{severity === 'info' && <InfoIcon fontSize="small" style={{ marginRight: '8px', color: InfoColor }} />}
+						{severity === 'success' && <CheckCircleIcon fontSize="small" style={{ marginRight: '8px', color: SuccessColor }} />}
+						{message}
+					</Box>
+				}
 				action={
 					<React.Fragment>
 						<IconButton size="small" aria-label="close" color="inherit" onClick={onClose}>
@@ -54,7 +71,7 @@ export const SnackbarProvider = ({ children }: { children: any }) => {
 	}
 	return (
 		<SnackbarContext.Provider value={[setMessageWithSeverity, open]}>
-			<Bar open={open} message={state.message} onClose={onClose} />
+			<Bar open={open} severity={state.severity} message={state.message} onClose={onClose} />
 			{children}
 		</SnackbarContext.Provider>
 	)

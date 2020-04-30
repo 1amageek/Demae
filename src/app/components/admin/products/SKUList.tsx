@@ -20,8 +20,7 @@ import Box from '@material-ui/core/Box';
 import Input, { useInput } from 'components/Input'
 import Select, { useSelect } from 'components/Select'
 import Product from 'models/commerce/Product'
-
-import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
+import { ListItemSecondaryAction, Switch } from '@material-ui/core';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
@@ -34,12 +33,16 @@ import DataLoading from 'components/DataLoading';
 import Board from '../Board';
 import { useHistory } from 'react-router-dom';
 import { SKU } from 'models/commerce';
-
+import { useProcessing } from 'components/Processing';
+import { useSnackbar } from 'components/Snackbar';
+import ISO4217 from 'common/ISO4217'
 
 export default ({ productID }: { productID?: string }) => {
 	const [provider] = useAdminProvider()
 	const [skus, isLoading] = useAdminProviderProductSKUs(productID)
 	const history = useHistory()
+	const [setProcessing] = useProcessing()
+	const [setMessage] = useSnackbar()
 
 	if (isLoading) {
 		return (
@@ -82,6 +85,9 @@ export default ({ productID }: { productID?: string }) => {
 		}>
 			<List>
 				{skus.map(data => {
+					const price = data.price
+					const currency = data.currency
+					const symbol = ISO4217[currency].symbol
 					return (
 						<ListItem key={data.id} button selected={productID === data.id} onClick={() => {
 							history.push(`/admin/products/${productID}/skus/${data.id}`)
@@ -91,7 +97,21 @@ export default ({ productID }: { productID?: string }) => {
 									<ImageIcon />
 								</Avatar>
 							</ListItemAvatar>
-							<ListItemText primary={data.name} secondary={data.caption} />
+							<ListItemText primary={data.name} secondary={`${symbol}${price.toLocaleString()}`} />
+							<ListItemSecondaryAction>
+								<Switch
+									edge="end"
+									onChange={async (e) => {
+										e.preventDefault()
+										setProcessing(true)
+										data.isAvailable = !data.isAvailable
+										await data.save()
+										setProcessing(false)
+										setMessage('success', `${data.name} is published`)
+									}}
+									checked={data.isAvailable}
+								/>
+							</ListItemSecondaryAction>
 						</ListItem>
 					)
 				})}

@@ -14,6 +14,7 @@ export default class Product extends Doc {
 	@Field providedBy!: string
 	@Field images: File[] = []
 	@Field assets: File[] = []
+	@Field tags: string[] = []
 	@Field type: ProductType = 'good'
 	@Field name: string = 'No Name'
 	@Field caption?: string

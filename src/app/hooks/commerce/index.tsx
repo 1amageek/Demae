@@ -11,7 +11,7 @@ import User, { Role } from 'models/commerce/User'
 import Shipping from 'models/commerce/Shipping'
 import Order from 'models/commerce/Order'
 
-export const _useAuthUser = (): [firebase.User | undefined, boolean, firebase.auth.Error?] => {
+const _useAuthUser = (): [firebase.User | undefined, boolean, firebase.auth.Error?] => {
 	interface Prop {
 		data?: firebase.User
 		loading: boolean
@@ -45,7 +45,7 @@ export const _useAuthUser = (): [firebase.User | undefined, boolean, firebase.au
 	return [state.data, state.loading, state.error]
 }
 
-export const _useAdmin = (): [Role | undefined, boolean, firebase.auth.Error?] => {
+const _useAdmin = (): [Role | undefined, boolean, firebase.auth.Error?] => {
 	interface Prop {
 		data?: Role
 		loading: boolean
@@ -170,10 +170,10 @@ export const useAdminProviderProduct = (): [Product | undefined, boolean, Error 
 	return useContext(AdminProviderProductContext)
 }
 
-export const useAdminProviderProductSKUs = (id?: string): [Product[], boolean, Error?] => {
+export const useAdminProviderProductSKUs = (id?: string): [SKU[], boolean, Error?] => {
 	const [provider, waiting] = useAdminProvider()
 	const collectionReference = (provider && id) ? provider.products.collectionReference.doc(id).collection('skus') : undefined
-	return useDataSourceListen<Product>(Product, { path: collectionReference?.path }, waiting)
+	return useDataSourceListen<SKU>(SKU, { path: collectionReference?.path }, waiting)
 }
 
 export const useAdminProviderOrders = (): [Order[], boolean, Error?] => {

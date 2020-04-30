@@ -3,24 +3,21 @@ import React, { useState } from 'react'
 import firebase from 'firebase'
 import { File as StorageFile } from '@1amageek/ballcap'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
-import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
-import Grid from '@material-ui/core/Grid';
-import Button from '@material-ui/core/Button';
+import { Container, Grid, Button, IconButton } from '@material-ui/core';
 import Table from '@material-ui/core/Table';
 import TableRow from '@material-ui/core/TableRow';
 import TableCell from '@material-ui/core/TableCell';
 import TableBody from '@material-ui/core/TableBody';
-import IconButton from '@material-ui/core/IconButton';
 import Box from '@material-ui/core/Box';
 import Input, { useInput } from 'components/Input'
 import Select, { useSelect } from 'components/Select'
 import DndCard from 'components/DndCard'
 import Provider from 'models/commerce/Provider'
-import Loading from 'components/Loading';
 import Board from 'components/admin/Board'
 import { useAdminProvider } from 'hooks/commerce';
 import { useProcessing } from 'components/Processing';
+import { useSnackbar } from 'components/Snackbar';
 import DataLoading from 'components/DataLoading';
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -55,16 +52,33 @@ const useStyles = makeStyles((theme: Theme) =>
 
 
 export default () => {
-	const classes = useStyles()
+
 	const [provider, isLoading, error] = useAdminProvider()
+
+	if (isLoading || !provider) {
+		return (
+			<Container maxWidth='sm'>
+				<Board>
+					<DataLoading />
+				</Board>
+			</Container>
+		)
+	}
+
+	return <Form provider={provider} />
+}
+
+const Form = ({ provider }: { provider: Provider }) => {
+	const classes = useStyles()
 	const [setProcessing] = useProcessing()
+	const [setMessage] = useSnackbar()
 	const [thumbnail, setThumbnail] = useState<File | undefined>()
 	const [cover, setCover] = useState<File | undefined>()
-	const name = useInput(provider?.name)
-	const caption = useInput(provider?.caption)
-	const description = useInput(provider?.description)
+	const name = useInput(provider.name)
+	const caption = useInput(provider.caption)
+	const description = useInput(provider.description)
 	const isAvailable = useSelect({
-		initValue: provider?.isAvailable || 'true',
+		initValue: provider.isAvailable || 'true',
 		inputProps: {
 			menu: [
 				{
@@ -79,10 +93,8 @@ export default () => {
 		}
 	})
 
-	console.log(error)
-
 	const uploadThumbnail = (file: File): Promise<StorageFile | undefined> => {
-		const ref = firebase.storage().ref(provider!.documentReference.path + '/thumbnail.jpg')
+		const ref = firebase.storage().ref(provider.documentReference.path + '/thumbnail.jpg')
 		return new Promise((resolve, reject) => {
 			ref.put(file).then(async (snapshot) => {
 				if (snapshot.state === 'success') {
@@ -100,7 +112,7 @@ export default () => {
 	}
 
 	const uploadCover = (file: File): Promise<StorageFile | undefined> => {
-		const ref = firebase.storage().ref(provider!.documentReference.path + '/cover.jpg')
+		const ref = firebase.storage().ref(provider.documentReference.path + '/cover.jpg')
 		return new Promise((resolve, reject) => {
 			ref.put(file).then(async (snapshot) => {
 				if (snapshot.state === 'success') {
@@ -116,35 +128,30 @@ export default () => {
 			})
 		})
 	}
-
-	if (isLoading) {
-		return (
-			<Board>
-				<DataLoading />
-			</Board>
-		)
-	}
-
 	return (
-		<>
-			<Board>
+		<Container maxWidth='sm'>
+			<Board header={
+				<Box>Provider</Box>
+			}>
 				<Box className={classes.box} >
-					<Grid container spacing={2}>
-						<Grid item xs={12} sm={6}>
+					<Box display='flex' position='relative' flexGrow={1}>
+						<Box display='flex' flexGrow={1} height={300}>
 							<DndCard
-								onDrop={(files) => {
-									const file = files[0] as File
-									setThumbnail(file)
-								}} />
-						</Grid>
-						<Grid item xs={12} sm={6}>
-							<DndCard
+								url={provider?.coverImageURL()}
 								onDrop={(files) => {
 									const file = files[0] as File
 									setCover(file)
 								}} />
-						</Grid>
-					</Grid>
+						</Box>
+						<Box display='flex' position='absolute' zIndex={1050} flexGrow={1} width={120} height={120} borderRadius='50%' bottom={-16} left={16} style={{ overflow: 'hidden' }}>
+							<DndCard
+								url={provider?.thumbnailImageURL()}
+								onDrop={(files) => {
+									const file = files[0] as File
+									setThumbnail(file)
+								}} />
+						</Box>
+					</Box>
 					<Table>
 						<TableBody>
 							<TableRow>
@@ -215,6 +222,7 @@ export default () => {
 										console.log(error)
 									}
 									setProcessing(false)
+									setMessage('success', 'Change your provider informations.')
 								}
 								}>SAVE</Button>
 							</Grid>
@@ -222,6 +230,6 @@ export default () => {
 					</Toolbar>
 				</Box>
 			</Board>
-		</>
+		</Container>
 	)
 }

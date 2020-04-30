@@ -117,23 +117,25 @@ export default ({ productID, skuID }: { productID?: string, skuID?: string }) =>
 							<TableCell align='left'><div>{sku.currency} {sku.price}</div></TableCell>
 						</TableRow>
 						<TableRow>
-							<TableCell align='right'><div>inventory</div></TableCell>
-							<TableCell align='left'>
-								<div>
-									{sku.inventory.type === 'infinite' && 'Infinite'}
-									{sku.inventory.type === 'bucket' && sku.inventory.value}
-									{sku.inventory.type === 'finite' && sku.inventory.quantity}
-								</div>
-							</TableCell>
-						</TableRow>
-						<TableRow>
 							<TableCell align='right'><div>Status</div></TableCell>
 							<TableCell align='left'><div>{sku.isAvailable ? 'Available' : 'Disabled'}</div></TableCell>
 						</TableRow>
+						{sku.inventory.type !== 'finite' &&
+							<TableRow>
+								<TableCell align='right'><div>inventory</div></TableCell>
+								<TableCell align='left'>
+									<div>
+										{sku.inventory.type === 'infinite' && 'Infinite'}
+										{sku.inventory.type === 'bucket' && sku.inventory.value}
+										{/* {sku.inventory.type === 'finite' && sku.inventory.quantity} */}
+									</div>
+								</TableCell>
+							</TableRow>
+						}
 					</TableBody>
 				</Table>
 			</Board>
-			<StockDetail sku={sku} />
+			{sku.inventory.type === 'finite' && <StockDetail sku={sku} />}
 		</>
 	)
 }
@@ -282,7 +284,7 @@ const Edit = ({ product, sku, onClose }: { product: Product, sku: SKU, onClose: 
 			<form onSubmit={onSubmit}>
 				<Board header={
 					<Box display="flex" flexGrow={1}>
-						<Typography variant='h6'>{sku.name}</Typography>
+						{sku.name}
 						<Box flexGrow={1} />
 						<Button
 							color="primary"
@@ -353,10 +355,10 @@ const Edit = ({ product, sku, onClose }: { product: Product, sku: SKU, onClose: 
 									<div>
 										<Select {...inventory} />
 										{inventory.value === 'bucket' && <Select style={{ marginLeft: '8px' }} {...stockValue} />}
-										{inventory.value === 'finite' && <Input variant='outlined' margin='dense' style={{ width: '110px', marginLeft: '8px' }} type='number' value={quantity.value} onChange={e => {
+										{/* {inventory.value === 'finite' && <Input variant='outlined' margin='dense' style={{ width: '110px', marginLeft: '8px' }} type='number' value={quantity.value} onChange={e => {
 											const newQuantity = Math.floor(Number(e.target.value))
 											quantity.setValue(`${newQuantity}`)
-										}} />}
+										}} />} */}
 									</div>
 								</TableCell>
 							</TableRow>
@@ -372,7 +374,7 @@ const Edit = ({ product, sku, onClose }: { product: Product, sku: SKU, onClose: 
 					</Table>
 				</Board>
 			</form>
-			<StockDetail sku={sku} />
+			{sku.inventory.type === 'finite' && <StockDetail sku={sku} />}
 		</>
 	)
 }

@@ -154,26 +154,18 @@ export default ({ children }: { children: any }) => {
 				</div>
 				<Divider />
 				<List>
-					<Link to='/admin/products'>
-						<ListItem button key={'product'}>
-							<ListItemText primary={'Product'} />
-						</ListItem>
-					</Link>
-					<Link to='/admin/orders'>
-						<ListItem button key={'orders'}>
-							<ListItemText primary={'Orders'} />
-						</ListItem>
-					</Link>
-					<Link to='/admin/provider'>
-						<ListItem button key={'provider'}>
-							<ListItemText primary={'provider'} />
-						</ListItem>
-					</Link>
-					<Link to='/admin/account'>
-						<ListItem button key={'account'}>
-							<ListItemText primary={'Account'} />
-						</ListItem>
-					</Link>
+					<ListItem button key={'product'} component={Link} to='/admin/products'>
+						<ListItemText primary={'Product'} />
+					</ListItem>
+					<ListItem button key={'orders'} component={Link} to='/admin/orders'>
+						<ListItemText primary={'Orders'} />
+					</ListItem>
+					<ListItem button key={'provider'} component={Link} to='/admin/provider'>
+						<ListItemText primary={'Provider'} />
+					</ListItem>
+					<ListItem button key={'account'} component={Link} to='/admin/account'>
+						<ListItemText primary={'Account'} />
+					</ListItem>
 				</List>
 			</Drawer>
 			<main

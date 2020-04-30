@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
-import { Avatar, Box } from '@material-ui/core';
+import { Avatar, Box, Tooltip, IconButton, BoxProps } from '@material-ui/core';
 import AddPhotoAlternateIcon from '@material-ui/icons/AddPhotoAlternate';
 import ImageIcon from '@material-ui/icons/Image';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
@@ -8,7 +8,7 @@ import { createStyles, makeStyles } from '@material-ui/core/styles';
 const useStyles = makeStyles(() =>
 	createStyles({
 		box: {
-			background: 'rgba(0, 0, 0, 0.2)',
+			background: 'rgba(0, 0, 0, 0.18)',
 			display: 'flex',
 			justifyContent: 'center',
 			alignItems: 'center'
@@ -23,12 +23,18 @@ const useStyles = makeStyles(() =>
 	})
 )
 
-export default ({ url, onDrop }: { url?: string, onDrop: (acceptedFiles: File[]) => void }) => {
+interface DnDProps {
+	url?: string
+	title?: string
+	onDrop: (acceptedFiles) => void
+}
+
+export default (props: DnDProps) => {
 	const classes = useStyles()
+	const { url, onDrop, title } = props
 	const [image, setImage] = useState(url)
 	const callback = useCallback(acceptedFiles => {
 		onDrop(acceptedFiles)
-
 		const file = acceptedFiles[0] as File
 		const reader = new FileReader()
 		reader.onloadend = (event) => {
@@ -40,29 +46,33 @@ export default ({ url, onDrop }: { url?: string, onDrop: (acceptedFiles: File[])
 
 	}, [])
 	const { getRootProps, getInputProps, isDragActive } = useDropzone({ accept: 'image/jpeg,image/png', onDrop: callback })
-
 	return (
-
-		<Box position='relative'>
+		<Box position='relative'
+			width="100%"
+			height="100%"
+			{...props}
+		>
 			<Box className={classes.box}
-				zIndex='modal'
+				zIndex={1050}
 				position="absolute"
 				width="100%"
 				height="100%"
-				padding={4}
-				{...getRootProps()}>
-				<Box className={classes.innerBox}
-					width="100%"
-					height="100%"
-					borderRadius={8}
-				>
-					<input {...getInputProps()} />
-					{!isDragActive && <AddPhotoAlternateIcon style={{ color: '#fff' }} />}
-				</Box>
+				{...getRootProps()}
+			>
+				<input {...getInputProps()} />
+				<Tooltip title={'Click to upload'}>
+					<IconButton>
+						<AddPhotoAlternateIcon style={{ color: '#fff' }} />
+					</IconButton>
+				</Tooltip>
 			</Box>
-			<Box>
+			<Box
+				width="100%"
+				height="100%"
+			>
 				<Avatar variant="square" src={image} style={{
-					minHeight: '200px',
+					minHeight: '64px',
+					height: '100%',
 					width: '100%'
 				}}>
 					<ImageIcon />
