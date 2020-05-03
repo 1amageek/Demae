@@ -32,6 +32,7 @@ export type SubscriptionStatus = 'incomplete' | 'incomplete_expired' | 'trialing
 
 export interface Address {
 	city?: string
+	town?: string
 	country?: string
 	line1?: string
 	line2?: string

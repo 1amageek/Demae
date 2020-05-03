@@ -19,6 +19,7 @@ type InputProps = {
 	placeholder?: string
 	fullWidth?: boolean
 	required?: boolean
+	disabled?: boolean
 	autoComplete?: string
 	style?: Object
 	menu?: MenuProp[]

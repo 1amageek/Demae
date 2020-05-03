@@ -24,9 +24,10 @@ import Account from 'models/account/Account'
 import { Create, Individual } from 'common/commerce/account'
 import Grid from '@material-ui/core/Grid';
 import { Box } from '@material-ui/core';
-import { Countries } from 'common/Country';
+import { Countries, Country } from 'common/Country';
 import { nullFilter } from 'utils'
 import Loading from 'components/Loading'
+import RegisterableCountries from 'config/RegisterableCountries'
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
@@ -59,24 +60,7 @@ const useStyles = makeStyles((theme: Theme) =>
 	}),
 );
 
-const registerableCountries = ['US']
-
-export default () => {
-	return (
-		<>
-			<AppBar position='static' color='transparent' elevation={0}>
-				<Toolbar>
-					<Typography variant='h6'>
-						Edit account information
-          </Typography>
-				</Toolbar>
-			</AppBar>
-			<IndividualForm individual={{}} />
-		</>
-	);
-}
-
-const IndividualForm = ({ individual }: { individual: Partial<Individual> }) => {
+export default ({ individual, onCallback }: { individual: Partial<Individual>, onCallback?: (next: boolean) => void }) => {
 	const classes = useStyles()
 	const [authUser] = useAuthUser()
 	const [open, setOpen] = useState(false)
@@ -90,7 +74,7 @@ const IndividualForm = ({ individual }: { individual: Partial<Individual> }) => 
 	const country = useSelect({
 		initValue: individual.address?.country || 'US',
 		inputProps: {
-			menu: Countries.filter(country => registerableCountries.includes(country.value))
+			menu: Countries.filter(country => RegisterableCountries.includes(country.value))
 		},
 		controlProps: {
 			variant: 'outlined'
@@ -166,6 +150,9 @@ const IndividualForm = ({ individual }: { individual: Partial<Individual> }) => 
 			account.email = result.data.email
 			account.individual = data.individual
 			await account.save()
+			if (onCallback) {
+				onCallback(true)
+			}
 			setLoading(false)
 		} catch (error) {
 			setLoading(false)
@@ -182,7 +169,6 @@ const IndividualForm = ({ individual }: { individual: Partial<Individual> }) => 
 		const ref = firebase.storage().ref(new Account(uid).documentReference.path + '/verification/front.jpg')
 		ref.put(file).then(async (snapshot) => {
 			if (snapshot.state === 'success') {
-				console.log(snapshot)
 				const metadata = snapshot.metadata
 				const { bucket, fullPath, name, contentType } = metadata
 				const uploadFile = firebase.functions().httpsCallable('v1-stripe-file-upload')
@@ -208,7 +194,6 @@ const IndividualForm = ({ individual }: { individual: Partial<Individual> }) => 
 		const ref = firebase.storage().ref(new Account(uid).documentReference.path + '/verification/back.jpg')
 		ref.put(file).then(async (snapshot) => {
 			if (snapshot.state === 'success') {
-				console.log(snapshot)
 				const metadata = snapshot.metadata
 				const { bucket, fullPath, name, contentType } = metadata
 				const uploadFile = firebase.functions().httpsCallable('v1-stripe-file-upload')
@@ -264,7 +249,7 @@ const IndividualForm = ({ individual }: { individual: Partial<Individual> }) => 
 									</TableRow>
 									<TableRow>
 										<TableCell className={classes.cellStatus}></TableCell>
-										<TableCell className={classes.cell} align='right'>First Name</TableCell>
+										<TableCell className={classes.cell} align='right'>Birth date</TableCell>
 										<TableCell className={classes.cell} align='left'>
 											<Input className={classes.input} label='year' type='number' variant='outlined' margin='dense' size='small' {...year} style={{ width: '80px', marginRight: '8px' }} />
 											<Input className={classes.input} label='month' type='number' variant='outlined' margin='dense' size='small' {...month} style={{ width: '66px', marginRight: '8px' }} />
@@ -356,6 +341,11 @@ const IndividualForm = ({ individual }: { individual: Partial<Individual> }) => 
 					</Grid>
 				</Box>
 				<Box className={classes.bottomBox} >
+					<Button style={{}} size='medium' color='primary' onClick={() => {
+						if (onCallback) {
+							onCallback(false)
+						}
+					}}>Back</Button>
 					<Button style={{}} variant='contained' size='medium' color='primary' type='submit'>Save</Button>
 				</Box>
 			</form>
