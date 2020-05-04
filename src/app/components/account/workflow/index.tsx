@@ -6,7 +6,6 @@ import Stepper from '@material-ui/core/Stepper';
 import Step from '@material-ui/core/Step';
 import StepLabel from '@material-ui/core/StepLabel';
 import Check from '@material-ui/icons/Check';
-import Toolbar from '@material-ui/core/Toolbar';
 import { Container, Grid, Button, Box, Typography, StepConnector, Table, TableBody, TableRow, TableCell, AppBar } from '@material-ui/core';
 import Board from 'components/admin/Board'
 import { Countries, Country } from 'common/Country';
@@ -101,10 +100,6 @@ export default () => {
 		controlProps: {
 			variant: 'outlined'
 		}
-	})
-
-	useEffect(() => {
-		console.log(navigator)
 	})
 
 	return (

@@ -186,10 +186,10 @@ export default ({ individual, onCallback }: { individual: Partial<Individual>, o
 			account.email = result.email
 			account.individual = result.individual
 			await account.save()
+			setLoading(false)
 			if (onCallback) {
 				onCallback(true)
 			}
-			setLoading(false)
 		} catch (error) {
 			setLoading(false)
 			setOpen(true)

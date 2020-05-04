@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback, useContext } from 'react';
-import { withRouter, Link } from 'react-router-dom'
-import Router from 'next/router'
+import { Link, useHistory } from 'react-router-dom'
 import firebase, { database } from 'firebase';
 import 'firebase/auth';
 import 'firebase/functions';
@@ -13,26 +12,23 @@ import StorefrontIcon from '@material-ui/icons/Storefront';
 import IconButton from '@material-ui/core/IconButton';
 import ViewListIcon from '@material-ui/icons/ViewList';
 import SettingsIcon from '@material-ui/icons/Settings';
+import AccountBoxIcon from '@material-ui/icons/AccountBox';
 import { Container } from '@material-ui/core'
-import { UserContext } from 'hooks/commerce'
 import { useDataSourceListen, useDocumentListen } from 'hooks/firestore';
 import User, { Role } from 'models/commerce/User';
 import MeetingRoomIcon from '@material-ui/icons/MeetingRoom';
 import Provider from 'models/commerce/Provider';
 import DataLoading from 'components/DataLoading';
 import { Paper, Grid, Typography, Box } from '@material-ui/core';
-import Agreement from './agreement'
-import Modal from 'components/Modal'
-import Login from 'components/Login'
-import { useDialog, DialogProps } from 'components/Dialog'
-import { useErrorDialog } from 'components/ErrorDialog';
+import { useDialog } from 'components/Dialog'
 import { useProcessing } from 'components/Processing';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import { useUser } from 'hooks/commerce'
+import { useAccount } from 'hooks/account'
 
 export default () => {
-	const [user, isLoading, error] = useContext(UserContext)
-	if (isLoading) {
-		return <DataLoading />
-	}
+
+	const [account, isAccountLoading] = useAccount()
 
 	return (
 		<Container maxWidth='sm'>
@@ -45,6 +41,15 @@ export default () => {
 									<ViewListIcon />
 								</ListItemIcon>
 								<ListItemText primary='Purchase history' />
+							</ListItem>
+							<ListItem button component={Link} to={account ? '/account/payments' : '/account/create'} disabled={isAccountLoading}>
+								<ListItemIcon>
+									<AccountBoxIcon />
+								</ListItemIcon>
+								<ListItemText primary={account ? 'Account' : 'Create new account'} />
+								<ListItemSecondaryAction>
+									{isAccountLoading && <CircularProgress size={20} />}
+								</ListItemSecondaryAction>
 							</ListItem>
 						</List>
 					</Paper>
@@ -72,51 +77,28 @@ export default () => {
 }
 
 
-const ProviderList = withRouter(props => {
-	const [user, isLoading] = useContext(UserContext)
+const ProviderList = () => {
+	const history = useHistory()
+	const [user, isLoading] = useUser()
 	const ref = user?.roles.collectionReference
 	const [roles, isDataLoading] = useDataSourceListen<Role>(Role, { path: ref?.path }, isLoading)
-	const [modalOpen, setModalOpen] = useState(false)
-	const [Dialog, openDialog] = useDialog(Agreement, () => {
-		openDialog(false)
-		props.history.push('/account/new')
-	})
+
 	if (isDataLoading) {
 		return <DataLoading />
 	}
 
 	if (roles.length === 0) {
 		return (
-			<>
-				<List>
-					<ListItem button onClick={() => {
-						console.log(user)
-						if (user) {
-							openDialog(true)
-						} else {
-							setModalOpen(true)
-						}
-					}}>
-						<ListItemIcon>
-							<StorefrontIcon />
-						</ListItemIcon>
-						<ListItemText primary={'Add your store'} />
-					</ListItem>
-				</List>
-				<Dialog />
-				<Modal
-					open={modalOpen}
-					onClose={() => {
-						setModalOpen(false)
-					}}>
-					<Paper>
-						<Box paddingX={3} paddingY={2} fontSize={18} fontWeight={500}>
-							Sign in to create a new store.
-						</Box>
-						<Login />
-					</Paper>
-				</Modal>
-			</>
+			<List>
+				<ListItem button onClick={() => {
+					console.log(user)
+				}}>
+					<ListItemIcon>
+						<StorefrontIcon />
+					</ListItemIcon>
+					<ListItemText primary={'Add your store'} />
+				</ListItem>
+			</List>
 		)
 	}
 
@@ -127,11 +109,12 @@ const ProviderList = withRouter(props => {
 			})}
 		</List>
 	)
-})
+}
 
 const ProviderListItem = ({ role }: { role: Role }) => {
+	const history = useHistory()
 	const [provider, isLoading] = useDocumentListen<Provider>(Provider, new Provider(role.id).documentReference)
-	const [ErrorDialog, openDailog] = useErrorDialog('Error')
+	const [setDialog] = useDialog()
 	const [setProcessing] = useProcessing()
 	if (isLoading) {
 		return (
@@ -153,9 +136,11 @@ const ProviderListItem = ({ role }: { role: Role }) => {
 					const adminAttach = firebase.functions().httpsCallable('v1-commerce-admin-attach')
 					try {
 						await adminAttach({ providerID: provider!.id })
-						Router.push(`/admin`)
+						history.push('/admin')
 					} catch (error) {
-						openDailog(true)
+						setDialog('Error', 'Error', [{
+							title: 'OK'
+						}])
 						console.error(error)
 					}
 					setProcessing(false)
@@ -165,7 +150,6 @@ const ProviderListItem = ({ role }: { role: Role }) => {
 					</IconButton>
 				</ListItemSecondaryAction>
 			</ListItem>
-			<ErrorDialog />
 		</>
 	)
 }

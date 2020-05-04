@@ -11,7 +11,7 @@ import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 export default ({ header, hideBackArrow = false, onClick, children }: { header?: React.ReactNode, hideBackArrow?: boolean, onClick?: (e) => void, children: any }) => {
 	const history = useHistory()
 	return (
-		<Paper style={{ minHeight: '400px' }} square >
+		<Paper style={{ minHeight: '200px' }} square >
 			<AppBar position="static" color="default" elevation={0}>
 				<Toolbar>
 					{!hideBackArrow &&

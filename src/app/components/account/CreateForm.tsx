@@ -22,7 +22,7 @@ import Select, { useSelect } from 'components/Select'
 import { BusinessType } from 'common/commerce/account';
 import { useProcessing } from 'components/Processing'
 import { Batch } from '@1amageek/ballcap';
-import { useDialog, DialogProps } from 'components/Dialog'
+import { useDialog } from 'components/Dialog'
 import { useAuthUser } from 'hooks/auth';
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -56,34 +56,12 @@ const useStyles = makeStyles((theme: Theme) =>
 	})
 )
 
-const _ErrorDialog = (props: DialogProps) => (
-	<Dialog
-		open={props.open}
-		onClose={props.onClose}
-	>
-		<DialogTitle>Error</DialogTitle>
-		<DialogContent>
-			<DialogContentText>
-				Creation of provider failed. Please try again with good communication conditions.
-					</DialogContentText>
-		</DialogContent>
-		<DialogActions>
-			<Button onClick={props.onNext} color='primary' autoFocus>
-				OK
-      </Button>
-		</DialogActions>
-	</Dialog>
-)
-
 export default ({ onCallback }: { onCallback?: () => void }) => {
 	const classes = useStyles()
 	const [auth] = useAuthUser()
 	const history = useHistory()
 	const [setProcessing] = useProcessing()
-	const [ErrorDialog, setOpen] = useDialog(_ErrorDialog, () => {
-		setOpen(false)
-
-	})
+	const [setDialog] = useDialog()
 	const name = useInput("")
 	const country = useSelect({
 		initValue: "US",
@@ -120,17 +98,14 @@ export default ({ onCallback }: { onCallback?: () => void }) => {
 		const uid = auth.uid
 		setProcessing(true)
 		const provider = new Provider(uid)
-		const account = new Account(uid)
 		provider.name = name.value
 		provider.country = country.value as Country
 		provider.defaultCurrency = defaultCurrency.value as CurrencyCode
-		account.businessType = businessType.value as BusinessType
 		const user = new User(uid)
 		const role = user.roles.doc(provider.id, Role)
 		try {
 			const batch = new Batch()
 			batch.save(provider)
-			batch.save(account)
 			batch.save(role)
 			await batch.commit()
 			if (onCallback) {
@@ -140,7 +115,10 @@ export default ({ onCallback }: { onCallback?: () => void }) => {
 			}
 		} catch (error) {
 			console.error(error)
-			setOpen(true)
+			setDialog('Error', 'Creation of provider failed. Please try again with good communication conditions.', [{
+				title: 'OK',
+				autoFocus: true
+			}])
 		}
 		setProcessing(false)
 	}
@@ -195,7 +173,6 @@ export default ({ onCallback }: { onCallback?: () => void }) => {
 					</Button>
 				</Box>
 			</form>
-			<ErrorDialog />
 		</Paper>
 	)
 }

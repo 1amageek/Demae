@@ -1,40 +1,58 @@
-import React from 'react';
+import React, { createContext, useContext, useState } from 'react'
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import Modal from '@material-ui/core/Modal';
 import Backdrop from '@material-ui/core/Backdrop';
 import Fade from '@material-ui/core/Fade';
 
-const useStyles = makeStyles((theme: Theme) =>
-	createStyles({
-		modal: {
-			display: 'flex',
-			alignItems: 'center',
-			justifyContent: 'center',
-		}
-	}),
-);
+interface Prop {
+	component?: React.ReactNode
+}
 
-export default ({ open, onClose, children }: { open: boolean, onClose: () => void, children: any }) => {
-	const classes = useStyles();
+const _Modal = ({ open, component, onClose }: { open: boolean, component?: React.ReactNode, onClose: () => void }) => {
+	if (open) {
+		return (
+			<Modal
+				open={open}
+				onClose={onClose}
+				closeAfterTransition
+				BackdropComponent={Backdrop}
+				BackdropProps={{
+					timeout: 500,
+				}}
+			>
+				<Fade in={open}>
+					<>
+						{component}
+					</>
+				</Fade>
+			</Modal>
+		)
+	}
+	return <></>
+}
 
-	const handleClose = () => {
-		onClose();
-	};
-
+export const ModalContext = createContext<[(component: React.ReactNode | undefined) => void, boolean]>([() => { }, false])
+export const ModalProvider = ({ children }: { children: any }) => {
+	const [state, setState] = useState<Prop>({
+		component: undefined
+	})
+	const open = !!state.component
+	const onClose = () => {
+		setState({
+			component: undefined
+		})
+	}
+	const setModal = (component: React.ReactNode) => {
+		setState({ component })
+	}
 	return (
-		<Modal
-			className={classes.modal}
-			open={open}
-			onClose={handleClose}
-			closeAfterTransition
-			BackdropComponent={Backdrop}
-			BackdropProps={{
-				timeout: 500,
-			}}
-		>
-			<Fade in={open}>
-				{children}
-			</Fade>
-		</Modal>
-	);
+		<ModalContext.Provider value={[setModal, open]}>
+			<_Modal open={open} component={state.component} onClose={onClose} />
+			{children}
+		</ModalContext.Provider>
+	)
+}
+
+export const useDialog = () => {
+	return useContext(ModalContext)
 }

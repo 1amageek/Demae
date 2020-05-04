@@ -7,9 +7,11 @@ import "firebase/firestore"
 import "firebase/auth"
 import { AuthProvider } from 'hooks/auth'
 import { AccountProvider } from 'hooks/account'
-import { UserProvider, RolesProvider, RoleProvider, AdminProviderProvider, CartProvider } from 'hooks/commerce'
+import { UserProvider, RolesProvider, AdminProviderProvider, CartProvider, AdminProvider } from 'hooks/commerce'
 import { ProcessingProvider } from 'components/Processing'
 import { SnackbarProvider } from 'components/Snackbar'
+import { DialogProvider } from 'components/Dialog'
+import { ModalProvider } from 'components/Modal'
 
 const config = require(`../config/${process.env.FIREBASE_CONFIG!}`)
 const isEmulated = process.env.EMULATE_ENV === "emulator"
@@ -31,21 +33,25 @@ const Provider = ({ children }: { children: any }) => {
 	return (
 		<ProcessingProvider>
 			<SnackbarProvider>
-				<AuthProvider>
-					<AccountProvider>
-						<RolesProvider>
-							<AdminProviderProvider>
-								<UserProvider>
-									<RoleProvider>
-										<CartProvider>
-											{children}
-										</CartProvider>
-									</RoleProvider>
-								</UserProvider>
-							</AdminProviderProvider>
-						</RolesProvider>
-					</AccountProvider>
-				</AuthProvider>
+				<DialogProvider>
+					<ModalProvider>
+						<AuthProvider>
+							<AdminProvider>
+								<AccountProvider>
+									<RolesProvider>
+										<AdminProviderProvider>
+											<UserProvider>
+												<CartProvider>
+													{children}
+												</CartProvider>
+											</UserProvider>
+										</AdminProviderProvider>
+									</RolesProvider>
+								</AccountProvider>
+							</AdminProvider>
+						</AuthProvider>
+					</ModalProvider>
+				</DialogProvider>
 			</SnackbarProvider>
 		</ProcessingProvider>
 	)

@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react'
 import Paper from '@material-ui/core/Paper';
 import { useHistory } from 'react-router-dom'
 import firebase from 'firebase'
-import { Grid, Dialog, DialogContent, DialogContentText, DialogActions, DialogTitle, AppBar, Toolbar, Checkbox, FormControlLabel } from '@material-ui/core';
+import { Grid, AppBar, Toolbar, Checkbox, FormControlLabel } from '@material-ui/core';
 import { List, ListItem, ListItemText, ListItemIcon, Button } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
 import { useUserShippingAddresses, UserContext, CartContext } from 'hooks/commerce'
@@ -13,11 +13,12 @@ import { ExpansionPanel, ExpansionPanelSummary, ExpansionPanelDetails, Expansion
 import Typography from '@material-ui/core/Typography';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import DataLoading from 'components/DataLoading';
-import { useDialog, DialogProps } from 'components/Dialog'
+
 import * as Commerce from 'models/commerce'
 import { PaymentMethod } from '@stripe/stripe-js';
 import { useProcessing } from 'components/Processing';
 import { useSnackbar } from 'components/Snackbar'
+import { useDialog } from 'components/Dialog'
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 
 export default (props: any) => {
@@ -117,35 +118,10 @@ export default (props: any) => {
 
 const ShippingAddresses = ({ user }: { user: Commerce.User }) => {
 
-	const _AlertDialog = (props: DialogProps) => (
-		<Dialog
-			open={props.open}
-			onClose={props.onClose}
-		>
-			<DialogTitle>Delete Shipping address</DialogTitle>
-			<DialogContent>
-				<DialogContentText>
-					Are you sure you want to delete it?
-			</DialogContentText>
-			</DialogContent>
-			<DialogActions>
-				<Button onClick={props.onClose}>
-					Cancel
-      </Button>
-				<Button onClick={props.onNext} color='primary' autoFocus>
-					OK
-      </Button>
-			</DialogActions>
-		</Dialog>
-	)
-
 	const [shippingAddresses, isLoading] = useUserShippingAddresses()
 	const history = useHistory()
+	const [setDialog] = useDialog()
 	const [deleteShipping, setDeleteShipping] = useState<Shipping | undefined>(undefined)
-	const [AlertDialog, setOpen] = useDialog(_AlertDialog, async () => {
-		await deleteShipping?.delete()
-		setOpen(false)
-	})
 
 	if (isLoading) {
 		return (
@@ -193,7 +169,12 @@ const ShippingAddresses = ({ user }: { user: Commerce.User }) => {
 								<Button size="small" onClick={async () => {
 									// await shipping.delete()
 									setDeleteShipping(shipping)
-									setOpen(true)
+									setDialog('Delete', 'Do you want to remove it?', [{
+										title: 'OK',
+										handler: async () => {
+											await deleteShipping?.delete()
+										}
+									}])
 								}}>Delete</Button>
 								<Button size="small" color="primary" onClick={() => {
 									history.push(`/checkout/shipping/${shipping.id}`)
@@ -215,42 +196,18 @@ const ShippingAddresses = ({ user }: { user: Commerce.User }) => {
 					<ListItemText primary={`Add new shpping address`} />
 				</ListItem>
 			</List>
-			<AlertDialog />
 		</Paper>
 	)
 }
 
 const PaymentMethods = ({ user }: { user: Commerce.User }) => {
 
-	const _AlertDialog = (props: DialogProps) => (
-		<Dialog
-			open={props.open}
-			onClose={props.onClose}
-		>
-			<DialogTitle>Delete Payment method</DialogTitle>
-			<DialogContent>
-				<DialogContentText>
-					Are you sure you want to delete it?
-			</DialogContentText>
-			</DialogContent>
-			<DialogActions>
-				<Button onClick={props.onClose}>
-					Cancel
-      </Button>
-				<Button onClick={props.onNext} color='primary' autoFocus>
-					OK
-      </Button>
-			</DialogActions>
-		</Dialog>
-	)
 	const history = useHistory()
 	const [setProcessing] = useProcessing()
-	const [paymentMethods, isLoading, error, setPaymentMethods] = useFunctions<PaymentMethod>('v1-stripe-paymentMethod-list', { type: 'card' })
+	const [data, isLoading, error, setPaymentMethods] = useFunctions<PaymentMethod[]>('v1-stripe-paymentMethod-list', { type: 'card' })
 	const [deletePaymentMethod, setDeletePaymentMethod] = useState<PaymentMethod | undefined>(undefined)
-	const [AlertDialog, setOpen] = useDialog(_AlertDialog, async () => {
-		setOpen(false)
-		await paymentMethodDetach()
-	})
+	const [setDialog] = useDialog()
+	const paymentMethods = data || []
 
 	const setDefaultPaymentMethod = async (method: PaymentMethod) => {
 		setProcessing(true)
@@ -349,7 +306,12 @@ const PaymentMethods = ({ user }: { user: Commerce.User }) => {
 							<ExpansionPanelActions>
 								<Button size="small" onClick={async () => {
 									setDeletePaymentMethod(method)
-									setOpen(true)
+									setDialog('Delete', 'Do you want to remove it?', [{
+										title: 'OK',
+										handler: async () => {
+											await paymentMethodDetach()
+										}
+									}])
 								}}>Delete</Button>
 								{/* <Button size="small" color="primary" onClick={() => {
 									// history.push(`/checkout/shipping/${shipping.id}`)
@@ -371,8 +333,6 @@ const PaymentMethods = ({ user }: { user: Commerce.User }) => {
 					<ListItemText primary={`Add new payment method`} />
 				</ListItem>
 			</List>
-			<AlertDialog />
-
 		</Paper>
 	)
 }

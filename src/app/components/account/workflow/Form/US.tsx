@@ -144,11 +144,11 @@ export default ({ individual, onCallback }: { individual: Partial<Individual>, o
 				return
 			}
 			const account = new Account(uid)
-			account.accountID = result.data.id
-			account.country = result.data.country
-			account.businessType = result.data.business_type
-			account.email = result.data.email
-			account.individual = data.individual
+			account.accountID = result.id
+			account.country = result.country
+			account.businessType = result.business_type
+			account.email = result.email
+			account.individual = result.individual
 			await account.save()
 			if (onCallback) {
 				onCallback(true)

@@ -1,21 +1,76 @@
-import React, { useState } from 'react'
+import React, { createContext, useContext, useState } from 'react'
+import { Snackbar, Button, Dialog, DialogTitle, DialogContent, DialogActions, PropTypes } from '@material-ui/core';
 
-export interface DialogProps {
-	open: boolean
-	onClose: () => void
-	onNext: () => void
+interface Action {
+	title: string
+	autoFocus?: boolean
+	color?: PropTypes.Color
+	handler?: () => void
 }
 
-export const useDialog = <T extends DialogProps>(Component: React.FC<T>, onNext?: () => void): [React.FC, (open: boolean) => void] => {
-	const [open, setOpen] = useState(false)
-	const _Dialog = props => (
-		<Component
-			open={open}
-			onClose={() => {
-				setOpen(false)
-			}}
-			onNext={onNext}
-			{...props} />
+interface Prop {
+	title?: string
+	body?: string
+	actions: Action[]
+}
+
+const _Dialog = ({ open, title, body, actions, onClose }: { open: boolean, title?: string, body?: string, actions: Action[], onClose: () => void }) => {
+	if (open) {
+		return (
+			<Dialog onClose={onClose} open={open}>
+				<DialogTitle>
+					{title}
+				</DialogTitle>
+				<DialogContent dividers>
+					{body}
+				</DialogContent>
+				<DialogActions>
+					{actions.map(action => {
+						return (
+							<Button autoFocus={action.autoFocus} onClick={() => {
+								if (action.handler) {
+									action.handler()
+								}
+								onClose()
+							}} color={action.color}>
+								{action.title}
+							</Button>
+						)
+					})
+					}
+				</DialogActions>
+			</Dialog>
+		)
+	}
+	return <></>
+}
+
+export const DialogContext = createContext<[(title: string | undefined, body: string | undefined, actions: Action[]) => void, boolean]>([() => { }, false])
+export const DialogProvider = ({ children }: { children: any }) => {
+	const [state, setState] = useState<Prop>({
+		title: undefined,
+		body: undefined,
+		actions: []
+	})
+	const open = !!state.title || !!state.body
+	const onClose = () => {
+		setState({
+			title: undefined,
+			body: undefined,
+			actions: []
+		})
+	}
+	const setDialog = (title: string | undefined, body: string | undefined, actions: Action[]) => {
+		setState({ title, body, actions })
+	}
+	return (
+		<DialogContext.Provider value={[setDialog, open]}>
+			<_Dialog open={open} title={state.title} body={state.body} actions={state.actions} onClose={onClose} />
+			{children}
+		</DialogContext.Provider>
 	)
-	return [_Dialog, setOpen]
+}
+
+export const useDialog = () => {
+	return useContext(DialogContext)
 }

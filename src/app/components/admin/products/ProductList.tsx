@@ -71,6 +71,7 @@ export default ({ productID }: { productID?: string }) => {
 						<AddCircleIcon />
 					}
 					onClick={async () => {
+						console.log(provider)
 						if (!provider) return
 						const product = new Product(provider.products.collectionReference.doc())
 						product.providedBy = provider.id

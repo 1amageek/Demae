@@ -26,17 +26,17 @@ export const usePaymentMethods = (): [PaymentMethod[], boolean] => {
 	return [paymentMethods, isLoading]
 }
 
-export const useFunctions = <T>(query: string, option: any = {}, waiting: boolean = false): [T[], boolean, Error | undefined, (data: T[]) => void] => {
+export const useFunctions = <T>(query: string, option: any = {}, waiting: boolean = false): [T | undefined, boolean, Error | undefined, (data: T) => void] => {
 
 	interface Prop {
-		data: T[]
+		data?: T
 		loading: boolean
 		error?: Error
 	}
 
-	const [state, setState] = useState<Prop>({ data: [], loading: true })
+	const [state, setState] = useState<Prop>({ data: undefined, loading: true })
 
-	const setData = (data: T[]) => {
+	const setData = (data: T) => {
 		setState({
 			error: undefined,
 			loading: false,
@@ -50,20 +50,19 @@ export const useFunctions = <T>(query: string, option: any = {}, waiting: boolea
 			try {
 				const list = await firebase.functions().httpsCallable(query)
 				const result = await list(option)
-				console.log(result)
 				if (enabled) {
-					const data = result.data.data as T[]
+					const data = result.data.result
 					if (data) {
 						setState({
 							error: undefined,
 							loading: false,
-							data
+							data: data
 						});
 					} else {
 						setState({
 							error: undefined,
 							loading: false,
-							data: []
+							data: undefined
 						});
 					}
 				}
@@ -71,7 +70,7 @@ export const useFunctions = <T>(query: string, option: any = {}, waiting: boolea
 				console.log(error)
 				if (enabled) {
 					setState({
-						data: [],
+						data: undefined,
 						loading: false,
 						error
 					});
@@ -79,7 +78,7 @@ export const useFunctions = <T>(query: string, option: any = {}, waiting: boolea
 			}
 		};
 		setState({
-			data: [],
+			data: undefined,
 			loading: true,
 			error: undefined
 		})
