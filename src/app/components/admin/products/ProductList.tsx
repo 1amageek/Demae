@@ -1,27 +1,9 @@
 
 import React, { useState } from 'react'
-import firebase from 'firebase'
-import Link from 'next/link'
-import { File as StorageFile } from '@1amageek/ballcap'
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
-import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
-import Tooltip from '@material-ui/core/Tooltip';
-import Typography from '@material-ui/core/Typography';
-import ArrowBackIcon from '@material-ui/icons/ArrowBack';
-import Table from '@material-ui/core/Table';
-import TableRow from '@material-ui/core/TableRow';
-import TableCell from '@material-ui/core/TableCell';
-import TableBody from '@material-ui/core/TableBody';
-import IconButton from '@material-ui/core/IconButton';
-import DndCard from 'components/DndCard'
 import Box from '@material-ui/core/Box';
-import Input, { useInput } from 'components/Input'
-import Select, { useSelect } from 'components/Select'
 import Product from 'models/commerce/Product'
-
-import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
+import { Symbol } from 'common/Currency'
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
@@ -33,7 +15,6 @@ import { useAdminProviderProducts, useAdminProvider, useUser } from 'hooks/comme
 import DataLoading from 'components/DataLoading';
 import Board from '../Board';
 import { useHistory } from 'react-router-dom';
-import ISO4217 from 'common/ISO4217'
 import { ListItemSecondaryAction, Switch } from '@material-ui/core';
 import { useProcessing } from 'components/Processing';
 import { useSnackbar } from 'components/Snackbar';
@@ -103,7 +84,7 @@ const ProductListItem = ({ productID, product }: { productID?: string, product: 
 	const history = useHistory()
 	const price = product.price || {}
 	const currency = user?.currency || 'USD'
-	const symbol = ISO4217[currency].symbol
+	const symbol = Symbol(currency)
 	const amount = price[currency] || 0
 	const imageURL = product.imageURLs().length > 0 ? product.imageURLs()[0] : undefined
 	const priceWithSymbol = amount > 0 ? `${symbol}${amount}` : ''

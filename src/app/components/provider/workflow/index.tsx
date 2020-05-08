@@ -1,19 +1,19 @@
-import React, { useState, useEffect } from 'react';
-import firebase from 'firebase'
+import React, { useState } from 'react';
 import { makeStyles, Theme, createStyles, withStyles } from '@material-ui/core/styles';
 import clsx from 'clsx';
 import Stepper from '@material-ui/core/Stepper';
 import Step from '@material-ui/core/Step';
 import StepLabel from '@material-ui/core/StepLabel';
 import Check from '@material-ui/icons/Check';
-import { Container, Grid, Button, Box, Typography, StepConnector, Table, TableBody, TableRow, TableCell, AppBar } from '@material-ui/core';
+import { Container, Grid, Button, Box, Typography, StepConnector } from '@material-ui/core';
 import Board from 'components/admin/Board'
 import { Countries, Country } from 'common/Country';
 import Select, { useSelect } from 'components/Select'
 import { StepIconProps } from '@material-ui/core/StepIcon';
-import AccountForm from 'components/account/workflow/form'
+
 import { Account } from 'models/account';
 import Agreement from './agreement'
+import Form from './form'
 import Completed from './complete'
 import RegisterableCountries from 'config/RegisterableCountries'
 
@@ -78,10 +78,11 @@ function QontoStepIcon(props: StepIconProps) {
 	);
 }
 
-const Steps = ['Agreement', 'Create an account', 'Finish']
+const Steps = ['Agreement', 'Create your Shop', 'Finish']
 
 export default () => {
-	const [activeStep, setActiveStep] = useState(0);
+
+	const [activeStep, setActiveStep] = useState(2);
 	const handleNext = () => {
 		setActiveStep((prevActiveStep) => prevActiveStep + 1);
 	};
@@ -90,8 +91,6 @@ export default () => {
 		setActiveStep((prevActiveStep) => prevActiveStep - 1);
 	};
 
-	const account = new Account()
-
 	const country = useSelect({
 		initValue: 'US',
 		inputProps: {
@@ -99,21 +98,6 @@ export default () => {
 		},
 		controlProps: {
 			variant: 'outlined'
-		}
-	})
-
-	const businessType = useSelect({
-		initValue: "individual", inputProps: {
-			menu: [
-				{
-					label: 'Individual',
-					value: 'individual'
-				},
-				{
-					label: 'Company',
-					value: 'company'
-				}
-			]
 		}
 	})
 
@@ -136,14 +120,14 @@ export default () => {
 				</Stepper>
 
 				{activeStep === 0 && <Agreement country={country.value as Country} onCallback={handleNext} />}
-				{activeStep === 1 && <AccountForm country={country.value as Country} onCallback={(next) => {
+				{activeStep === 1 && <Form country={country.value as Country} onCallback={(next) => {
 					if (next) {
 						handleNext()
 					} else {
 						handleBack()
 					}
 				}} />}
-				{activeStep === 2 && <Completed account={account} />}
+				{activeStep === 2 && <Completed />}
 
 			</Board>
 		</Container>

@@ -199,11 +199,13 @@ const Edit = ({ product, onClose }: { product: Product, onClose: () => void }) =
 					>Save</Button>
 				</Box>
 			}>
-				<DndCard
-					url={product.imageURLs()[0]}
-					onDrop={(files) => {
-						setImages(files)
-					}} />
+				<Box display='flex' flexGrow={1} minHeight={200}>
+					<DndCard
+						url={product.imageURLs()[0]}
+						onDrop={(files) => {
+							setImages(files)
+						}} />
+				</Box>
 				<Table>
 					<TableBody>
 						<TableRow>

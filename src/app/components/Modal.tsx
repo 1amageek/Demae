@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useState } from 'react'
-import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import Modal from '@material-ui/core/Modal';
 import Backdrop from '@material-ui/core/Backdrop';
 import Fade from '@material-ui/core/Fade';
@@ -19,6 +18,11 @@ const _Modal = ({ open, component, onClose }: { open: boolean, component?: React
 				BackdropProps={{
 					timeout: 500,
 				}}
+				style={{
+					display: 'flex',
+					alignItems: 'center',
+					justifyContent: 'center'
+				}}
 			>
 				<Fade in={open}>
 					<>
@@ -31,7 +35,7 @@ const _Modal = ({ open, component, onClose }: { open: boolean, component?: React
 	return <></>
 }
 
-export const ModalContext = createContext<[(component: React.ReactNode | undefined) => void, boolean]>([() => { }, false])
+export const ModalContext = createContext<[(component: React.ReactNode | undefined) => void, () => void, boolean]>([() => { }, () => { }, false])
 export const ModalProvider = ({ children }: { children: any }) => {
 	const [state, setState] = useState<Prop>({
 		component: undefined
@@ -46,13 +50,13 @@ export const ModalProvider = ({ children }: { children: any }) => {
 		setState({ component })
 	}
 	return (
-		<ModalContext.Provider value={[setModal, open]}>
+		<ModalContext.Provider value={[setModal, onClose, open]}>
 			<_Modal open={open} component={state.component} onClose={onClose} />
 			{children}
 		</ModalContext.Provider>
 	)
 }
 
-export const useDialog = () => {
+export const useModal = () => {
 	return useContext(ModalContext)
 }

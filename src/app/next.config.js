@@ -2,8 +2,6 @@ const path = require('path')
 const withWorkers = require('@zeit/next-workers')
 require('dotenv').config({ path: `.${process.env.NODE_ENV}.env` })
 
-console.log(process.env.FIREBASE_PROJECT)
-
 module.exports = withWorkers({
 	distDir: '../../dist/functions/next',
 	env: {

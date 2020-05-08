@@ -30,7 +30,7 @@ export default class Provider extends Doc {
 
 	thumbnailImageURL() {
 		if (this.thumbnailImage) {
-			return `https://demae-210ed.firebaseapp.com/assets/${this.thumbnailImage.path}`
+			return `${process.env.HOST}/assets/${this.thumbnailImage.path}`
 		}
 		return undefined
 	}

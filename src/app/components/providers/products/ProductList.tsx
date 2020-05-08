@@ -2,15 +2,10 @@ import React, { useContext } from 'react';
 import { Link } from 'react-router-dom'
 import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
 import { Box, Paper, Typography, Button, Grid, ListItemAvatar, Avatar } from '@material-ui/core';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
-import ListItemText from '@material-ui/core/ListItemText';
 import Card from './Card'
 import { useDataSourceListen, Where } from 'hooks/firestore';
 import { Provider, Product } from 'models/commerce';
 import DataLoading from 'components/DataLoading'
-import ISO4217 from 'common/ISO4217'
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({

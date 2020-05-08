@@ -5,34 +5,24 @@ import clsx from 'clsx';
 import firebase from 'firebase'
 import 'firebase/auth'
 import { makeStyles, useTheme, Theme, createStyles } from '@material-ui/core/styles';
-import Drawer from '@material-ui/core/Drawer';
-import CssBaseline from '@material-ui/core/CssBaseline';
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemText from '@material-ui/core/ListItemText';
-import Typography from '@material-ui/core/Typography';
-import Divider from '@material-ui/core/Divider';
-import Box from '@material-ui/core/Box';
-import MenuItem from '@material-ui/core/MenuItem';
-import Menu from '@material-ui/core/Menu';
+import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank';
+import PublicIcon from '@material-ui/icons/Public';
+import ViewListIcon from '@material-ui/icons/ViewList';
+import StorefrontIcon from '@material-ui/icons/Storefront';
 import AccountCircle from '@material-ui/icons/AccountCircle';
-import IconButton from '@material-ui/core/IconButton';
-import MenuIcon from '@material-ui/icons/Menu';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
+import MenuIcon from '@material-ui/icons/Menu';
+import { Drawer, CssBaseline, AppBar, Toolbar, List, ListItem, ListItemText, Typography, Divider, Box, MenuItem, Menu, IconButton } from '@material-ui/core';
 import { Role } from 'models/commerce/User';
 import Provider from 'models/commerce/Provider'
-import { User, Product } from 'models/commerce';
-import DataSource from 'lib/DataSource';
-import { useAuthUser } from 'hooks/auth'
-import { useRoles, useUser } from 'hooks/commerce'
-import { useDataSourceListen, useDocumentListen } from 'hooks/firestore'
+import { useRoles, useUser, useAdminProvider } from 'hooks/commerce'
+import { useDocumentListen } from 'hooks/firestore'
 import { useProcessing } from 'components/Processing';
 import { useSnackbar } from 'components/Snackbar';
+import { ListItemIcon } from '@material-ui/core';
 
-const drawerWidth = 180;
+const drawerWidth = 200;
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
@@ -101,7 +91,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 export default ({ children }: { children: any }) => {
 	const classes = useStyles()
-	const [auth] = useAuthUser()
+	const [provider] = useAdminProvider()
 	const theme = useTheme()
 	const [open, setOpen] = useState(false)
 
@@ -113,11 +103,15 @@ export default ({ children }: { children: any }) => {
 		setOpen(false);
 	};
 
+	const previewLink = provider ? `/providers/${provider.id}` : '/providers'
+
 	return (
 		<div className={classes.root}>
 			<CssBaseline />
 			<AppBar
+				color='inherit'
 				position='fixed'
+				elevation={0}
 				className={clsx(classes.appBar, {
 					[classes.appBarShift]: open,
 				})}
@@ -133,8 +127,8 @@ export default ({ children }: { children: any }) => {
 						<MenuIcon />
 					</IconButton>
 					<Typography variant='h6' noWrap>
-						Admin
-          </Typography>
+						{provider && provider.name}
+					</Typography>
 					<div style={{ flexGrow: 1 }}></div>
 					<AccountMenu />
 				</Toolbar>
@@ -156,16 +150,33 @@ export default ({ children }: { children: any }) => {
 				<Divider />
 				<List>
 					<ListItem button key={'product'} component={Link} to='/admin/products'>
+						<ListItemIcon>
+							<CheckBoxOutlineBlankIcon />
+						</ListItemIcon>
 						<ListItemText primary={'Product'} />
 					</ListItem>
 					<ListItem button key={'orders'} component={Link} to='/admin/orders'>
+						<ListItemIcon>
+							<ViewListIcon />
+						</ListItemIcon>
 						<ListItemText primary={'Orders'} />
 					</ListItem>
 					<ListItem button key={'provider'} component={Link} to='/admin/provider'>
-						<ListItemText primary={'Provider'} />
+						<ListItemIcon>
+							<StorefrontIcon />
+						</ListItemIcon>
+						<ListItemText primary={'Shop'} />
 					</ListItem>
-					<ListItem button key={'account'} component={Link} to='/admin/account'>
-						<ListItemText primary={'Account'} />
+				</List>
+				<Divider />
+				<List>
+					<ListItem button key={'product'} onClick={() => {
+						window.location.href = previewLink
+					}}>
+						<ListItemIcon>
+							<PublicIcon />
+						</ListItemIcon>
+						<ListItemText primary={'Preview'} />
 					</ListItem>
 				</List>
 			</Drawer>

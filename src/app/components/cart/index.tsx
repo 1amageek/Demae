@@ -3,7 +3,6 @@ import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
 import { Box, Paper, Typography, Button, Grid, ListItemAvatar, Avatar, Tooltip, IconButton } from '@material-ui/core';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
-import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import ListItemText from '@material-ui/core/ListItemText';
 import ImageIcon from '@material-ui/icons/Image';
 import { useAuthUser } from 'hooks/auth'
@@ -13,9 +12,8 @@ import Summary from './summary'
 import AddCircleIcon from '@material-ui/icons/AddCircle';
 import RemoveCircleIcon from '@material-ui/icons/RemoveCircle';
 import Login from 'components/Login'
-import ISO4217 from 'common/ISO4217'
-import DataLoading from 'components/DataLoading';
 import Cart, { CartGroup, CartItem } from 'models/commerce/Cart'
+import { Symbol } from 'common/Currency'
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
@@ -51,7 +49,7 @@ const CartGroupList = ({ cartGroup }: { cartGroup: CartGroup }) => {
 	const subtotal = cartGroup.subtotal() || 0
 	const tax = cartGroup.tax() || 0
 	const currencyCode = cartGroup.currency || 'USD'
-	const symbol = ISO4217[currencyCode]['symbol']
+	const symbol = Symbol(currencyCode)
 	return (
 		<Paper>
 			<List dense>
@@ -115,7 +113,7 @@ const CartItemCell = ({ key, cartItem }: { key: string, cartItem: CartItem }) =>
 							<Typography variant='h6'>{`${cartItem.name}`}</Typography>
 							<Typography>{`${cartItem.displayPrice()}`}</Typography>
 						</Box>
-						<Box fontWeight={600} fontSize={20}>{`${ISO4217[cartItem.currency]['symbol']}${cartItem.subtotal().toLocaleString()}`}</Box>
+						<Box fontWeight={600} fontSize={20}>{`${Symbol(cartItem.currency)}${cartItem.subtotal().toLocaleString()}`}</Box>
 					</Box>
 				}
 				secondary={

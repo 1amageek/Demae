@@ -12,18 +12,12 @@ import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableRow from '@material-ui/core/TableRow';
-import StorefrontIcon from '@material-ui/icons/Storefront';
-import IconButton from '@material-ui/core/IconButton';
-import ViewListIcon from '@material-ui/icons/ViewList';
-import SettingsIcon from '@material-ui/icons/Settings';
-import AccountBoxIcon from '@material-ui/icons/AccountBox';
 import { Container } from '@material-ui/core'
 import DataLoading from 'components/DataLoading';
 import { Paper, Grid, Typography, Box } from '@material-ui/core';
 import { useFunctions } from 'hooks/stripe'
-import ISO4217 from 'common/ISO4217'
 import Board from 'components/Board'
-
+import { Symbol } from 'common/Currency'
 
 export default () => {
 
@@ -59,7 +53,7 @@ const Balance = () => {
 				<TableBody>
 					{avalable.map((value, index) => {
 						const currency = value.currency.toUpperCase() || 'USD'
-						const symbol = ISO4217[currency].symbol
+						const symbol = Symbol(currency)
 						const amount = value.amount as number
 						return (
 							<TableRow key={index}>

@@ -4,9 +4,7 @@ import Link from 'next/link'
 import { File as StorageFile } from '@1amageek/ballcap'
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
-import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
-import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import Table from '@material-ui/core/Table';
 import TableRow from '@material-ui/core/TableRow';
 import TableCell from '@material-ui/core/TableCell';
@@ -16,7 +14,7 @@ import ImageIcon from '@material-ui/icons/Image';
 import DndCard from 'components/DndCard'
 import Input, { useInput } from 'components/Input'
 import Select, { useSelect } from 'components/Select'
-import { CurrencyCode, CurrencyCodes } from 'common/Currency'
+import { CurrencyCode, SupportedCurrencies } from 'common/Currency'
 import EditIcon from '@material-ui/icons/Edit';
 import SaveIcon from '@material-ui/icons/Save';
 import { useAdminProviderProduct, useAdminProviderProductSKU } from 'hooks/commerce';
@@ -25,8 +23,6 @@ import Board from '../Board';
 import { useProcessing } from 'components/Processing';
 import { StockType, StockValue } from 'common/commerce/Types';
 import { SKU, Product } from 'models/commerce';
-import { useDataSourceListen } from 'hooks/firestore';
-import { Stock } from 'models/commerce/SKU';
 import StockDetail from './StockDetail';
 
 export default ({ productID, skuID }: { productID?: string, skuID?: string }) => {
@@ -151,10 +147,10 @@ const Edit = ({ product, sku, onClose }: { product: Product, sku: SKU, onClose: 
 	const description = useInput(sku?.description)
 	const currency = useSelect({
 		initValue: sku?.currency, inputProps: {
-			menu: CurrencyCodes.map(c => {
+			menu: SupportedCurrencies.map(c => {
 				return {
-					label: c,
-					value: c,
+					label: `${c.code} ${c.name}`,
+					value: c.code,
 				}
 			})
 		}
@@ -282,31 +278,35 @@ const Edit = ({ product, sku, onClose }: { product: Product, sku: SKU, onClose: 
 	return (
 		<>
 			<form onSubmit={onSubmit}>
-				<Board header={
-					<Box display="flex" flexGrow={1}>
-						{sku.name}
-						<Box flexGrow={1} />
-						<Button
-							color="primary"
-							onClick={async () => {
-								onClose()
-							}}
-						>Cancel</Button>
-						<Button
-							variant="contained"
-							color="primary"
-							type='submit'
-							startIcon={
-								<SaveIcon />
-							}
-						>Save</Button>
+				<Board
+					hideBackArrow={true}
+					header={
+						<Box display="flex" flexGrow={1}>
+							{sku.name}
+							<Box flexGrow={1} />
+							<Button
+								color="primary"
+								onClick={async () => {
+									onClose()
+								}}
+							>Cancel</Button>
+							<Button
+								variant="contained"
+								color="primary"
+								type='submit'
+								startIcon={
+									<SaveIcon />
+								}
+							>Save</Button>
+						</Box>
+					}>
+					<Box display='flex' flexGrow={1} minHeight={200}>
+						<DndCard
+							url={product.imageURLs()[0]}
+							onDrop={(files) => {
+								setImages(files)
+							}} />
 					</Box>
-				}>
-					<DndCard
-						url={sku.imageURLs()[0]}
-						onDrop={(files) => {
-							setImages(files)
-						}} />
 					<Table>
 						<TableBody>
 							<TableRow>

@@ -59,7 +59,7 @@ export default class Order extends Doc {
 			}, [])
 			.map(image => {
 				if (image) {
-					return `https://demae-210ed.firebaseapp.com/assets/${image.path}`
+					return `${process.env.HOST}/assets/${image.path}`
 				}
 				return undefined
 			}).filter(value => !!value)

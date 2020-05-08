@@ -25,9 +25,9 @@ const _Dialog = ({ open, title, body, actions, onClose }: { open: boolean, title
 					{body}
 				</DialogContent>
 				<DialogActions>
-					{actions.map(action => {
+					{actions.map((action, index) => {
 						return (
-							<Button autoFocus={action.autoFocus} onClick={() => {
+							<Button key={index} autoFocus={action.autoFocus} onClick={() => {
 								if (action.handler) {
 									action.handler()
 								}
@@ -45,7 +45,7 @@ const _Dialog = ({ open, title, body, actions, onClose }: { open: boolean, title
 	return <></>
 }
 
-export const DialogContext = createContext<[(title: string | undefined, body: string | undefined, actions: Action[]) => void, boolean]>([() => { }, false])
+export const DialogContext = createContext<[(title: string | undefined, body: string | undefined, actions: Action[]) => void, () => void, boolean]>([() => { }, () => { }, false])
 export const DialogProvider = ({ children }: { children: any }) => {
 	const [state, setState] = useState<Prop>({
 		title: undefined,
@@ -64,7 +64,7 @@ export const DialogProvider = ({ children }: { children: any }) => {
 		setState({ title, body, actions })
 	}
 	return (
-		<DialogContext.Provider value={[setDialog, open]}>
+		<DialogContext.Provider value={[setDialog, onClose, open]}>
 			<_Dialog open={open} title={state.title} body={state.body} actions={state.actions} onClose={onClose} />
 			{children}
 		</DialogContext.Provider>

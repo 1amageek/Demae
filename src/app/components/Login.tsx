@@ -33,7 +33,7 @@ export default ({ redirectURL = '/', defaultCountry = 'JP', onNext }: { redirect
 						}
 					})();
 				}
-				return true
+				return false
 			},
 			signInFailure: async (error) => {
 				console.log(error)

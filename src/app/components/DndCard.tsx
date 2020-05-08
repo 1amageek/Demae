@@ -48,8 +48,11 @@ export default (props: DnDProps) => {
 	const { getRootProps, getInputProps, isDragActive } = useDropzone({ accept: 'image/jpeg,image/png', onDrop: callback })
 	return (
 		<Box position='relative'
+			display='flex'
+			flexGrow={1}
 			width="100%"
-			height="100%"
+			top={0}
+			bottom={0}
 			{...props}
 		>
 			<Box className={classes.box}

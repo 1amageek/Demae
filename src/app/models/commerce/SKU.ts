@@ -1,8 +1,7 @@
 import { Doc, Field, DocumentReference, SubCollection, Collection, Batch, File } from '@1amageek/ballcap'
-import { CurrencyCode } from 'common/Currency'
+import { CurrencyCode, Symbol } from 'common/Currency'
 import { Inventory, Discount } from 'common/commerce/Types'
 import { ShardType, ShardCharacters } from './Shard'
-import ISO4217 from 'common/ISO4217'
 import firebase from 'firebase'
 
 export class Stock extends Doc {
@@ -33,7 +32,7 @@ export default class SKU extends Doc {
 	@SubCollection inventories: Collection<Stock> = new Collection()
 
 	displayPrice() {
-		const symbol = ISO4217[this.currency].symbol
+		const symbol = Symbol(this.currency)
 		const price = this.price
 		return `${symbol}${price.toLocaleString()}`
 	}
@@ -45,7 +44,7 @@ export default class SKU extends Doc {
 	imageURLs() {
 		return this.images.map(image => {
 			if (image) {
-				return `https://demae-210ed.firebaseapp.com/assets/${image.path}`
+				return `${process.env.HOST}/assets/${image.path}`
 			}
 			return undefined
 		}).filter(value => !!value)

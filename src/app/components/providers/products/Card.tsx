@@ -1,17 +1,16 @@
 import React, { useState, useContext } from 'react';
 import { Link } from 'react-router-dom'
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
-import { Box, Card, CardActionArea, CardMedia, CardContent, CardActions, Avatar } from '@material-ui/core';
+import { Card, CardActionArea, CardMedia, CardContent, CardActions, Avatar } from '@material-ui/core';
 import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
 import { red } from '@material-ui/core/colors';
 import FavoriteIcon from '@material-ui/icons/Favorite';
 import ShareIcon from '@material-ui/icons/Share';
 import { UserContext } from 'hooks/commerce'
-import { useDataSourceListen } from 'hooks/firestore';
 import { Product } from 'models/commerce';
 import ImageIcon from '@material-ui/icons/Image';
-import ISO4217 from 'common/ISO4217'
+import { Symbol } from 'common/Currency'
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
@@ -49,7 +48,7 @@ export default ({ providerID, product }: { providerID: string, product: Product 
 
 	const price = product.price
 	const currency = user?.currency || 'USD'
-	const symbol = ISO4217[currency].symbol
+	const symbol = Symbol(currency)
 	const amount = price[currency]
 	const imageURL = product.imageURLs().length > 0 ? product.imageURLs()[0] : undefined
 

@@ -1,6 +1,8 @@
 import React, { useEffect } from 'react'
 import { Switch, Route, useHistory } from 'react-router-dom'
-import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
+import { makeStyles, Theme, createStyles } from '@material-ui/core/styles'
+import { Box, CssBaseline } from '@material-ui/core'
+
 import AppBar from 'components/AppBar'
 import TabBar from 'components/TabBar'
 import Login from 'components/Login'
@@ -8,6 +10,7 @@ import Home from 'components/home'
 import Cart from 'components/cart'
 import Account from 'components/account'
 import AccountCreateWorkFlow from 'components/account/workflow'
+import ProviderCreateWorkFlow from 'components/provider/workflow'
 import Order from 'components/account/histories'
 import Payment from 'components/account/payments'
 import Provider from 'components/providers'
@@ -16,8 +19,6 @@ import Checkout from 'components/checkout'
 import CheckoutCompleted from 'components/checkout/complete'
 import Shipping from 'components/checkout/shipping'
 import PaymentMethod from 'components/checkout/payment'
-import CreateForm from 'components/account/CreateForm'
-import { Container, Box, CssBaseline } from '@material-ui/core';
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -62,6 +63,7 @@ const App = () => {
 			<Route path={`/account/create`} exact component={AccountCreateWorkFlow} />
 			<Route path={`/account/orders`} exact component={Order} />
 			<Route path={`/account/payments`} exact component={Payment} />
+			<Route path={`/provider/create`} exact component={ProviderCreateWorkFlow} />
 			<Route path={`/providers`} exact component={Provider} />
 			<Route path={`/providers/:providerID`} exact component={Provider} />
 			<Route path={`/providers/:providerID/products`} exact component={Product} />

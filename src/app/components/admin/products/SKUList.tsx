@@ -1,25 +1,8 @@
 
-import React, { useState } from 'react'
-import firebase from 'firebase'
-import Link from 'next/link'
-import { File as StorageFile } from '@1amageek/ballcap'
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
-import Grid from '@material-ui/core/Grid';
+import React from 'react'
 import Button from '@material-ui/core/Button';
-import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
-import ArrowBackIcon from '@material-ui/icons/ArrowBack';
-import Table from '@material-ui/core/Table';
-import TableRow from '@material-ui/core/TableRow';
-import TableCell from '@material-ui/core/TableCell';
-import TableBody from '@material-ui/core/TableBody';
-import IconButton from '@material-ui/core/IconButton';
-import DndCard from 'components/DndCard'
 import Box from '@material-ui/core/Box';
-import Input, { useInput } from 'components/Input'
-import Select, { useSelect } from 'components/Select'
-import Product from 'models/commerce/Product'
 import { ListItemSecondaryAction, Switch } from '@material-ui/core';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
@@ -35,7 +18,7 @@ import { useHistory } from 'react-router-dom';
 import { SKU } from 'models/commerce';
 import { useProcessing } from 'components/Processing';
 import { useSnackbar } from 'components/Snackbar';
-import ISO4217 from 'common/ISO4217'
+import { Symbol } from 'common/Currency'
 
 export default ({ productID }: { productID?: string }) => {
 	const [provider] = useAdminProvider()
@@ -87,7 +70,7 @@ export default ({ productID }: { productID?: string }) => {
 				{skus.map(data => {
 					const price = data.price
 					const currency = data.currency
-					const symbol = ISO4217[currency].symbol
+					const symbol = Symbol(currency)
 					return (
 						<ListItem key={data.id} button selected={productID === data.id} onClick={() => {
 							history.push(`/admin/products/${productID}/skus/${data.id}`)

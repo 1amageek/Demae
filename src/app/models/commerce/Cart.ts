@@ -1,10 +1,9 @@
 import { firestore, Doc, Model, Field, File, DocumentReference, CollectionReference, Codable } from '@1amageek/ballcap'
-import { CurrencyCode } from 'common/Currency'
+import { CurrencyCode, Symbol } from 'common/Currency'
 import { Discount, ProductType } from 'common/commerce/Types'
 import Shipping from './Shipping'
 import SKU from './SKU'
 import Product from './Product'
-import ISO4217 from 'common/ISO4217'
 import Order, { OrderItem } from './Order'
 
 
@@ -59,7 +58,7 @@ export class CartItem extends Deliverable implements Accounting {
 	@Field metadata?: any
 
 	displayPrice() {
-		const symbol = ISO4217[this.currency].symbol
+		const symbol = Symbol(this.currency)
 		const amount = this.amount
 		return `${symbol}${amount.toLocaleString()}`
 	}
@@ -67,7 +66,7 @@ export class CartItem extends Deliverable implements Accounting {
 	imageURLs() {
 		return this.images.map(image => {
 			if (image) {
-				return `https://demae-210ed.firebaseapp.com/assets/${image.path}`
+				return `${process.env.HOST}/assets/${image.path}`
 			}
 			return undefined
 		}).filter(value => !!value)

@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useCallback, useContext } from 'react';
+import React from 'react';
 import { Link, useHistory } from 'react-router-dom'
-import firebase, { database } from 'firebase';
+import firebase from 'firebase';
 import 'firebase/auth';
 import 'firebase/functions';
 import List from '@material-ui/core/List';
+import CircularProgress from '@material-ui/core/CircularProgress';
 import ListItem, { ListItemProps } from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
@@ -22,9 +23,10 @@ import DataLoading from 'components/DataLoading';
 import { Paper, Grid, Typography, Box } from '@material-ui/core';
 import { useDialog } from 'components/Dialog'
 import { useProcessing } from 'components/Processing';
-import CircularProgress from '@material-ui/core/CircularProgress';
+import { useModal } from 'components/Modal'
 import { useUser } from 'hooks/commerce'
 import { useAccount } from 'hooks/account'
+import Login from 'components/Login';
 
 export default () => {
 
@@ -82,6 +84,8 @@ const ProviderList = () => {
 	const [user, isLoading] = useUser()
 	const ref = user?.roles.collectionReference
 	const [roles, isDataLoading] = useDataSourceListen<Role>(Role, { path: ref?.path }, isLoading)
+	const [setDialog] = useDialog()
+	const [setModal, close] = useModal()
 
 	if (isDataLoading) {
 		return <DataLoading />
@@ -91,12 +95,26 @@ const ProviderList = () => {
 		return (
 			<List>
 				<ListItem button onClick={() => {
-					console.log(user)
+					const currentUser = firebase.auth().currentUser
+					if (currentUser) {
+						history.push('/provider/create')
+					} else {
+						setDialog('Welcome 🎉', 'We support your business. Please log in first.', [
+							{
+								title: 'OK',
+								handler: () => {
+									setModal(<Login onNext={() => {
+										close()
+									}} />)
+								}
+							}
+						])
+					}
 				}}>
 					<ListItemIcon>
 						<StorefrontIcon />
 					</ListItemIcon>
-					<ListItemText primary={'Add your store'} />
+					<ListItemText primary={'Add your Shop'} />
 				</ListItem>
 			</List>
 		)
