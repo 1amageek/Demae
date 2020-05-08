@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-import firebase, { database } from "firebase"
+import React, { useEffect, useState, createContext, useContext } from 'react'
+import firebase from "firebase"
 import "firebase/firestore"
 import "firebase/auth"
 import { firestore, Doc, DocumentReference } from '@1amageek/ballcap'
@@ -114,6 +114,8 @@ export interface Query {
 	wheres?: Array<WhereQuery | undefined>
 	orderBy?: OrderByQuery
 	limit?: number
+	startAfter?: firebase.firestore.DocumentSnapshot<any>
+	endBefore?: firebase.firestore.DocumentSnapshot<any>
 }
 
 export const useDataSourceListen = <T extends Doc>(type: typeof Doc, query?: Query, waiting: boolean = false): [T[], boolean, Error | undefined] => {
@@ -137,6 +139,14 @@ export const useDataSourceListen = <T extends Doc>(type: typeof Doc, query?: Que
 	if (query?.orderBy) {
 		const { fieldPath, directionStr } = query.orderBy
 		ref = ref?.orderBy(fieldPath, directionStr)
+	}
+
+	if (query?.startAfter) {
+		ref = ref?.startAfter(query.startAfter)
+	}
+
+	if (query?.endBefore) {
+		ref = ref?.endBefore(query.endBefore)
 	}
 
 	if (query?.limit) {
@@ -197,3 +207,20 @@ export const useDataSourceListen = <T extends Doc>(type: typeof Doc, query?: Que
 	}, [query?.path, JSON.stringify(query?.wheres), JSON.stringify(query?.orderBy), query?.limit, waiting])
 	return [state.data, state.loading, state.error]
 };
+
+
+export const QueryContext = createContext<[Query, React.Dispatch<React.SetStateAction<Query>>]>([{}, () => { }])
+export const QueryProvider = ({ children }: { children: any }) => {
+	const [query, setQuery] = useState<Query>({})
+	return <QueryContext.Provider value={[query, setQuery]}> {children} </QueryContext.Provider>
+}
+
+export const useQuery = (init?: Query): [Query, React.Dispatch<React.SetStateAction<Query>>] => {
+	const [query, setQuery] = useContext(QueryContext)
+	useEffect(() => {
+		if (init) {
+			setQuery(init)
+		}
+	}, [])
+	return [query, setQuery]
+}

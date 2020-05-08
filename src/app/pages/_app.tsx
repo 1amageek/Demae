@@ -13,7 +13,7 @@ import { SnackbarProvider } from 'components/Snackbar'
 import { DialogProvider } from 'components/Dialog'
 import { ModalProvider } from 'components/Modal'
 
-const config = require(`../config/${process.env.FIREBASE_CONFIG!}`)
+const config = require(`${process.env.FIREBASE_PROJECT!}`)
 const isEmulated = process.env.EMULATE_ENV === "emulator"
 
 if (firebase.apps.length === 0) {

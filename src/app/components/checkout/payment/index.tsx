@@ -19,8 +19,8 @@ import { useAuthUser } from 'hooks/auth'
 import { UserContext } from 'hooks/commerce'
 import { useProcessing } from 'components/Processing';
 
-const STRIPE_KEY = process.env.STRIPE_KEY!
-const stripePromise = loadStripe(STRIPE_KEY)
+const STRIPE_API_KEY = process.env.STRIPE_API_KEY!
+const stripePromise = loadStripe(STRIPE_API_KEY)
 
 const CARD_OPTIONS = {
 	// iconStyle: 'solid',

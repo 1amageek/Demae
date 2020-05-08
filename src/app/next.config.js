@@ -1,24 +1,22 @@
 const path = require('path')
-const Dotenv = require('dotenv-webpack')
 const withWorkers = require('@zeit/next-workers')
+require('dotenv').config({ path: `.${process.env.NODE_ENV}.env` })
+
+console.log(process.env.FIREBASE_PROJECT)
 
 module.exports = withWorkers({
 	distDir: '../../dist/functions/next',
+	env: {
+		HOST: process.env.HOST,
+		FIREBASE_PROJECT: process.env.FIREBASE_PROJECT,
+		STRIPE_API_KEY: process.env.STRIPE_API_KEY
+	},
 	webpack(config, options) {
 		const { dir, dev } = options
-		const devProject = process.env.FIREBASE_PROJECT !== "production"
-		const envfile = dev ? '.development.env' : devProject ? '.development.env' : '.production.env'
 		config.plugins = config.plugins || []
 		config.plugins = [
 			...config.plugins,
-
-			// Read the .env file
-			new Dotenv({
-				path: path.join(__dirname, envfile),
-				systemvars: true
-			})
 		]
-
 		config.resolve.alias = {
 			...config.resolve.alias,
 			'common': path.resolve(__dirname, 'common'),
