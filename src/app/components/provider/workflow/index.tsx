@@ -82,7 +82,7 @@ const Steps = ['Agreement', 'Create your Shop', 'Finish']
 
 export default () => {
 
-	const [activeStep, setActiveStep] = useState(2);
+	const [activeStep, setActiveStep] = useState(0);
 	const handleNext = () => {
 		setActiveStep((prevActiveStep) => prevActiveStep + 1);
 	};
