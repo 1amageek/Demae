@@ -1,21 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import firebase from 'firebase'
-import { makeStyles, Theme, createStyles, withStyles } from '@material-ui/core/styles';
+import { makeStyles, withStyles } from '@material-ui/core/styles';
 import clsx from 'clsx';
 import Stepper from '@material-ui/core/Stepper';
 import Step from '@material-ui/core/Step';
 import StepLabel from '@material-ui/core/StepLabel';
 import Check from '@material-ui/icons/Check';
-import { Container, Grid, Button, Box, Typography, StepConnector, Table, TableBody, TableRow, TableCell, AppBar } from '@material-ui/core';
+import { Container, Box, StepConnector } from '@material-ui/core';
 import Board from 'components/admin/Board'
-import { Countries, Country } from 'common/Country';
+import { SupportedCountries, CountryCode } from 'common/Country';
 import Select, { useSelect } from 'components/Select'
 import { StepIconProps } from '@material-ui/core/StepIcon';
 import AccountForm from 'components/account/workflow/form'
 import { Account } from 'models/account';
 import Agreement from './agreement'
 import Completed from './complete'
-import RegisterableCountries from 'config/RegisterableCountries'
 
 const QontoConnector = withStyles({
 	alternativeLabel: {
@@ -95,7 +93,9 @@ export default () => {
 	const country = useSelect({
 		initValue: 'US',
 		inputProps: {
-			menu: Countries.filter(country => RegisterableCountries.includes(country.value))
+			menu: SupportedCountries.map(country => {
+				return { value: country.alpha2, label: country.name }
+			})
 		},
 		controlProps: {
 			variant: 'outlined'
@@ -135,8 +135,8 @@ export default () => {
 					))}
 				</Stepper>
 
-				{activeStep === 0 && <Agreement country={country.value as Country} onCallback={handleNext} />}
-				{activeStep === 1 && <AccountForm country={country.value as Country} onCallback={(next) => {
+				{activeStep === 0 && <Agreement country={country.value as CountryCode} onCallback={handleNext} />}
+				{activeStep === 1 && <AccountForm country={country.value as CountryCode} onCallback={(next) => {
 					if (next) {
 						handleNext()
 					} else {

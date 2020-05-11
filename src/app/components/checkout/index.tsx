@@ -9,7 +9,7 @@ import { useUserShippingAddresses, UserContext, CartContext } from 'hooks/commer
 import { useFunctions } from 'hooks/stripe'
 import Shipping from 'models/commerce/Shipping';
 import Loading from 'components/Loading'
-import { ExpansionPanel, ExpansionPanelSummary, ExpansionPanelDetails, ExpansionPanelActions, Divider, Box } from '@material-ui/core';
+import { Container, ExpansionPanel, ExpansionPanelSummary, ExpansionPanelDetails, ExpansionPanelActions, Divider, Box } from '@material-ui/core';
 import Typography from '@material-ui/core/Typography';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import DataLoading from 'components/DataLoading';
@@ -88,31 +88,33 @@ export default (props: any) => {
 	}
 
 	if (isUserLoading) {
-		return <Loading />
+		return <Container maxWidth='sm'><Loading /></Container>
 	}
 
 	return (
-		<Grid container spacing={2}>
-			<Grid item xs={12}>
-				<ShippingAddresses user={user!} />
-			</Grid>
-			<Grid item xs={12}>
-				<PaymentMethods user={user!} />
-			</Grid>
-			<Grid item xs={12}>
-				<Button
-					fullWidth
-					variant="contained"
-					size="large"
-					color="primary"
-					startIcon={<CheckCircleIcon />}
-					disabled={!enabled}
-					onClick={checkout}
-				>
-					Checkout
+		<Container maxWidth='sm'>
+			<Grid container spacing={2}>
+				<Grid item xs={12}>
+					<ShippingAddresses user={user!} />
+				</Grid>
+				<Grid item xs={12}>
+					<PaymentMethods user={user!} />
+				</Grid>
+				<Grid item xs={12}>
+					<Button
+						fullWidth
+						variant="contained"
+						size="large"
+						color="primary"
+						startIcon={<CheckCircleIcon />}
+						disabled={!enabled}
+						onClick={checkout}
+					>
+						Checkout
 				</Button>
+				</Grid>
 			</Grid>
-		</Grid>
+		</Container>
 	)
 }
 
@@ -120,7 +122,7 @@ const ShippingAddresses = ({ user }: { user: Commerce.User }) => {
 
 	const [shippingAddresses, isLoading] = useUserShippingAddresses()
 	const history = useHistory()
-	const [setDialog] = useDialog()
+	const [setDialog, close] = useDialog()
 	const [deleteShipping, setDeleteShipping] = useState<Shipping | undefined>(undefined)
 
 	if (isLoading) {
@@ -169,12 +171,17 @@ const ShippingAddresses = ({ user }: { user: Commerce.User }) => {
 								<Button size="small" onClick={async () => {
 									// await shipping.delete()
 									setDeleteShipping(shipping)
-									setDialog('Delete', 'Do you want to remove it?', [{
-										title: 'OK',
-										handler: async () => {
-											await deleteShipping?.delete()
-										}
-									}])
+									setDialog('Delete', 'Do you want to remove it?', [
+										{
+											title: 'Cancel',
+											handler: close
+										},
+										{
+											title: 'OK',
+											handler: async () => {
+												await deleteShipping?.delete()
+											}
+										}])
 								}}>Delete</Button>
 								<Button size="small" color="primary" onClick={() => {
 									history.push(`/checkout/shipping/${shipping.id}`)
@@ -206,8 +213,14 @@ const PaymentMethods = ({ user }: { user: Commerce.User }) => {
 	const [setProcessing] = useProcessing()
 	const [data, isLoading, error, setPaymentMethods] = useFunctions<PaymentMethod[]>('v1-stripe-paymentMethod-list', { type: 'card' })
 	const [deletePaymentMethod, setDeletePaymentMethod] = useState<PaymentMethod | undefined>(undefined)
-	const [setDialog] = useDialog()
+	const [setDialog, close] = useDialog()
 	const paymentMethods = data || []
+
+	if (error) {
+		console.error(error)
+	}
+
+	console.log(data)
 
 	const setDefaultPaymentMethod = async (method: PaymentMethod) => {
 		setProcessing(true)
@@ -306,12 +319,17 @@ const PaymentMethods = ({ user }: { user: Commerce.User }) => {
 							<ExpansionPanelActions>
 								<Button size="small" onClick={async () => {
 									setDeletePaymentMethod(method)
-									setDialog('Delete', 'Do you want to remove it?', [{
-										title: 'OK',
-										handler: async () => {
-											await paymentMethodDetach()
-										}
-									}])
+									setDialog('Delete', 'Do you want to remove it?', [
+										{
+											title: 'Cancel',
+											handler: close
+										},
+										{
+											title: 'OK',
+											handler: async () => {
+												await paymentMethodDetach()
+											}
+										}])
 								}}>Delete</Button>
 								{/* <Button size="small" color="primary" onClick={() => {
 									// history.push(`/checkout/shipping/${shipping.id}`)

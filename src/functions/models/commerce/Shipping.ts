@@ -1,6 +1,6 @@
 import { Doc, Field } from '@1amageek/ballcap-admin'
 import { Address } from '../../common/commerce/Types'
-import { Country } from '../../common/Country'
+import { CountryCode } from '../../common/Country'
 
 export default class Shipping extends Doc {
 
@@ -8,7 +8,7 @@ export default class Shipping extends Doc {
 	@Field name?: string
 	@Field phone?: string
 
-	formatted(country: Country = 'US') {
+	formatted(country: CountryCode = 'US') {
 		return `${
 			(this.name || "") +
 			" " +

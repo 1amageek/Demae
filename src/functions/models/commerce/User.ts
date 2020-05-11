@@ -1,6 +1,6 @@
 import { Doc, Field, firestore, CollectionReference, Codable, SubCollection, Collection } from '@1amageek/ballcap-admin'
 import * as functions from 'firebase-functions'
-import { Country } from '../../common/Country'
+import { CountryCode } from '../../common/Country'
 import { CurrencyCode } from '../../common/Currency'
 import Shipping from './Shipping'
 import Order from './Order'
@@ -26,7 +26,7 @@ export default class User extends Doc {
 
 	@Field customerID?: string
 	@Field isAvailable: boolean = false
-	@Field country: Country = 'US'
+	@Field country: CountryCode = 'US'
 	@Field currentOrderID?: string
 	@Field currency: CurrencyCode = 'USD'
 	@Codable(Shipping, true)

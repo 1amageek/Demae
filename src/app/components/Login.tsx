@@ -3,8 +3,9 @@ import Router from 'next/router'
 import StyledFirebaseAuth from 'react-firebaseui/StyledFirebaseAuth'
 import firebase from 'firebase'
 import * as Commerce from 'models/commerce'
+import { CountryCode } from 'common/Country'
 
-export default ({ redirectURL = '/', defaultCountry = 'JP', onNext }: { redirectURL?: string, defaultCountry?: string, onNext?: (user: Commerce.User) => void }) => {
+export default ({ redirectURL = '/', defaultCountry = 'JP', onNext }: { redirectURL?: string, defaultCountry?: CountryCode, onNext?: (user: Commerce.User) => void }) => {
 
 	const uiConfig: firebaseui.auth.Config = {
 		signInFlow: 'popup',
@@ -23,6 +24,7 @@ export default ({ redirectURL = '/', defaultCountry = 'JP', onNext }: { redirect
 						let user = await Commerce.User.get<Commerce.User>(uid)
 						if (!user) {
 							user = new Commerce.User(uid)
+							user.country = defaultCountry
 							await user.save()
 						}
 						if (redirectURL) {

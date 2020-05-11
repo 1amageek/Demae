@@ -268,6 +268,9 @@ export default class Cart extends Doc {
 		} else {
 			group.items = group.items.filter(item => item.skuReference!.path !== sku.path)
 		}
+		if (group.items.length <= 0) {
+			this.groups = this.groups.filter(group => group.providerID !== sku.providedBy)
+		}
 	}
 
 	addItem(item: CartItem) {
@@ -292,6 +295,9 @@ export default class Cart extends Doc {
 			}
 		} else {
 			group.items.push(item)
+		}
+		if (group.items.length <= 0) {
+			this.groups = this.groups.filter(group => group.providerID !== item.providedBy)
 		}
 	}
 

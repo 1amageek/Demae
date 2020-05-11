@@ -3,7 +3,7 @@ import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
 import { useHistory } from 'react-router-dom'
 import Input, { useInput } from 'components/Input';
 import User from 'models/commerce/User';
-import { Country, Countries } from 'common/Country';
+import { SupportedCountries, CountryCode } from 'common/Country';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import Paper from '@material-ui/core/Paper';
@@ -20,7 +20,7 @@ import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import Login from 'components/Login';
 import Loading from 'components/Loading';
 import { useAuthUser } from 'hooks/auth'
-import { useUserShipping } from 'hooks/commerce';
+import { useUserShipping, useUser } from 'hooks/commerce';
 import Shipping from 'models/commerce/Shipping';
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -56,35 +56,36 @@ const useStyles = makeStyles((theme: Theme) =>
 
 export default (props: any) => {
 	const { shippingID } = props.match.params
-	const [auth, isAuthLoading] = useAuthUser();
+	const [user, isUserLoading] = useUser();
 	const [shipping, isLoading] = useUserShipping(shippingID);
 
-	if (isAuthLoading || isLoading) {
+	if (isUserLoading || isLoading) {
 		return <Loading />
 	}
 
-	if (!auth) {
+	if (!user) {
 		return <Login />
 	}
 
 	if (shipping) {
-		return <Form shipping={shipping} />
+		return <Form user={user} shipping={shipping} />
 	} else {
-		const user = new User(auth?.uid)
 		const shipping = new Shipping(user.shippingAddresses.collectionReference.doc())
-		return <Form shipping={shipping} />
+		return <Form user={user} shipping={shipping} />
 	}
 }
 
-const Form = ({ shipping }: { shipping: Shipping }) => {
+const Form = ({ user, shipping }: { user: User, shipping: Shipping }) => {
 	const classes = useStyles()
 	const history = useHistory()
 	const [auth] = useAuthUser();
 	const [isProcessing, setProcessing] = useState(false)
 	const country = useSelect({
-		initValue: shipping.address?.country || "US",
+		initValue: shipping.address?.country || user.country || "US",
 		inputProps: {
-			menu: Countries
+			menu: SupportedCountries.map(country => {
+				return { value: country.alpha2, label: country.name }
+			})
 		}
 	})
 	const state = useInput(shipping.address?.state)

@@ -21,7 +21,7 @@ import Account from 'models/account/Account'
 import { Create, Individual } from 'common/commerce/account'
 import Grid from '@material-ui/core/Grid';
 import { Box } from '@material-ui/core';
-import { Countries, Country } from 'common/Country';
+import { SupportedCountries, CountryCode } from 'common/Country';
 import { nullFilter } from 'utils'
 import Loading from 'components/Loading'
 import RegisterableCountries from 'config/RegisterableCountries'
@@ -94,7 +94,9 @@ export default ({ individual, onCallback }: { individual: Partial<Individual>, o
 	const state = useSelect({
 		initValue: individual.address?.country || 'US',
 		inputProps: {
-			menu: Countries.filter(country => RegisterableCountries.includes(country.value))
+			menu: SupportedCountries.map(country => {
+				return { value: country.alpha2, label: country.name }
+			})
 		},
 		controlProps: {
 			variant: 'outlined'

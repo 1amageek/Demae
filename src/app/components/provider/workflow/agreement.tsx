@@ -14,7 +14,7 @@ import { useAdminProvider } from 'hooks/commerce';
 import { useProcessing } from 'components/Processing';
 import { useSnackbar } from 'components/Snackbar';
 import DataLoading from 'components/DataLoading';
-import { Country, Countries } from 'common/Country';
+import { CountryCode } from 'common/Country';
 import Select, { useSelect } from 'components/Select'
 import { StepIconProps } from '@material-ui/core/StepIcon';
 import TOS from 'config/TOS';
@@ -22,7 +22,7 @@ import AccountForm from 'components/account/workflow/Form/US'
 import { Account } from 'models/account';
 
 
-export default ({ country, onCallback }: { country: Country, onCallback: (next: boolean) => void }) => {
+export default ({ country, onCallback }: { country: CountryCode, onCallback: (next: boolean) => void }) => {
 	return (
 		<>
 			<AppBar position='static' color='transparent' elevation={0}>

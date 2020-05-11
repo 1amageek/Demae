@@ -1,11 +1,11 @@
 import React from 'react';
 import Toolbar from '@material-ui/core/Toolbar';
 import { Button, Box, AppBar } from '@material-ui/core';
-import { Country } from 'common/Country';
+import { CountryCode } from 'common/Country';
 import TOS from 'config/TOS';
 
 
-export default ({ country, onCallback }: { country: Country, onCallback: (next: boolean) => void }) => {
+export default ({ country, onCallback }: { country: CountryCode, onCallback: (next: boolean) => void }) => {
 	return (
 		<>
 			<AppBar position='static' color='transparent' elevation={0}>

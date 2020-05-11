@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
-import { Box, Paper, Typography, Button, Grid, ListItemAvatar, Avatar, Tooltip, IconButton } from '@material-ui/core';
+import { Box, Paper, Typography, Container, Grid, ListItemAvatar, Avatar, Tooltip, IconButton } from '@material-ui/core';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
@@ -14,6 +14,7 @@ import RemoveCircleIcon from '@material-ui/icons/RemoveCircle';
 import Login from 'components/Login'
 import Cart, { CartGroup, CartItem } from 'models/commerce/Cart'
 import { Symbol } from 'common/Currency'
+import DataLoading from 'components/DataLoading';
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
@@ -28,20 +29,36 @@ export default () => {
 	const [auth] = useAuthUser()
 	const [cart, isLoading] = useContext(CartContext)
 
+	if (isLoading) {
+		return <Container maxWidth='sm'><DataLoading /></Container>
+	}
+
 	if (!auth && !isLoading) {
-		return <Login />
+		return <Container maxWidth='sm'><Login /></Container>
+	}
+
+	if (cart?.groups.length === 0) {
+		return (
+			<Container maxWidth='sm'>
+				<Box display='flex' justifyContent='center' alignItems='center' padding={3} fontSize={17} fontWeight={600} color='text.secondary' height={200}>
+					There are no items in your cart.
+				</Box>
+			</Container>
+		)
 	}
 
 	return (
-		<Grid container spacing={2}>
-			{cart?.groups.map(group => {
-				return (
-					<Grid item xs={12} key={group.providerID}>
-						<CartGroupList cartGroup={group} />
-					</Grid>
-				)
-			})}
-		</Grid>
+		<Container maxWidth='sm'>
+			<Grid container spacing={2}>
+				{cart?.groups.map(group => {
+					return (
+						<Grid item xs={12} key={group.providerID}>
+							<CartGroupList cartGroup={group} />
+						</Grid>
+					)
+				})}
+			</Grid>
+		</Container>
 	)
 }
 

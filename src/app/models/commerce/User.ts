@@ -1,5 +1,5 @@
 import { Doc, Field, firestore, CollectionReference, SubCollection, Collection, Codable } from '@1amageek/ballcap'
-import { Country } from 'common/Country'
+import { CountryCode } from 'common/Country'
 import Shipping from './Shipping'
 import Order from './Order'
 import { Role } from './Provider'
@@ -13,7 +13,7 @@ export default class User extends Doc {
 
 	@Field customerID?: string
 	@Field isAvailable: boolean = false
-	@Field country: Country = 'US'
+	@Field country: CountryCode = 'US'
 	@Field currency: CurrencyCode = 'USD'
 	@Field currentOrderID?: string
 	@Codable(Shipping, true)

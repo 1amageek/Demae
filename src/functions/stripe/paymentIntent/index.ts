@@ -2,6 +2,11 @@ import * as functions from 'firebase-functions'
 import { regionFunctions } from '../../helper'
 import Stripe from 'stripe'
 
+type Response = {
+	result?: any
+	error?: any
+}
+
 export const create = regionFunctions.https.onCall(async (data, context) => {
 	if (!context.auth) {
 		throw new functions.https.HttpsError('failed-precondition', 'The function must be called while authenticated.')
@@ -13,11 +18,14 @@ export const create = regionFunctions.https.onCall(async (data, context) => {
 	const stripe = new Stripe(STRIPE_API_KEY, { apiVersion: '2020-03-02' })
 	try {
 		const result = await stripe.paymentIntents.create(data)
-		return result
+		return { result } as Response
 	} catch (error) {
 		console.error(error)
+		if (error.raw) {
+			return { error: error.raw } as Response
+		}
+		throw new functions.https.HttpsError('invalid-argument', 'Invalid argument.')
 	}
-	return
 })
 
 export const retrieve = regionFunctions.https.onCall(async (data, context) => {
@@ -35,11 +43,14 @@ export const retrieve = regionFunctions.https.onCall(async (data, context) => {
 	}
 	try {
 		const result = await stripe.paymentIntents.retrieve(paymentIntentID)
-		return result
+		return { result } as Response
 	} catch (error) {
 		console.error(error)
+		if (error.raw) {
+			return { error: error.raw } as Response
+		}
+		throw new functions.https.HttpsError('invalid-argument', 'Invalid argument.')
 	}
-	return
 })
 
 export const update = regionFunctions.https.onCall(async (data, context) => {
@@ -61,11 +72,14 @@ export const update = regionFunctions.https.onCall(async (data, context) => {
 	}
 	try {
 		const result = await stripe.paymentIntents.update(paymentIntentID, options)
-		return result
+		return { result } as Response
 	} catch (error) {
 		console.error(error)
+		if (error.raw) {
+			return { error: error.raw } as Response
+		}
+		throw new functions.https.HttpsError('invalid-argument', 'Invalid argument.')
 	}
-	return
 })
 
 export const confirm = regionFunctions.https.onCall(async (data, context) => {
@@ -87,11 +101,14 @@ export const confirm = regionFunctions.https.onCall(async (data, context) => {
 	}
 	try {
 		const result = await stripe.paymentIntents.confirm(paymentIntentID, options)
-		return result
+		return { result } as Response
 	} catch (error) {
 		console.error(error)
+		if (error.raw) {
+			return { error: error.raw } as Response
+		}
+		throw new functions.https.HttpsError('invalid-argument', 'Invalid argument.')
 	}
-	return
 })
 
 export const capture = regionFunctions.https.onCall(async (data, context) => {
@@ -109,11 +126,14 @@ export const capture = regionFunctions.https.onCall(async (data, context) => {
 	}
 	try {
 		const result = await stripe.paymentIntents.capture(paymentIntentID)
-		return result
+		return { result } as Response
 	} catch (error) {
 		console.error(error)
+		if (error.raw) {
+			return { error: error.raw } as Response
+		}
+		throw new functions.https.HttpsError('invalid-argument', 'Invalid argument.')
 	}
-	return
 })
 
 export const cancel = regionFunctions.https.onCall(async (data, context) => {
@@ -131,9 +151,12 @@ export const cancel = regionFunctions.https.onCall(async (data, context) => {
 	}
 	try {
 		const result = await stripe.paymentIntents.cancel(paymentIntentID)
-		return result
+		return { result } as Response
 	} catch (error) {
 		console.error(error)
+		if (error.raw) {
+			return { error: error.raw } as Response
+		}
+		throw new functions.https.HttpsError('invalid-argument', 'Invalid argument.')
 	}
-	return
 })

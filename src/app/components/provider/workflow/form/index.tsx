@@ -4,7 +4,7 @@ import Input, { useInput } from 'components/Input';
 import Provider, { Role } from 'models/commerce/Provider';
 import User from 'models/commerce/User';
 import { SupportedCurrencies, CurrencyCode } from 'common/Currency'
-import { Country, Countries } from 'common/Country';
+import { SupportedCountries, CountryCode } from 'common/Country';
 import Button from '@material-ui/core/Button';
 import Box from '@material-ui/core/Toolbar';
 import Table from '@material-ui/core/Table';
@@ -48,7 +48,7 @@ const useStyles = makeStyles((theme: Theme) =>
 	})
 )
 
-export default ({ country, onCallback }: { country: Country, onCallback: (next: boolean) => void }) => {
+export default ({ country, onCallback }: { country: CountryCode, onCallback: (next: boolean) => void }) => {
 
 	const classes = useStyles()
 	const [auth] = useAuthUser()
@@ -72,7 +72,7 @@ export default ({ country, onCallback }: { country: Country, onCallback: (next: 
 		setProcessing(true)
 		const provider = new Provider(uid)
 		provider.name = name.value
-		provider.country = country as Country
+		provider.country = country as CountryCode
 		provider.defaultCurrency = defaultCurrency.value as CurrencyCode
 		const user = new User(uid)
 		const provierRole = new Role(provider.members.collectionReference.doc(user.id))

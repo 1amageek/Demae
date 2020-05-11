@@ -3,6 +3,11 @@ import { regionFunctions } from '../../helper'
 import Stripe from 'stripe'
 import User from '../../models/commerce/User'
 
+type Response = {
+	result?: any
+	error?: any
+}
+
 export const create = regionFunctions.https.onCall(async (data, context) => {
 	if (!context.auth) {
 		throw new functions.https.HttpsError('failed-precondition', 'The function must be called while authenticated.')
@@ -18,11 +23,14 @@ export const create = regionFunctions.https.onCall(async (data, context) => {
 			...data,
 			description: uid
 		})
-		return result
+		return { result } as Response
 	} catch (error) {
 		console.error(error)
+		if (error.raw) {
+			return { error: error.raw } as Response
+		}
+		throw new functions.https.HttpsError('invalid-argument', 'Invalid argument.')
 	}
-	return
 })
 
 export const update = regionFunctions.https.onCall(async (data, context) => {
@@ -38,11 +46,14 @@ export const update = regionFunctions.https.onCall(async (data, context) => {
 	try {
 		const customerID = await User.getCustomerID(uid)
 		const result = await stripe.customers.update(customerID, data)
-		return result
+		return { result } as Response
 	} catch (error) {
 		console.error(error)
+		if (error.raw) {
+			return { error: error.raw } as Response
+		}
+		throw new functions.https.HttpsError('invalid-argument', 'Invalid argument.')
 	}
-	return
 })
 
 export const retrieve = regionFunctions.https.onCall(async (_, context) => {
@@ -58,9 +69,12 @@ export const retrieve = regionFunctions.https.onCall(async (_, context) => {
 	try {
 		const customerID = await User.getCustomerID(uid)
 		const result = await stripe.customers.retrieve(customerID)
-		return result
+		return { result } as Response
 	} catch (error) {
 		console.error(error)
+		if (error.raw) {
+			return { error: error.raw } as Response
+		}
+		throw new functions.https.HttpsError('invalid-argument', 'Invalid argument.')
 	}
-	return
 })

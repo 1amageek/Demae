@@ -3,6 +3,11 @@ import { regionFunctions } from '../../helper'
 import Stripe from 'stripe'
 import User from '../../models/commerce/User'
 
+type Response = {
+	result?: any
+	error?: any
+}
+
 export const create = regionFunctions.https.onCall(async (data, context) => {
 	if (!context.auth) {
 		throw new functions.https.HttpsError('failed-precondition', 'The function must be called while authenticated.')
@@ -12,13 +17,17 @@ export const create = regionFunctions.https.onCall(async (data, context) => {
 		throw new functions.https.HttpsError('invalid-argument', 'The functions requires STRIPE_API_KEY.')
 	}
 	const stripe = new Stripe(STRIPE_API_KEY, { apiVersion: '2020-03-02' })
+
 	try {
 		const result = await stripe.paymentMethods.create(data)
-		return result
+		return { result } as Response
 	} catch (error) {
 		console.error(error)
+		if (error.raw) {
+			return { error: error.raw } as Response
+		}
+		throw new functions.https.HttpsError('invalid-argument', 'Invalid argument.')
 	}
-	return
 })
 
 export const retrieve = regionFunctions.https.onCall(async (data, context) => {
@@ -36,11 +45,14 @@ export const retrieve = regionFunctions.https.onCall(async (data, context) => {
 	}
 	try {
 		const result = await stripe.paymentMethods.retrieve(paymentMethodId)
-		return result
+		return { result } as Response
 	} catch (error) {
 		console.error(error)
+		if (error.raw) {
+			return { error: error.raw } as Response
+		}
+		throw new functions.https.HttpsError('invalid-argument', 'Invalid argument.')
 	}
-	return
 })
 
 export const list = regionFunctions.https.onCall(async (data, context) => {
@@ -60,11 +72,14 @@ export const list = regionFunctions.https.onCall(async (data, context) => {
 			customer: customerID,
 			type: type
 		})
-		return result
+		return { result } as Response
 	} catch (error) {
 		console.error(error)
+		if (error.raw) {
+			return { error: error.raw } as Response
+		}
+		throw new functions.https.HttpsError('invalid-argument', 'Invalid argument.')
 	}
-	return
 })
 
 export const attach = regionFunctions.https.onCall(async (data, context) => {
@@ -86,11 +101,14 @@ export const attach = regionFunctions.https.onCall(async (data, context) => {
 		const result = await stripe.paymentMethods.attach(paymentMethodId, {
 			customer: customerID
 		})
-		return result
+		return { result } as Response
 	} catch (error) {
 		console.error(error)
+		if (error.raw) {
+			return { error: error.raw } as Response
+		}
+		throw new functions.https.HttpsError('invalid-argument', 'Invalid argument.')
 	}
-	return
 })
 
 export const detach = regionFunctions.https.onCall(async (data, context) => {
@@ -107,9 +125,13 @@ export const detach = regionFunctions.https.onCall(async (data, context) => {
 		throw new functions.https.HttpsError('invalid-argument', 'The functions requires paymentMethodID in data.')
 	}
 	try {
-		return stripe.paymentMethods.detach(paymentMethodId)
+		const result = stripe.paymentMethods.detach(paymentMethodId)
+		return { result } as Response
 	} catch (error) {
 		console.error(error)
+		if (error.raw) {
+			return { error: error.raw } as Response
+		}
+		throw new functions.https.HttpsError('invalid-argument', 'Invalid argument.')
 	}
-	return
 })
