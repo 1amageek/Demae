@@ -1,7 +1,5 @@
 import React, { useState, useEffect, useCallback, useContext } from 'react';
 import { Link } from 'react-router-dom'
-import Router from 'next/router'
-import firebase, { database } from 'firebase';
 import 'firebase/auth';
 import 'firebase/functions';
 import { List, ListItem, ListItemAvatar, Avatar, Container } from '@material-ui/core';
@@ -25,7 +23,6 @@ export default () => {
 				<DataLoading />
 			</Container>
 		)
-
 	}
 
 	return (

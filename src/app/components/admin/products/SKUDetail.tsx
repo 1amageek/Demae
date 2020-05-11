@@ -24,6 +24,7 @@ import { useProcessing } from 'components/Processing';
 import { StockType, StockValue } from 'common/commerce/Types';
 import { SKU, Product } from 'models/commerce';
 import StockDetail from './StockDetail';
+import InventoryTableRow from './InventoryTableRow';
 
 export default ({ productID, skuID }: { productID?: string, skuID?: string }) => {
 
@@ -95,26 +96,32 @@ export default ({ productID, skuID }: { productID?: string, skuID?: string }) =>
 						<TableRow>
 							<TableCell align='right'><div>ID</div></TableCell>
 							<TableCell align='left'><div>{sku.id}</div></TableCell>
+							<TableCell align='right'></TableCell>
 						</TableRow>
 						<TableRow>
 							<TableCell align='right'><div>name</div></TableCell>
 							<TableCell align='left'><div>{sku.name}</div></TableCell>
+							<TableCell align='right'></TableCell>
 						</TableRow>
 						<TableRow>
 							<TableCell align='right'><div>caption</div></TableCell>
 							<TableCell align='left'><div>{sku.caption}</div></TableCell>
+							<TableCell align='right'></TableCell>
 						</TableRow>
 						<TableRow>
 							<TableCell align='right'><div>description</div></TableCell>
 							<TableCell align='left'><div>{sku.description}</div></TableCell>
+							<TableCell align='right'></TableCell>
 						</TableRow>
 						<TableRow>
 							<TableCell align='right'><div>price</div></TableCell>
 							<TableCell align='left'><div>{sku.currency} {sku.price}</div></TableCell>
+							<TableCell align='right'></TableCell>
 						</TableRow>
 						<TableRow>
 							<TableCell align='right'><div>Status</div></TableCell>
 							<TableCell align='left'><div>{sku.isAvailable ? 'Available' : 'Disabled'}</div></TableCell>
+							<TableCell align='right'></TableCell>
 						</TableRow>
 						{sku.inventory.type !== 'finite' &&
 							<TableRow>
@@ -128,10 +135,12 @@ export default ({ productID, skuID }: { productID?: string, skuID?: string }) =>
 								</TableCell>
 							</TableRow>
 						}
+						{sku.inventory.type === 'finite' &&
+							<InventoryTableRow sku={sku} />
+						}
 					</TableBody>
 				</Table>
 			</Board>
-			{sku.inventory.type === 'finite' && <StockDetail sku={sku} />}
 		</>
 	)
 }
@@ -149,7 +158,7 @@ const Edit = ({ product, sku, onClose }: { product: Product, sku: SKU, onClose: 
 		initValue: sku?.currency, inputProps: {
 			menu: SupportedCurrencies.map(c => {
 				return {
-					label: `${c.code} ${c.name}`,
+					label: `${c.code} ${c.symbol}`,
 					value: c.code,
 				}
 			})
@@ -258,7 +267,7 @@ const Edit = ({ product, sku, onClose }: { product: Product, sku: SKU, onClose: 
 
 	const uploadImage = (file: File): Promise<StorageFile | undefined> => {
 		const id = firebase.firestore().collection('/dummy').doc().id
-		const ref = firebase.storage().ref(product!.documentReference.path + `/images/${id}.${extension(file.type)}`)
+		const ref = firebase.storage().ref(sku!.documentReference.path + `/images/${id}.${extension(file.type)}`)
 		return new Promise((resolve, reject) => {
 			ref.put(file).then(async (snapshot) => {
 				if (snapshot.state === 'success') {
@@ -302,7 +311,7 @@ const Edit = ({ product, sku, onClose }: { product: Product, sku: SKU, onClose: 
 					}>
 					<Box display='flex' flexGrow={1} minHeight={200}>
 						<DndCard
-							url={product.imageURLs()[0]}
+							url={sku.imageURLs()[0]}
 							onDrop={(files) => {
 								setImages(files)
 							}} />
@@ -312,6 +321,7 @@ const Edit = ({ product, sku, onClose }: { product: Product, sku: SKU, onClose: 
 							<TableRow>
 								<TableCell align='right'><div>ID</div></TableCell>
 								<TableCell align='left'><div>{sku.id}</div></TableCell>
+								<TableCell align='right'></TableCell>
 							</TableRow>
 							<TableRow>
 								<TableCell align='right'><div>name</div></TableCell>
@@ -320,6 +330,7 @@ const Edit = ({ product, sku, onClose }: { product: Product, sku: SKU, onClose: 
 										<Input variant='outlined' margin='dense' required {...name} />
 									</div>
 								</TableCell>
+								<TableCell align='right'></TableCell>
 							</TableRow>
 							<TableRow>
 								<TableCell align='right'><div>caption</div></TableCell>
@@ -328,6 +339,7 @@ const Edit = ({ product, sku, onClose }: { product: Product, sku: SKU, onClose: 
 										<Input variant='outlined' margin='dense' {...caption} />
 									</div>
 								</TableCell>
+								<TableCell align='right'></TableCell>
 							</TableRow>
 							<TableRow>
 								<TableCell align='right'><div>description</div></TableCell>
@@ -336,6 +348,7 @@ const Edit = ({ product, sku, onClose }: { product: Product, sku: SKU, onClose: 
 										<Input variant='outlined' margin='dense' {...description} />
 									</div>
 								</TableCell>
+								<TableCell align='right'></TableCell>
 							</TableRow>
 							<TableRow>
 								<TableCell align='right'><div>amount</div></TableCell>
@@ -348,6 +361,7 @@ const Edit = ({ product, sku, onClose }: { product: Product, sku: SKU, onClose: 
 										}} />
 									</div>
 								</TableCell>
+								<TableCell align='right'></TableCell>
 							</TableRow>
 							<TableRow>
 								<TableCell align='right'><div>inventory</div></TableCell>
@@ -361,20 +375,15 @@ const Edit = ({ product, sku, onClose }: { product: Product, sku: SKU, onClose: 
 										}} />} */}
 									</div>
 								</TableCell>
+								<TableCell align='right'></TableCell>
 							</TableRow>
-							<TableRow>
-								<TableCell align='right'><div>Status</div></TableCell>
-								<TableCell align='left'>
-									<div>
-										<Select fullWidth {...isAvailable} />
-									</div>
-								</TableCell>
-							</TableRow>
+							{inventory.value === 'finite' &&
+								<InventoryTableRow sku={sku} />
+							}
 						</TableBody>
 					</Table>
 				</Board>
 			</form>
-			{sku.inventory.type === 'finite' && <StockDetail sku={sku} />}
 		</>
 	)
 }

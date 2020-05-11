@@ -30,8 +30,8 @@ export default ({ productID }: { productID?: string }) => {
 	if (isLoading) {
 		return (
 			<Board header={
-				<Box display="flex" flexGrow={1}>
-					<Typography variant='h6'>Product</Typography>
+				<Box display="flex" flexGrow={1} fontSize={20} fontWeight={500}>
+					Product
 					<Box flexGrow={1} />
 				</Box>
 			}>
