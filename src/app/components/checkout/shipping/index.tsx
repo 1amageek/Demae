@@ -1,8 +1,8 @@
 import { useState, useContext } from 'react';
 import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
-import { withRouter, useHistory } from 'react-router-dom'
+import { useHistory } from 'react-router-dom'
 import Input, { useInput } from 'components/Input';
-import User, { Role } from 'models/commerce/User';
+import User from 'models/commerce/User';
 import { Country, Countries } from 'common/Country';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
@@ -10,7 +10,7 @@ import Paper from '@material-ui/core/Paper';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Box from '@material-ui/core/Toolbar';
-import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Tooltip, IconButton } from '@material-ui/core';
+import { Tooltip, IconButton } from '@material-ui/core';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';

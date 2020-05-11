@@ -6,7 +6,7 @@ import { CurrencyCode } from '../../common/Currency'
 export default class Account extends Doc {
 
 	static collectionReference(): CollectionReference {
-		return firestore.collection('commerce/v1/accounts')
+		return firestore.collection('account/v1/accounts')
 	}
 
 	static async getAccountID(uid: string) {

@@ -1,8 +1,8 @@
 import { useState, useContext } from 'react';
 import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
 import Input, { useInput } from 'components/Input';
-import Provider from 'models/commerce/Provider';
-import User, { Role } from 'models/commerce/User';
+import Provider, { Role } from 'models/commerce/Provider';
+import User from 'models/commerce/User';
 import { SupportedCurrencies, CurrencyCode } from 'common/Currency'
 import { Country, Countries } from 'common/Country';
 import Button from '@material-ui/core/Button';
@@ -75,11 +75,11 @@ export default ({ country, onCallback }: { country: Country, onCallback: (next: 
 		provider.country = country as Country
 		provider.defaultCurrency = defaultCurrency.value as CurrencyCode
 		const user = new User(uid)
-		const role = user.roles.doc(provider.id, Role)
+		const provierRole = new Role(provider.members.collectionReference.doc(user.id))
 		try {
 			const batch = new Batch()
 			batch.save(provider)
-			batch.save(role)
+			batch.save(provierRole)
 			await batch.commit()
 			if (onCallback) {
 				onCallback(true)

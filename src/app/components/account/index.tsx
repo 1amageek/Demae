@@ -16,21 +16,25 @@ import SettingsIcon from '@material-ui/icons/Settings';
 import AccountBoxIcon from '@material-ui/icons/AccountBox';
 import { Container } from '@material-ui/core'
 import { useDataSourceListen, useDocumentListen } from 'hooks/firestore';
-import User, { Role } from 'models/commerce/User';
 import MeetingRoomIcon from '@material-ui/icons/MeetingRoom';
-import Provider from 'models/commerce/Provider';
+import Provider, { Role } from 'models/commerce/Provider';
 import DataLoading from 'components/DataLoading';
-import { Paper, Grid, Typography, Box } from '@material-ui/core';
+import { Paper, Grid } from '@material-ui/core';
 import { useDialog } from 'components/Dialog'
 import { useProcessing } from 'components/Processing';
 import { useModal } from 'components/Modal'
 import { useUser } from 'hooks/commerce'
 import { useAccount } from 'hooks/account'
+import Account from 'models/account/Account'
 import Login from 'components/Login';
 
 export default () => {
 
 	const [account, isAccountLoading] = useAccount()
+	const history = useHistory()
+	const [setProgress] = useProcessing()
+	const [setDialog] = useDialog()
+	const [setModal, close] = useModal()
 
 	return (
 		<Container maxWidth='sm'>
@@ -44,7 +48,40 @@ export default () => {
 								</ListItemIcon>
 								<ListItemText primary='Purchase history' />
 							</ListItem>
-							<ListItem button component={Link} to={account ? '/account/payments' : '/account/create'} disabled={isAccountLoading}>
+							<ListItem button disabled={isAccountLoading} onClick={() => {
+								const currentUser = firebase.auth().currentUser
+								if (currentUser) {
+									if (account) {
+										history.push('/account/payments')
+									} else {
+										history.push('/account/create')
+									}
+								} else {
+									setDialog('Welcome 🎉', 'We support your business. Please log in first.', [
+										{
+											title: 'OK',
+											handler: () => {
+												setModal(<Login onNext={async (user) => {
+													setProgress(true)
+													try {
+														const account = await Account.get<Account>(user.id)
+														if (!account) {
+															setProgress(false)
+															close()
+															history.push('/account/create')
+														}
+													} catch (error) {
+														setProgress(false)
+														close()
+														history.push('/account/create')
+														console.error(error)
+													}
+												}} />)
+											}
+										}
+									])
+								}
+							}}>
 								<ListItemIcon>
 									<AccountBoxIcon />
 								</ListItemIcon>
@@ -82,7 +119,7 @@ export default () => {
 const ProviderList = () => {
 	const history = useHistory()
 	const [user, isLoading] = useUser()
-	const ref = user?.roles.collectionReference
+	const ref = user?.providers.collectionReference
 	const [roles, isDataLoading] = useDataSourceListen<Role>(Role, { path: ref?.path }, isLoading)
 	const [setDialog] = useDialog()
 	const [setModal, close] = useModal()

@@ -200,6 +200,7 @@ export default ({ individual, onCallback }: { individual: Partial<Individual>, o
 	const handleFrontCapture = async ({ target }) => {
 		const uid = authUser?.uid
 		if (!uid) { return }
+		setFront(undefined)
 		setFrontLoading(true)
 		const file = target.files[0] as File
 		const ref = firebase.storage().ref(new Account(uid).documentReference.path + '/verification/front.jpg')
@@ -225,6 +226,7 @@ export default ({ individual, onCallback }: { individual: Partial<Individual>, o
 	const handleBackCapture = async ({ target }) => {
 		const uid = authUser?.uid
 		if (!uid) { return }
+		setBack(undefined)
 		setBackLoading(true)
 		const file = target.files[0] as File
 		const ref = firebase.storage().ref(new Account(uid).documentReference.path + '/verification/back.jpg')
@@ -317,10 +319,10 @@ export default ({ individual, onCallback }: { individual: Partial<Individual>, o
 										<TableCell className={classes.cellStatus}>
 											<Box className={classes.cellStatusBox}>
 												{isFrontLoading && <CircularProgress size={16} />}
-												{front && <DoneIcon color='primary' />}
+												{(!isFrontLoading && front) && <DoneIcon color='primary' />}
 											</Box>
 										</TableCell>
-										<TableCell className={classes.cell} align='right'>Passport or Local ID card. (front)</TableCell>
+										<TableCell className={classes.cell} align='right'>身分証明書 (表)</TableCell>
 										<TableCell className={classes.cell} align='left'>
 											<input accept='image/jpeg,image/png,application/pdf' type='file' onChange={handleFrontCapture} required />
 										</TableCell>
@@ -329,12 +331,21 @@ export default ({ individual, onCallback }: { individual: Partial<Individual>, o
 										<TableCell className={classes.cellStatus}>
 											<Box className={classes.cellStatusBox}>
 												{isBackLoading && <CircularProgress size={16} />}
-												{back && <DoneIcon color='primary' />}
+												{(!isBackLoading && back) && <DoneIcon color='primary' />}
 											</Box>
 										</TableCell>
-										<TableCell className={classes.cell} align='right'>Passport or Local ID card. (Back)</TableCell>
+										<TableCell className={classes.cell} align='right'>身分証明書 (裏))</TableCell>
 										<TableCell className={classes.cell} align='left'>
 											<input accept='image/jpeg,image/png,application/pdf' type='file' onChange={handleBackCapture} required />
+										</TableCell>
+									</TableRow>
+									<TableRow>
+										<TableCell className={classes.cellStatus}></TableCell>
+										<TableCell className={classes.cell} align='right'></TableCell>
+										<TableCell className={classes.cell} align='left'>
+											<Box fontSize={10}>
+												身分証明書はパスポートまたは、免許証、健康保険証を撮影し添付してください。
+											</Box>
 										</TableCell>
 									</TableRow>
 								</TableBody>

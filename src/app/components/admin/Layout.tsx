@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Link, useHistory } from 'react-router-dom'
-import Router from 'next/router'
 import clsx from 'clsx';
 import firebase from 'firebase'
 import 'firebase/auth'
@@ -14,8 +13,7 @@ import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import MenuIcon from '@material-ui/icons/Menu';
 import { Drawer, CssBaseline, AppBar, Toolbar, List, ListItem, ListItemText, Typography, Divider, Box, MenuItem, Menu, IconButton } from '@material-ui/core';
-import { Role } from 'models/commerce/User';
-import Provider from 'models/commerce/Provider'
+import Provider, { Role } from 'models/commerce/Provider'
 import { useRoles, useUser, useAdminProvider } from 'hooks/commerce'
 import { useDocumentListen } from 'hooks/firestore'
 import { useProcessing } from 'components/Processing';

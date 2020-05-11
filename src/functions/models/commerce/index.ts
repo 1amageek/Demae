@@ -1,5 +1,5 @@
-import Provider from './Provider'
-import User, { Role } from './User'
+import Provider, { Role } from './Provider'
+import User from './User'
 import Plan from './Plan'
 import Product from './Product'
 import SKU from './SKU'

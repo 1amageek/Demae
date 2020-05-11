@@ -2,7 +2,8 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-		match /account/{version} {            
+		match /account/{version} {   
+
 			match /accounts/{uid} {
 				allow read: if request.auth.uid == uid;
 				allow write: if request.auth.uid == uid;
@@ -15,14 +16,13 @@ service cloud.firestore {
 				allow read: if request.auth.uid == uid;
 				allow write: if request.auth.uid == uid;
 
-				match /roles/{role_id} {
+				match /roles/{provider_id} {
 					allow read: if request.auth.uid == uid;
-					allow write: if request.auth.uid == uid;
 				}
 
 				match /orders/{order_id} {
 					allow read: if request.auth.uid == uid;
-					allow write: if request.auth.uid == uid;
+					allow write: if false;
 				}
 				
 				match /shippingAddresses/{shipping_id} {
@@ -37,22 +37,41 @@ service cloud.firestore {
 			}
 
 			match /providers/{provider_id} {
+
+				function isOwner() {
+					return 'owner' in get(/databases/$(database)/documents/commerce/$(version)/providers/$(provider_id)/members/$(request.auth.uid)).data.permissions;
+				}
+
+				function isEditor() {
+					return 'write' in get(/databases/$(database)/documents/commerce/$(version)/providers/$(provider_id)/members/$(request.auth.uid)).data.permissions;
+				}
+
 				allow read: if true;
-				allow write: if request.auth.uid == uid;
+				allow write: if request.auth.uid == provider_id || isOwner();
+
+				match /members/{user_id} {
+					allow read: if request.auth.uid == provider_id || isOwner();
+					allow write: if request.auth.uid == provider_id || isOwner();
+				}
 
 				match /products/{product_id} {
 					allow read: if true;
-					allow write: if request.auth.uid == uid;
+					allow write: if request.auth.uid == provider_id || isOwner() || isEditor();
 
 					match /skus/{sku_id} {
 						allow read: if true;
-						allow write: if request.auth.uid == uid;
+						allow write: if request.auth.uid == provider_id || isOwner() || isEditor();
+
+						match /inventories/{shard_key} {
+							allow read: if true;
+							allow write: if request.auth.uid == provider_id || isOwner() || isEditor();
+						}
 					}
 				}
 
 				match /orders/{order_id} {
 					allow read: if request.auth.uid == uid;
-					allow write: if request.auth.uid == uid;
+					allow write: if false;
 				}
 			}
     }

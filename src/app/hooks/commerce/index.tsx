@@ -3,11 +3,11 @@ import firebase from "firebase"
 import "firebase/firestore"
 import "firebase/auth"
 import { useDocumentListen, useDataSourceListen } from '../firestore'
-import Provider from 'models/commerce/Provider'
+import Provider, { Role } from 'models/commerce/Provider'
 import Product from 'models/commerce/Product'
 import SKU from 'models/commerce/SKU'
 import Cart from 'models/commerce/Cart'
-import User, { Role } from 'models/commerce/User'
+import User from 'models/commerce/User'
 import Shipping from 'models/commerce/Shipping'
 import Order from 'models/commerce/Order'
 import { AuthContext } from '../auth'
@@ -28,7 +28,7 @@ const _useAdmin = (): [Role | undefined, boolean, firebase.auth.Error?] => {
 					const adminID = result.claims.admin
 					if (adminID) {
 						const user: User = new User(auth.uid)
-						const snapshot = await user.roles.collectionReference.doc(adminID).get()
+						const snapshot = await user.providers.collectionReference.doc(adminID).get()
 						const role: Role = Role.fromSnapshot(snapshot)
 						setState({
 							data: role,
@@ -163,7 +163,7 @@ export const RolesContext = createContext<[Role[], boolean, Error | undefined]>(
 export const RolesProvider = ({ children }: { children: any }) => {
 	const [user, waiting] = useContext(UserContext)
 	const [roles, isLoading, error] = useDataSourceListen<Role>(Role, user ? {
-		path: user.roles.collectionReference.path
+		path: user.providers.collectionReference.path
 	} : undefined, waiting)
 	return <RolesContext.Provider value={[roles, isLoading, error]}> {children} </RolesContext.Provider>
 }

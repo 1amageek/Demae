@@ -31,9 +31,12 @@ export const increase = regionFunctions.https.onCall(async (data, context) => {
 	if (!providerRef) {
 		throw new functions.https.HttpsError('invalid-argument', 'This skuPath is invalid.')
 	}
-	const user: Commerce.User = new Commerce.User(uid)
-	const snapshot = await user.roles.collectionReference.doc(providerRef.id).get()
-	if (!snapshot.exists) {
+	const roleRef = new Commerce.Provider(providerRef).members.collectionReference.doc(uid)
+	const role = await Commerce.Role.get<Commerce.Role>(roleRef)
+	if (!role) {
+		throw new functions.https.HttpsError('invalid-argument', 'You do not have permission to execute the process.')
+	}
+	if (!(role.permissions.includes('owner') || role.permissions.includes('write'))) {
 		throw new functions.https.HttpsError('invalid-argument', 'You do not have permission to execute the process.')
 	}
 	const sku = await Commerce.SKU.get<Commerce.SKU>(skuRef)
@@ -94,9 +97,12 @@ export const update = regionFunctions.https.onCall(async (data, context) => {
 	if (!providerRef) {
 		throw new functions.https.HttpsError('invalid-argument', 'This skuPath is invalid.')
 	}
-	const user: Commerce.User = new Commerce.User(uid)
-	const snapshot = await user.roles.collectionReference.doc(providerRef.id).get()
-	if (!snapshot.exists) {
+	const roleRef = new Commerce.Provider(providerRef).members.collectionReference.doc(uid)
+	const role = await Commerce.Role.get<Commerce.Role>(roleRef)
+	if (!role) {
+		throw new functions.https.HttpsError('invalid-argument', 'You do not have permission to execute the process.')
+	}
+	if (!(role.permissions.includes('owner') || role.permissions.includes('write'))) {
 		throw new functions.https.HttpsError('invalid-argument', 'You do not have permission to execute the process.')
 	}
 	const sku = await Commerce.SKU.get<Commerce.SKU>(skuRef)

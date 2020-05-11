@@ -13,9 +13,6 @@ import ViewListIcon from '@material-ui/icons/ViewList';
 import SettingsIcon from '@material-ui/icons/Settings';
 import { UserContext } from 'hooks/commerce'
 import { useDataSourceListen, useDocumentListen } from 'hooks/firestore';
-import User, { Role } from 'models/commerce/User';
-import MeetingRoomIcon from '@material-ui/icons/MeetingRoom';
-import Provider from 'models/commerce/Provider';
 import DataLoading from 'components/DataLoading';
 import { Paper, Grid, Typography, Box } from '@material-ui/core';
 import Order from 'models/commerce/Order';

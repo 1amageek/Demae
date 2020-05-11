@@ -3,6 +3,12 @@ import { CurrencyCode } from 'common/Currency'
 import Product from './Product'
 import Order from './Order'
 
+export type Permission = 'read' | 'write' | 'owner'
+
+export class Role extends Doc {
+	@Field permissions: Permission[] = ['read', 'write', 'owner']
+}
+
 export default class Provider extends Doc {
 
 	static collectionReference(): CollectionReference {
@@ -27,6 +33,7 @@ export default class Provider extends Doc {
 
 	@SubCollection products: Collection<Product> = new Collection()
 	@SubCollection orders: Collection<Order> = new Collection()
+	@SubCollection members: Collection<Role> = new Collection()
 
 	thumbnailImageURL() {
 		if (this.thumbnailImage) {

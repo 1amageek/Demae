@@ -4,12 +4,7 @@ import { Country } from '../../common/Country'
 import { CurrencyCode } from '../../common/Currency'
 import Shipping from './Shipping'
 import Order from './Order'
-
-export type Permission = 'administrator'
-
-export class Role extends Doc {
-	@Field permissions: Permission[] = []
-}
+import { Role } from './Provider'
 
 export default class User extends Doc {
 
@@ -38,7 +33,7 @@ export default class User extends Doc {
 	@Field defaultShipping?: Shipping
 	@Field defaultPaymentMethodID?: string
 
-	@SubCollection roles: Collection<Role> = new Collection()
+	@SubCollection providers: Collection<Role> = new Collection()
 	@SubCollection shippingAddresses: Collection<Shipping> = new Collection()
 	@SubCollection orders: Collection<Order> = new Collection()
 
