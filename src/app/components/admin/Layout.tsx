@@ -9,8 +9,9 @@ import PublicIcon from '@material-ui/icons/Public';
 import ViewListIcon from '@material-ui/icons/ViewList';
 import StorefrontIcon from '@material-ui/icons/Storefront';
 import AccountCircle from '@material-ui/icons/AccountCircle';
+import ImageIcon from '@material-ui/icons/Image';
 import MenuIcon from '@material-ui/icons/Menu';
-import { Drawer, CssBaseline, AppBar, Toolbar, List, ListItem, ListItemText, Typography, Divider, Box, MenuItem, Menu, IconButton } from '@material-ui/core';
+import { Drawer, CssBaseline, AppBar, Toolbar, List, ListItem, ListItemText, Avatar, Divider, Box, MenuItem, Menu, IconButton } from '@material-ui/core';
 import Provider, { Role } from 'models/commerce/Provider'
 import { useRoles, useUser, useAdminProvider } from 'hooks/commerce'
 import { useDocumentListen } from 'hooks/firestore'
@@ -64,6 +65,20 @@ export default ({ children }: { children: any }) => {
 			onClick={toggleDrawer(anchor, false)}
 			onKeyDown={toggleDrawer(anchor, false)}
 		>
+			<Box display='flex'
+				flexDirection='column'
+				flexGrow={1}
+				justifyContent='center'
+				alignItems='center'
+				fontSize={18}
+				fontWeight={600}
+				paddingY={3}>
+				<Avatar variant='circle' src={provider?.thumbnailImageURL()} style={{ width: '64px', height: '64px' }}>
+					<ImageIcon />
+				</Avatar>
+				{provider && provider.name}
+			</Box>
+
 			<List>
 				<ListItem button key={'product'} component={Link} to='/admin/products'>
 					<ListItemIcon>
@@ -119,9 +134,9 @@ export default ({ children }: { children: any }) => {
 						>
 							<MenuIcon />
 						</IconButton>
-						<Typography variant='h6' noWrap>
+						<Box fontSize={18} fontWeight={600}>
 							{provider && provider.name}
-						</Typography>
+						</Box>
 						<div style={{ flexGrow: 1 }}></div>
 						<AccountMenu />
 					</Toolbar>

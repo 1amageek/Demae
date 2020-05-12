@@ -3,6 +3,7 @@ import * as functions from 'firebase-functions'
 import { regionFunctions } from '../../helper'
 import Stripe from 'stripe'
 import User from '../../models/commerce/User'
+import Cart from '../../models/commerce/Cart'
 import Provider from '../../models/commerce/Provider'
 import Order, { OrderItem } from '../../models/commerce/Order'
 import SKU, { Stock } from '../../models/commerce/SKU'
@@ -46,8 +47,14 @@ export const create = regionFunctions.https.onCall(async (data, context) => {
 		throw new functions.https.HttpsError('invalid-argument', 'This request does not contain a customerID.')
 	}
 
+	const cart = await Cart.get<Cart>(uid)
+	if (!cart) {
+		throw new functions.https.HttpsError('invalid-argument', 'This user has not cart.')
+	}
+
 	const orderRef = new User(uid).orders.collectionReference.doc()
 	const order: Order = Order.fromData(orderData, orderRef, { convertDocumentReference: true })
+	const cartItemgroups = cart.groups.filter(group => group.providerID !== order.providerID)
 
 	const request = {
 		setup_future_usage: 'off_session',
@@ -103,6 +110,9 @@ export const create = regionFunctions.https.onCall(async (data, context) => {
 					createdAt: admin.firestore.FieldValue.serverTimestamp(),
 					updatedAt: admin.firestore.FieldValue.serverTimestamp()
 				})
+				transaction.set(cart.documentReference, {
+					groups: cartItemgroups
+				}, { merge: true })
 				return order.data({ convertDocumentReference: true })
 			} catch (error) {
 				throw error
