@@ -4,7 +4,18 @@
 // Order
 // export type OrderItemType = 'sku' | 'tax' | 'shipping' | 'discount'
 export type OrderItemStatus = 'none' | 'ordered' | 'changed' | 'cancelled'
-export type DeliveryStatus = 'none' | 'pending' | 'delivering' | 'delivered' | 'failure'
+export type DeliveryStatus =
+	'none' |	// Orders that do not need to be shipped.
+	'pending' | // Delivery is pending.
+	'preparing_for_delivery' | // Preparing for delivery.
+	'out_for_delivery' | // Carrier is about to deliver the shipment , or it is ready to pickup.
+	'in_transit' | // Carrier has accepted or picked up shipment from shipper. The shipment is on the way.
+	'failed_attempt' | // Carrier attempted to deliver but failed, and usually leaves a notice and will try to delivery again.
+	'delivered' | // The shipment was delivered successfully.
+	'available_for_pickup' | // The package arrived at a pickup point near you and is available for pickup.
+	'exception' | // Custom hold, undelivered, returned shipment to sender or any shipping exceptions.
+	'expired' // Shipment has no tracking information for 30 days since added.
+
 export type PaymentStatus = 'none' | 'rejected' | 'authorized' | 'paid' | 'cancelled' | 'failure' | 'cancel_failure'
 
 // Plan

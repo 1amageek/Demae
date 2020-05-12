@@ -45,20 +45,20 @@ export default ({ orderID }: { orderID?: string }) => {
 		initValue: order?.deliveryStatus, inputProps: {
 			menu: [
 				{
-					label: 'Received',
-					value: 'none'
+					label: 'Todo',
+					value: 'preparing_for_delivery'
+				},
+				{
+					label: 'Out for delivery',
+					value: 'out_for_delivery'
+				},
+				{
+					label: 'Completed',
+					value: 'in_transit'
 				},
 				{
 					label: 'Pending',
 					value: 'pending'
-				},
-				{
-					label: 'Delivering',
-					value: 'delivering'
-				}
-				, {
-					label: 'Delivered',
-					value: 'delivered'
 				}
 			]
 		}
@@ -86,7 +86,7 @@ export default ({ orderID }: { orderID?: string }) => {
 			<>
 				ID: {orderID}
 				<Box flexGrow={1} />
-				<Select  {...deliveryStatus} onChange={async (e) => {
+				<Select disabled={deliveryStatus.value === 'none'} {...deliveryStatus} onChange={async (e) => {
 					e.preventDefault()
 					const status = String(e.target.value) as DeliveryStatus
 					deliveryStatus.setValue(status)

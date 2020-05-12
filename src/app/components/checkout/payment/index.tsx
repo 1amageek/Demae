@@ -108,13 +108,14 @@ const CheckoutForm = () => {
 			const updateData = { defaultPaymentMethodID: paymentMethod.id }
 			if (user?.customerID) {
 				const attach = firebase.functions().httpsCallable('v1-stripe-paymentMethod-attach')
-				const result = await attach({
+				const response = await attach({
 					paymentMethodID: paymentMethod.id
 				})
+				const { error, result } = response.data
 				console.log('[APP] attach payment method', result)
 			} else {
 				const create = firebase.functions().httpsCallable('v1-stripe-customer-create')
-				const result = await create({
+				const response = await create({
 					payment_method: paymentMethod.id,
 					phone: auth.phoneNumber,
 					invoice_settings: {
@@ -124,6 +125,7 @@ const CheckoutForm = () => {
 						uid: auth.uid
 					}
 				})
+				const { error, result } = response.data
 				console.log('[APP] create customer', result)
 				if (result.data) {
 					const customerID = result.data.id

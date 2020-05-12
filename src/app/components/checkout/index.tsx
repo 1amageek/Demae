@@ -6,7 +6,7 @@ import { Grid, AppBar, Toolbar, Checkbox, FormControlLabel } from '@material-ui/
 import { List, ListItem, ListItemText, ListItemIcon, Button } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
 import { useUserShippingAddresses, UserContext, CartContext } from 'hooks/commerce'
-import { useFunctions } from 'hooks/stripe'
+import { useFetchList } from 'hooks/stripe'
 import Shipping from 'models/commerce/Shipping';
 import Loading from 'components/Loading'
 import { Container, ExpansionPanel, ExpansionPanelSummary, ExpansionPanelDetails, ExpansionPanelActions, Divider, Box } from '@material-ui/core';
@@ -52,10 +52,10 @@ export default (props: any) => {
 
 		cartGroup.shipping = defaultShipping
 		const data = cart.order(user.id, cartGroup)
-		const checkoutCreate = firebase.functions().httpsCallable('v1-commerce-checkout-create')
 
 		try {
 			setProcessing(true)
+			const checkoutCreate = firebase.functions().httpsCallable('v1-commerce-checkout-create')
 			const response = await checkoutCreate({
 				order: data,
 				paymentMethodID: paymentMethodID,
@@ -68,18 +68,9 @@ export default (props: any) => {
 				setProcessing(false)
 				return
 			}
-
-			const token = result
-			try {
-				const checkoutConfirm = firebase.functions().httpsCallable('v1-commerce-checkout-confirm')
-				const response = await checkoutConfirm(token)
-				const { error, result } = response.data
-				console.log(result)
-				setMessage("success", "Success")
-				history.push(`/checkout/${providerID}/completed`)
-			} catch (error) {
-				throw error
-			}
+			console.log(result)
+			setMessage("success", "Success")
+			history.push(`/checkout/${providerID}/completed`)
 		} catch (error) {
 			setMessage("error", "Error")
 			console.log(error)
@@ -211,16 +202,13 @@ const PaymentMethods = ({ user }: { user: Commerce.User }) => {
 
 	const history = useHistory()
 	const [setProcessing] = useProcessing()
-	const [data, isLoading, error, setPaymentMethods] = useFunctions<PaymentMethod[]>('v1-stripe-paymentMethod-list', { type: 'card' })
+	const [paymentMethods, isLoading, error, setPaymentMethods] = useFetchList<PaymentMethod>('v1-stripe-paymentMethod-list', { type: 'card' })
 	const [deletePaymentMethod, setDeletePaymentMethod] = useState<PaymentMethod | undefined>(undefined)
 	const [setDialog, close] = useDialog()
-	const paymentMethods = data || []
 
 	if (error) {
 		console.error(error)
 	}
-
-	console.log(data)
 
 	const setDefaultPaymentMethod = async (method: PaymentMethod) => {
 		setProcessing(true)
@@ -281,9 +269,9 @@ const PaymentMethods = ({ user }: { user: Commerce.User }) => {
 		<Paper>
 			<AppBar position='static' color='transparent' elevation={0}>
 				<Toolbar>
-					<Typography variant='h6'>
+					<Box fontSize={18} fontWeight={600}>
 						Payments
-          </Typography>
+          </Box>
 				</Toolbar>
 			</AppBar>
 			{

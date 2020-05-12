@@ -12,8 +12,21 @@ import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import OrderList from './OrderList'
 import OrderDetial from './OrderDetial'
+import { DeliveryStatus } from 'common/commerce/Types'
 
-const DeliveryStatus = ['none', 'pending', 'delivering', 'delivered']
+type DeliveryTab = {
+	label: string,
+	value?: DeliveryStatus
+}
+
+const DeliveryTabs: DeliveryTab[] = [
+	{ label: "TODO", value: "preparing_for_delivery" },
+	{ label: "Out for delivery", value: "out_for_delivery" },
+	{ label: "Complete", value: "in_transit" },
+	{ label: "Pending", value: "pending" },
+	{ label: "All", value: undefined }
+]
+
 const DeliveryStatusLabel = {
 	none: 'Received',
 	pending: 'pending',
@@ -39,11 +52,9 @@ export default (props: any) => {
 	const [paymentState, setPaymentState] = useState(0)
 	const handleChangeDeliveryStatus = (event: React.ChangeEvent<{}>, newValue: number) => {
 		setDeliveryState(newValue)
-		history.push('/admin/orders')
 	}
 	const handleChangePaymentStatus = (event: React.ChangeEvent<{}>, newValue: number) => {
 		setPaymentState(newValue)
-		history.push('/admin/orders')
 	}
 
 	return (
@@ -57,26 +68,26 @@ export default (props: any) => {
 				</Box>
 				<AppBar position="static" color='inherit' elevation={1}>
 					<Tabs value={deliveryState} onChange={handleChangeDeliveryStatus}>
-						{DeliveryStatus.map(value => {
-							return <Tab key={value} label={DeliveryStatusLabel[value]} id={value} />
+						{DeliveryTabs.map((tab, index) => {
+							return <Tab key={index} label={tab.label} id={`${index}`} />
 						})}
 					</Tabs>
 				</AppBar>
-				<AppBar position="static" color='inherit' elevation={1}>
+				{/* <AppBar position="static" color='inherit' elevation={1}>
 					<Tabs value={paymentState} onChange={handleChangePaymentStatus}>
 						{PaymentStatus.map(value => {
 							return <Tab key={value} label={PaymentStatusLabel[value]} id={value} />
 						})}
 					</Tabs>
-				</AppBar>
-				<Content orderID={orderID} deliveryStatus={DeliveryStatus[deliveryState]} paymentStatus={PaymentStatus[paymentState]} />
+				</AppBar> */}
+				<Content orderID={orderID} deliveryStatus={DeliveryTabs[deliveryState].value} paymentStatus={PaymentStatus[paymentState]} />
 			</Box>
 		</AdminProviderOrderProvider>
 	)
 }
 
 
-const Content = ({ deliveryStatus, paymentStatus, orderID }: { deliveryStatus: string, paymentStatus: string, orderID?: string }) => {
+const Content = ({ deliveryStatus, paymentStatus, orderID }: { deliveryStatus?: string, paymentStatus?: string, orderID?: string }) => {
 	const theme = useTheme();
 	const matches = useMediaQuery(theme.breakpoints.down('sm'));
 

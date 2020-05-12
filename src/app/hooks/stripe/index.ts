@@ -4,26 +4,10 @@ import "firebase/firestore"
 import "firebase/auth"
 import { PaymentMethod } from '@stripe/stripe-js';
 
-export const usePaymentMethods = (): [PaymentMethod[], boolean] => {
-	const [paymentMethods, setPaymentMethods] = useState<any[]>([])
-	const [isLoading, setLoading] = useState(true)
-	useEffect(() => {
-		(async () => {
-			setLoading(true)
-			const list = firebase.functions().httpsCallable('v1-stripe-paymentMethod-list')
-			try {
-				const result = await list({ type: 'card' })
-				if (result.data) {
-					setPaymentMethods(result.data.data)
-				}
-			} catch (error) {
-				console.log(error)
-			}
-			setLoading(false)
-
-		})()
-	}, [paymentMethods.length])
-	return [paymentMethods, isLoading]
+export const usePaymentMethods = (): [PaymentMethod[], boolean, Error | undefined] => {
+	const [data, isLoading, error] = useFunctions<any>('v1-stripe-paymentMethod-list', { type: 'card' })
+	const methods = data?.data as PaymentMethod[]
+	return [methods, isLoading, error]
 }
 
 export const useFunctions = <T>(query: string, option: any = {}, waiting: boolean = false): [T | undefined, boolean, Error | undefined, (data: T) => void] => {
@@ -48,21 +32,21 @@ export const useFunctions = <T>(query: string, option: any = {}, waiting: boolea
 		let enabled = true
 		const fetchData = async () => {
 			try {
-				const list = await firebase.functions().httpsCallable(query)
-				const result = await list(option)
+				const call = await firebase.functions().httpsCallable(query)
+				const response = await call(option)
+				const { result, error } = response.data
 				if (enabled) {
-					const data = result.data.result
-					if (data) {
+					if (error) {
 						setState({
-							error: undefined,
+							error: error,
 							loading: false,
-							data: data
+							data: undefined
 						});
 					} else {
 						setState({
 							error: undefined,
 							loading: false,
-							data: undefined
+							data: result
 						});
 					}
 				}
@@ -91,3 +75,13 @@ export const useFunctions = <T>(query: string, option: any = {}, waiting: boolea
 	}, [waiting])
 	return [state.data, state.loading, state.error, setData]
 };
+
+export const useFetchList = <T>(query: string, option: any = {}, waiting: boolean = false): [T[], boolean, Error | undefined, (data: T[]) => void] => {
+	const [data, isLoading, error] = useFunctions<any>(query, option, waiting)
+	const [list, setList] = useState<T[]>(data?.data || [] as T[])
+	const setData = (data: T[]) => setList(data)
+	useEffect(() => {
+		setData(data?.data || [] as T[])
+	}, [data?.data.length])
+	return [list, isLoading, error, setData]
+}

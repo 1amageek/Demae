@@ -42,18 +42,24 @@ import { useDataSourceListen, Where, OrderBy } from 'hooks/firestore'
 import Dayjs from 'dayjs'
 
 const Status = {
-	none: 'Received',
-	pending: 'pending',
-	delivering: 'Delivering',
-	delivered: 'Delivered'
+	'none': 'None',
+	'pending': 'Pending',
+	'preparing_for_delivery': 'Todo',
+	'out_for_delivery': 'Out for delivery',
+	'in_transit': 'In transit',
+	'failed_attempt': 'Failed attempt',
+	'delivered': 'Delivered',
+	'available_for_pickup': 'Available for pickup',
+	'exception': 'Exception',
+	'expired': 'Expired'
 }
 
-export default ({ orderID, deliveryStatus, paymentStatus }: { orderID?: string, deliveryStatus: string, paymentStatus: string }) => {
+export default ({ orderID, deliveryStatus, paymentStatus }: { orderID?: string, deliveryStatus?: string, paymentStatus?: string }) => {
 	const [provider, waiting] = useAdminProvider()
 	const collectionReference = provider ? provider.orders.collectionReference : undefined
 	const wheres = [
-		deliveryStatus === 'none' ? undefined : Where('deliveryStatus', '==', deliveryStatus),
-		paymentStatus === 'none' ? undefined : Where('paymentStatus', '==', paymentStatus)
+		deliveryStatus ? Where('deliveryStatus', '==', deliveryStatus) : undefined,
+		// paymentStatus ? Where('paymentStatus', '==', paymentStatus) : undefined
 	].filter(value => !!value)
 	const [orderBy, setOrderBy] = useState<firebase.firestore.OrderByDirection>('desc')
 	const [orders, isLoading] = useDataSourceListen<Order>(Order, {

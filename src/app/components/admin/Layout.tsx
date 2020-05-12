@@ -9,8 +9,6 @@ import PublicIcon from '@material-ui/icons/Public';
 import ViewListIcon from '@material-ui/icons/ViewList';
 import StorefrontIcon from '@material-ui/icons/Storefront';
 import AccountCircle from '@material-ui/icons/AccountCircle';
-import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
-import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import MenuIcon from '@material-ui/icons/Menu';
 import { Drawer, CssBaseline, AppBar, Toolbar, List, ListItem, ListItemText, Typography, Divider, Box, MenuItem, Menu, IconButton } from '@material-ui/core';
 import Provider, { Role } from 'models/commerce/Provider'
@@ -20,177 +18,122 @@ import { useProcessing } from 'components/Processing';
 import { useSnackbar } from 'components/Snackbar';
 import { ListItemIcon } from '@material-ui/core';
 
-const drawerWidth = 200;
+const useStyles = makeStyles({
+	list: {
+		width: 250,
+	},
+	fullList: {
+		width: 'auto',
+	},
+});
 
-const useStyles = makeStyles((theme: Theme) =>
-	createStyles({
-		root: {
-			display: 'flex',
-			height: '100%'
-		},
-		appBar: {
-			transition: theme.transitions.create(['margin', 'width'], {
-				easing: theme.transitions.easing.sharp,
-				duration: theme.transitions.duration.leavingScreen,
-			}),
-		},
-		appBarShift: {
-			width: `calc(100% - ${drawerWidth}px)`,
-			marginLeft: drawerWidth,
-			transition: theme.transitions.create(['margin', 'width'], {
-				easing: theme.transitions.easing.easeOut,
-				duration: theme.transitions.duration.enteringScreen,
-			}),
-		},
-		tooBar: {
-			flexGrow: 1
-		},
-		menuButton: {
-			marginRight: theme.spacing(2),
-		},
-		hide: {
-			display: 'none',
-		},
-		drawer: {
-			width: drawerWidth,
-			flexShrink: 0,
-		},
-		drawerPaper: {
-			width: drawerWidth,
-		},
-		drawerHeader: {
-			display: 'flex',
-			alignItems: 'center',
-			padding: theme.spacing(0, 1),
-			// necessary for content to be below app bar
-			...theme.mixins.toolbar,
-			justifyContent: 'flex-end',
-		},
-		content: {
-			flexGrow: 1,
-			transition: theme.transitions.create('margin', {
-				easing: theme.transitions.easing.sharp,
-				duration: theme.transitions.duration.leavingScreen,
-			}),
-			marginLeft: -drawerWidth,
-		},
-		contentShift: {
-			transition: theme.transitions.create('margin', {
-				easing: theme.transitions.easing.easeOut,
-				duration: theme.transitions.duration.enteringScreen,
-			}),
-			marginLeft: 0,
-		},
-		box: {
-			minHeight: '100vh'
-		},
-	}),
-);
+type Anchor = 'top' | 'left' | 'bottom' | 'right';
 
 export default ({ children }: { children: any }) => {
 	const classes = useStyles()
 	const [provider] = useAdminProvider()
-	const theme = useTheme()
-	const [open, setOpen] = useState(false)
-
-	const handleDrawerOpen = () => {
-		setOpen(true);
-	};
-
-	const handleDrawerClose = () => {
-		setOpen(false);
-	};
 
 	const previewLink = provider ? `/providers/${provider.id}` : '/providers'
+	const [state, setState] = React.useState({
+		top: false,
+		left: false,
+		bottom: false,
+		right: false,
+	});
 
-	return (
-		<div className={classes.root}>
-			<CssBaseline />
-			<AppBar
-				color='inherit'
-				position='fixed'
-				elevation={0}
-				className={clsx(classes.appBar, {
-					[classes.appBarShift]: open,
-				})}
-			>
-				<Toolbar className={classes.tooBar}>
-					<IconButton
-						color='inherit'
-						aria-label='open drawer'
-						onClick={handleDrawerOpen}
-						edge='start'
-						className={clsx(classes.menuButton, open && classes.hide)}
-					>
-						<MenuIcon />
-					</IconButton>
-					<Typography variant='h6' noWrap>
-						{provider && provider.name}
-					</Typography>
-					<div style={{ flexGrow: 1 }}></div>
-					<AccountMenu />
-				</Toolbar>
-			</AppBar>
-			<Drawer
-				className={classes.drawer}
-				variant='persistent'
-				anchor='left'
-				open={open}
-				classes={{
-					paper: classes.drawerPaper,
-				}}
-			>
-				<div className={classes.drawerHeader}>
-					<IconButton onClick={handleDrawerClose}>
-						{theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
-					</IconButton>
-				</div>
-				<Divider />
-				<List>
-					<ListItem button key={'product'} component={Link} to='/admin/products'>
-						<ListItemIcon>
-							<CheckBoxOutlineBlankIcon />
-						</ListItemIcon>
-						<ListItemText primary={'Product'} />
-					</ListItem>
-					<ListItem button key={'orders'} component={Link} to='/admin/orders'>
-						<ListItemIcon>
-							<ViewListIcon />
-						</ListItemIcon>
-						<ListItemText primary={'Orders'} />
-					</ListItem>
-					<ListItem button key={'provider'} component={Link} to='/admin/provider'>
-						<ListItemIcon>
-							<StorefrontIcon />
-						</ListItemIcon>
-						<ListItemText primary={'Shop'} />
-					</ListItem>
-				</List>
-				<Divider />
-				<List>
-					<ListItem button key={'product'} onClick={() => {
-						window.location.href = previewLink
-					}}>
-						<ListItemIcon>
-							<PublicIcon />
-						</ListItemIcon>
-						<ListItemText primary={'Preview'} />
-					</ListItem>
-				</List>
-			</Drawer>
-			<main
-				className={clsx(classes.content, {
-					[classes.contentShift]: open,
-				})}
-			>
-				<div className={classes.drawerHeader} />
-				<Box className={classes.box} >
-					{children}
-				</Box>
-			</main>
+	const toggleDrawer = (anchor: Anchor, open: boolean) => (
+		event: React.KeyboardEvent | React.MouseEvent,
+	) => {
+		if (
+			event.type === 'keydown' &&
+			((event as React.KeyboardEvent).key === 'Tab' ||
+				(event as React.KeyboardEvent).key === 'Shift')
+		) {
+			return;
+		}
+
+		setState({ ...state, [anchor]: open });
+	};
+
+	const list = (anchor: Anchor) => (
+		<div
+			className={clsx(classes.list, {
+				[classes.fullList]: anchor === 'top' || anchor === 'bottom',
+			})}
+			role="presentation"
+			onClick={toggleDrawer(anchor, false)}
+			onKeyDown={toggleDrawer(anchor, false)}
+		>
+			<List>
+				<ListItem button key={'product'} component={Link} to='/admin/products'>
+					<ListItemIcon>
+						<CheckBoxOutlineBlankIcon />
+					</ListItemIcon>
+					<ListItemText primary={'Product'} />
+				</ListItem>
+				<ListItem button key={'orders'} component={Link} to='/admin/orders'>
+					<ListItemIcon>
+						<ViewListIcon />
+					</ListItemIcon>
+					<ListItemText primary={'Orders'} />
+				</ListItem>
+				<ListItem button key={'provider'} component={Link} to='/admin/provider'>
+					<ListItemIcon>
+						<StorefrontIcon />
+					</ListItemIcon>
+					<ListItemText primary={'Shop'} />
+				</ListItem>
+			</List>
+			<Divider />
+			<List>
+				<ListItem button key={'product'} onClick={() => {
+					window.location.href = previewLink
+				}}>
+					<ListItemIcon>
+						<PublicIcon />
+					</ListItemIcon>
+					<ListItemText primary={'Preview'} />
+				</ListItem>
+			</List>
 		</div>
 	);
+
+	return (
+		<>
+			<Drawer anchor='left' open={state['left']} onClose={toggleDrawer('left', false)}>
+				{list('left')}
+			</Drawer>
+			<Box display='flex' style={{ minHeight: '100vh' }} >
+				<CssBaseline />
+				<AppBar
+					color='inherit'
+					position='fixed'
+					elevation={0}
+				>
+					<Toolbar>
+						<IconButton
+							color='inherit'
+							aria-label='open drawer'
+							onClick={toggleDrawer('left', true)}
+							edge='start'
+						>
+							<MenuIcon />
+						</IconButton>
+						<Typography variant='h6' noWrap>
+							{provider && provider.name}
+						</Typography>
+						<div style={{ flexGrow: 1 }}></div>
+						<AccountMenu />
+					</Toolbar>
+				</AppBar>
+				<Box display='flex' style={{ minHeight: '100vh', width: '100%', paddingTop: '65px' }} >
+					{children}
+				</Box>
+			</Box>
+		</>
+	);
 }
+
 
 const AccountMenu = () => {
 

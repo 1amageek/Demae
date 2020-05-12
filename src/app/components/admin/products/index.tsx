@@ -18,9 +18,9 @@ export default (props: any) => {
 	const { productID, skuID } = props.match.params
 
 	return (
-		<Box height='100%'>
-			<AdminProviderProductProvider id={productID}>
-				<AdminProviderProductSKUProvider id={skuID}>
+		<AdminProviderProductProvider id={productID}>
+			<AdminProviderProductSKUProvider id={skuID}>
+				<Box>
 					<Box py={2}>
 						<Breadcrumbs>
 							<Link to='/admin/products'>Products</Link>
@@ -29,13 +29,12 @@ export default (props: any) => {
 							{productID && skuID && <Link to={`/admin/products/${productID}/skus`}>{skuID}</Link>}
 						</Breadcrumbs>
 					</Box>
-
 					<Grid container alignItems="stretch" spacing={0} style={{ width: '100%' }}>
 						<Content productID={productID} skuID={skuID} />
 					</Grid>
-				</AdminProviderProductSKUProvider>
-			</AdminProviderProductProvider>
-		</Box>
+				</Box>
+			</AdminProviderProductSKUProvider>
+		</AdminProviderProductProvider >
 	)
 }
 

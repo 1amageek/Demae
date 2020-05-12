@@ -54,9 +54,9 @@ service cloud.firestore {
 				allow write: if request.auth.uid == provider_id || isOwner();
 
 				match /members/{user_id} {
-					allow read: if request.auth.uid == provider_id || isOwner();
+					allow read: if request.auth.uid == provider_id || isOwner() || isEditor() || isViewer();
 					allow write: if request.auth.uid == provider_id || isOwner();
-				}
+				}			
 
 				match /products/{product_id} {
 					allow read: if true;
@@ -75,7 +75,7 @@ service cloud.firestore {
 
 				match /orders/{order_id} {
 					allow read: if request.auth.uid == provider_id || isOwner() || isEditor() || isViewer();
-					allow write: if false;
+					allow write: if request.auth.uid == provider_id || isOwner() || isEditor();
 				}
 			}
     }
