@@ -44,7 +44,7 @@ export default class Provider extends Doc {
 
 	coverImageURL() {
 		if (this.coverImage) {
-			return `${process.env.HOST}/${this.coverImage.path}`
+			return `${process.env.HOST}/assets/${this.coverImage.path}`
 		}
 		return undefined
 	}

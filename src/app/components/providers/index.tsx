@@ -6,7 +6,7 @@ export default (props: any) => {
 	const { providerID, productID, skuID } = props.match.params
 	if (providerID) {
 		return (
-			<Container maxWidth='sm'>
+			<Container maxWidth='sm' disableGutters>
 				<Provider providerID={providerID} />
 			</Container>
 		)

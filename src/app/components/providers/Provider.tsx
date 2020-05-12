@@ -1,6 +1,6 @@
 import React from 'react';
-import Grid from '@material-ui/core/Grid';
-import Card from 'components/providers/Card'
+import { Grid, Box, Avatar } from '@material-ui/core';
+import ImageIcon from '@material-ui/icons/Image';
 import DataLoading from 'components/DataLoading';
 import ProductList from 'components/providers/products/ProductList'
 import { useDocumentListen } from 'hooks/firestore';
@@ -16,13 +16,26 @@ export default ({ providerID }: { providerID: string }) => {
 		return <NotFound />
 	}
 	return (
-		<Grid container spacing={2}>
-			<Grid item xs={12} container>
-				<Card provider={data!} />
-			</Grid>
-			<Grid item xs={12} container>
-				<ProductList providerID={providerID} />
-			</Grid>
-		</Grid>
+		<>
+			<Box
+				width="100%"
+				height="100%"
+			>
+				<Avatar variant="square" src={data.coverImageURL()} alt={data.name} style={{
+					minHeight: '64px',
+					height: '100%',
+					width: '100%'
+				}}>
+					<ImageIcon />
+				</Avatar>
+			</Box>
+			<Box padding={2}>
+				<Grid container spacing={2}>
+					<Grid item xs={12} container>
+						<ProductList providerID={providerID} />
+					</Grid>
+				</Grid>
+			</Box>
+		</>
 	)
 }
