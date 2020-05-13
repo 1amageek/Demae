@@ -32,18 +32,16 @@ export default ({ cartGroup, items }: { cartGroup: CartGroup, items: SummaryItem
 	const classes = useStyles()
 	return (
 		<Paper elevation={0} variant="outlined">
-			<List dense>
+			<Box paddingY={1} paddingX={2}>
 				{items.map((item, index) => {
 					return (
-						<ListItem key={index}>
-							<ListItemText primary={item.title} />
-							<ListItemSecondaryAction>
-								<ListItemText primary={item.detail} />
-							</ListItemSecondaryAction>
-						</ListItem>
+						<Box key={index} display='flex' justifyContent='space-between' paddingBottom={1}>
+							<Box fontSize={16} fontWeight={500}>{item.title}</Box>
+							<Box fontSize={18} fontWeight={500}>{item.detail}</Box>
+						</Box>
 					)
 				})}
-			</List>
+			</Box>
 			<Box className={classes.box}>
 				<Button component={Link} to={`/checkout/${cartGroup.providerID}`} className={classes.button} variant="contained" size="large" color="primary">
 					Checkout

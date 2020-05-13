@@ -63,10 +63,10 @@ export default () => {
 }
 
 const CartGroupList = ({ cartGroup }: { cartGroup: CartGroup }) => {
-	const subtotal = cartGroup.subtotal() || 0
-	const tax = cartGroup.tax() || 0
-	const currencyCode = cartGroup.currency || 'USD'
-	const symbol = Symbol(currencyCode)
+
+	const subtotal = new Intl.NumberFormat('ja-JP', { style: 'currency', currency: cartGroup.currency }).format(cartGroup.subtotal())
+	const tax = new Intl.NumberFormat('ja-JP', { style: 'currency', currency: cartGroup.currency }).format(cartGroup.tax())
+
 	return (
 		<Paper>
 			<List dense>
@@ -78,11 +78,11 @@ const CartGroupList = ({ cartGroup }: { cartGroup: CartGroup }) => {
 				<Summary cartGroup={cartGroup} items={[{
 					type: 'subtotal',
 					title: 'Subtotal',
-					detail: `${symbol}${subtotal.toLocaleString()}`
+					detail: `${subtotal}`
 				}, {
 					type: 'tax',
 					title: 'Tax',
-					detail: `${symbol}${tax.toLocaleString()}`
+					detail: `${tax}`
 				}]} />
 			</Box>
 		</Paper>
@@ -115,6 +115,8 @@ const CartItemCell = ({ key, cartItem }: { key: string, cartItem: CartItem }) =>
 	}
 
 	const imageURL = (cartItem.imageURLs().length > 0) ? cartItem.imageURLs()[0] : undefined
+	const price = new Intl.NumberFormat('ja-JP', { style: 'currency', currency: cartItem.currency }).format(cartItem.price())
+	const subtotal = new Intl.NumberFormat('ja-JP', { style: 'currency', currency: cartItem.currency }).format(cartItem.subtotal())
 
 	return (
 		<ListItem key={key} dense>
@@ -126,11 +128,18 @@ const CartItemCell = ({ key, cartItem }: { key: string, cartItem: CartItem }) =>
 			<ListItemText
 				primary={
 					<Box display="flex" mx={2} my={1} >
-						<Box flexGrow={1} fontWeight={600} fontSize={20}>
-							<Typography variant='h6'>{`${cartItem.name}`}</Typography>
-							<Typography>{`${cartItem.displayPrice()}`}</Typography>
+						<Box flexGrow={1} fontWeight={600} fontSize={18}>
+							{cartItem.name}
+							<Box fontSize={16} fontWeight={400}>
+								{cartItem.caption}
+							</Box>
+							<Box fontSize={16} fontWeight={400} color='text.secondary'>
+								{price}
+							</Box>
 						</Box>
-						<Box fontWeight={600} fontSize={20}>{`${Symbol(cartItem.currency)}${cartItem.subtotal().toLocaleString()}`}</Box>
+						<Box fontSize={18} fontWeight={500} >
+							{subtotal}
+						</Box>
 					</Box>
 				}
 				secondary={

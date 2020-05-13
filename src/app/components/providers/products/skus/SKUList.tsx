@@ -1,5 +1,6 @@
 import React, { useContext } from 'react';
 import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
+import { Link } from 'react-router-dom'
 import { Box, Paper, Typography, Tooltip, IconButton, ListItemAvatar, Avatar, Button } from '@material-ui/core';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
@@ -20,8 +21,8 @@ const useStyles = makeStyles((theme: Theme) =>
 			width: '100%'
 		},
 		avater: {
-			width: theme.spacing(16),
-			height: theme.spacing(16),
+			width: theme.spacing(12),
+			height: theme.spacing(12),
 		}
 	}),
 );
@@ -39,15 +40,13 @@ export default ({ providerID, productID }: { providerID: string, productID: stri
 
 	if (isLoading) {
 		return (
-			<Paper className={classes.paper} >
-				<DataLoading />
-			</Paper>
+			<DataLoading />
 		)
 	}
 
 	return (
-		<Paper className={classes.paper} >
-			<List>
+		<Paper elevation={0}>
+			<List dense>
 				{skus.map(doc => {
 					return (
 						<SKUListItem product={product} sku={doc} />
@@ -63,6 +62,9 @@ const SKUListItem = ({ product, sku }: { product?: Product, sku: SKU }) => {
 	const [user] = useUser()
 	const [cart] = useCart()
 	const imageURL = (sku.imageURLs().length > 0) ? sku.imageURLs()[0] : undefined
+	const amount = sku.price || 0
+	const price = new Intl.NumberFormat('ja-JP', { style: 'currency', currency: sku.currency }).format(amount)
+
 	const addSKU = async (sku: SKU) => {
 		if (!product) return
 		if (user) {
@@ -84,9 +86,9 @@ const SKUListItem = ({ product, sku }: { product?: Product, sku: SKU }) => {
 	}
 
 	return (
-		<ListItem key={sku.id} >
+		<ListItem key={sku.id} button component={Link} to='/'>
 			<ListItemAvatar>
-				<Avatar className={classes.avater} variant="rounded" src={imageURL}>
+				<Avatar className={classes.avater} variant="rounded" src={imageURL} alt={sku.name}>
 					<ImageIcon />
 				</Avatar>
 			</ListItemAvatar>
@@ -94,9 +96,15 @@ const SKUListItem = ({ product, sku }: { product?: Product, sku: SKU }) => {
 				primary={
 					<>
 						<Box mx={2} my={0} >
-							<Typography variant="h6">{sku.name}</Typography>
-							<Typography>{sku.displayPrice()}</Typography>
-							<Typography variant="body2" color="textSecondary" component="p">{sku.caption}</Typography>
+							<Box fontSize={16} fontWeight={800}>
+								{sku.name}
+							</Box>
+							<Box>
+								{price}
+							</Box>
+							<Box color='text.secondary'>
+								{sku.caption}
+							</Box>
 						</Box>
 					</>
 				}
@@ -108,7 +116,8 @@ const SKUListItem = ({ product, sku }: { product?: Product, sku: SKU }) => {
 					</>
 				} />
 			<ListItemSecondaryAction>
-				<Tooltip title='Delete' onClick={() => {
+				<Tooltip title='Delete' onClick={(e) => {
+					e.stopPropagation()
 					deleteSKU(sku)
 					// const value = Number(qty.value) - 1
 					// qty.setValue(`${Math.max(0, value)}`)
@@ -118,7 +127,8 @@ const SKUListItem = ({ product, sku }: { product?: Product, sku: SKU }) => {
 					</IconButton>
 				</Tooltip>
 				{/* <Input variant='outlined' margin='dense' size='small' {...qty} style={{ width: '60px' }} /> */}
-				<Tooltip title='Add' onClick={() => {
+				<Tooltip title='Add' onClick={(e) => {
+					e.stopPropagation()
 					addSKU(sku)
 					// const value = Number(qty.value) + 1
 					// qty.setValue(`${value}`)
@@ -127,9 +137,6 @@ const SKUListItem = ({ product, sku }: { product?: Product, sku: SKU }) => {
 						<AddCircleIcon color='inherit' />
 					</IconButton>
 				</Tooltip>
-				{/* <Button variant="contained" color="primary" onClick={() => {
-						cart
-					}}>Add to Bag</Button> */}
 			</ListItemSecondaryAction>
 		</ListItem>
 	)

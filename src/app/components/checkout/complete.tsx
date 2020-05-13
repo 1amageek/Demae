@@ -12,7 +12,7 @@ export default (props: any) => {
 				Thank you.
 			</Box>
 			<Box display='flex' justifyContent='center' alignItems='center' padding={2} fontSize={20} fontWeight={400}>
-				<Link to="/">> Check your order</Link>
+				<Link to="/"> Check your order</Link>
 			</Box>
 		</Paper>
 	)

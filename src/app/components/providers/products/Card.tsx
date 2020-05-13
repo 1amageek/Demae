@@ -52,29 +52,6 @@ export default ({ providerID, product }: { providerID: string, product: Product 
 	const imageURL = product.imageURLs().length > 0 ? product.imageURLs()[0] : undefined
 
 	return (
-
-		// <Box>
-		// 	<Box
-		// 		width="100%"
-		// 		height="100%"
-		// 	>
-		// 		<Avatar variant="square" src={imageURL} alt={product.name} style={{
-		// 			height: '100%',
-		// 			width: '100%'
-		// 		}}>
-		// 			<ImageIcon />
-		// 		</Avatar>
-		// 	</Box>
-		// 	<Box padding={1}>
-		// 		<Box fontSize={18} fontWeight={800}>
-		// 			{product.name}
-		// 		</Box>
-		// 		<Box>
-		// 			{price}
-		// 		</Box>
-		// 	</Box>
-		// </Box>
-
 		<Card variant='outlined' style={{ border: 'none', background: 'none', borderRadius: '0px' }}>
 			<Link to={`/providers/${providerID}/products/${product.id}`}>
 				<CardActionArea>
@@ -93,7 +70,7 @@ export default ({ providerID, product }: { providerID: string, product: Product 
 				<Box fontSize={18} fontWeight={800}>
 					{product.name}
 				</Box>
-				<Box>
+				<Box color='text.secondary' >
 					{price}
 				</Box>
 			</CardContent>

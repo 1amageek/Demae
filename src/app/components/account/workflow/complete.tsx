@@ -12,7 +12,7 @@ export default ({ account }: { account: Account }) => {
 				Account registration is complete.
 			</Box>
 			<Box display='flex' justifyContent='center' alignItems='center' padding={2} fontSize={20} fontWeight={400}>
-				<Link to="/account/payment">> Show your account.</Link>
+				<Link to="/account/payment"> Show your account.</Link>
 			</Box>
 		</Paper>
 	)

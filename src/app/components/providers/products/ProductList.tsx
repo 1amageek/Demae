@@ -33,9 +33,7 @@ export default ({ providerID }: { providerID: string }) => {
 
 	if (isLoading) {
 		return (
-			<Paper className={classes.paper} >
-				<DataLoading />
-			</Paper>
+			<DataLoading />
 		)
 	}
 
