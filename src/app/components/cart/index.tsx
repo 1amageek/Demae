@@ -1,5 +1,6 @@
 import React, { useContext } from 'react';
 import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
+import { Link, useHistory } from 'react-router-dom'
 import { Box, Paper, Typography, Container, Grid, ListItemAvatar, Avatar, Tooltip, IconButton } from '@material-ui/core';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
@@ -49,6 +50,7 @@ export default () => {
 
 	return (
 		<Container maxWidth='sm'>
+			<Typography component="h2">Cart</Typography>
 			<Grid container spacing={2}>
 				{cart?.groups.map(group => {
 					return (
@@ -64,6 +66,7 @@ export default () => {
 
 const CartGroupList = ({ cartGroup }: { cartGroup: CartGroup }) => {
 
+	const history = useHistory()
 	const subtotal = new Intl.NumberFormat('ja-JP', { style: 'currency', currency: cartGroup.currency }).format(cartGroup.subtotal())
 	const tax = new Intl.NumberFormat('ja-JP', { style: 'currency', currency: cartGroup.currency }).format(cartGroup.tax())
 
@@ -75,15 +78,21 @@ const CartGroupList = ({ cartGroup }: { cartGroup: CartGroup }) => {
 				})}
 			</List>
 			<Box padding={2}>
-				<Summary cartGroup={cartGroup} items={[{
-					type: 'subtotal',
-					title: 'Subtotal',
-					detail: `${subtotal}`
-				}, {
-					type: 'tax',
-					title: 'Tax',
-					detail: `${tax}`
-				}]} />
+				<Summary
+					cartGroup={cartGroup}
+					onClick={(e) => {
+						e.preventDefault()
+						history.push(`/checkout/${cartGroup.providerID}`)
+					}}
+					items={[{
+						type: 'subtotal',
+						title: 'Subtotal',
+						detail: `${subtotal}`
+					}, {
+						type: 'tax',
+						title: 'Tax',
+						detail: `${tax}`
+					}]} />
 			</Box>
 		</Paper>
 	)
@@ -95,7 +104,9 @@ const CartItemCell = ({ key, cartItem }: { key: string, cartItem: CartItem }) =>
 	const [user] = useUser()
 	const [cart] = useCart()
 
-	const addItem = async () => {
+	const addItem = async (event) => {
+		event.preventDefault()
+		event.stopPropagation()
 		if (user) {
 			if (cart) {
 				cart.addItem(cartItem)
@@ -108,7 +119,9 @@ const CartItemCell = ({ key, cartItem }: { key: string, cartItem: CartItem }) =>
 		}
 	}
 
-	const deleteItem = async () => {
+	const deleteItem = async (event) => {
+		event.preventDefault()
+		event.stopPropagation()
 		if (!cart) { return }
 		cart.subtractItem(cartItem)
 		await cart.save()
@@ -119,7 +132,7 @@ const CartItemCell = ({ key, cartItem }: { key: string, cartItem: CartItem }) =>
 	const subtotal = new Intl.NumberFormat('ja-JP', { style: 'currency', currency: cartItem.currency }).format(cartItem.subtotal())
 
 	return (
-		<ListItem key={key} dense>
+		<ListItem key={key} dense button component={Link} to={`/providers/${cartItem.providedBy}/products/${cartItem.productReference!.id}/skus/${cartItem.skuReference!.id}`}>
 			<ListItemAvatar>
 				<Avatar className={classes.avater} variant="rounded" src={imageURL}>
 					<ImageIcon />
@@ -144,16 +157,16 @@ const CartItemCell = ({ key, cartItem }: { key: string, cartItem: CartItem }) =>
 				}
 				secondary={
 					<Box display="flex" justifyContent="flex-end" alignItems="center" mx={0} my={0}>
-						<Tooltip title='Remove' onClick={deleteItem}>
-							<IconButton>
+						<Tooltip title='Remove'>
+							<IconButton onClick={deleteItem}>
 								<RemoveCircleIcon color='inherit' />
 							</IconButton>
 						</Tooltip>
 						<Box fontWeight={600} fontSize={20} mx={1}>
 							{cartItem.quantity}
 						</Box>
-						<Tooltip title='Add' onClick={addItem}>
-							<IconButton>
+						<Tooltip title='Add'>
+							<IconButton onClick={addItem}>
 								<AddCircleIcon color='inherit' />
 							</IconButton>
 						</Tooltip>

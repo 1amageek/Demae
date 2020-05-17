@@ -4,8 +4,11 @@ import StyledFirebaseAuth from 'react-firebaseui/StyledFirebaseAuth'
 import firebase from 'firebase'
 import * as Commerce from 'models/commerce'
 import { CountryCode } from 'common/Country'
+import { useSnackbar } from 'components/Snackbar'
 
 export default ({ redirectURL = '/', defaultCountry = 'JP', onNext }: { redirectURL?: string, defaultCountry?: CountryCode, onNext?: (user: Commerce.User) => void }) => {
+
+	const [setMessage] = useSnackbar()
 
 	const uiConfig: firebaseui.auth.Config = {
 		signInFlow: 'popup',
@@ -27,6 +30,7 @@ export default ({ redirectURL = '/', defaultCountry = 'JP', onNext }: { redirect
 							user.country = defaultCountry
 							await user.save()
 						}
+						setMessage('success', `Welcome`)
 						if (redirectURL) {
 							Router.push(redirectURL)
 						}

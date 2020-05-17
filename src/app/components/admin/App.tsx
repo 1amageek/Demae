@@ -24,10 +24,10 @@ export default () => {
 	const classes = useStyles()
 	return (
 		<AdminProviderProvider>
+			<CssBaseline />
 			<Layout>
 				<main className={classes.content}>
 					<Container maxWidth='xl'>
-						<CssBaseline />
 						<App />
 					</Container>
 				</main>

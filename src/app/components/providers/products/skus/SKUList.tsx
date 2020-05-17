@@ -12,8 +12,12 @@ import RemoveCircleIcon from '@material-ui/icons/RemoveCircle';
 import DataLoading from 'components/DataLoading';
 import { useDataSourceListen, useDocumentListen, Where } from 'hooks/firestore';
 import { Provider, Product, SKU } from 'models/commerce';
-import { CartContext, useCart, useUser } from 'hooks/commerce'
+import { useCart, useUser } from 'hooks/commerce'
 import Cart from 'models/commerce/Cart';
+import NotFound from 'components/NotFound'
+import Login from 'components/Login'
+import { useDialog } from 'components/Dialog'
+import { useModal } from 'components/Modal';
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
@@ -29,27 +33,30 @@ const useStyles = makeStyles((theme: Theme) =>
 
 export default ({ providerID, productID }: { providerID: string, productID: string }) => {
 
-	const classes = useStyles()
 	const ref = new Provider(providerID)
 		.products.doc(productID, Product)
 		.skus
 		.collectionReference
 
-	const [skus, isLoading] = useDataSourceListen<SKU>(SKU, { path: ref.path, wheres: [Where('isAvailable', '==', true)], limit: 100 })
-	const [product] = useDocumentListen<Product>(Product, new Provider(providerID).products.collectionReference.doc(productID))
+	const [skus, isSKULoading] = useDataSourceListen<SKU>(SKU, { path: ref.path, wheres: [Where('isAvailable', '==', true)], limit: 100 })
+	const [product, isProductLoading] = useDocumentListen<Product>(Product, new Provider(providerID).products.collectionReference.doc(productID))
 
-	if (isLoading) {
+	if (isProductLoading || isSKULoading) {
 		return (
 			<DataLoading />
 		)
 	}
 
+	if (!product) {
+		return <NotFound />
+	}
+
 	return (
 		<Paper elevation={0}>
 			<List dense>
-				{skus.map(doc => {
+				{skus.map(sku => {
 					return (
-						<SKUListItem product={product} sku={doc} />
+						<SKUListItem key={sku.id} providerID={providerID} product={product} sku={sku} />
 					)
 				})}
 			</List>
@@ -57,26 +64,54 @@ export default ({ providerID, productID }: { providerID: string, productID: stri
 	)
 }
 
-const SKUListItem = ({ product, sku }: { product?: Product, sku: SKU }) => {
+const SKUListItem = ({ providerID, product, sku }: { providerID: string, product: Product, sku: SKU }) => {
 	const classes = useStyles()
 	const [user] = useUser()
 	const [cart] = useCart()
+	const [setDialog] = useDialog()
+	const [setModal, modalClose] = useModal()
+
 	const imageURL = (sku.imageURLs().length > 0) ? sku.imageURLs()[0] : undefined
 	const amount = sku.price || 0
 	const price = new Intl.NumberFormat('ja-JP', { style: 'currency', currency: sku.currency }).format(amount)
 
-	const addSKU = async (sku: SKU) => {
-		if (!product) return
+	const withLogin = async (sku: SKU, onNext: (sku: SKU) => void) => {
 		if (user) {
-			if (cart) {
-				cart.addSKU(product, sku)
-				await cart.save()
-			} else {
-				const cart = new Cart(user.id)
-				cart.addSKU(product, sku)
-				await cart.save()
-			}
+			onNext(sku)
+		} else {
+			setDialog('Please Login', undefined, [
+				{
+					title: 'Cancel',
+				},
+				{
+					title: 'OK',
+					variant: 'contained',
+					color: 'primary',
+					handler: () => {
+						setModal(<Login onNext={async (user) => {
+							onNext(sku)
+							modalClose()
+						}} />)
+					}
+				}
+			])
 		}
+	}
+
+	const addSKU = async (sku: SKU) => {
+		withLogin(sku, async (sku) => {
+			if (!product) return
+			if (user) {
+				if (cart) {
+					cart.addSKU(product, sku)
+					await cart.save()
+				} else {
+					const cart = new Cart(user.id)
+					cart.addSKU(product, sku)
+					await cart.save()
+				}
+			}
+		})
 	}
 
 	const deleteSKU = async (sku: SKU) => {
@@ -86,7 +121,7 @@ const SKUListItem = ({ product, sku }: { product?: Product, sku: SKU }) => {
 	}
 
 	return (
-		<ListItem key={sku.id} button component={Link} to='/'>
+		<ListItem button component={Link} to={`/providers/${providerID}/products/${product.id}/skus/${sku.id}`}>
 			<ListItemAvatar>
 				<Avatar className={classes.avater} variant="rounded" src={imageURL} alt={sku.name}>
 					<ImageIcon />
@@ -126,7 +161,6 @@ const SKUListItem = ({ product, sku }: { product?: Product, sku: SKU }) => {
 						<RemoveCircleIcon color='inherit' />
 					</IconButton>
 				</Tooltip>
-				{/* <Input variant='outlined' margin='dense' size='small' {...qty} style={{ width: '60px' }} /> */}
 				<Tooltip title='Add' onClick={(e) => {
 					e.stopPropagation()
 					addSKU(sku)

@@ -3,7 +3,8 @@ import User from './User'
 import Plan from './Plan'
 import Product, { ProductDraft } from './Product'
 import SKU from './SKU'
+import Cart from './Cart'
 import Order, { OrderItem } from './Order'
 import Subscription from './Subscription'
 import SubscriptionItem from './SubscriptionItem'
-export { Provider, User, Plan, Product, ProductDraft, SKU, Order, OrderItem, Subscription, SubscriptionItem }
+export { Provider, User, Plan, Product, ProductDraft, SKU, Cart, Order, OrderItem, Subscription, SubscriptionItem }

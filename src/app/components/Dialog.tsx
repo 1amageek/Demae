@@ -1,9 +1,10 @@
 import React, { createContext, useContext, useState } from 'react'
-import { Snackbar, Button, Dialog, DialogTitle, DialogContent, DialogActions, PropTypes } from '@material-ui/core';
+import { Button, Dialog, DialogTitle, DialogContent, DialogActions, PropTypes } from '@material-ui/core';
 
 interface Action {
 	title: string
 	autoFocus?: boolean
+	variant?: 'text' | 'outlined' | 'contained';
 	color?: PropTypes.Color
 	handler?: () => void
 }
@@ -17,28 +18,30 @@ interface Prop {
 const _Dialog = ({ open, title, body, actions, onClose }: { open: boolean, title?: string, body?: string, actions: Action[], onClose: () => void }) => {
 	if (open) {
 		return (
-			<Dialog onClose={onClose} open={open}>
-				<DialogTitle>
-					{title}
-				</DialogTitle>
-				<DialogContent dividers>
-					{body}
-				</DialogContent>
-				<DialogActions>
-					{actions.map((action, index) => {
-						return (
-							<Button key={index} autoFocus={action.autoFocus} onClick={() => {
-								if (action.handler) {
-									action.handler()
-								}
-								onClose()
-							}} color={action.color}>
-								{action.title}
-							</Button>
-						)
-					})
-					}
-				</DialogActions>
+			<Dialog onClose={onClose} open={open} maxWidth='md'>
+				<div style={{ minWidth: '280px' }}>
+					<DialogTitle>
+						{title}
+					</DialogTitle>
+					{body && <DialogContent dividers>
+						{body}
+					</DialogContent>}
+					<DialogActions>
+						{actions.map((action, index) => {
+							return (
+								<Button key={index} variant={action.variant} color={action.color} autoFocus={action.autoFocus} onClick={() => {
+									if (action.handler) {
+										action.handler()
+									}
+									onClose()
+								}}>
+									{action.title}
+								</Button>
+							)
+						})
+						}
+					</DialogActions>
+				</div>
 			</Dialog>
 		)
 	}

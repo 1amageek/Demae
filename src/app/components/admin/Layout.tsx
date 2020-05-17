@@ -11,7 +11,7 @@ import StorefrontIcon from '@material-ui/icons/Storefront';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import ImageIcon from '@material-ui/icons/Image';
 import MenuIcon from '@material-ui/icons/Menu';
-import { Drawer, CssBaseline, AppBar, Toolbar, List, ListItem, ListItemText, Avatar, Divider, Box, MenuItem, Menu, IconButton } from '@material-ui/core';
+import { Drawer, AppBar, Toolbar, List, ListItem, ListItemText, Avatar, Divider, Box, MenuItem, Menu, IconButton } from '@material-ui/core';
 import Provider, { Role } from 'models/commerce/Provider'
 import { useRoles, useUser, useAdminProvider } from 'hooks/commerce'
 import { useDocumentListen } from 'hooks/firestore'
@@ -119,7 +119,6 @@ export default ({ children }: { children: any }) => {
 				{list('left')}
 			</Drawer>
 			<Box display='flex' style={{ minHeight: '100vh' }} >
-				<CssBaseline />
 				<AppBar
 					color='inherit'
 					position='fixed'

@@ -1,10 +1,18 @@
-import { Doc, Field, firestore, CollectionReference, Codable, SubCollection, Collection } from '@1amageek/ballcap-admin'
+import { Doc, Field, Model, firestore, CollectionReference, Codable, SubCollection, Collection } from '@1amageek/ballcap-admin'
 import * as functions from 'firebase-functions'
 import { CountryCode } from '../../common/Country'
 import { CurrencyCode } from '../../common/Currency'
 import Shipping from './Shipping'
 import Order from './Order'
 import { Role } from './Provider'
+
+export class Card extends Model {
+	@Field brand!: string
+	@Field expMonth!: number
+	@Field expYear!: number
+	@Field last4!: string
+	@Field id!: string
+}
 
 export default class User extends Doc {
 
@@ -31,6 +39,8 @@ export default class User extends Doc {
 	@Field currency: CurrencyCode = 'USD'
 	@Codable(Shipping, true)
 	@Field defaultShipping?: Shipping
+	@Codable(Card, true)
+	@Field defaultCard?: Card
 	@Field defaultPaymentMethodID?: string
 
 	@SubCollection providers: Collection<Role> = new Collection()

@@ -12,12 +12,12 @@ const WarningColor = "#ffb300"
 const InfoColor = "#1a4fff"
 const SuccessColor = "#3ace55"
 
-const Bar = ({ open, severity, message, onClose }: { open: boolean, severity: Severity, message?: string, onClose: (event: React.SyntheticEvent | React.MouseEvent, reason?: string) => void }) => {
+const Bar = ({ open, severity, vertical, message, onClose }: { open: boolean, severity: Severity, vertical?: 'top' | 'bottom', message?: string, onClose: (event: React.SyntheticEvent | React.MouseEvent, reason?: string) => void }) => {
 	if (open) {
 		return (
 			<Snackbar
 				anchorOrigin={{
-					vertical: 'bottom',
+					vertical: vertical || 'top',
 					horizontal: 'center',
 				}}
 				open={open}
@@ -48,9 +48,10 @@ const Bar = ({ open, severity, message, onClose }: { open: boolean, severity: Se
 interface Prop {
 	message?: string
 	severity: Severity
+	vertical?: 'top' | 'bottom'
 }
 export type Severity = 'error' | 'warning' | 'info' | 'success'
-export const SnackbarContext = createContext<[(severity: Severity, message?: string) => void, boolean]>([() => { }, false])
+export const SnackbarContext = createContext<[(severity: Severity, message?: string, vertical?: 'top' | 'bottom') => void, boolean]>([() => { }, false])
 export const SnackbarProvider = ({ children }: { children: any }) => {
 	const [state, setState] = useState<Prop>({
 		message: undefined,
@@ -71,7 +72,7 @@ export const SnackbarProvider = ({ children }: { children: any }) => {
 	}
 	return (
 		<SnackbarContext.Provider value={[setMessageWithSeverity, open]}>
-			<Bar open={open} severity={state.severity} message={state.message} onClose={onClose} />
+			<Bar open={open} severity={state.severity} vertical={state.vertical} message={state.message} onClose={onClose} />
 			{children}
 		</SnackbarContext.Provider>
 	)

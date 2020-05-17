@@ -12,6 +12,7 @@ import { ProcessingProvider } from 'components/Processing'
 import { SnackbarProvider } from 'components/Snackbar'
 import { DialogProvider } from 'components/Dialog'
 import { ModalProvider } from 'components/Modal'
+import { DrawerProvider } from 'components/Drawer'
 
 const config = require(`${process.env.FIREBASE_PROJECT!}`)
 const isEmulated = process.env.EMULATE_ENV === "emulator"
@@ -29,31 +30,41 @@ if (firebase.apps.length === 0) {
 	Ballcap.initialize(app)
 }
 
-const Provider = ({ children }: { children: any }) => {
+const UIProvider = ({ children }: { children: any }) => {
 	return (
 		<ProcessingProvider>
-			<SnackbarProvider>
-				<DialogProvider>
-					<ModalProvider>
-						<AuthProvider>
-							<AdminProvider>
-								<AccountProvider>
-									<RolesProvider>
-										<AdminProviderProvider>
-											<UserProvider>
-												<CartProvider>
-													{children}
-												</CartProvider>
-											</UserProvider>
-										</AdminProviderProvider>
-									</RolesProvider>
-								</AccountProvider>
-							</AdminProvider>
-						</AuthProvider>
-					</ModalProvider>
-				</DialogProvider>
-			</SnackbarProvider>
+			<DrawerProvider>
+				<SnackbarProvider>
+					<DialogProvider>
+						<ModalProvider>
+							{children}
+						</ModalProvider>
+					</DialogProvider>
+				</SnackbarProvider>
+			</DrawerProvider>
 		</ProcessingProvider>
+	)
+}
+
+const Provider = ({ children }: { children: any }) => {
+	return (
+		<AuthProvider>
+			<AdminProvider>
+				<AccountProvider>
+					<RolesProvider>
+						<AdminProviderProvider>
+							<UserProvider>
+								<CartProvider>
+									<UIProvider>
+										{children}
+									</UIProvider>
+								</CartProvider>
+							</UserProvider>
+						</AdminProviderProvider>
+					</RolesProvider>
+				</AccountProvider>
+			</AdminProvider>
+		</AuthProvider>
 	)
 }
 

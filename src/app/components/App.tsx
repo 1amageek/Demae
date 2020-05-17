@@ -15,6 +15,7 @@ import Order from 'components/account/histories'
 import Payment from 'components/account/payments'
 import Provider from 'components/providers'
 import Product from 'components/providers/products'
+import SKU from 'components/providers/products/skus'
 import Checkout from 'components/checkout'
 import CheckoutCompleted from 'components/checkout/complete'
 import Shipping from 'components/checkout/shipping'
@@ -41,14 +42,16 @@ export default () => {
 		window.scrollTo(0, 0)
 	}, [history.location.pathname])
 	return (
-		<Box className={classes.box}>
-			<AppBar title={'Demae'} />
-			<main className={classes.content}>
-				<CssBaseline />
-				<App />
-			</main>
-			<TabBar />
-		</Box>
+		<>
+			<CssBaseline />
+			<Box className={classes.box}>
+				<AppBar title={'Demae'} />
+				<main className={classes.content}>
+					<App />
+				</main>
+				<TabBar />
+			</Box>
+		</>
 	);
 }
 
@@ -68,6 +71,7 @@ const App = () => {
 			<Route path={`/providers/:providerID`} exact component={Provider} />
 			<Route path={`/providers/:providerID/products`} exact component={Product} />
 			<Route path={`/providers/:providerID/products/:productID`} exact component={Product} />
+			<Route path={`/providers/:providerID/products/:productID/skus/:skuID`} exact component={SKU} />
 			<Route path={`/checkout/shipping/:shippingID`} exact component={Shipping} />
 			<Route path={`/checkout/shipping`} exact component={Shipping} />
 			<Route path={`/checkout`} exact component={Checkout} />

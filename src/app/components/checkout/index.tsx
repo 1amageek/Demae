@@ -206,6 +206,8 @@ const PaymentMethods = ({ user }: { user: Commerce.User }) => {
 	const [deletePaymentMethod, setDeletePaymentMethod] = useState<PaymentMethod | undefined>(undefined)
 	const [setDialog, close] = useDialog()
 
+	console.log(paymentMethods)
+
 	if (error) {
 		console.error(error)
 	}

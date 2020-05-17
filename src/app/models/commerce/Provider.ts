@@ -9,6 +9,8 @@ export class Role extends Doc {
 	@Field permissions: Permission[] = ['read', 'write', 'owner']
 }
 
+export type SNSProvider = 'twitter' | 'facebook' | 'instagram'
+
 export default class Provider extends Doc {
 
 	static collectionReference(): CollectionReference {
@@ -29,6 +31,8 @@ export default class Provider extends Doc {
 	@Field isAvailable: boolean = false
 	@Field isRejected: boolean = false
 	@Field isSigned: boolean = false
+	@Field url?: string
+	@Field sns?: { [key in SNSProvider]: any }
 	@Field metadata?: { [key: string]: any } = {}
 
 	@SubCollection products: Collection<Product> = new Collection()

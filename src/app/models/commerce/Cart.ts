@@ -57,12 +57,6 @@ export class CartItem extends Deliverable implements Accounting {
 	@Field description?: string
 	@Field metadata?: any
 
-	displayPrice() {
-		const symbol = Symbol(this.currency)
-		const amount = this.amount
-		return `${symbol}${amount.toLocaleString()}`
-	}
-
 	imageURLs() {
 		return this.images.map(image => {
 			if (image) {
@@ -101,6 +95,25 @@ export class CartItem extends Deliverable implements Accounting {
 
 	total() {
 		return this.subtotal() + this.tax()
+	}
+
+	static fromSKU(product: Product, sku: SKU) {
+		const cartItem: CartItem = new CartItem()
+		const images = sku.images.length > 0 ? sku.images : product.images
+		cartItem.images = images
+		cartItem.providedBy = sku.providedBy
+		cartItem.productType = product.type
+		cartItem.productReference = sku.productReference
+		cartItem.skuReference = sku.documentReference
+		cartItem.caption = sku.caption
+		cartItem.description = sku.description
+		cartItem.currency = sku.currency
+		cartItem.amount = sku.price
+		cartItem.discount = sku.discount
+		cartItem.name = sku.name
+		cartItem.taxRate = sku.taxRate
+		cartItem.quantity = 1
+		return cartItem
 	}
 }
 
@@ -154,6 +167,13 @@ export class CartGroup extends Model implements Accounting {
 
 	total() {
 		return this.subtotal() + this.tax()
+	}
+
+	static fromSKU(sku: SKU) {
+		const group = new CartGroup()
+		group.providerID = sku.providedBy
+		group.currency = sku.currency
+		return group
 	}
 }
 
@@ -221,9 +241,7 @@ export default class Cart extends Doc {
 		if (product.providedBy !== sku.providedBy) return
 		let group = this.groups.find(group => group.providerID === sku.providedBy)
 		if (!group) {
-			group = new CartGroup()
-			group.providerID = sku.providedBy
-			group.currency = sku.currency
+			group = CartGroup.fromSKU(sku)
 			this.groups.push(group)
 		}
 		group.shippable = group.shippable || product.shippable
@@ -236,21 +254,7 @@ export default class Cart extends Doc {
 		if (cartItem) {
 			cartItem.quantity += 1
 		} else {
-			const cartItem: CartItem = new CartItem()
-			const images = sku.images.length > 0 ? sku.images : product.images
-			cartItem.images = images
-			cartItem.providedBy = sku.providedBy
-			cartItem.productType = product.type
-			cartItem.productReference = sku.productReference
-			cartItem.skuReference = sku.documentReference
-			cartItem.caption = sku.caption
-			cartItem.description = sku.description
-			cartItem.currency = sku.currency
-			cartItem.amount = sku.price
-			cartItem.discount = sku.discount
-			cartItem.name = sku.name
-			cartItem.taxRate = sku.taxRate
-			cartItem.quantity = 1
+			const cartItem: CartItem = CartItem.fromSKU(product, sku)
 			group.items.push(cartItem)
 		}
 	}
