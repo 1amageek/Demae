@@ -99,23 +99,28 @@ export default ({ productID, skuID }: { productID?: string, skuID?: string }) =>
 							<TableCell align='right'></TableCell>
 						</TableRow>
 						<TableRow>
-							<TableCell align='right'><div>name</div></TableCell>
+							<TableCell align='right'><div>Name</div></TableCell>
 							<TableCell align='left'><div>{sku.name}</div></TableCell>
 							<TableCell align='right'></TableCell>
 						</TableRow>
 						<TableRow>
-							<TableCell align='right'><div>caption</div></TableCell>
+							<TableCell align='right'><div>Caption</div></TableCell>
 							<TableCell align='left'><div>{sku.caption}</div></TableCell>
 							<TableCell align='right'></TableCell>
 						</TableRow>
 						<TableRow>
-							<TableCell align='right'><div>description</div></TableCell>
+							<TableCell align='right'><div>Description</div></TableCell>
 							<TableCell align='left'><div>{sku.description}</div></TableCell>
 							<TableCell align='right'></TableCell>
 						</TableRow>
 						<TableRow>
-							<TableCell align='right'><div>price</div></TableCell>
+							<TableCell align='right'><div>Price</div></TableCell>
 							<TableCell align='left'><div>{sku.currency} {sku.price}</div></TableCell>
+							<TableCell align='right'></TableCell>
+						</TableRow>
+						<TableRow>
+							<TableCell align='right'><div>Tax rate</div></TableCell>
+							<TableCell align='left'><div>{sku.taxRate}%</div></TableCell>
 							<TableCell align='right'></TableCell>
 						</TableRow>
 						<TableRow>
@@ -125,7 +130,7 @@ export default ({ productID, skuID }: { productID?: string, skuID?: string }) =>
 						</TableRow>
 						{sku.inventory.type !== 'finite' &&
 							<TableRow>
-								<TableCell align='right'><div>inventory</div></TableCell>
+								<TableCell align='right'><div>Inventory</div></TableCell>
 								<TableCell align='left'>
 									<div>
 										{sku.inventory.type === 'infinite' && 'Infinite'}
@@ -153,6 +158,7 @@ const Edit = ({ product, sku, onClose }: { product: Product, sku: SKU, onClose: 
 	const name = useInput(sku?.name)
 	const caption = useInput(sku?.caption)
 	const price = useInput(sku?.price)
+	const taxRate = useInput(sku?.taxRate)
 	const description = useInput(sku?.description)
 	const currency = useSelect({
 		initValue: sku?.currency, inputProps: {
@@ -232,6 +238,7 @@ const Edit = ({ product, sku, onClose }: { product: Product, sku: SKU, onClose: 
 		sku.caption = caption.value
 		sku.description = description.value
 		sku.price = Number(price.value)
+		sku.taxRate = Number(taxRate.value)
 		sku.currency = currency.value as CurrencyCode
 		sku.inventory = {
 			type: inventory.value as StockType,
@@ -324,7 +331,7 @@ const Edit = ({ product, sku, onClose }: { product: Product, sku: SKU, onClose: 
 								<TableCell align='right'></TableCell>
 							</TableRow>
 							<TableRow>
-								<TableCell align='right'><div>name</div></TableCell>
+								<TableCell align='right'><div>Name</div></TableCell>
 								<TableCell align='left'>
 									<div>
 										<Input variant='outlined' margin='dense' required {...name} />
@@ -333,7 +340,7 @@ const Edit = ({ product, sku, onClose }: { product: Product, sku: SKU, onClose: 
 								<TableCell align='right'></TableCell>
 							</TableRow>
 							<TableRow>
-								<TableCell align='right'><div>caption</div></TableCell>
+								<TableCell align='right'><div>Caption</div></TableCell>
 								<TableCell align='left'>
 									<div>
 										<Input variant='outlined' margin='dense' {...caption} />
@@ -342,7 +349,7 @@ const Edit = ({ product, sku, onClose }: { product: Product, sku: SKU, onClose: 
 								<TableCell align='right'></TableCell>
 							</TableRow>
 							<TableRow>
-								<TableCell align='right'><div>description</div></TableCell>
+								<TableCell align='right'><div>Description</div></TableCell>
 								<TableCell align='left'>
 									<div>
 										<Input variant='outlined' margin='dense' {...description} />
@@ -351,7 +358,7 @@ const Edit = ({ product, sku, onClose }: { product: Product, sku: SKU, onClose: 
 								<TableCell align='right'></TableCell>
 							</TableRow>
 							<TableRow>
-								<TableCell align='right'><div>amount</div></TableCell>
+								<TableCell align='right'><div>Price</div></TableCell>
 								<TableCell align='left'>
 									<div>
 										<Select {...currency} />
@@ -360,6 +367,19 @@ const Edit = ({ product, sku, onClose }: { product: Product, sku: SKU, onClose: 
 											price.setValue(`${newPrice}`)
 										}} />
 									</div>
+								</TableCell>
+								<TableCell align='right'></TableCell>
+							</TableRow>
+							<TableRow>
+								<TableCell align='right'><div>Tax rate</div></TableCell>
+								<TableCell align='left'>
+									<Box display='flex' alignItems='center'>
+										<Input variant='outlined' margin='dense' type='number' style={{ width: '110px', marginLeft: '8px' }} value={taxRate.value} onChange={e => {
+											const newTaxRate = Math.floor(Number(e.target.value))
+											taxRate.setValue(`${newTaxRate}`)
+										}} />
+										<Box fontSize={16} fontWeight={500} paddingX={1}>%</Box>
+									</Box>
 								</TableCell>
 								<TableCell align='right'></TableCell>
 							</TableRow>

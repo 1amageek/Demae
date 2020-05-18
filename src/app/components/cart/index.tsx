@@ -98,7 +98,7 @@ const CartGroupList = ({ cartGroup }: { cartGroup: CartGroup }) => {
 	)
 }
 
-const CartItemCell = ({ key, cartItem }: { key: string, cartItem: CartItem }) => {
+const CartItemCell = ({ cartItem }: { cartItem: CartItem }) => {
 
 	const classes = useStyles()
 	const [user] = useUser()
@@ -132,15 +132,15 @@ const CartItemCell = ({ key, cartItem }: { key: string, cartItem: CartItem }) =>
 	const subtotal = new Intl.NumberFormat('ja-JP', { style: 'currency', currency: cartItem.currency }).format(cartItem.subtotal())
 
 	return (
-		<ListItem key={key} dense button component={Link} to={`/providers/${cartItem.providedBy}/products/${cartItem.productReference!.id}/skus/${cartItem.skuReference!.id}`}>
-			<ListItemAvatar>
+		<Box display='flex' padding={2}>
+			<Box>
 				<Avatar className={classes.avater} variant="rounded" src={imageURL}>
 					<ImageIcon />
 				</Avatar>
-			</ListItemAvatar>
-			<ListItemText
-				primary={
-					<Box display="flex" mx={2} my={1} >
+			</Box>
+			<Box flexGrow={1}>
+				<Box display="flex" justifyContent="space-between" flexGrow={1}>
+					<Box mx={2}>
 						<Box flexGrow={1} fontWeight={600} fontSize={18}>
 							{cartItem.name}
 							<Box fontSize={16} fontWeight={400}>
@@ -150,29 +150,30 @@ const CartItemCell = ({ key, cartItem }: { key: string, cartItem: CartItem }) =>
 								{price}
 							</Box>
 						</Box>
-						<Box fontSize={18} fontWeight={500} >
+					</Box>
+					<Box>
+						<Box display="flex" justifyContent="flex-end" fontSize={18} fontWeight={500} >
 							{subtotal}
 						</Box>
-					</Box>
-				}
-				secondary={
-					<Box display="flex" justifyContent="flex-end" alignItems="center" mx={0} my={0}>
-						<Tooltip title='Remove'>
-							<IconButton onClick={deleteItem}>
-								<RemoveCircleIcon color='inherit' />
-							</IconButton>
-						</Tooltip>
-						<Box fontWeight={600} fontSize={20} mx={1}>
-							{cartItem.quantity}
+						<Box display="flex" justifyContent="flex-end" alignItems="center" mx={0} my={0}>
+							<Tooltip title='Remove'>
+								<IconButton onClick={deleteItem}>
+									<RemoveCircleIcon color='inherit' />
+								</IconButton>
+							</Tooltip>
+							<Box fontWeight={600} fontSize={20} mx={1}>
+								{cartItem.quantity}
+							</Box>
+							<Tooltip title='Add'>
+								<IconButton onClick={addItem}>
+									<AddCircleIcon color='inherit' />
+								</IconButton>
+							</Tooltip>
 						</Box>
-						<Tooltip title='Add'>
-							<IconButton onClick={addItem}>
-								<AddCircleIcon color='inherit' />
-							</IconButton>
-						</Tooltip>
 					</Box>
-				} />
-		</ListItem>
+				</Box>
+			</Box>
+		</Box>
 	)
 }
 

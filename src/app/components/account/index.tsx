@@ -181,7 +181,7 @@ const ProviderListItem = ({ role }: { role: Role }) => {
 
 	return (
 		<>
-			<ListItem button>
+			<ListItem button component={Link} to={`/providers/${role.id}`}>
 				<ListItemIcon>
 					<StorefrontIcon />
 				</ListItemIcon>

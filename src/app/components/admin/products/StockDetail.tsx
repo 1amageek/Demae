@@ -21,7 +21,7 @@ export default ({ sku }: { sku: SKU }) => {
 
 	const [setProcessing] = useProcessing()
 	const [_stocks, isLoading] = useDataSourceListen<Stock>(Stock, {
-		path: sku.inventories.collectionReference.path
+		path: sku.stocks.collectionReference.path
 	})
 
 	const stocks = _stocks || []

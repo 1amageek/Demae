@@ -23,13 +23,13 @@ export default class SKU extends Doc {
 	@Field description?: string
 	@Field price: number = 0
 	@Field discount?: Discount
-	@Field taxRate: number = 0
+	@Field taxRate: number = 8
 	@Field inventory: Inventory = { type: 'finite', quantity: 1 }
 	@Field isPrivate: boolean = false
 	@Field isAvailable: boolean = true
 	@Field metadata?: any
 
-	@SubCollection inventories: Collection<Stock> = new Collection()
+	@SubCollection stocks: Collection<Stock> = new Collection()
 
 	displayPrice() {
 		const symbol = Symbol(this.currency)
@@ -38,7 +38,7 @@ export default class SKU extends Doc {
 	}
 
 	tax() {
-		return Math.floor(this.price * this.taxRate)
+		return Math.floor(this.price * this.taxRate / 100)
 	}
 
 	imageURLs() {

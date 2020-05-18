@@ -34,7 +34,6 @@ export default ({ user }: { user: Commerce.User }) => {
 	const pop = usePop()
 	const [setDialog, close] = useDialog()
 	const [deleteShipping, setDeleteShipping] = useState<Shipping | undefined>(undefined)
-
 	const [push] = usePush()
 
 	if (isLoading) {

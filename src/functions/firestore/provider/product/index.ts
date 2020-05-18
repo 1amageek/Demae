@@ -7,11 +7,9 @@ import Product from '../../../models/commerce/Product'
 
 import * as Plan from './Plan'
 import * as SKU from './SKU'
-import * as Role from './Role'
 
 export const plan = { ...Plan }
 export const sku = { ...SKU }
-export const role = { ...Role }
 
 const triggerdPath = '/commerce/{version}/providers/{uid}/products/{productID}'
 

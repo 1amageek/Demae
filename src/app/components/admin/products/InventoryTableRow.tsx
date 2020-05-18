@@ -17,7 +17,7 @@ export default ({ sku }: { sku: SKU }) => {
 	const [setModal, close] = useModal()
 	const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 	const [_stocks, isLoading] = useDataSourceListen<Stock>(Stock, {
-		path: sku.inventories.collectionReference.path
+		path: sku.stocks.collectionReference.path
 	})
 
 	const stocks = _stocks || []

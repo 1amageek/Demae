@@ -82,7 +82,7 @@ export class CartItem extends Deliverable implements Accounting {
 	}
 
 	tax() {
-		return Math.floor(this.subtotal() * this.taxRate)
+		return Math.floor(this.subtotal() * this.taxRate / 100)
 	}
 
 	taxRates() {

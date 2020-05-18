@@ -216,12 +216,13 @@ const PaymentMethods = ({ user }: { user: Commerce.User }) => {
 		setProcessing(true)
 		const customerUpdate = firebase.functions().httpsCallable('v1-stripe-customer-update')
 		try {
-			const result = await customerUpdate({
+			const response = await customerUpdate({
 				payment_method: method.id,
 				invoice_settings: {
 					default_payment_method: method.id
 				}
 			})
+			const { result, error } = response.data
 			user.defaultPaymentMethodID = method.id
 			await user.save()
 			console.log('[APP] set default payment method', result)
@@ -238,9 +239,10 @@ const PaymentMethods = ({ user }: { user: Commerce.User }) => {
 		setProcessing(true)
 		try {
 			const detach = firebase.functions().httpsCallable('v1-stripe-paymentMethod-detach')
-			const result = await detach({
+			const response = await detach({
 				paymentMethodID: deletePaymentMethod.id
 			})
+			const { result, error } = response.data
 			console.log('[APP] detach payment method', result)
 			const data = paymentMethods.filter(method => method.id !== deletePaymentMethod.id)
 			if (deletePaymentMethod.id === user.defaultPaymentMethodID) {

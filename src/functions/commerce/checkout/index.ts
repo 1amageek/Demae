@@ -80,7 +80,7 @@ export const create = regionFunctions.https.onCall(async (data, context) => {
 				// Transaction write
 				const stocks = await Promise.all(finiteSKUs.map(sku => {
 					const id = randomShard(sku.shardCharacters)
-					return transaction.get(sku.inventories.collectionReference.doc(id))
+					return transaction.get(sku.stocks.collectionReference.doc(id))
 				}))
 
 				finiteSKUs.forEach((sku, index) => {
@@ -175,7 +175,7 @@ export const create = regionFunctions.https.onCall(async (data, context) => {
 // 				// Transaction write
 // 				const stocks = await Promise.all(finiteSKUs.map(sku => {
 // 					const id = randomShard(sku.shardCharacters)
-// 					return transaction.get(sku.inventories.collectionReference.doc(id))
+// 					return transaction.get(sku.stocks.collectionReference.doc(id))
 // 				}))
 // 				finiteSKUs.forEach((sku, index) => {
 // 					const snapshot = stocks[index]
@@ -240,9 +240,9 @@ const checkOrder = async (order: Order) => {
 	}
 
 	// Finite
-	const finiteSKUInventories = await Promise.all(finiteSKUs.map(sku => sku.inventories.collectionReference.get()))
+	const finiteSKUStocks = await Promise.all(finiteSKUs.map(sku => sku.stocks.collectionReference.get()))
 	const finiteOutOfStock = finiteSKUs.find((sku, index) => {
-		const snapshot = finiteSKUInventories[index]
+		const snapshot = finiteSKUStocks[index]
 		const stockCount = snapshot.docs
 			.map(doc => Stock.fromSnapshot<Stock>(doc))
 			.reduce((prev, current) => prev + current.count, 0)

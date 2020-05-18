@@ -54,7 +54,7 @@ export const increase = regionFunctions.https.onCall(async (data, context) => {
 	// TODO: add permission
 
 	const tasks = shardCharacters.map(async (shard, index) => {
-		const ref = sku.inventories.collectionReference.doc(shard)
+		const ref = sku.stocks.collectionReference.doc(shard)
 		return admin.firestore().runTransaction(async transaction => {
 			const snapshot = await transaction.get(ref)
 			const data = snapshot.data()
@@ -120,7 +120,7 @@ export const update = regionFunctions.https.onCall(async (data, context) => {
 	// TODO: add permission
 
 	const tasks = shardCharacters.map(async (shard, index) => {
-		const ref = sku.inventories.collectionReference.doc(shard)
+		const ref = sku.stocks.collectionReference.doc(shard)
 		return admin.firestore().runTransaction(async transaction => {
 			let newCount = shardAmount
 			if (shardCharacters.length - 1 === index) {

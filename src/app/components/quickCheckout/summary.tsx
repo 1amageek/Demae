@@ -8,13 +8,12 @@ import Summary from 'components/cart/summary'
 import AddCircleIcon from '@material-ui/icons/AddCircle';
 import RemoveCircleIcon from '@material-ui/icons/RemoveCircle';
 import ErrorIcon from '@material-ui/icons/Error';
-import Login from 'components/Login'
+import NavigateNextIcon from '@material-ui/icons/NavigateNext';
 import Cart, { CartGroup, CartItem } from 'models/commerce/Cart'
 import DataLoading from 'components/DataLoading';
-import Shipping from 'models/commerce/Shipping';
-import { Card } from 'models/commerce/User';
 import { usePush } from 'components/Navigation';
 import ShippingAddressList from './ShippingAddress'
+import Card from './Card'
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
@@ -63,25 +62,32 @@ const SummaryPage = ({ cart, setCart, onNext }: { cart: Cart, setCart: (data) =>
 							e.preventDefault()
 							e.stopPropagation()
 							push(
-								<ShippingAddressList user={user!} />
+								<Card user={user!} />
 							)
 						}}>
 							<TableCell style={{ width: '90px' }}>
 								<Box color='text.secondary' fontWeight={700} flexGrow={1}>CARD</Box>
 							</TableCell>
 							<TableCell>
-								<Box flexGrow={1} >
-									{defaultCart?.brand}
+								<Box display="flex" alignItems="center" flexGrow={1} style={{ width: '240px' }}>
+									<Box display="flex" alignItems="center" flexGrow={1} fontSize={22}>
+										<i className={`pf pf-${defaultCart?.brand}`}></i>
+									</Box>
+									<Box justifySelf="flex-end" fontSize={16} fontWeight={500}>
+										{`• • • •  ${defaultCart?.last4}`}
+									</Box>
 								</Box>
 							</TableCell>
 							<TableCell>
-								<Box display='flex' flexGrow={1} justifyContent="flex-end" alignItems='center'>{!defaultCart && <ErrorIcon color="secondary" />}</Box>
+								<Box display='flex' flexGrow={1} justifyContent="flex-end" alignItems='center'>{defaultCart ? <NavigateNextIcon /> : <ErrorIcon color="secondary" />}</Box>
 							</TableCell>
 						</TableRow>
 						<TableRow onClick={(e) => {
 							e.preventDefault()
 							e.stopPropagation()
-							console.log("aaaa")
+							push(
+								<ShippingAddressList user={user!} />
+							)
 						}}>
 							<TableCell style={{ width: '90px' }}>
 								<Box color='text.secondary' fontWeight={700} flexGrow={1}>SHIPPING</Box>
@@ -93,7 +99,7 @@ const SummaryPage = ({ cart, setCart, onNext }: { cart: Cart, setCart: (data) =>
 								{defaultShipping?.address?.line1 && <Box>{`${defaultShipping?.address?.line1}${defaultShipping?.address?.line2}`}</Box>}
 							</TableCell>
 							<TableCell align='left'>
-								<Box display='flex' flexGrow={1} justifyContent="flex-end" alignItems='center'>{!defaultShipping && <ErrorIcon color="secondary" />}</Box>
+								<Box display='flex' flexGrow={1} justifyContent="flex-end" alignItems='center'>{defaultShipping ? <NavigateNextIcon /> : <ErrorIcon color="secondary" />}</Box>
 							</TableCell>
 						</TableRow>
 					</TableBody>

@@ -27,5 +27,5 @@ export default class SKU extends Doc {
 	@Field isAvailable: boolean = true
 	@Field metadata?: any
 
-	@SubCollection inventories: Collection<Stock> = new Collection()
+	@SubCollection stocks: Collection<Stock> = new Collection()
 }

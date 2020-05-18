@@ -1,7 +1,7 @@
 import { regionFunctions } from '../../../helper'
 import User from '../../../models/commerce/User'
 
-const triggerdPath = '/commerce/{version}/providers/{providerID}/roles/{userID}'
+const triggerdPath = '/commerce/{version}/providers/{providerID}/members/{userID}'
 
 export const onCreate = regionFunctions.firestore
 	.document(triggerdPath)
@@ -11,8 +11,9 @@ export const onCreate = regionFunctions.firestore
 		const userID = context.params.providerID
 		const user = new User(userID)
 		const data = snapshot.data()
+		console.log(`[Firestore][${snapshot.ref.path}][onCreate]`, data)
 		if (data) {
-			user.providers.collectionReference.doc(providerID).set(data)
+			await user.providers.collectionReference.doc(providerID).set(data)
 		}
 	})
 
@@ -24,7 +25,8 @@ export const onUpdate = regionFunctions.firestore
 		const userID = context.params.providerID
 		const user = new User(userID)
 		const data = snapshot.after.data()
+		console.log(`[Firestore][${snapshot.after.ref.path}][onUpdate]`, data)
 		if (data) {
-			user.providers.collectionReference.doc(providerID).set(data)
+			await user.providers.collectionReference.doc(providerID).set(data)
 		}
 	})

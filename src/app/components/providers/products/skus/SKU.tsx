@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Box, Grid, Avatar, Paper } from '@material-ui/core';
+import { Button, Box, Grid, Avatar, Paper, Container } from '@material-ui/core';
 import ImageIcon from '@material-ui/icons/Image';
 import { Provider, Product, SKU, Cart } from 'models/commerce';
 import DataLoading from 'components/DataLoading';
@@ -71,76 +71,97 @@ export default ({ providerID, productID, skuID }: { providerID: string, productI
 	}
 
 	if (isLoading || isProductLoading) {
-		return <DataLoading />
+		return (
+			<Container maxWidth='sm' disableGutters>
+				<DataLoading />
+			</Container>
+		)
 	}
 	if (!sku || !product) {
-		return <NotFound />
+		return (
+			<Container maxWidth='sm' disableGutters>
+				<NotFound />
+			</Container>
+		)
 	}
 	return (
 		<>
-			<Box
-				width="100%"
-				height="100%"
-			>
-				<Avatar variant="square" src={imageURL} alt={sku.name} style={{
-					minHeight: "200px",
-					height: '100%',
-					width: '100%'
-				}}>
-					<ImageIcon />
-				</Avatar>
-			</Box>
-			<Box padding={2}>
-				<Box>
-					<Box fontSize={22} fontWeight={800} paddingY={1}>
-						{sku.name}
-					</Box>
-					<Box fontSize={18} fontWeight={600}>
-						{sku.caption}
-					</Box>
-					<Box fontSize={18} fontWeight={600} color="text.secondary">
-						{price}
-					</Box>
+			<Container maxWidth='sm' disableGutters>
+				<Box
+					width="100%"
+					height="100%"
+				>
+					<Avatar variant="square" src={imageURL} alt={sku.name} style={{
+						minHeight: "200px",
+						height: '100%',
+						width: '100%'
+					}}>
+						<ImageIcon />
+					</Avatar>
+				</Box>
+				<Box padding={2}>
 					<Box>
-						{sku.description}
+						<Box fontSize={22} fontWeight={800} paddingY={1}>
+							{sku.name}
+						</Box>
+						<Box fontSize={18} fontWeight={600}>
+							{sku.caption}
+						</Box>
+						<Box fontSize={18} fontWeight={600} color="text.secondary">
+							{price}
+						</Box>
+						<Box>
+							{sku.description}
+						</Box>
 					</Box>
 				</Box>
-			</Box>
+			</Container>
+
 			<Box
 				zIndex={1050}
 				position='fixed'
 				bottom={58}
 				width='100%'
 				padding={1}
+				display='flex'
+				justifyContent='center'
 			>
-				<Paper elevation={3}>
-					<Box padding={1}>
-						<Grid container spacing={1}>
-							<Grid item xs={5}>
-								<Button fullWidth size='large'
-									startIcon={
-										<AddBoxIcon />
-									}
-									onClick={(e) => {
-										e.preventDefault()
-										addSKU(sku)
-									}}>Add to cart</Button>
+				<Container maxWidth='sm' disableGutters>
+					<Paper elevation={3}>
+						<Box padding={1}>
+							<Grid container spacing={1}>
+								<Grid item xs={5}>
+									<Button fullWidth
+										size='large'
+										style={{ fontSize: '13px' }}
+										startIcon={
+											<AddBoxIcon />
+										}
+										onClick={(e) => {
+											e.preventDefault()
+											addSKU(sku)
+										}}>Add to cart</Button>
+								</Grid>
+								<Grid item xs={7}>
+									<Button fullWidth
+										variant='contained'
+										color='primary'
+										size='large'
+										style={{ fontSize: '13px' }}
+										startIcon={
+											<PaymentIcon />
+										}
+										onClick={(e) => {
+											e.preventDefault()
+											showDrawer(
+												<QuickCheckout product={product} sku={sku} />
+											)
+										}}>Purchase now</Button>
+								</Grid>
 							</Grid>
-							<Grid item xs={7}>
-								<Button fullWidth variant='contained' color='primary' size='large'
-									startIcon={
-										<PaymentIcon />
-									}
-									onClick={(e) => {
-										e.preventDefault()
-										showDrawer(
-											<QuickCheckout product={product} sku={sku} />
-										)
-									}}>Purchase now</Button>
-							</Grid>
-						</Grid>
-					</Box>
-				</Paper>
+						</Box>
+					</Paper>
+				</Container>
 			</Box>
 		</>
 	)

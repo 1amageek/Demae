@@ -180,5 +180,3 @@ const CheckoutForm = () => {
 		)
 	}
 }
-
-
