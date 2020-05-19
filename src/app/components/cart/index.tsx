@@ -79,7 +79,7 @@ const CartGroupList = ({ cartGroup }: { cartGroup: CartGroup }) => {
 			</List>
 			<Box padding={2}>
 				<Summary
-					cartGroup={cartGroup}
+					disabled={false}
 					onClick={(e) => {
 						e.preventDefault()
 						history.push(`/checkout/${cartGroup.providerID}`)

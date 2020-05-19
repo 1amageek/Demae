@@ -1,11 +1,6 @@
 
 import React, { useState } from 'react'
 import firebase from 'firebase'
-import Link from 'next/link'
-import { File as StorageFile } from '@1amageek/ballcap'
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
-import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
 import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
@@ -126,7 +121,7 @@ export default ({ orderID, deliveryStatus, paymentStatus }: { orderID?: string, 
 								</>
 							} secondary={orderedDate.format('YYYY-MM-DD HH:mm:ss')} />
 							<ListItemSecondaryAction>
-								<Button variant='outlined' disabled>{Status[data.deliveryStatus]}</Button>
+								<Button variant='outlined' disabled style={{ fontSize: '12px', padding: '6px' }}>{Status[data.deliveryStatus]}</Button>
 							</ListItemSecondaryAction>
 						</ListItem>
 					)

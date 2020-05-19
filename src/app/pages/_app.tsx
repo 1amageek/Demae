@@ -33,15 +33,15 @@ if (firebase.apps.length === 0) {
 const UIProvider = ({ children }: { children: any }) => {
 	return (
 		<ProcessingProvider>
-			<DrawerProvider>
-				<SnackbarProvider>
-					<DialogProvider>
-						<ModalProvider>
+			<SnackbarProvider>
+				<DialogProvider>
+					<ModalProvider>
+						<DrawerProvider>
 							{children}
-						</ModalProvider>
-					</DialogProvider>
-				</SnackbarProvider>
-			</DrawerProvider>
+						</DrawerProvider>
+					</ModalProvider>
+				</DialogProvider>
+			</SnackbarProvider>
 		</ProcessingProvider>
 	)
 }

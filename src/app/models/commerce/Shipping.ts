@@ -10,17 +10,35 @@ export default class Shipping extends Doc {
 	@Field name?: string
 	@Field phone?: string
 
-	formatted(country: CountryCode = 'US') {
-		return `${
-			(this.name || "") +
-			", " +
-			(this.address?.line1 || "") +
-			" " +
-			(this.address?.line2 || "") +
-			" " +
-			(this.address?.city || "") +
-			" " +
-			(this.address?.state || "")}`
+	formatted(countryCode: CountryCode = 'US') {
+		switch (countryCode) {
+			case 'JP': {
+				return `${
+					(this.address?.postal_code || "") +
+					" " +
+					(this.address?.state || "") +
+					" " +
+					(this.address?.city || "") +
+					" " +
+					(this.address?.line1 || "") +
+					" " +
+					(this.address?.line2 || "")}`
+			}
+			default: {
+				return `${
+					(this.name || "") +
+					" " +
+					(this.address?.line1 || "") +
+					" " +
+					(this.address?.line2 || "") +
+					" " +
+					(this.address?.city || "") +
+					" " +
+					(this.address?.state || "") +
+					" " +
+					(this.address?.postal_code || "")}`
+			}
+		}
 	}
 
 	format(types: AddressType[]) {

@@ -66,7 +66,7 @@ service cloud.firestore {
 						allow read: if true;
 						allow write: if request.auth.uid == provider_id || isOwner() || isEditor();
 
-						match /inventories/{shard_key} {
+						match /stocks/{shard_key} {
 							allow read: if true;
 							allow write: if false;
 						}

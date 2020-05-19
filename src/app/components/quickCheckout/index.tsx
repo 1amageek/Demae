@@ -5,11 +5,9 @@ import { Stepper, StepLabel, Step, Button, Paper } from '@material-ui/core';
 import Check from '@material-ui/icons/Check';
 import { Container, Box, StepConnector, Slide } from '@material-ui/core';
 import { StepIconProps } from '@material-ui/core/StepIcon';
-import { Account } from 'models/account';
-import { CartGroup, CartItem } from 'models/commerce/Cart'
 import { SKU, Cart, Product } from 'models/commerce'
 import Navigation, { usePush, usePop } from 'components/Navigation'
-import Summary from './summary'
+import Summary from './Summary'
 
 const QontoConnector = withStyles({
 	alternativeLabel: {
@@ -57,23 +55,6 @@ const useQontoStepIconStyles = makeStyles({
 	},
 });
 
-function QontoStepIcon(props: StepIconProps) {
-	const classes = useQontoStepIconStyles();
-	const { active, completed } = props;
-
-	return (
-		<div
-			className={clsx(classes.root, {
-				[classes.active]: active,
-			})}
-		>
-			{completed ? <Check className={classes.completed} /> : <div className={classes.circle} />}
-		</div>
-	);
-}
-
-const Steps = ['Summary', 'Payment', 'Finish']
-
 const newCart = (product: Product, sku: SKU) => {
 	const cart = new Cart()
 	cart.addSKU(product, sku)
@@ -84,61 +65,14 @@ export default ({ product, sku }: { product: Product, sku: SKU }) => {
 
 	const [cartData, setCart] = useState(newCart(product, sku).data())
 	const cart = Cart.fromData<Cart>(cartData)
-	const [activeStep, setActiveStep] = useState(0);
-	const handleNext = () => {
-		setActiveStep((prevActiveStep) => prevActiveStep + 1);
-	};
-
-	const handleBack = () => {
-		setActiveStep((prevActiveStep) => prevActiveStep - 1);
-	};
 
 	return (
 		<Box>
-			<Stepper alternativeLabel activeStep={activeStep} connector={<QontoConnector />}>
-				{Steps.map((label) => (
-					<Step key={label}>
-						<StepLabel StepIconComponent={QontoStepIcon}>{label}</StepLabel>
-					</Step>
-				))}
-			</Stepper>
 			<Navigation>
-				{activeStep === 0 && <Summary cart={cart} setCart={setCart} onNext={handleNext} />}
+				<Summary cart={cart} providerID={product.providedBy} setCart={setCart} onNext={() => {
+
+				}} />
 			</Navigation>
 		</Box>
-	)
-}
-
-const Content = () => {
-	const [push] = usePush()
-	return (
-		<>
-			<Button onClick={() => {
-				push(
-					<Child />
-					// () => {
-					// 	const pop = usePop()
-					// 	return (
-					// 		<Paper>
-					// 			<Content />
-					// 			<Button onClick={() => {
-					// 				pop()
-					// 			}}>Pop</Button>
-					// 		</Paper>
-					// 	)
-					// }
-				)
-			}}>Push</Button>
-		</>
-	)
-}
-
-const Child = () => {
-	const pop = usePop()
-	return (
-		<Paper>
-			<Content />
-			<Button onClick={pop}>aaaa</Button>
-		</Paper>
 	)
 }

@@ -1,7 +1,6 @@
 import Paper from '@material-ui/core/Paper';
 import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
 import { Button, Box } from '@material-ui/core';
-import { CartGroup } from 'models/commerce/Cart'
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
@@ -23,7 +22,7 @@ type SummaryItem = {
 	detail: string
 }
 
-export default ({ cartGroup, items, onClick }: { cartGroup: CartGroup, items: SummaryItem[], onClick: (e) => void }) => {
+export default ({ items, disabled, onClick }: { items: SummaryItem[], disabled: boolean, onClick: (e) => void }) => {
 	const classes = useStyles()
 	return (
 		<Paper elevation={0} variant="outlined">
@@ -38,7 +37,13 @@ export default ({ cartGroup, items, onClick }: { cartGroup: CartGroup, items: Su
 				})}
 			</Box>
 			<Box className={classes.box}>
-				<Button className={classes.button} variant="contained" size="large" color="primary" onClick={onClick}>
+				<Button
+					disabled={disabled}
+					className={classes.button}
+					variant="contained"
+					size="large"
+					color="primary"
+					onClick={onClick}>
 					Checkout
       		</Button>
 			</Box>

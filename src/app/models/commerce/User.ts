@@ -1,17 +1,10 @@
-import { Doc, Field, firestore, CollectionReference, SubCollection, Collection, Codable, Model } from '@1amageek/ballcap'
+import { Doc, Field, firestore, CollectionReference, SubCollection, Collection, Codable } from '@1amageek/ballcap'
 import { CountryCode } from 'common/Country'
 import Shipping from './Shipping'
 import Order from './Order'
+import Card from './Card'
 import { Role } from './Provider'
 import { CurrencyCode } from 'common/Currency'
-
-export class Card extends Model {
-	@Field brand!: string
-	@Field expMonth!: number
-	@Field expYear!: number
-	@Field last4!: string
-	@Field id!: string
-}
 
 export default class User extends Doc {
 
@@ -28,7 +21,6 @@ export default class User extends Doc {
 	@Field defaultShipping?: Shipping
 	@Codable(Card, true)
 	@Field defaultCard?: Card
-	@Field defaultPaymentMethodID?: string
 
 	@SubCollection providers: Collection<Role> = new Collection()
 	@SubCollection shippingAddresses: Collection<Shipping> = new Collection()

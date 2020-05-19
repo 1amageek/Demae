@@ -29,7 +29,7 @@ export default (props: any) => {
 	const [setProcessing] = useProcessing()
 	const [setMessage] = useSnackbar()
 
-	const enabled = (user?.customerID && user?.defaultPaymentMethodID && user?.defaultShipping)
+	const enabled = (user?.customerID && user?.defaultCard?.id && user?.defaultShipping)
 
 	const checkout = async () => {
 		if (!user) { return }
@@ -44,7 +44,7 @@ export default (props: any) => {
 		if (!defaultShipping) { return }
 
 		// paymentMethodID
-		const paymentMethodID = user.defaultPaymentMethodID
+		const paymentMethodID = user.defaultCard?.id
 		if (!paymentMethodID) { return }
 
 		const cartGroup = cart.groups.find(group => group.providerID === providerID)
@@ -200,7 +200,6 @@ const ShippingAddresses = ({ user }: { user: Commerce.User }) => {
 
 const PaymentMethods = ({ user }: { user: Commerce.User }) => {
 
-	const history = useHistory()
 	const [setProcessing] = useProcessing()
 	const [paymentMethods, isLoading, error, setPaymentMethods] = useFetchList<PaymentMethod>('v1-stripe-paymentMethod-list', { type: 'card' })
 	const [deletePaymentMethod, setDeletePaymentMethod] = useState<PaymentMethod | undefined>(undefined)
@@ -212,19 +211,31 @@ const PaymentMethods = ({ user }: { user: Commerce.User }) => {
 		console.error(error)
 	}
 
-	const setDefaultPaymentMethod = async (method: PaymentMethod) => {
+	const setDefaultPaymentMethod = async (paymentMethod: PaymentMethod) => {
 		setProcessing(true)
 		const customerUpdate = firebase.functions().httpsCallable('v1-stripe-customer-update')
 		try {
 			const response = await customerUpdate({
-				payment_method: method.id,
+				payment_method: paymentMethod.id,
 				invoice_settings: {
-					default_payment_method: method.id
+					default_payment_method: paymentMethod.id
 				}
 			})
 			const { result, error } = response.data
-			user.defaultPaymentMethodID = method.id
-			await user.save()
+
+			if (error) {
+				console.error(error)
+				setProcessing(false)
+				return
+			}
+			const card = new Commerce.Card(paymentMethod.id)
+			card.brand = paymentMethod.card!.brand
+			card.expMonth = paymentMethod.card!.exp_month
+			card.expYear = paymentMethod.card!.exp_year
+			card.last4 = paymentMethod.card!.last4
+			await user.documentReference.set({
+				defaultCard: card.convert()
+			}, { merge: true })
 			console.log('[APP] set default payment method', result)
 		} catch (error) {
 			console.error(error)
@@ -245,13 +256,14 @@ const PaymentMethods = ({ user }: { user: Commerce.User }) => {
 			const { result, error } = response.data
 			console.log('[APP] detach payment method', result)
 			const data = paymentMethods.filter(method => method.id !== deletePaymentMethod.id)
-			if (deletePaymentMethod.id === user.defaultPaymentMethodID) {
+			if (deletePaymentMethod.id === user.defaultCard?.id) {
 				if (data.length > 0) {
 					const method = data[0]
 					await setDefaultPaymentMethod(method)
 				} else {
-					user.defaultPaymentMethodID = undefined
-					await user.save()
+					await user.documentReference.set({
+						defaultCard: null
+					}, { merge: true })
 				}
 			}
 			setPaymentMethods(data)
@@ -289,7 +301,7 @@ const PaymentMethods = ({ user }: { user: Commerce.User }) => {
 										await setDefaultPaymentMethod(method)
 									}}
 									onFocus={(event) => event.stopPropagation()}
-									control={<Checkbox checked={user.defaultPaymentMethodID === method.id} />}
+									control={<Checkbox checked={user?.defaultCard?.id === method.id} />}
 									label={
 										<Box display="flex" alignItems="center" flexGrow={1} style={{ width: '140px' }}>
 											<Box display="flex" alignItems="center" flexGrow={1}>
@@ -335,7 +347,7 @@ const PaymentMethods = ({ user }: { user: Commerce.User }) => {
 			}
 			<List>
 				<ListItem button onClick={() => {
-					history.push(`/checkout/paymentMethod`)
+
 				}}>
 					<ListItemIcon>
 						<AddIcon color="secondary" />

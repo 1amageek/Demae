@@ -34,8 +34,8 @@
 		"install-deps": "cd \"dist/functions\" && npm i"
 	},
 	"dependencies": {
-		"@1amageek/ballcap": "^1.2.1",
-		"@1amageek/ballcap-admin": "^1.2.1",
+		"@1amageek/ballcap": "^1.2.4",
+		"@1amageek/ballcap-admin": "^1.2.4",
 		"@material-ui/core": "latest",
 		"@material-ui/icons": "latest",
 		"@material-ui/styles": "latest",

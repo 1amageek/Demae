@@ -30,10 +30,10 @@ const _Dialog = ({ open, title, body, actions, onClose }: { open: boolean, title
 						{actions.map((action, index) => {
 							return (
 								<Button key={index} variant={action.variant} color={action.color} autoFocus={action.autoFocus} onClick={() => {
+									onClose()
 									if (action.handler) {
 										action.handler()
 									}
-									onClose()
 								}}>
 									{action.title}
 								</Button>

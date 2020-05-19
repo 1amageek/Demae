@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import firebase from 'firebase'
 import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
+import { useHistory } from 'react-router-dom'
 import { Box, Paper, TableContainer, Table, TableBody, TableCell, TableRow, Avatar, Tooltip, IconButton, Slide, Button } from '@material-ui/core';
-
 import ImageIcon from '@material-ui/icons/Image';
 import { useUser, useCart } from 'hooks/commerce';
 import Summary from 'components/cart/summary'
@@ -14,6 +15,8 @@ import DataLoading from 'components/DataLoading';
 import { usePush } from 'components/Navigation';
 import ShippingAddressList from './ShippingAddress'
 import Card from './Card'
+import { useProcessing } from 'components/Processing';
+import { useSnackbar } from 'components/Snackbar'
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
@@ -24,30 +27,67 @@ const useStyles = makeStyles((theme: Theme) =>
 	}),
 );
 
-type View = 'summary' | 'card' | 'shipping'
 
-export default ({ cart, setCart, onNext }: { cart: Cart, setCart: (data) => void, onNext: () => void }) => {
-
-	const [view, setView] = useState<View>('summary')
-	const [open, setOpen] = useState(false)
-
-	return (
-		<SummaryPage cart={cart} setCart={setCart} onNext={() => {
-			setOpen(true)
-		}} />
-	)
-}
-
-
-const SummaryPage = ({ cart, setCart, onNext }: { cart: Cart, setCart: (data) => void, onNext: () => void }) => {
+export default ({ cart, providerID, setCart, onNext }: { cart: Cart, providerID: string, setCart: (data) => void, onNext: () => void }) => {
 	const [user, isUserLoading] = useUser()
+	const history = useHistory()
 	const defaultShipping = user?.defaultShipping
 	const defaultCart = user?.defaultCard
 	const cartGroup = cart.groups[0]
 	const subtotal = new Intl.NumberFormat('ja-JP', { style: 'currency', currency: cartGroup.currency }).format(cartGroup.subtotal())
 	const tax = new Intl.NumberFormat('ja-JP', { style: 'currency', currency: cartGroup.currency }).format(cartGroup.tax())
 
+	const [setProcessing] = useProcessing()
+	const [setMessage] = useSnackbar()
 	const [push] = usePush()
+
+	const checkout = async () => {
+		if (!user) { return }
+		if (!cart) { return }
+
+		// customerID
+		const customerID = user.customerID
+		if (!customerID) { return }
+
+		// defaultShipping
+		const defaultShipping = user.defaultShipping
+		if (!defaultShipping) { return }
+
+		// paymentMethodID
+		const paymentMethodID = user.defaultCard?.id
+		if (!paymentMethodID) { return }
+
+		const cartGroup = cart.groups.find(group => group.providerID === providerID)
+		if (!cartGroup) { return }
+
+		cartGroup.shipping = defaultShipping
+		const data = cart.order(user.id, cartGroup)
+
+		try {
+			setProcessing(true)
+			const checkoutCreate = firebase.functions().httpsCallable('v1-commerce-checkout-create')
+			const response = await checkoutCreate({
+				order: data,
+				paymentMethodID: paymentMethodID,
+				customerID: customerID
+			})
+			const { error, result } = response.data
+			if (error) {
+				console.error(error)
+				setMessage("error", "Error")
+				setProcessing(false)
+				return
+			}
+			console.log(result)
+			setMessage("success", "Success")
+			history.push(`/checkout/${providerID}/completed`)
+		} catch (error) {
+			setMessage("error", "Error")
+			console.log(error)
+		}
+		setProcessing(false)
+	}
+
 
 	if (isUserLoading) {
 		return <DataLoading />
@@ -69,14 +109,16 @@ const SummaryPage = ({ cart, setCart, onNext }: { cart: Cart, setCart: (data) =>
 								<Box color='text.secondary' fontWeight={700} flexGrow={1}>CARD</Box>
 							</TableCell>
 							<TableCell>
-								<Box display="flex" alignItems="center" flexGrow={1} style={{ width: '240px' }}>
-									<Box display="flex" alignItems="center" flexGrow={1} fontSize={22}>
-										<i className={`pf pf-${defaultCart?.brand}`}></i>
+								{defaultCart &&
+									<Box display="flex" alignItems="center" flexGrow={1} style={{ width: '180px' }}>
+										<Box display="flex" alignItems="center" flexGrow={1} fontSize={22}>
+											<i className={`pf pf-${defaultCart?.brand}`}></i>
+										</Box>
+										<Box justifySelf="flex-end" fontSize={16} fontWeight={500}>
+											{`• • • •  ${defaultCart?.last4}`}
+										</Box>
 									</Box>
-									<Box justifySelf="flex-end" fontSize={16} fontWeight={500}>
-										{`• • • •  ${defaultCart?.last4}`}
-									</Box>
-								</Box>
+								}
 							</TableCell>
 							<TableCell>
 								<Box display='flex' flexGrow={1} justifyContent="flex-end" alignItems='center'>{defaultCart ? <NavigateNextIcon /> : <ErrorIcon color="secondary" />}</Box>
@@ -86,7 +128,7 @@ const SummaryPage = ({ cart, setCart, onNext }: { cart: Cart, setCart: (data) =>
 							e.preventDefault()
 							e.stopPropagation()
 							push(
-								<ShippingAddressList user={user!} />
+								<ShippingAddressList />
 							)
 						}}>
 							<TableCell style={{ width: '90px' }}>
@@ -112,10 +154,10 @@ const SummaryPage = ({ cart, setCart, onNext }: { cart: Cart, setCart: (data) =>
 					})}
 				</Box>
 				<Summary
-					cartGroup={cartGroup}
+					disabled={isUserLoading}
 					onClick={(e) => {
 						e.preventDefault()
-						onNext()
+						checkout()
 					}}
 					items={[{
 						type: 'subtotal',
@@ -183,17 +225,21 @@ const CartItemCell = React.forwardRef(({ cart, cartItem, setCart }: { cart: Cart
 						</Box>
 						<Box display="flex" justifyContent="flex-end" alignItems="center" mx={0} my={0}>
 							<Tooltip title='Remove'>
-								<IconButton onClick={deleteItem} disabled={cartItem.quantity === 1}>
-									<RemoveCircleIcon color='inherit' />
-								</IconButton>
+								<div>
+									<IconButton onClick={deleteItem} disabled={cartItem.quantity === 1}>
+										<RemoveCircleIcon color='inherit' />
+									</IconButton>
+								</div>
 							</Tooltip>
 							<Box fontWeight={600} fontSize={20} mx={1}>
 								{cartItem.quantity}
 							</Box>
 							<Tooltip title='Add'>
-								<IconButton onClick={addItem}>
-									<AddCircleIcon color='inherit' />
-								</IconButton>
+								<div>
+									<IconButton onClick={addItem}>
+										<AddCircleIcon color='inherit' />
+									</IconButton>
+								</div>
 							</Tooltip>
 						</Box>
 					</Box>

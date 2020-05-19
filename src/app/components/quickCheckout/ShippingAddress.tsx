@@ -8,17 +8,14 @@ import { List, ListItem, ListItemText, ListItemIcon, Button } from '@material-ui
 import { Table, TableBody, TableRow, TableCell } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
 import { Tooltip, IconButton } from '@material-ui/core';
-import { useUserShippingAddresses } from 'hooks/commerce'
+import { useUserShippingAddresses, useUser } from 'hooks/commerce'
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
-import Shipping from 'models/commerce/Shipping';
 import Loading from 'components/Loading'
 import { Container, ExpansionPanel, ExpansionPanelSummary, ExpansionPanelDetails, ExpansionPanelActions, Divider, Box } from '@material-ui/core';
 import Typography from '@material-ui/core/Typography';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import DataLoading from 'components/DataLoading';
 import * as Commerce from 'models/commerce'
-import { PaymentMethod } from '@stripe/stripe-js';
-import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import Select, { useSelect } from 'components/Select'
 import Input, { useInput } from 'components/Input';
 import { SupportedCountries, CountryCode } from 'common/Country';
@@ -27,16 +24,18 @@ import { useSnackbar } from 'components/Snackbar'
 import { useAuthUser } from 'hooks/auth'
 import { useDialog } from 'components/Dialog'
 import { usePush, usePop } from 'components/Navigation';
+import { Shipping } from 'models/commerce';
 
-export default ({ user }: { user: Commerce.User }) => {
+export default () => {
 
+	const [user, isUserLoading] = useUser()
 	const [shippingAddresses, isLoading] = useUserShippingAddresses()
-	const pop = usePop()
-	const [setDialog, close] = useDialog()
-	const [deleteShipping, setDeleteShipping] = useState<Shipping | undefined>(undefined)
-	const [push] = usePush()
 
-	if (isLoading) {
+	const [setDialog, close] = useDialog()
+	const [push] = usePush()
+	const pop = usePop()
+
+	if (isLoading || isUserLoading) {
 		return (
 			<Paper>
 				<DataLoading />
@@ -62,19 +61,20 @@ export default ({ user }: { user: Commerce.User }) => {
 			</AppBar>
 			{
 				shippingAddresses.map(shipping => {
+					console.log(shipping.id)
 					return (
 						<ExpansionPanel key={shipping.id} >
 							<ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
 								<FormControlLabel
 									onClick={async (event) => {
 										event.stopPropagation()
+										if (!user) return;
 										user.defaultShipping = shipping
-										await user.save()
+										await user?.save()
 									}}
 									onFocus={(event) => event.stopPropagation()}
-									control={<Checkbox checked={user.defaultShipping?.id === shipping.id} />}
+									control={<Checkbox checked={user?.defaultShipping?.id === shipping.id} />}
 									label={
-
 										<Typography>{shipping.format(['postal_code', 'line1'])}</Typography>
 									}
 								/>
@@ -87,8 +87,6 @@ export default ({ user }: { user: Commerce.User }) => {
 							<Divider />
 							<ExpansionPanelActions>
 								<Button size="small" onClick={async () => {
-									// await shipping.delete()
-									setDeleteShipping(shipping)
 									setDialog('Delete', 'Do you want to remove it?', [
 										{
 											title: 'Cancel',
@@ -97,11 +95,20 @@ export default ({ user }: { user: Commerce.User }) => {
 										{
 											title: 'OK',
 											handler: async () => {
-												await deleteShipping?.delete()
+												if (user?.defaultShipping?.id === shipping.id) {
+													setDialog('Selected shipping address', 'This shipping address is currently selected. To delete this shipping address, please select another shipping address first.',
+														[
+															{
+																title: 'OK'
+															}])
+												} else {
+													await shipping?.delete()
+												}
 											}
 										}])
 								}}>Delete</Button>
 								<Button size="small" color="primary" onClick={() => {
+									if (!user) return;
 									push(
 										<ShippingAddress user={user} shipping={shipping} />
 									)
@@ -115,6 +122,7 @@ export default ({ user }: { user: Commerce.User }) => {
 			}
 			<List>
 				<ListItem button onClick={() => {
+					if (!user) return;
 					const shipping = new Shipping(user.shippingAddresses.collectionReference.doc())
 					push(
 						<ShippingAddress user={user} shipping={shipping} />
@@ -168,7 +176,6 @@ const ShippingAddress = ({ user, shipping }: { user: Commerce.User, shipping: Sh
 const Form = ({ user, shipping }: { user: Commerce.User, shipping: Shipping }) => {
 	const classes = useStyles()
 	const [auth] = useAuthUser();
-	const pop = usePop()
 	const [isProcessing, setProcessing] = useState(false)
 	const country = useSelect({
 		initValue: shipping.address?.country || user.country || "US",
@@ -184,6 +191,7 @@ const Form = ({ user, shipping }: { user: Commerce.User, shipping: Shipping }) =
 	const line2 = useInput(shipping.address?.line2)
 	const postal_code = useInput(shipping.address?.postal_code)
 	const name = useInput(shipping.name)
+	const pop = usePop()
 
 	const onSubmit = async (event) => {
 		event.preventDefault()
@@ -203,7 +211,7 @@ const Form = ({ user, shipping }: { user: Commerce.User, shipping: Shipping }) =
 		shipping.phone = auth!.phoneNumber || ''
 		await Promise.all([
 			shipping.save(),
-			user.documentReference.set({ defaultShipping: shipping.data() }, { merge: true })
+			user.documentReference.set({ defaultShipping: shipping.convert({ convertDocument: true }) }, { merge: true })
 		])
 		pop()
 		setProcessing(false)

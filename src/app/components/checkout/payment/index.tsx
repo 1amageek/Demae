@@ -112,6 +112,11 @@ const CheckoutForm = () => {
 					paymentMethodID: paymentMethod.id
 				})
 				const { error, result } = response.data
+				if (error) {
+					console.error(error)
+					setProcessing(false)
+					return
+				}
 				console.log('[APP] attach payment method', result)
 			} else {
 				const create = firebase.functions().httpsCallable('v1-stripe-customer-create')
@@ -126,9 +131,16 @@ const CheckoutForm = () => {
 					}
 				})
 				const { error, result } = response.data
+
+				if (error) {
+					console.error(error)
+					setProcessing(false)
+					return
+				}
+
 				console.log('[APP] create customer', result)
-				if (result.data) {
-					const customerID = result.data.id
+				if (result) {
+					const customerID = result.id
 					updateData['customerID'] = customerID
 				}
 			}

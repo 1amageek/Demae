@@ -10,14 +10,13 @@ import {
 } from '@stripe/react-stripe-js'
 import 'firebase/functions'
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
-import { Paper, AppBar, Toolbar, Button, Typography, Tooltip, IconButton, FormControlLabel, Checkbox } from '@material-ui/core'
+import { Paper, AppBar, Toolbar, Button, Typography, Tooltip, IconButton, FormControlLabel, Checkbox, Card } from '@material-ui/core'
 import { List, ListItem, ListItemText, ListItemIcon } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
 import Loading from 'components/Loading'
 import { Container, ExpansionPanel, ExpansionPanelSummary, ExpansionPanelDetails, ExpansionPanelActions, Divider, Box } from '@material-ui/core';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import * as Commerce from 'models/commerce'
-import { Card } from 'models/commerce/User'
 import { PaymentMethod } from '@stripe/stripe-js'
 import DataLoading from 'components/DataLoading';
 import { useDialog } from 'components/Dialog'
@@ -45,23 +44,27 @@ export default ({ user }: { user: Commerce.User }) => {
 		const customerUpdate = firebase.functions().httpsCallable('v1-stripe-customer-update')
 		try {
 			const response = await customerUpdate({
-				payment_method: paymentMethod.id,
+				// payment_method: paymentMethod.id,
 				invoice_settings: {
 					default_payment_method: paymentMethod.id
 				}
 			})
 			const { result, error } = response.data
-			user.defaultPaymentMethodID = paymentMethod.id
-			if (paymentMethod.card) {
-				const card = new Card()
-				card.id = paymentMethod.id
-				card.brand = paymentMethod.card.brand
-				card.expMonth = paymentMethod.card.exp_month
-				card.expYear = paymentMethod.card.exp_year
-				card.last4 = paymentMethod.card.last4
-				user.defaultCard = card
+
+			if (error) {
+				console.error(error)
+				setProcessing(false)
+				return
 			}
-			await user.save()
+
+			const card = new Commerce.Card(paymentMethod.id)
+			card.brand = paymentMethod.card!.brand
+			card.expMonth = paymentMethod.card!.exp_month
+			card.expYear = paymentMethod.card!.exp_year
+			card.last4 = paymentMethod.card!.last4
+			await user.documentReference.set({
+				defaultCard: card.convert()
+			}, { merge: true })
 			console.log('[APP] set default payment method', result)
 		} catch (error) {
 			console.error(error)
@@ -70,7 +73,7 @@ export default ({ user }: { user: Commerce.User }) => {
 		pop()
 	}
 
-	const paymentMethodDetach = async () => {
+	const paymentMethodDetach = async (deletePaymentMethod: PaymentMethod) => {
 		if (!deletePaymentMethod) {
 			return
 		}
@@ -81,15 +84,24 @@ export default ({ user }: { user: Commerce.User }) => {
 				paymentMethodID: deletePaymentMethod.id
 			})
 			const { result, error } = response.data
+
+			if (error) {
+				console.error(error)
+				setProcessing(false)
+				return
+			}
+
 			console.log('[APP] detach payment method', result)
 			const data = paymentMethods.filter(method => method.id !== deletePaymentMethod.id)
-			if (deletePaymentMethod.id === user.defaultPaymentMethodID) {
+			console.log(data)
+			if (deletePaymentMethod.id === user.defaultCard?.id) {
 				if (data.length > 0) {
 					const method = data[0]
 					await setDefaultPaymentMethod(method)
 				} else {
-					user.defaultPaymentMethodID = undefined
-					await user.save()
+					await user.documentReference.set({
+						defaultCard: null
+					}, { merge: true })
 				}
 			}
 			setPaymentMethods(data)
@@ -134,7 +146,7 @@ export default ({ user }: { user: Commerce.User }) => {
 										await setDefaultPaymentMethod(method)
 									}}
 									onFocus={(event) => event.stopPropagation()}
-									control={<Checkbox checked={user.defaultPaymentMethodID === method.id} />}
+									control={<Checkbox checked={user.defaultCard?.id === method.id} />}
 									label={
 										<Box display="flex" alignItems="center" flexGrow={1} style={{ width: '140px' }}>
 											<Box display="flex" alignItems="center" flexGrow={1}>
@@ -164,7 +176,7 @@ export default ({ user }: { user: Commerce.User }) => {
 										{
 											title: 'OK',
 											handler: async () => {
-												await paymentMethodDetach()
+												await paymentMethodDetach(method)
 											}
 										}])
 								}}>Delete</Button>
@@ -175,7 +187,10 @@ export default ({ user }: { user: Commerce.User }) => {
 			}
 			<List>
 				<ListItem button onClick={() => {
-					push(<CardInput />)
+					push(<CardInput callback={(paymentMethod) => {
+						console.log(paymentMethod)
+						setPaymentMethods([...paymentMethods, paymentMethod])
+					}} />)
 				}}>
 					<ListItemIcon>
 						<AddIcon color="secondary" />
@@ -204,10 +219,10 @@ const CARD_OPTIONS = {
 	hidePostalCode: true
 };
 
-const CardInput = () => {
+const CardInput = ({ callback }: { callback?: (paymentMethod: PaymentMethod) => void }) => {
 	return (
 		<Elements stripe={stripePromise}>
-			<Form />
+			<Form callback={callback} />
 		</Elements>
 	)
 }
@@ -225,7 +240,7 @@ const useStyles = makeStyles((theme: Theme) =>
 	}),
 );
 
-const Form = () => {
+const Form = ({ callback }: { callback?: (paymentMethod: PaymentMethod) => void }) => {
 	const classes = useStyles()
 	const [auth] = useAuthUser()
 	const [user, isUserLoading] = useContext(UserContext)
@@ -261,20 +276,15 @@ const Form = () => {
 				return
 			}
 
-			let updateData: any = { defaultPaymentMethodID: paymentMethod.id }
+			const cardMethod = new Commerce.Card(paymentMethod.id)
+			cardMethod.id = paymentMethod.id
+			cardMethod.brand = paymentMethod.card!.brand
+			cardMethod.expMonth = paymentMethod.card!.exp_month
+			cardMethod.expYear = paymentMethod.card!.exp_year
+			cardMethod.last4 = paymentMethod.card!.last4
 
-			if (paymentMethod.card) {
-				console.log(paymentMethod)
-				const card = new Card()
-				card.id = paymentMethod.id
-				card.brand = paymentMethod.card.brand
-				card.expMonth = paymentMethod.card.exp_month
-				card.expYear = paymentMethod.card.exp_year
-				card.last4 = paymentMethod.card.last4
-				updateData = {
-					defaultPaymentMethodID: paymentMethod.id,
-					defaultCard: card.data()
-				}
+			let updateData: any = {
+				defaultCard: cardMethod.convert()
 			}
 
 			if (user?.customerID) {
@@ -283,6 +293,16 @@ const Form = () => {
 					paymentMethodID: paymentMethod.id
 				})
 				const { error, result } = response.data
+				if (error) {
+					console.error(error)
+					setProcessing(false)
+					return
+				}
+				if (result) {
+					if (callback) {
+						callback(result)
+					}
+				}
 				console.log('[APP] attach payment method', result)
 			} else {
 				const create = firebase.functions().httpsCallable('v1-stripe-customer-create')
@@ -297,10 +317,20 @@ const Form = () => {
 					}
 				})
 				const { error, result } = response.data
+
+				if (error) {
+					console.error(error)
+					setProcessing(false)
+					return
+				}
+
 				console.log('[APP] create customer', result)
-				if (result.data) {
-					const customerID = result.data.id
+				if (result) {
+					const customerID = result.id
 					updateData['customerID'] = customerID
+					if (callback) {
+						callback(result)
+					}
 				}
 			}
 			await new Commerce.User(auth.uid).documentReference.set(updateData, { merge: true })
