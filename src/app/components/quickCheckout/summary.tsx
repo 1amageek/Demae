@@ -10,6 +10,7 @@ import AddCircleIcon from '@material-ui/icons/AddCircle';
 import RemoveCircleIcon from '@material-ui/icons/RemoveCircle';
 import ErrorIcon from '@material-ui/icons/Error';
 import NavigateNextIcon from '@material-ui/icons/NavigateNext';
+import CardBrand from 'common/stripe/CardBrand'
 import Cart, { CartGroup, CartItem } from 'models/commerce/Cart'
 import DataLoading from 'components/DataLoading';
 import { usePush } from 'components/Navigation';
@@ -74,7 +75,7 @@ export default ({ cart, providerID, setCart, onNext }: { cart: Cart, providerID:
 			const { error, result } = response.data
 			if (error) {
 				console.error(error)
-				setMessage("error", "Error")
+				setMessage("error", error.message)
 				setProcessing(false)
 				return
 			}
@@ -112,7 +113,7 @@ export default ({ cart, providerID, setCart, onNext }: { cart: Cart, providerID:
 								{defaultCart &&
 									<Box display="flex" alignItems="center" flexGrow={1} style={{ width: '180px' }}>
 										<Box display="flex" alignItems="center" flexGrow={1} fontSize={22}>
-											<i className={`pf pf-${defaultCart?.brand}`}></i>
+											<i className={`pf ${CardBrand[defaultCart!.brand]}`}></i>
 										</Box>
 										<Box justifySelf="flex-end" fontSize={16} fontWeight={500}>
 											{`• • • •  ${defaultCart?.last4}`}

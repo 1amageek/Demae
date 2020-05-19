@@ -216,7 +216,8 @@ const checkOrder = async (order: Order) => {
 	const skuItems: OrderItem[] = order.items
 	const skuValidation = skuItems.find(item => { return !(item.skuReference) })
 	if (skuValidation) {
-		throw new OrderError(`OrderItem contains items that do not have SKUReference.`, '')
+		console.log(`OrderItem contains items that do not have SKUReference.`)
+		throw new OrderError(`Invalid Request`, skuValidation.productReference?.path || '')
 	}
 	const skuReferences = skuItems.map(item => item.skuReference!)
 	const SKUSnapshots = await Promise.all(skuReferences.map(ref => ref.get()))
@@ -226,7 +227,7 @@ const checkOrder = async (order: Order) => {
 	const unavailable = SKUs.find(sku => sku.isAvailable === false)
 	if (unavailable) {
 		console.log(`Contains unavailable SKU. ${unavailable.path}`)
-		throw new OrderError(`Contains unavailable SKU.`, unavailable.path)
+		throw new OrderError(`${unavailable.name} sales have been suspended.`, unavailable.path)
 	}
 
 	const bucketSKUs = SKUs.filter(sku => sku.inventory.type === 'bucket')
@@ -236,7 +237,7 @@ const checkOrder = async (order: Order) => {
 	const bucketOutOfStock = bucketSKUs.find(sku => sku.inventory.value! === 'out_of_stock')
 	if (bucketOutOfStock) {
 		console.log(`Bucket SKU is out of stock. ${bucketOutOfStock.path}`)
-		throw new OrderError(`Bucket SKU is out of stock.`, bucketOutOfStock.path)
+		throw new OrderError(`${bucketOutOfStock.name} is sold out.`, bucketOutOfStock.path)
 	}
 
 	// Finite
@@ -251,7 +252,7 @@ const checkOrder = async (order: Order) => {
 	})
 	if (finiteOutOfStock) {
 		console.log(`Finite SKU is out of stock. ${finiteOutOfStock.path}`)
-		throw new OrderError(`Finite SKU is out of stock.`, finiteOutOfStock.path)
+		throw new OrderError(`${finiteOutOfStock.name} is sold out.`, finiteOutOfStock.path)
 	}
 
 	return SKUs

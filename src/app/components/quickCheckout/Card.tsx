@@ -16,6 +16,7 @@ import AddIcon from '@material-ui/icons/Add';
 import Loading from 'components/Loading'
 import { Container, ExpansionPanel, ExpansionPanelSummary, ExpansionPanelDetails, ExpansionPanelActions, Divider, Box } from '@material-ui/core';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import CardBrand from 'common/stripe/CardBrand'
 import * as Commerce from 'models/commerce'
 import { PaymentMethod } from '@stripe/stripe-js'
 import DataLoading from 'components/DataLoading';
@@ -50,13 +51,11 @@ export default ({ user }: { user: Commerce.User }) => {
 				}
 			})
 			const { result, error } = response.data
-
 			if (error) {
 				console.error(error)
 				setProcessing(false)
 				return
 			}
-
 			const card = new Commerce.Card(paymentMethod.id)
 			card.brand = paymentMethod.card!.brand
 			card.expMonth = paymentMethod.card!.exp_month
@@ -93,7 +92,6 @@ export default ({ user }: { user: Commerce.User }) => {
 
 			console.log('[APP] detach payment method', result)
 			const data = paymentMethods.filter(method => method.id !== deletePaymentMethod.id)
-			console.log(data)
 			if (deletePaymentMethod.id === user.defaultCard?.id) {
 				if (data.length > 0) {
 					const method = data[0]
@@ -150,7 +148,7 @@ export default ({ user }: { user: Commerce.User }) => {
 									label={
 										<Box display="flex" alignItems="center" flexGrow={1} style={{ width: '140px' }}>
 											<Box display="flex" alignItems="center" flexGrow={1}>
-												<i className={`pf pf-${method.card?.brand}`}></i>
+												<i className={`pf ${CardBrand[method.card!.brand]}`}></i>
 											</Box>
 											<Box justifySelf="flex-end">
 												{`• • • •  ${method.card?.last4}`}
@@ -209,7 +207,7 @@ const stripePromise = loadStripe(STRIPE_API_KEY)
 const CARD_OPTIONS = {
 	style: {
 		base: {
-			fontSize: '18px',
+			fontSize: '16px',
 		},
 		invalid: {
 			iconColor: '#FFC7EE',

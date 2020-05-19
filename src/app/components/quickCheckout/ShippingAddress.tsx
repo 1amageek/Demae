@@ -262,7 +262,7 @@ const Form = ({ user, shipping }: { user: Commerce.User, shipping: Shipping }) =
 								<TableCell className={classes.cellStatus}></TableCell>
 								<TableCell className={classes.cell} align='right'>line1</TableCell>
 								<TableCell className={classes.cell} align='left'>
-									<Input className={classes.input} label='line1' variant='outlined' margin='dense' size='small' {...line1} />
+									<Input className={classes.input} label='line1' variant='outlined' margin='dense' size='small' required {...line1} />
 								</TableCell>
 							</TableRow>
 							<TableRow>

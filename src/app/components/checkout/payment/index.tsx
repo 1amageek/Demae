@@ -26,18 +26,7 @@ const CARD_OPTIONS = {
 	// iconStyle: 'solid',
 	style: {
 		base: {
-			// iconColor: '#c4f0ff',
-			// color: '#fff',
-			// fontWeight: '500',
-			// fontFamily: 'Roboto, Open Sans, Segoe UI, sans-serif',
-			fontSize: '18px',
-			// fontSmoothing: 'antialiased',
-			// ':-webkit-autofill': {
-			// 	color: '#fce883',
-			// },
-			// '::placeholder': {
-			// 	color: '#87BBFD',
-			// },
+			fontSize: '16px',
 		},
 		invalid: {
 			iconColor: '#FFC7EE',
@@ -167,9 +156,9 @@ const CheckoutForm = () => {
 								<ArrowBackIcon color='inherit' />
 							</IconButton>
 						</Tooltip>
-						<Typography variant='h6'>
+						<Box fontSize={18} fontWeight={600}>
 							Card
-						</Typography>
+						</Box>
 					</Toolbar>
 				</AppBar>
 				<Box p={2}>

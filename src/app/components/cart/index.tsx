@@ -50,7 +50,7 @@ export default () => {
 
 	return (
 		<Container maxWidth='sm'>
-			<Typography component="h2">Cart</Typography>
+			<Box component="h2" fontSize={20} fontWeight={600}>Cart</Box>
 			<Grid container spacing={2}>
 				{cart?.groups.map(group => {
 					return (

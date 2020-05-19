@@ -5,7 +5,6 @@ import Input, { useInput } from 'components/Input';
 import User from 'models/commerce/User';
 import { SupportedCountries, CountryCode } from 'common/Country';
 import Button from '@material-ui/core/Button';
-import Typography from '@material-ui/core/Typography';
 import Paper from '@material-ui/core/Paper';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -25,10 +24,6 @@ import Shipping from 'models/commerce/Shipping';
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
-		box: {
-			padding: theme.spacing(2),
-			backgroundColor: '#fafafa'
-		},
 		bottomBox: {
 			padding: theme.spacing(2),
 			display: 'flex',
@@ -114,7 +109,7 @@ const Form = ({ user, shipping }: { user: User, shipping: Shipping }) => {
 		shipping.phone = auth!.phoneNumber || ''
 		await Promise.all([
 			shipping.save(),
-			user.documentReference.set({ defaultShipping: shipping.data() }, { merge: true })
+			user.documentReference.set({ defaultShipping: shipping.convert() }, { merge: true })
 		])
 		history.goBack()
 		setProcessing(false)
@@ -131,13 +126,13 @@ const Form = ({ user, shipping }: { user: User, shipping: Shipping }) => {
 							<ArrowBackIcon color='inherit' />
 						</IconButton>
 					</Tooltip>
-					<Typography variant='h6'>
+					<Box>
 						Shipping Address
-          </Typography>
+					</Box>
 				</Toolbar>
 			</AppBar>
 			<form autoComplete='off' onSubmit={onSubmit}>
-				<Box className={classes.box}>
+				<Box>
 					<Table size='small'>
 						<TableBody>
 							<TableRow>
@@ -165,7 +160,7 @@ const Form = ({ user, shipping }: { user: User, shipping: Shipping }) => {
 								<TableCell className={classes.cellStatus}></TableCell>
 								<TableCell className={classes.cell} align='right'>line1</TableCell>
 								<TableCell className={classes.cell} align='left'>
-									<Input className={classes.input} label='line1' variant='outlined' margin='dense' size='small' {...line1} />
+									<Input className={classes.input} label='line1' variant='outlined' margin='dense' size='small' required {...line1} />
 								</TableCell>
 							</TableRow>
 							<TableRow>

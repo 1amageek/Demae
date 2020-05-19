@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react'
 import Paper from '@material-ui/core/Paper';
-import { useHistory } from 'react-router-dom'
+import { useHistory, Link } from 'react-router-dom'
 import firebase from 'firebase'
 import { Grid, AppBar, Toolbar, Checkbox, FormControlLabel } from '@material-ui/core';
 import { List, ListItem, ListItemText, ListItemIcon, Button } from '@material-ui/core';
@@ -13,7 +13,7 @@ import { Container, ExpansionPanel, ExpansionPanelSummary, ExpansionPanelDetails
 import Typography from '@material-ui/core/Typography';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import DataLoading from 'components/DataLoading';
-
+import CardBrand from 'common/stripe/CardBrand'
 import * as Commerce from 'models/commerce'
 import { PaymentMethod } from '@stripe/stripe-js';
 import { useProcessing } from 'components/Processing';
@@ -64,7 +64,7 @@ export default (props: any) => {
 			const { error, result } = response.data
 			if (error) {
 				console.error(error)
-				setMessage("error", "Error")
+				setMessage('error', error.message)
 				setProcessing(false)
 				return
 			}
@@ -114,7 +114,6 @@ const ShippingAddresses = ({ user }: { user: Commerce.User }) => {
 	const [shippingAddresses, isLoading] = useUserShippingAddresses()
 	const history = useHistory()
 	const [setDialog, close] = useDialog()
-	const [deleteShipping, setDeleteShipping] = useState<Shipping | undefined>(undefined)
 
 	if (isLoading) {
 		return (
@@ -160,8 +159,6 @@ const ShippingAddresses = ({ user }: { user: Commerce.User }) => {
 							<Divider />
 							<ExpansionPanelActions>
 								<Button size="small" onClick={async () => {
-									// await shipping.delete()
-									setDeleteShipping(shipping)
 									setDialog('Delete', 'Do you want to remove it?', [
 										{
 											title: 'Cancel',
@@ -170,7 +167,15 @@ const ShippingAddresses = ({ user }: { user: Commerce.User }) => {
 										{
 											title: 'OK',
 											handler: async () => {
-												await deleteShipping?.delete()
+												if (user?.defaultShipping?.id === shipping.id) {
+													setDialog('Selected shipping address', 'This shipping address is currently selected. To delete this shipping address, please select another shipping address first.',
+														[
+															{
+																title: 'OK'
+															}])
+												} else {
+													await shipping?.delete()
+												}
 											}
 										}])
 								}}>Delete</Button>
@@ -185,9 +190,7 @@ const ShippingAddresses = ({ user }: { user: Commerce.User }) => {
 				})
 			}
 			<List>
-				<ListItem button onClick={() => {
-					history.push(`/checkout/shipping`)
-				}}>
+				<ListItem button component={Link} to='/checkout/shipping'>
 					<ListItemIcon>
 						<AddIcon color="secondary" />
 					</ListItemIcon>
@@ -202,10 +205,8 @@ const PaymentMethods = ({ user }: { user: Commerce.User }) => {
 
 	const [setProcessing] = useProcessing()
 	const [paymentMethods, isLoading, error, setPaymentMethods] = useFetchList<PaymentMethod>('v1-stripe-paymentMethod-list', { type: 'card' })
-	const [deletePaymentMethod, setDeletePaymentMethod] = useState<PaymentMethod | undefined>(undefined)
 	const [setDialog, close] = useDialog()
-
-	console.log(paymentMethods)
+	const [setMessage] = useSnackbar()
 
 	if (error) {
 		console.error(error)
@@ -216,16 +217,16 @@ const PaymentMethods = ({ user }: { user: Commerce.User }) => {
 		const customerUpdate = firebase.functions().httpsCallable('v1-stripe-customer-update')
 		try {
 			const response = await customerUpdate({
-				payment_method: paymentMethod.id,
+				// payment_method: paymentMethod.id,
 				invoice_settings: {
 					default_payment_method: paymentMethod.id
 				}
 			})
 			const { result, error } = response.data
-
 			if (error) {
 				console.error(error)
 				setProcessing(false)
+				setMessage('error', error.message)
 				return
 			}
 			const card = new Commerce.Card(paymentMethod.id)
@@ -243,7 +244,7 @@ const PaymentMethods = ({ user }: { user: Commerce.User }) => {
 		setProcessing(false)
 	}
 
-	const paymentMethodDetach = async () => {
+	const paymentMethodDetach = async (deletePaymentMethod: PaymentMethod) => {
 		if (!deletePaymentMethod) {
 			return
 		}
@@ -305,7 +306,7 @@ const PaymentMethods = ({ user }: { user: Commerce.User }) => {
 									label={
 										<Box display="flex" alignItems="center" flexGrow={1} style={{ width: '140px' }}>
 											<Box display="flex" alignItems="center" flexGrow={1}>
-												<i className={`pf pf-${method.card?.brand}`}></i>
+												<i className={`pf ${CardBrand[method.card!.brand]}`}></i>
 											</Box>
 											<Box justifySelf="flex-end">
 												{`• • • •  ${method.card?.last4}`}
@@ -322,7 +323,6 @@ const PaymentMethods = ({ user }: { user: Commerce.User }) => {
 							<Divider />
 							<ExpansionPanelActions>
 								<Button size="small" onClick={async () => {
-									setDeletePaymentMethod(method)
 									setDialog('Delete', 'Do you want to remove it?', [
 										{
 											title: 'Cancel',
@@ -331,24 +331,17 @@ const PaymentMethods = ({ user }: { user: Commerce.User }) => {
 										{
 											title: 'OK',
 											handler: async () => {
-												await paymentMethodDetach()
+												await paymentMethodDetach(method)
 											}
 										}])
 								}}>Delete</Button>
-								{/* <Button size="small" color="primary" onClick={() => {
-									// history.push(`/checkout/shipping/${shipping.id}`)
-								}}>
-									Edit
-          			</Button> */}
 							</ExpansionPanelActions>
 						</ExpansionPanel>
 					)
 				})
 			}
 			<List>
-				<ListItem button onClick={() => {
-
-				}}>
+				<ListItem button component={Link} to='/checkout/paymentMethod'>
 					<ListItemIcon>
 						<AddIcon color="secondary" />
 					</ListItemIcon>

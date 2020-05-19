@@ -2,7 +2,7 @@ import React from 'react'
 import NextApp, { AppProps, AppContext } from "next/app"
 import { StaticRouter, BrowserRouter } from 'react-router-dom'
 import * as Ballcap from "@1amageek/ballcap"
-import firebase from "firebase"
+import firebase from "firebase/app"
 import "firebase/firestore"
 import "firebase/auth"
 import { AuthProvider } from 'hooks/auth'

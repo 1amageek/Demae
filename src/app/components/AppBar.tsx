@@ -1,45 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import firebase from 'firebase'
 import { Link } from 'react-router-dom'
-import Container from '@material-ui/core/Container';
-import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
-import Typography from '@material-ui/core/Typography';
+import { Container, AppBar, Toolbar, Box } from '@material-ui/core';
 import Button from '@material-ui/core/Button';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import { useUser } from 'hooks/commerce'
 
-const useStyles = makeStyles((theme: Theme) =>
-	createStyles({
-		root: {
-			flexGrow: 1,
-		},
-		menuButton: {
-			marginRight: theme.spacing(2),
-		},
-		title: {
-			flexGrow: 1,
-		},
-	}),
-);
 
 export default ({ title }: { title: string }) => {
-	const classes = useStyles();
-
 	return (
-		<div className={classes.root}>
-			<AppBar position='static' color='transparent' elevation={0}>
-				<Container maxWidth='md'>
-					<Toolbar>
-						<Typography variant='h6' className={classes.title}>
+		<AppBar position='static' color='transparent' elevation={0}>
+			<Container maxWidth='md' disableGutters>
+				<Toolbar>
+					<Box display='flex' flexGrow={1} alignItems='center'>
+						<Box component={"h1"} fontSize={18} fontWeight={800} flexGrow={1}>
 							{title}
-						</Typography>
+						</Box>
 						<LoginButton />
-					</Toolbar>
-				</Container>
-			</AppBar>
-		</div>
+					</Box>
+				</Toolbar>
+			</Container>
+		</AppBar>
 	);
 }
 
@@ -51,7 +32,7 @@ const LoginButton = () => {
 		)
 	} else {
 		return (
-			<Button variant='contained' color='primary' component={Link} to='/login'>Login</Button>
+			<Button variant='contained' color='primary' size='small' component={Link} to='/login'>Login</Button>
 		)
 	}
 }
