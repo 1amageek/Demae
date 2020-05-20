@@ -7,7 +7,6 @@ import { List, ListItem, ListItemText, ListItemIcon, Button } from '@material-ui
 import AddIcon from '@material-ui/icons/Add';
 import { useUserShippingAddresses, UserContext, CartContext } from 'hooks/commerce'
 import { useFetchList } from 'hooks/stripe'
-import Shipping from 'models/commerce/Shipping';
 import Loading from 'components/Loading'
 import { Container, ExpansionPanel, ExpansionPanelSummary, ExpansionPanelDetails, ExpansionPanelActions, Divider, Box } from '@material-ui/core';
 import Typography from '@material-ui/core/Typography';
@@ -47,11 +46,11 @@ export default (props: any) => {
 		const paymentMethodID = user.defaultCard?.id
 		if (!paymentMethodID) { return }
 
-		const cartGroup = cart.groups.find(group => group.providerID === providerID)
+		const cartGroup = cart.groups.find(group => group.providedBy === providerID)
 		if (!cartGroup) { return }
 
 		cartGroup.shipping = defaultShipping
-		const data = cart.order(user.id, cartGroup)
+		const data = cart.order(cartGroup)
 
 		try {
 			setProcessing(true)

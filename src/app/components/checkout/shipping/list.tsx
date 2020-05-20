@@ -1,29 +1,148 @@
-import { useState } from 'react';
-import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
-import { useHistory } from 'react-router-dom'
-import Input, { useInput } from 'components/Input';
-import User from 'models/commerce/User';
-import { SupportedCountries, CountryCode } from 'common/Country';
-import Button from '@material-ui/core/Button';
+import React, { useContext, useState } from 'react'
 import Paper from '@material-ui/core/Paper';
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
-import Box from '@material-ui/core/Toolbar';
+import { useHistory } from 'react-router-dom'
+import firebase from 'firebase'
+import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
+import { Grid, AppBar, Toolbar, Checkbox, FormControlLabel } from '@material-ui/core';
+import { List, ListItem, ListItemText, ListItemIcon, Button } from '@material-ui/core';
+import { Table, TableBody, TableRow, TableCell } from '@material-ui/core';
+import AddIcon from '@material-ui/icons/Add';
 import { Tooltip, IconButton } from '@material-ui/core';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableRow from '@material-ui/core/TableRow';
-import Select, { useSelect } from 'components/Select'
+import { useUserShippingAddresses, useUser } from 'hooks/commerce'
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
-import Login from 'components/Login';
-import Loading from 'components/Loading';
+import Loading from 'components/Loading'
+import { Container, ExpansionPanel, ExpansionPanelSummary, ExpansionPanelDetails, ExpansionPanelActions, Divider, Box } from '@material-ui/core';
+import Typography from '@material-ui/core/Typography';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import DataLoading from 'components/DataLoading';
+import * as Commerce from 'models/commerce'
+import Select, { useSelect } from 'components/Select'
+import Input, { useInput } from 'components/Input';
+import { SupportedCountries, CountryCode } from 'common/Country';
+import { useProcessing } from 'components/Processing';
+import { useSnackbar } from 'components/Snackbar'
 import { useAuthUser } from 'hooks/auth'
-import { useUserShipping, useUser } from 'hooks/commerce';
-import Shipping from 'models/commerce/Shipping';
+import { useDialog } from 'components/Dialog'
+import { usePush, usePop } from 'components/Navigation';
+import { Shipping } from 'models/commerce';
+
+export default ({ user }: { user: Commerce.User }) => {
+
+	const [shippingAddresses, isLoading] = useUserShippingAddresses()
+
+	const [setDialog, close] = useDialog()
+	const [push] = usePush()
+	const pop = usePop()
+
+	if (isLoading) {
+		return (
+			<Paper>
+				<DataLoading />
+			</Paper>
+		)
+	}
+
+	return (
+		<Paper>
+			<AppBar position='static' color='transparent' elevation={0}>
+				<Toolbar>
+					<Tooltip title='Back' onClick={() => {
+						pop()
+					}}>
+						<IconButton>
+							<ArrowBackIcon color='inherit' />
+						</IconButton>
+					</Tooltip>
+					<Box fontSize={18} fontWeight={600}>
+						Shipping Address
+					</Box>
+				</Toolbar>
+			</AppBar>
+			{
+				shippingAddresses.map(shipping => {
+					console.log(shipping.id)
+					return (
+						<ExpansionPanel key={shipping.id} >
+							<ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
+								<FormControlLabel
+									onClick={async (event) => {
+										event.stopPropagation()
+										if (!user) return;
+										user.defaultShipping = shipping
+										await user?.save()
+									}}
+									onFocus={(event) => event.stopPropagation()}
+									control={<Checkbox checked={user?.defaultShipping?.id === shipping.id} />}
+									label={
+										<Typography>{shipping.format(['postal_code', 'line1'])}</Typography>
+									}
+								/>
+							</ExpansionPanelSummary>
+							<ExpansionPanelDetails>
+								<Typography>
+									{shipping.formatted()}
+								</Typography>
+							</ExpansionPanelDetails>
+							<Divider />
+							<ExpansionPanelActions>
+								<Button size="small" onClick={async () => {
+									setDialog('Delete', 'Do you want to remove it?', [
+										{
+											title: 'Cancel',
+											handler: close
+										},
+										{
+											title: 'OK',
+											handler: async () => {
+												if (user?.defaultShipping?.id === shipping.id) {
+													setDialog('Selected shipping address', 'This shipping address is currently selected. To delete this shipping address, please select another shipping address first.',
+														[
+															{
+																title: 'OK'
+															}])
+												} else {
+													await shipping?.delete()
+												}
+											}
+										}])
+								}}>Delete</Button>
+								<Button size="small" color="primary" onClick={() => {
+									if (!user) return;
+									push(
+										<ShippingAddress user={user} shipping={shipping} />
+									)
+								}}>
+									Edit
+          			</Button>
+							</ExpansionPanelActions>
+						</ExpansionPanel>
+					)
+				})
+			}
+			<List>
+				<ListItem button onClick={() => {
+					if (!user) return;
+					const shipping = new Shipping(user.shippingAddresses.collectionReference.doc())
+					push(
+						<ShippingAddress user={user} shipping={shipping} />
+					)
+				}}>
+					<ListItemIcon>
+						<AddIcon color="secondary" />
+					</ListItemIcon>
+					<ListItemText primary={`Add new shpping address`} />
+				</ListItem>
+			</List>
+		</Paper>
+	)
+}
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
+		box: {
+			padding: theme.spacing(2),
+			backgroundColor: '#fafafa'
+		},
 		bottomBox: {
 			padding: theme.spacing(2),
 			display: 'flex',
@@ -49,30 +168,12 @@ const useStyles = makeStyles((theme: Theme) =>
 	})
 )
 
-export default (props: any) => {
-	const { shippingID } = props.match.params
-	const [user, isUserLoading] = useUser();
-	const [shipping, isLoading] = useUserShipping(shippingID);
-
-	if (isUserLoading || isLoading) {
-		return <Loading />
-	}
-
-	if (!user) {
-		return <Login />
-	}
-
-	if (shipping) {
-		return <Form user={user} shipping={shipping} />
-	} else {
-		const shipping = new Shipping(user.shippingAddresses.collectionReference.doc())
-		return <Form user={user} shipping={shipping} />
-	}
+const ShippingAddress = ({ user, shipping }: { user: Commerce.User, shipping: Shipping }) => {
+	return <Form user={user} shipping={shipping} />
 }
 
-const Form = ({ user, shipping }: { user: User, shipping: Shipping }) => {
+const Form = ({ user, shipping }: { user: Commerce.User, shipping: Shipping }) => {
 	const classes = useStyles()
-	const history = useHistory()
 	const [auth] = useAuthUser();
 	const [isProcessing, setProcessing] = useState(false)
 	const country = useSelect({
@@ -89,13 +190,13 @@ const Form = ({ user, shipping }: { user: User, shipping: Shipping }) => {
 	const line2 = useInput(shipping.address?.line2)
 	const postal_code = useInput(shipping.address?.postal_code)
 	const name = useInput(shipping.name)
+	const pop = usePop()
 
 	const onSubmit = async (event) => {
 		event.preventDefault()
 		if (!auth) return;
 		const uid = auth.uid
 		setProcessing(true)
-		const user = new User(uid)
 		// shipping.country = country.value
 		shipping.address = {
 			// country: country.value,
@@ -109,9 +210,9 @@ const Form = ({ user, shipping }: { user: User, shipping: Shipping }) => {
 		shipping.phone = auth!.phoneNumber || ''
 		await Promise.all([
 			shipping.save(),
-			user.documentReference.set({ defaultShipping: shipping.convert() }, { merge: true })
+			user.documentReference.set({ defaultShipping: shipping.convert({ convertDocument: true }) }, { merge: true })
 		])
-		history.goBack()
+		pop()
 		setProcessing(false)
 	}
 
@@ -120,19 +221,19 @@ const Form = ({ user, shipping }: { user: User, shipping: Shipping }) => {
 			<AppBar position='static' color='transparent' elevation={0}>
 				<Toolbar disableGutters>
 					<Tooltip title='Back' onClick={() => {
-						history.goBack()
+						pop()
 					}}>
 						<IconButton>
 							<ArrowBackIcon color='inherit' />
 						</IconButton>
 					</Tooltip>
-					<Box>
+					<Box fontSize={18} fontWeight={600}>
 						Shipping Address
 					</Box>
 				</Toolbar>
 			</AppBar>
 			<form autoComplete='off' onSubmit={onSubmit}>
-				<Box>
+				<Box className={classes.box}>
 					<Table size='small'>
 						<TableBody>
 							<TableRow>

@@ -30,7 +30,8 @@ export class CartItem extends Deliverable {
 }
 
 export class CartGroup extends Model {
-	@Field providerID!: string
+	@Field groupID!: string
+	@Field providedBy!: string
 	@Codable(CartItem)
 	@Field items: CartItem[] = []
 	@Field currency: CurrencyCode = 'USD'

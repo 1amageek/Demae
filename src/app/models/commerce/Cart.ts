@@ -118,7 +118,8 @@ export class CartItem extends Deliverable implements Accounting {
 }
 
 export class CartGroup extends Model implements Accounting {
-	@Field providerID!: string
+	@Field groupID!: string
+	@Field providedBy!: string
 	@Codable(CartItem)
 	@Field items: CartItem[] = []
 	@Field currency: CurrencyCode = 'USD'
@@ -171,7 +172,7 @@ export class CartGroup extends Model implements Accounting {
 
 	static fromSKU(sku: SKU) {
 		const group = new CartGroup()
-		group.providerID = sku.providedBy
+		group.providedBy = sku.providedBy
 		group.currency = sku.currency
 		return group
 	}
@@ -237,9 +238,9 @@ export default class Cart extends Doc {
 		return this.subtotal() + this.tax()
 	}
 
-	addSKU(product: Product, sku: SKU) {
+	addSKU(product: Product, sku: SKU, groupID: string) {
 		if (product.providedBy !== sku.providedBy) return
-		let group = this.groups.find(group => group.providerID === sku.providedBy)
+		let group = this.groups.find(group => group.groupID === groupID)
 		if (!group) {
 			group = CartGroup.fromSKU(sku)
 			this.groups.push(group)
@@ -259,8 +260,8 @@ export default class Cart extends Doc {
 		}
 	}
 
-	deleteSKU(sku: SKU) {
-		const group = this.groups.find(group => group.providerID === sku.providedBy)
+	deleteSKU(sku: SKU, groupID: string) {
+		const group = this.groups.find(group => group.groupID === groupID)
 		if (!group) return
 		const cartItem = group.items.find(value => value.skuReference!.path == sku.path)
 		if (cartItem) {
@@ -273,12 +274,12 @@ export default class Cart extends Doc {
 			group.items = group.items.filter(item => item.skuReference!.path !== sku.path)
 		}
 		if (group.items.length <= 0) {
-			this.groups = this.groups.filter(group => group.providerID !== sku.providedBy)
+			this.groups = this.groups.filter(group => group.providedBy !== sku.providedBy)
 		}
 	}
 
-	addItem(item: CartItem) {
-		const group = this.groups.find(group => group.providerID === item.providedBy)
+	addItem(item: CartItem, groupID: string) {
+		const group = this.groups.find(group => group.groupID === groupID)
 		if (!group) return
 		const cartItem = group.items.find(value => value.skuReference!.path == item.skuReference!.path)
 		if (cartItem) {
@@ -288,30 +289,30 @@ export default class Cart extends Doc {
 		}
 	}
 
-	subtractItem(item: CartItem) {
-		const group = this.groups.find(group => group.providerID === item.providedBy)
+	subtractItem(item: CartItem, groupID: string) {
+		const group = this.groups.find(group => group.groupID === groupID)
 		if (!group) return
 		const cartItem = group.items.find(value => value.skuReference!.path == item.skuReference!.path)
 		if (cartItem) {
 			cartItem.quantity -= 1
 			if (cartItem.quantity == 0) {
-				this.deleteItem(item)
+				this.deleteItem(item, groupID)
 			}
 		} else {
 			group.items.push(item)
 		}
 		if (group.items.length <= 0) {
-			this.groups = this.groups.filter(group => group.providerID !== item.providedBy)
+			this.groups = this.groups.filter(group => group.groupID !== groupID)
 		}
 	}
 
-	deleteItem(item: CartItem) {
-		const group = this.groups.find(group => group.providerID === item.providedBy)
+	deleteItem(item: CartItem, groupID: string) {
+		const group = this.groups.find(group => group.groupID === groupID)
 		if (!group) return
 		group.items = group.items.filter(value => value.skuReference!.path !== item.skuReference!.path)
 	}
 
-	order(purchasedBy: string, group: CartGroup) {
+	order(group: CartGroup) {
 		const items = group.items.map(item => {
 			const orderItem: OrderItem = new OrderItem()
 			orderItem.images = item.images
@@ -330,8 +331,8 @@ export default class Cart extends Doc {
 			return orderItem
 		})
 		const order: Order = new Order()
-		order.purchasedBy = purchasedBy
-		order.providerID = group.providerID
+		order.purchasedBy = this.id
+		order.providerID = group.providedBy
 		order.title = `${items.map(item => item.name).join(', ')}`
 		order.shipping = group.shipping
 		order.shippingDate = group.shippingDate

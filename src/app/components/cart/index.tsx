@@ -3,8 +3,6 @@ import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
 import { Link, useHistory } from 'react-router-dom'
 import { Box, Paper, Typography, Container, Grid, ListItemAvatar, Avatar, Tooltip, IconButton } from '@material-ui/core';
 import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemText from '@material-ui/core/ListItemText';
 import ImageIcon from '@material-ui/icons/Image';
 import { useAuthUser } from 'hooks/auth'
 import { useUser, useCart } from 'hooks/commerce';
@@ -14,7 +12,6 @@ import AddCircleIcon from '@material-ui/icons/AddCircle';
 import RemoveCircleIcon from '@material-ui/icons/RemoveCircle';
 import Login from 'components/Login'
 import Cart, { CartGroup, CartItem } from 'models/commerce/Cart'
-import { Symbol } from 'common/Currency'
 import DataLoading from 'components/DataLoading';
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -54,7 +51,7 @@ export default () => {
 			<Grid container spacing={2}>
 				{cart?.groups.map(group => {
 					return (
-						<Grid item xs={12} key={group.providerID}>
+						<Grid item xs={12} key={group.providedBy}>
 							<CartGroupList cartGroup={group} />
 						</Grid>
 					)
@@ -74,7 +71,7 @@ const CartGroupList = ({ cartGroup }: { cartGroup: CartGroup }) => {
 		<Paper>
 			<List dense>
 				{cartGroup.items.map(cartItem => {
-					return <CartItemCell key={cartItem.skuReference!.path} cartItem={cartItem} />
+					return <CartItemCell key={cartItem.skuReference!.path} cartGroup={cartGroup} cartItem={cartItem} />
 				})}
 			</List>
 			<Box padding={2}>
@@ -82,7 +79,7 @@ const CartGroupList = ({ cartGroup }: { cartGroup: CartGroup }) => {
 					disabled={false}
 					onClick={(e) => {
 						e.preventDefault()
-						history.push(`/checkout/${cartGroup.providerID}`)
+						history.push(`/checkout/${cartGroup.providedBy}`)
 					}}
 					items={[{
 						type: 'subtotal',
@@ -98,7 +95,7 @@ const CartGroupList = ({ cartGroup }: { cartGroup: CartGroup }) => {
 	)
 }
 
-const CartItemCell = ({ cartItem }: { cartItem: CartItem }) => {
+const CartItemCell = ({ cartGroup, cartItem }: { cartGroup: CartGroup, cartItem: CartItem }) => {
 
 	const classes = useStyles()
 	const [user] = useUser()
@@ -109,11 +106,11 @@ const CartItemCell = ({ cartItem }: { cartItem: CartItem }) => {
 		event.stopPropagation()
 		if (user) {
 			if (cart) {
-				cart.addItem(cartItem)
+				cart.addItem(cartItem, cartGroup.groupID)
 				await cart.save()
 			} else {
 				const cart = new Cart(user.id)
-				cart.addItem(cartItem)
+				cart.addItem(cartItem, cartGroup.groupID)
 				await cart.save()
 			}
 		}
@@ -123,7 +120,7 @@ const CartItemCell = ({ cartItem }: { cartItem: CartItem }) => {
 		event.preventDefault()
 		event.stopPropagation()
 		if (!cart) { return }
-		cart.subtractItem(cartItem)
+		cart.subtractItem(cartItem, cartGroup.groupID)
 		await cart.save()
 	}
 

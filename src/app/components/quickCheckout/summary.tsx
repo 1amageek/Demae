@@ -58,11 +58,11 @@ export default ({ cart, providerID, setCart, onNext }: { cart: Cart, providerID:
 		const paymentMethodID = user.defaultCard?.id
 		if (!paymentMethodID) { return }
 
-		const cartGroup = cart.groups.find(group => group.providerID === providerID)
+		const cartGroup = cart.groups.find(group => group.providedBy === providerID)
 		if (!cartGroup) { return }
 
 		cartGroup.shipping = defaultShipping
-		const data = cart.order(user.id, cartGroup)
+		const data = cart.order(cartGroup)
 
 		try {
 			setProcessing(true)
@@ -183,8 +183,8 @@ const CartItemCell = React.forwardRef(({ cart, cartItem, setCart }: { cart: Cart
 		event.preventDefault()
 		event.stopPropagation()
 		if (user) {
-			cart.addItem(cartItem)
-			setCart(cart.data())
+			// cart.addItem(cartItem)
+			// setCart(cart.data())
 		}
 	}
 
@@ -192,8 +192,8 @@ const CartItemCell = React.forwardRef(({ cart, cartItem, setCart }: { cart: Cart
 		event.preventDefault()
 		event.stopPropagation()
 		if (!cart) { return }
-		cart.subtractItem(cartItem)
-		setCart(cart.data())
+		// cart.subtractItem(cartItem)
+		// setCart(cart.data())
 	}
 
 	const imageURL = (cartItem.imageURLs().length > 0) ? cartItem.imageURLs()[0] : undefined
