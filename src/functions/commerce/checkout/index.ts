@@ -30,6 +30,7 @@ export const create = regionFunctions.https.onCall(async (data, context) => {
 	if (!STRIPE_API_KEY) {
 		throw new functions.https.HttpsError('invalid-argument', 'The functions requires STRIPE_API_KEY.')
 	}
+	console.info(data)
 	console.info(context)
 	const uid: string = context.auth.uid
 	const stripe = new Stripe(STRIPE_API_KEY, { apiVersion: '2020-03-02' })
@@ -54,7 +55,7 @@ export const create = regionFunctions.https.onCall(async (data, context) => {
 
 	const orderRef = new User(uid).orders.collectionReference.doc()
 	const order: Order = Order.fromData(orderData, orderRef, { convertDocumentReference: true })
-	const cartItemgroups = cart.groups.filter(group => group.providerID !== order.providerID)
+	const cartItemgroups = cart.groups.filter(group => group.providedBy !== order.providedBy)
 
 	const request = {
 		setup_future_usage: 'off_session',
@@ -95,7 +96,7 @@ export const create = regionFunctions.https.onCall(async (data, context) => {
 					idempotencyKey: orderRef.path
 				})
 
-				const provider: Provider = new Provider(order.providerID)
+				const provider: Provider = new Provider(order.providedBy)
 				const recieveOrderRef = provider.orders.collectionReference.doc(order.id)
 				order.paymentStatus = 'authorized'
 				order.paymentResult = result

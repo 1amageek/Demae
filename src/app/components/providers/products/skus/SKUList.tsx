@@ -103,11 +103,11 @@ const SKUListItem = ({ providerID, product, sku }: { providerID: string, product
 			if (!product) return
 			if (user) {
 				if (cart) {
-					cart.addSKU(product, sku)
+					cart.addSKU(product, sku, providerID)
 					await cart.save()
 				} else {
 					const cart = new Cart(user.id)
-					cart.addSKU(product, sku)
+					cart.addSKU(product, sku, providerID)
 					await cart.save()
 				}
 			}
@@ -116,7 +116,7 @@ const SKUListItem = ({ providerID, product, sku }: { providerID: string, product
 
 	const deleteSKU = async (sku: SKU) => {
 		if (!cart) { return }
-		cart.deleteSKU(sku)
+		cart.deleteSKU(sku, providerID)
 		await cart.save()
 	}
 

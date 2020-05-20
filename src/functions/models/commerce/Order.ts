@@ -25,7 +25,7 @@ export default class Order extends Doc {
 	@Field parentID?: string
 	@Field title?: string
 	@Field purchasedBy!: string
-	@Field providerID!: string
+	@Field providedBy!: string
 	@Codable(Shipping)
 	@Field shipping?: Shipping
 	@Field paidAt?: Timestamp

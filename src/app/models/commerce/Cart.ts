@@ -176,6 +176,42 @@ export class CartGroup extends Model implements Accounting {
 		group.currency = sku.currency
 		return group
 	}
+
+	order(purchasedBy: string) {
+		const items = this.items.map(item => {
+			const orderItem: OrderItem = new OrderItem()
+			orderItem.images = item.images
+			orderItem.name = item.name
+			orderItem.productReference = item.productReference
+			orderItem.skuReference = item.skuReference
+			orderItem.productType = item.productType
+			orderItem.quantity = item.quantity
+			orderItem.currency = item.currency
+			orderItem.discount = item.discount
+			orderItem.taxRate = item.taxRate
+			orderItem.category = item.category
+			orderItem.description = item.description
+			orderItem.metadata = item.metadata
+			orderItem.status = 'none'
+			return orderItem
+		})
+		const order: Order = new Order()
+		order.purchasedBy = purchasedBy
+		order.providedBy = this.providedBy
+		order.title = `${items.map(item => item.name).join(', ')}`
+		order.shipping = this.shipping
+		order.shippingDate = this.shippingDate
+		order.estimatedArrivalDate = this.estimatedArrivalDate
+		order.currency = this.currency
+		order.amount = this.total()
+		order.items = items
+		order.deliveryRequired = this.shippable
+		order.deliveryStatus = 'none'
+		order.paymentStatus = 'none'
+		order.isCancelled = false
+		order.metadata = this.metadata
+		return order.data({ convertDocumentReference: true })
+	}
 }
 
 export default class Cart extends Doc {
@@ -238,11 +274,26 @@ export default class Cart extends Doc {
 		return this.subtotal() + this.tax()
 	}
 
+	setSKU(product: Product, sku: SKU, groupID: string) {
+		if (product.providedBy !== sku.providedBy) return
+		const group = CartGroup.fromSKU(sku)
+		group.groupID = groupID
+		this.groups = [group]
+		group.shippable = group.shippable || product.shippable
+		if ((group.currency !== null) && (group.currency !== sku.currency)) {
+			console.log(`[APP] invalid currency. The cart now contains ${group.currency}, but the added item is ${sku.currency}.`)
+			return
+		}
+		const cartItem: CartItem = CartItem.fromSKU(product, sku)
+		group.items = [cartItem]
+	}
+
 	addSKU(product: Product, sku: SKU, groupID: string) {
 		if (product.providedBy !== sku.providedBy) return
 		let group = this.groups.find(group => group.groupID === groupID)
 		if (!group) {
 			group = CartGroup.fromSKU(sku)
+			group.groupID = groupID
 			this.groups.push(group)
 		}
 		group.shippable = group.shippable || product.shippable
@@ -312,39 +363,11 @@ export default class Cart extends Doc {
 		group.items = group.items.filter(value => value.skuReference!.path !== item.skuReference!.path)
 	}
 
+	cartGroup(groupID: string) {
+		return this.groups.find(group => group.groupID === groupID)
+	}
+
 	order(group: CartGroup) {
-		const items = group.items.map(item => {
-			const orderItem: OrderItem = new OrderItem()
-			orderItem.images = item.images
-			orderItem.name = item.name
-			orderItem.productReference = item.productReference
-			orderItem.skuReference = item.skuReference
-			orderItem.productType = item.productType
-			orderItem.quantity = item.quantity
-			orderItem.currency = item.currency
-			orderItem.discount = item.discount
-			orderItem.taxRate = item.taxRate
-			orderItem.category = item.category
-			orderItem.description = item.description
-			orderItem.metadata = item.metadata
-			orderItem.status = 'none'
-			return orderItem
-		})
-		const order: Order = new Order()
-		order.purchasedBy = this.id
-		order.providerID = group.providedBy
-		order.title = `${items.map(item => item.name).join(', ')}`
-		order.shipping = group.shipping
-		order.shippingDate = group.shippingDate
-		order.estimatedArrivalDate = group.estimatedArrivalDate
-		order.currency = group.currency
-		order.amount = group.total()
-		order.items = items
-		order.deliveryRequired = group.shippable
-		order.deliveryStatus = 'none'
-		order.paymentStatus = 'none'
-		order.isCancelled = false
-		order.metadata = group.metadata
-		return order.data({ convertDocumentReference: true })
+		return group.order(this.id)
 	}
 }

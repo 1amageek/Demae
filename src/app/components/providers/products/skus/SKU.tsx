@@ -12,7 +12,7 @@ import { useCart, useUser } from 'hooks/commerce'
 import { useDialog } from 'components/Dialog'
 import { useModal } from 'components/Modal';
 import { useDrawer } from 'components/Drawer';
-import QuickCheckout from 'components/quickCheckout'
+import QuickCheckout from 'components/checkout/_index'
 
 export default ({ providerID, productID, skuID }: { providerID: string, productID: string, skuID: string }) => {
 
@@ -21,7 +21,6 @@ export default ({ providerID, productID, skuID }: { providerID: string, productI
 	const [setDialog] = useDialog()
 	const [setModal, modalClose] = useModal()
 	const [showDrawer] = useDrawer()
-
 
 	const provider: Provider = new Provider(providerID)
 	const [product, isProductLoading] = useDocumentListen<Product>(Product, provider.products.collectionReference.doc(productID))
@@ -59,11 +58,11 @@ export default ({ providerID, productID, skuID }: { providerID: string, productI
 			if (!product) return
 			if (user) {
 				if (cart) {
-					cart.addSKU(product, sku)
+					cart.addSKU(product, sku, providerID)
 					await cart.save()
 				} else {
 					const cart = new Cart(user.id)
-					cart.addSKU(product, sku)
+					cart.addSKU(product, sku, providerID)
 					await cart.save()
 				}
 			}
@@ -153,9 +152,15 @@ export default ({ providerID, productID, skuID }: { providerID: string, productI
 										}
 										onClick={(e) => {
 											e.preventDefault()
-											showDrawer(
-												<QuickCheckout product={product} sku={sku} />
-											)
+											cart?.setSKU(product, sku, 'quick')
+											cart?.save()
+											const cartGroup = cart?.cartGroup('quick')
+											console.log(cartGroup)
+											if (cartGroup) {
+												showDrawer(
+													<QuickCheckout cartGroup={cartGroup} />
+												)
+											}
 										}}>Purchase now</Button>
 								</Grid>
 							</Grid>

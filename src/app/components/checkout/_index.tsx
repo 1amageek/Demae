@@ -22,7 +22,7 @@ export default ({ cartGroup }: { cartGroup: CartGroup }) => {
 	// const { providerID } = props.match.params
 	const history = useHistory()
 	const [user, isUserLoading] = useUser()
-	const [cart, isCartLoading] = useCart()
+
 	const defaultShipping = user?.defaultShipping
 	const defaultCart = user?.defaultCard
 
@@ -35,7 +35,6 @@ export default ({ cartGroup }: { cartGroup: CartGroup }) => {
 
 	const checkout = async () => {
 		if (!user) { return }
-		if (!cart) { return }
 
 		// customerID
 		const customerID = user.customerID
@@ -49,9 +48,10 @@ export default ({ cartGroup }: { cartGroup: CartGroup }) => {
 		const paymentMethodID = user.defaultCard?.id
 		if (!paymentMethodID) { return }
 
-
 		cartGroup.shipping = defaultShipping
-		const data = cart.order(cartGroup)
+		const data = cartGroup.order(user.id)
+
+		console.log(data)
 
 		try {
 			setProcessing(true)

@@ -57,7 +57,7 @@ const useQontoStepIconStyles = makeStyles({
 
 const newCart = (product: Product, sku: SKU) => {
 	const cart = new Cart()
-	cart.addSKU(product, sku)
+	// cart.addSKU(product, sku)
 	return cart
 }
 
