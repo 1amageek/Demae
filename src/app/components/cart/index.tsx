@@ -84,10 +84,13 @@ const CartGroupList = ({ cartGroup }: { cartGroup: CartGroup }) => {
 					onClick={(e) => {
 						e.preventDefault()
 						showDrawer(
-							<Checkout groupID={cartGroup.groupID} onClose={() => {
-								onClose()
-								history.push(`/checkout/${cartGroup.providedBy}/completed`)
-							}} />
+							<Checkout groupID={cartGroup.groupID}
+								onClose={onClose}
+								onComplete={() => {
+									onClose()
+									history.push(`/checkout/${cartGroup.providedBy}/completed`)
+								}}
+							/>
 						)
 					}}
 					items={[{

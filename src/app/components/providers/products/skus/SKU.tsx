@@ -155,14 +155,31 @@ export default ({ providerID, productID, skuID }: { providerID: string, productI
 										}
 										onClick={(e) => {
 											e.preventDefault()
-											cart?.setSKU(product, sku, 'quick')
-											cart?.save()
-											showDrawer(
-												<QuickCheckout groupID={'quick'} onClose={() => {
-													onClose()
-													history.push(`/checkout/${providerID}/completed`)
-												}} />
-											)
+											if (user) {
+												cart?.setSKU(product, sku, 'quick')
+												cart?.save()
+												showDrawer(
+													<QuickCheckout
+														groupID={'quick'}
+														onClose={onClose}
+														onComplete={() => {
+															onClose()
+															history.push(`/checkout/${providerID}/completed`)
+														}}
+													/>
+												)
+											} else {
+												setDialog('Welcome 🎉', 'Please log in first to purchase this product.', [
+													{
+														title: 'OK',
+														handler: () => {
+															setModal(<Login onNext={() => {
+																modalClose()
+															}} />)
+														}
+													}
+												])
+											}
 										}}>Purchase now</Button>
 								</Grid>
 							</Grid>

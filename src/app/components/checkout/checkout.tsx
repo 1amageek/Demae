@@ -1,7 +1,6 @@
 
 import React, { useEffect } from 'react'
 import firebase from 'firebase'
-import { useHistory, Link } from 'react-router-dom'
 import { Box, Paper, TableContainer, Table, TableBody, TableCell, TableRow, Avatar, Tooltip, IconButton, Slide, Button } from '@material-ui/core';
 import ErrorIcon from '@material-ui/icons/Error';
 import NavigateNextIcon from '@material-ui/icons/NavigateNext';
@@ -9,17 +8,15 @@ import DataLoading from 'components/DataLoading';
 import CardBrand from 'common/stripe/CardBrand'
 import { useProcessing } from 'components/Processing';
 import { useSnackbar } from 'components/Snackbar'
-import Navigation, { usePush, usePop } from 'components/Navigation'
+import Navigation, { usePush } from 'components/Navigation'
 import { useUser, useCart } from 'hooks/commerce';
 import CartItemCell from './CartItemCell'
 import CardList from './payment/list'
 import ShippingAddressList from './shipping/list'
 import Summary from 'components/cart/summary'
-import { CartGroup } from 'models/commerce/Cart';
-import NotFound from 'components/NotFound';
 
 
-export default ({ groupID, onClose }: { groupID: string, onClose: () => void }) => {
+export default ({ groupID, onClose, onComplete }: { groupID: string, onClose: () => void, onComplete: () => void }) => {
 	// const { providerID } = props.match.params
 	const [user, isUserLoading] = useUser()
 	const [cart, isCartLoading] = useCart()
@@ -69,7 +66,7 @@ export default ({ groupID, onClose }: { groupID: string, onClose: () => void }) 
 			}
 			console.log(result)
 			setMessage("success", "Success")
-			onClose()
+			onComplete()
 		} catch (error) {
 			console.log(error)
 			setMessage("error", "Error")
