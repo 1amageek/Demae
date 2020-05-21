@@ -12,15 +12,18 @@ import { useCart, useUser } from 'hooks/commerce'
 import { useDialog } from 'components/Dialog'
 import { useModal } from 'components/Modal';
 import { useDrawer } from 'components/Drawer';
-import QuickCheckout from 'components/checkout/_index'
+import { useHistory } from 'react-router-dom';
+import QuickCheckout from 'components/checkout/checkout'
+
 
 export default ({ providerID, productID, skuID }: { providerID: string, productID: string, skuID: string }) => {
 
+	const history = useHistory()
 	const [user] = useUser()
 	const [cart] = useCart()
 	const [setDialog] = useDialog()
 	const [setModal, modalClose] = useModal()
-	const [showDrawer] = useDrawer()
+	const [showDrawer, onClose] = useDrawer()
 
 	const provider: Provider = new Provider(providerID)
 	const [product, isProductLoading] = useDocumentListen<Product>(Product, provider.products.collectionReference.doc(productID))
@@ -154,13 +157,12 @@ export default ({ providerID, productID, skuID }: { providerID: string, productI
 											e.preventDefault()
 											cart?.setSKU(product, sku, 'quick')
 											cart?.save()
-											const cartGroup = cart?.cartGroup('quick')
-											console.log(cartGroup)
-											if (cartGroup) {
-												showDrawer(
-													<QuickCheckout cartGroup={cartGroup} />
-												)
-											}
+											showDrawer(
+												<QuickCheckout groupID={'quick'} onClose={() => {
+													onClose()
+													history.push(`/checkout/${providerID}/completed`)
+												}} />
+											)
 										}}>Purchase now</Button>
 								</Grid>
 							</Grid>

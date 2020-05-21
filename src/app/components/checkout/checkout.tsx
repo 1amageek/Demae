@@ -1,5 +1,5 @@
 
-import React from 'react'
+import React, { useEffect } from 'react'
 import firebase from 'firebase'
 import { useHistory, Link } from 'react-router-dom'
 import { Box, Paper, TableContainer, Table, TableBody, TableCell, TableRow, Avatar, Tooltip, IconButton, Slide, Button } from '@material-ui/core';
@@ -16,42 +16,41 @@ import CardList from './payment/list'
 import ShippingAddressList from './shipping/list'
 import Summary from 'components/cart/summary'
 import { CartGroup } from 'models/commerce/Cart';
+import NotFound from 'components/NotFound';
 
 
-export default ({ cartGroup }: { cartGroup: CartGroup }) => {
+export default ({ groupID, onClose }: { groupID: string, onClose: () => void }) => {
 	// const { providerID } = props.match.params
-	const history = useHistory()
 	const [user, isUserLoading] = useUser()
+	const [cart, isCartLoading] = useCart()
 
+	const cartGroup = cart?.cartGroup(groupID)
 	const defaultShipping = user?.defaultShipping
 	const defaultCart = user?.defaultCard
-
-	const subtotal = new Intl.NumberFormat('ja-JP', { style: 'currency', currency: cartGroup.currency }).format(cartGroup.subtotal())
-	const tax = new Intl.NumberFormat('ja-JP', { style: 'currency', currency: cartGroup.currency }).format(cartGroup.tax())
 
 	const [setProcessing] = useProcessing()
 	const [setMessage] = useSnackbar()
 	const [push] = usePush()
 
 	const checkout = async () => {
-		if (!user) { return }
+		if (!user) return
 
 		// customerID
 		const customerID = user.customerID
-		if (!customerID) { return }
+		if (!customerID) return
 
 		// defaultShipping
 		const defaultShipping = user.defaultShipping
-		if (!defaultShipping) { return }
+		if (!defaultShipping) return
 
 		// paymentMethodID
 		const paymentMethodID = user.defaultCard?.id
-		if (!paymentMethodID) { return }
+		if (!paymentMethodID) return
+
+		if (!cartGroup) return
 
 		cartGroup.shipping = defaultShipping
 		const data = cartGroup.order(user.id)
-
-		console.log(data)
 
 		try {
 			setProcessing(true)
@@ -70,7 +69,7 @@ export default ({ cartGroup }: { cartGroup: CartGroup }) => {
 			}
 			console.log(result)
 			setMessage("success", "Success")
-			history.push(`/checkout/${cartGroup.providedBy}/completed`)
+			onClose()
 		} catch (error) {
 			console.log(error)
 			setMessage("error", "Error")
@@ -79,9 +78,16 @@ export default ({ cartGroup }: { cartGroup: CartGroup }) => {
 	}
 
 
-	if (isUserLoading) {
+	if (isUserLoading || isCartLoading) {
 		return <DataLoading />
 	}
+
+	if (!cartGroup) {
+		return <Empty onClose={onClose} />
+	}
+
+	const subtotal = new Intl.NumberFormat('ja-JP', { style: 'currency', currency: cartGroup.currency }).format(cartGroup.subtotal())
+	const tax = new Intl.NumberFormat('ja-JP', { style: 'currency', currency: cartGroup.currency }).format(cartGroup.tax())
 
 	return (
 		<Navigation>
@@ -162,5 +168,16 @@ export default ({ cartGroup }: { cartGroup: CartGroup }) => {
 				</Box>
 			</Paper>
 		</Navigation>
+	)
+}
+
+const Empty = ({ onClose }: { onClose: () => void }) => {
+
+	useEffect(onClose, [])
+
+	return (
+		<Box display='flex' fontSize={18} fontWeight={500} padding={3} justifyContent='center'>
+			The items are empty.
+		</Box>
 	)
 }

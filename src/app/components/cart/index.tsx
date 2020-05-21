@@ -1,18 +1,20 @@
 import React, { useContext } from 'react';
 import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
-import { Link, useHistory } from 'react-router-dom'
-import { Box, Paper, Typography, Container, Grid, ListItemAvatar, Avatar, Tooltip, IconButton } from '@material-ui/core';
+import { useHistory } from 'react-router-dom'
+import { Box, Paper, Container, Grid, ListItemAvatar, Avatar, Tooltip, IconButton } from '@material-ui/core';
 import List from '@material-ui/core/List';
 import ImageIcon from '@material-ui/icons/Image';
-import { useAuthUser } from 'hooks/auth'
-import { useUser, useCart } from 'hooks/commerce';
-import { CartContext } from 'hooks/commerce'
 import Summary from './summary'
 import AddCircleIcon from '@material-ui/icons/AddCircle';
 import RemoveCircleIcon from '@material-ui/icons/RemoveCircle';
 import Login from 'components/Login'
 import Cart, { CartGroup, CartItem } from 'models/commerce/Cart'
 import DataLoading from 'components/DataLoading';
+import Checkout from 'components/checkout/checkout'
+import { useAuthUser } from 'hooks/auth'
+import { useUser, useCart } from 'hooks/commerce';
+import { CartContext } from 'hooks/commerce'
+import { useDrawer } from 'components/Drawer';
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
@@ -64,6 +66,8 @@ export default () => {
 const CartGroupList = ({ cartGroup }: { cartGroup: CartGroup }) => {
 
 	const history = useHistory()
+	const [showDrawer, onClose] = useDrawer()
+
 	const subtotal = new Intl.NumberFormat('ja-JP', { style: 'currency', currency: cartGroup.currency }).format(cartGroup.subtotal())
 	const tax = new Intl.NumberFormat('ja-JP', { style: 'currency', currency: cartGroup.currency }).format(cartGroup.tax())
 
@@ -79,7 +83,12 @@ const CartGroupList = ({ cartGroup }: { cartGroup: CartGroup }) => {
 					disabled={false}
 					onClick={(e) => {
 						e.preventDefault()
-						history.push(`/checkout/${cartGroup.providedBy}`)
+						showDrawer(
+							<Checkout groupID={cartGroup.groupID} onClose={() => {
+								onClose()
+								history.push(`/checkout/${cartGroup.providedBy}/completed`)
+							}} />
+						)
 					}}
 					items={[{
 						type: 'subtotal',
