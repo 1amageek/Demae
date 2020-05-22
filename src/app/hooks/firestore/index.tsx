@@ -15,6 +15,9 @@ export const useDocumentListen = <T extends Doc>(type: typeof Doc, documentRefer
 		let enabled = true
 		let listener: (() => void) | undefined
 		const listen = async (documentReference: DocumentReference) => {
+			if (listener) {
+				listener()
+			}
 			listener = documentReference.onSnapshot({
 				next: (snapshot) => {
 					if (snapshot.exists) {
@@ -57,6 +60,9 @@ export const useDocumentListen = <T extends Doc>(type: typeof Doc, documentRefer
 							error: undefined
 						})
 					}
+				}
+				if (listener) {
+					listener()
 				}
 				listen(documentReference)
 			} else {

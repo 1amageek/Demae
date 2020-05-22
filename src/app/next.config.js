@@ -5,6 +5,7 @@ require('dotenv').config({ path: `.${process.env.NODE_ENV}.env` })
 module.exports = withWorkers({
 	distDir: '../../dist/functions/next',
 	env: {
+		USE_EMULATOR: process.env.USE_EMULATOR,
 		HOST: process.env.HOST,
 		FIREBASE_PROJECT: process.env.FIREBASE_PROJECT,
 		STRIPE_API_KEY: process.env.STRIPE_API_KEY

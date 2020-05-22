@@ -19,8 +19,7 @@
 		"lib": [
 			"es6",
 			"dom",
-			"es2016",
-			"WebWorker"
+			"es2016"
 		],
 		"forceConsistentCasingInFileNames": false,
 		"esModuleInterop": true,

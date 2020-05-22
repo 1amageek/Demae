@@ -15,7 +15,7 @@ import { ModalProvider } from 'components/Modal'
 import { DrawerProvider } from 'components/Drawer'
 
 const config = require(`${process.env.FIREBASE_PROJECT!}`)
-const isEmulated = process.env.EMULATE_ENV === "emulator"
+const isEmulated = process.env.USE_EMULATOR === 'true'
 
 if (firebase.apps.length === 0) {
 	const app = firebase.initializeApp(config)
