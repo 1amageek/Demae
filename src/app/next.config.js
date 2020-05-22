@@ -3,7 +3,7 @@ const withWorkers = require('@zeit/next-workers')
 require('dotenv').config({ path: `.${process.env.NODE_ENV}.env` })
 
 module.exports = withWorkers({
-	distDir: '../../dist/functions/next',
+	distDir: process.env.OUT_DIR ? process.env.OUT_DIR : '../functions/next',
 	env: {
 		USE_EMULATOR: process.env.USE_EMULATOR,
 		HOST: process.env.HOST,

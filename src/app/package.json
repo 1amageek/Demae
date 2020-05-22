@@ -3,7 +3,7 @@
 	"version": "0.1.0",
 	"private": true,
 	"scripts": {
-		"dev": "next",
+		"dev": "OUT_DIR=./.next next",
 		"build": "next build",
 		"start": "next start"
 	},

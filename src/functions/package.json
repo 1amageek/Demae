@@ -1,0 +1,28 @@
+{
+	"name": "functions",
+	"description": "",
+	"version": "1.0.0",
+	"dependencies": {
+		"@1amageek/ballcap-admin": "^1.2.4",
+		"express": "^4.17.1",
+		"firebase-admin": "^8.12.1",
+		"firebase-functions": "^3.6.1",
+		"next": "^9.4.2"
+	},
+	"devDependencies": {
+		"@types/express": "^4.17.6",
+		"eslint": "^6.8.0",
+		"eslint-plugin-promise": "^4.2.1"
+	},
+	"scripts": {
+		"serve": "firebase serve --only functions",
+		"shell": "firebase experimental:functions:shell",
+		"start": "npm run shell",
+		"deploy": "firebase deploy --only functions",
+		"logs": "firebase functions:log"
+	},
+	"engines": {
+		"node": "10"
+	},
+	"private": true
+}
