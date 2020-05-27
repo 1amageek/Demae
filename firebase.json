@@ -35,8 +35,11 @@
 			"port": "9000"
 		},
 		"hosting": {
-			"host": "localhost",
 			"port": "5000"
+		},
+		"ui": {
+			"enabled": true,
+			"port": "4000"
 		}
 	}
 }

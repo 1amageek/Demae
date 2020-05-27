@@ -1,11 +1,12 @@
+'use strict';
 const path = require('path')
-const withWorkers = require('@zeit/next-workers')
+
 require('dotenv').config({ path: `.${process.env.NODE_ENV}.env` })
 
-module.exports = withWorkers({
+module.exports = {
 	distDir: '../../dist/functions/next',
 	env: {
-		USE_EMULATOR: process.env.USE_EMULATOR,
+		USE_EMULATOR: process.env.USE_EMULATOR || 'false',
 		HOST: process.env.HOST,
 		FIREBASE_PROJECT: process.env.FIREBASE_PROJECT,
 		STRIPE_API_KEY: process.env.STRIPE_API_KEY
@@ -53,4 +54,4 @@ module.exports = withWorkers({
 		)
 		return config
 	}
-})
+}

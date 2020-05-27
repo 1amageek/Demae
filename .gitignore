@@ -13,7 +13,7 @@ firestore-debug.log*
 
 dist/
 
-src/app/config/*
+src/app/config/*.json
 src/functions/.runtimeconfig.json
 
 setup.sh
