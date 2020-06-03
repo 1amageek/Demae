@@ -11,7 +11,7 @@ const firebase = admin.initializeApp()
 ballcap.initialize(firebase)
 
 // Hosting
-const dev = process.env.NODE_ENV !== 'production'
+const dev = process.env.NODE_ENV === 'development'
 const app = next({
 	dev, conf: { distDir: `${path.relative(process.cwd(), __dirname)}/next` }
 })
@@ -26,15 +26,6 @@ export const hosting = functions.https.onRequest(async (req, res) => {
 	}));
 	server.use('/assets', assets)
 	server.get('*', async (req, res) => {
-		// const idToken = getIdToken(req);
-		// console.log(req.headers)
-		// try {
-		// 	const decodedClaims = await firebase.auth().verifyIdToken(idToken)
-		// 	await handle(req, res)
-		// } catch (error) {
-		// 	console.log(error)
-		// 	await handle(req, res)
-		// }
 		await handle(req, res)
 	})
 	server.use((error: any) => {

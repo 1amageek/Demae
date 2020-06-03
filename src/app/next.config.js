@@ -4,7 +4,7 @@ const path = require('path')
 require('dotenv').config({ path: `.${process.env.NODE_ENV}.env` })
 
 module.exports = {
-	distDir: '../../dist/functions/next',
+	distDir: '../../dist/next',
 	env: {
 		USE_EMULATOR: process.env.USE_EMULATOR || 'false',
 		HOST: process.env.HOST,

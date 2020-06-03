@@ -3,15 +3,10 @@
 		"rules": "firestore.rules"
 	},
 	"functions": {
-		"source": "dist/functions",
+		"source": ".",
 		"predeploy": [
-			"npm run lint-functions",
-			"npm run lint-app",
-			"npm run typecheck-app",
-			"npm run build-functions",
-			"npm run build-app",
-			"npm run copy-deps",
-			"npm run install-deps"
+			"npm run lint",
+			"npm run build"
 		]
 	},
 	"hosting": {
@@ -21,6 +16,11 @@
 				"source": "**/**",
 				"function": "hosting"
 			}
+		],
+		"ignore": [
+			"firebase.json",
+			"**/.*",
+			"**/node_modules/**"
 		],
 		"predeploy": "npm run build-public"
 	},

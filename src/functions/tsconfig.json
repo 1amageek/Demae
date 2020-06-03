@@ -10,7 +10,7 @@
 		"emitDecoratorMetadata": true,
 		"experimentalDecorators": true,
 		"noUnusedLocals": true,
-		"outDir": "../../dist/functions",
+		"outDir": "../../dist",
 		"sourceMap": true,
 		"strict": true,
 		"target": "es2018",
