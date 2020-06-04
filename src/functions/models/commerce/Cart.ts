@@ -35,7 +35,7 @@ export class CartGroup extends Model {
 	@Codable(CartItem)
 	@Field items: CartItem[] = []
 	@Field currency: CurrencyCode = 'USD'
-	@Field shippable: boolean = false
+	@Field isShippable: boolean = false
 	@Field shippingDate?: any
 	@Field estimatedArrivalDate?: any
 

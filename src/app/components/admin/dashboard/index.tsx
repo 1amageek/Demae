@@ -26,60 +26,17 @@ import { useAdminProvider } from 'hooks/commerce';
 import { useProcessing } from 'components/Processing';
 import DataLoading from 'components/DataLoading';
 
-const useStyles = makeStyles((theme: Theme) =>
-	createStyles({
-		box: {
-			backgroundColor: '#fafafa'
-		},
-		bottomBox: {
-			padding: theme.spacing(1),
-			display: 'flex',
-			justifyContent: 'flex-end'
-		},
-		input: {
-			backgroundColor: '#fff'
-		},
-		cell: {
-			borderBottom: 'none',
-			padding: theme.spacing(1),
-		},
-		cellStatus: {
-			borderBottom: 'none',
-			padding: theme.spacing(1),
-			width: '48px',
-		},
-		cellStatusBox: {
-			display: 'flex',
-			justifyContent: 'center',
-			alignItems: 'center'
-		}
-	}),
-);
-
 
 export default () => {
-	const classes = useStyles()
-	const [provider, isLoading, error] = useAdminProvider()
-
-	if (isLoading) {
-		return (
-			<Board header={
-				<Typography variant='h1'>
-					Dashboard
-				</Typography>
-			}>
-				<DataLoading />
-			</Board>
-		)
-	}
 
 	return (
 		<Board header={
-			<Typography variant='h1'>
-				Dashboard
-				</Typography>
+			<Typography variant='h6'>
+			</Typography>
 		}>
-			loaded
+			<Box flexGrow={1} alignItems='center' justifyContent='center'>
+				<DataLoading />
+			</Box>
 		</Board>
 	)
 }

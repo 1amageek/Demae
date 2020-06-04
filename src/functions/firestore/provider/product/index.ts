@@ -69,7 +69,7 @@ export const onUpdate = regionFunctions.firestore
 			caption: product.caption,
 			description: product.description,
 			active: product.isAvailable,
-			shippable: product.shippable,
+			shippable: product.isShippable,
 			metadata: {
 				product_path: product.path
 			}

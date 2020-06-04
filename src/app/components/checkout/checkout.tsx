@@ -15,8 +15,15 @@ import CardList from './payment/list'
 import ShippingAddressList from './shipping/list'
 import Summary from 'components/cart/summary'
 
-
 export default ({ groupID, onClose, onComplete }: { groupID: string, onClose: () => void, onComplete: () => void }) => {
+	return (
+		<Navigation>
+			<Checkout groupID={groupID} onClose={onClose} onComplete={onComplete} />
+		</Navigation>
+	)
+}
+
+const Checkout = ({ groupID, onClose, onComplete }: { groupID: string, onClose: () => void, onComplete: () => void }) => {
 	// const { providerID } = props.match.params
 	const [user, isUserLoading] = useUser()
 	const [cart, isCartLoading] = useCart()
@@ -87,84 +94,82 @@ export default ({ groupID, onClose, onComplete }: { groupID: string, onClose: ()
 	const tax = new Intl.NumberFormat('ja-JP', { style: 'currency', currency: cartGroup.currency }).format(cartGroup.tax())
 
 	return (
-		<Navigation>
-			<Paper style={{ width: '100%' }}>
-				<TableContainer>
-					<Table>
-						<TableBody>
-							<TableRow onClick={(e) => {
-								e.preventDefault()
-								e.stopPropagation()
-								push(
-									<CardList user={user!} />
-								)
-							}}>
-								<TableCell style={{ width: '90px' }}>
-									<Box color='text.secondary' fontWeight={700} flexGrow={1}>CARD</Box>
-								</TableCell>
-								<TableCell>
-									{defaultCart &&
-										<Box display="flex" alignItems="center" flexGrow={1} style={{ width: '180px' }}>
-											<Box display="flex" alignItems="center" flexGrow={1} fontSize={22}>
-												<i className={`pf ${CardBrand[defaultCart!.brand]}`}></i>
-											</Box>
-											<Box justifySelf="flex-end" fontSize={16} fontWeight={500}>
-												{`• • • •  ${defaultCart?.last4}`}
-											</Box>
-										</Box>
-									}
-								</TableCell>
-								<TableCell>
-									<Box display='flex' flexGrow={1} justifyContent="flex-end" alignItems='center'>{defaultCart ? <NavigateNextIcon /> : <ErrorIcon color="secondary" />}</Box>
-								</TableCell>
-							</TableRow>
-							<TableRow onClick={(e) => {
-								e.preventDefault()
-								e.stopPropagation()
-								push(
-									<ShippingAddressList user={user!} />
-								)
-							}}>
-								<TableCell style={{ width: '90px' }}>
-									<Box color='text.secondary' fontWeight={700} flexGrow={1}>SHIPPING</Box>
-								</TableCell>
-								<TableCell>
-									{defaultShipping?.name && <Box>{defaultShipping?.name}</Box>}
-									{defaultShipping?.address?.state && <Box>{defaultShipping?.address?.state}</Box>}
-									{defaultShipping?.address?.city && <Box>{defaultShipping?.address?.city}</Box>}
-									{defaultShipping?.address?.line1 && <Box>{`${defaultShipping?.address?.line1}${defaultShipping?.address?.line2}`}</Box>}
-								</TableCell>
-								<TableCell align='left'>
-									<Box display='flex' flexGrow={1} justifyContent="flex-end" alignItems='center'>{defaultShipping ? <NavigateNextIcon /> : <ErrorIcon color="secondary" />}</Box>
-								</TableCell>
-							</TableRow>
-						</TableBody>
-					</Table>
-				</TableContainer>
-				<Box padding={2}>
-					<Box>
-						{cartGroup.items.map(cartItem => {
-							return <CartItemCell key={cartItem.skuReference!.path} groupID={cartGroup.groupID} cartItem={cartItem} />
-						})}
-					</Box>
-					<Summary
-						disabled={isUserLoading}
-						onClick={(e) => {
+		<Paper style={{ width: '100%' }}>
+			<TableContainer>
+				<Table>
+					<TableBody>
+						<TableRow onClick={(e) => {
 							e.preventDefault()
-							checkout()
-						}}
-						items={[{
-							type: 'subtotal',
-							title: 'Subtotal',
-							detail: `${subtotal}`
-						}, {
-							type: 'tax',
-							title: 'Tax',
-							detail: `${tax}`
-						}]} />
+							e.stopPropagation()
+							push(
+								<CardList user={user!} />
+							)
+						}}>
+							<TableCell style={{ width: '90px' }}>
+								<Box color='text.secondary' fontWeight={700} flexGrow={1}>CARD</Box>
+							</TableCell>
+							<TableCell>
+								{defaultCart &&
+									<Box display="flex" alignItems="center" flexGrow={1} style={{ width: '180px' }}>
+										<Box display="flex" alignItems="center" flexGrow={1} fontSize={22}>
+											<i className={`pf ${CardBrand[defaultCart!.brand]}`}></i>
+										</Box>
+										<Box justifySelf="flex-end" fontSize={16} fontWeight={500}>
+											{`• • • •  ${defaultCart?.last4}`}
+										</Box>
+									</Box>
+								}
+							</TableCell>
+							<TableCell>
+								<Box display='flex' flexGrow={1} justifyContent="flex-end" alignItems='center'>{defaultCart ? <NavigateNextIcon /> : <ErrorIcon color="secondary" />}</Box>
+							</TableCell>
+						</TableRow>
+						<TableRow onClick={(e) => {
+							e.preventDefault()
+							e.stopPropagation()
+							push(
+								<ShippingAddressList user={user!} />
+							)
+						}}>
+							<TableCell style={{ width: '90px' }}>
+								<Box color='text.secondary' fontWeight={700} flexGrow={1}>SHIPPING</Box>
+							</TableCell>
+							<TableCell>
+								{defaultShipping?.name && <Box>{defaultShipping?.name}</Box>}
+								{defaultShipping?.address?.state && <Box>{defaultShipping?.address?.state}</Box>}
+								{defaultShipping?.address?.city && <Box>{defaultShipping?.address?.city}</Box>}
+								{defaultShipping?.address?.line1 && <Box>{`${defaultShipping?.address?.line1}${defaultShipping?.address?.line2}`}</Box>}
+							</TableCell>
+							<TableCell align='left'>
+								<Box display='flex' flexGrow={1} justifyContent="flex-end" alignItems='center'>{defaultShipping ? <NavigateNextIcon /> : <ErrorIcon color="secondary" />}</Box>
+							</TableCell>
+						</TableRow>
+					</TableBody>
+				</Table>
+			</TableContainer>
+			<Box padding={2}>
+				<Box>
+					{cartGroup.items.map(cartItem => {
+						return <CartItemCell key={cartItem.skuReference!.path} groupID={cartGroup.groupID} cartItem={cartItem} />
+					})}
 				</Box>
-			</Paper>
-		</Navigation>
+				<Summary
+					disabled={isUserLoading}
+					onClick={(e) => {
+						e.preventDefault()
+						checkout()
+					}}
+					items={[{
+						type: 'subtotal',
+						title: 'Subtotal',
+						detail: `${subtotal}`
+					}, {
+						type: 'tax',
+						title: 'Tax',
+						detail: `${tax}`
+					}]} />
+			</Box>
+		</Paper>
 	)
 }
 

@@ -1,6 +1,6 @@
 
 import React, { useState, useContext } from 'react';
-import { Link } from 'react-router-dom'
+import { NavLink } from 'react-router-dom'
 import { makeStyles } from '@material-ui/core/styles';
 import { BottomNavigation, Badge } from '@material-ui/core';
 import BottomNavigationAction from '@material-ui/core/BottomNavigationAction';
@@ -27,19 +27,19 @@ export default () => {
 	return (
 		<BottomNavigation value={value} onChange={handleChange} className={classes.root}>
 			<BottomNavigationAction
-				component={Link}
+				component={NavLink}
 				to='/home'
 				label='Home'
 				value='home'
 				icon={<StorefrontIcon />} />
 			<BottomNavigationAction
-				component={Link}
+				component={NavLink}
 				to='/cart'
 				label='Cart'
 				value='cart'
 				icon={<CartIcon />} />
 			<BottomNavigationAction
-				component={Link}
+				component={NavLink}
 				to='/account'
 				label='Account'
 				value='account'

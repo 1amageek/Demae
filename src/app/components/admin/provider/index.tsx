@@ -136,7 +136,7 @@ const Form = ({ provider }: { provider: Provider }) => {
 									setCover(file)
 								}} />
 						</Box>
-						<Box display='flex' position='absolute' zIndex={1050} flexGrow={1} width={120} height={120} borderRadius='50%' bottom={-16} left={16} style={{ overflow: 'hidden' }}>
+						<Box display='flex' position='absolute' zIndex={1050} flexGrow={1} width={120} height={120} border={2} borderColor='white' borderRadius='50%' bottom={-16} left={16} style={{ overflow: 'hidden' }}>
 							<DndCard
 								url={provider?.thumbnailImageURL()}
 								onDrop={(files) => {

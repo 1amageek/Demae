@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, useHistory } from 'react-router-dom'
+import { Link, useHistory, useLocation } from 'react-router-dom'
 import firebase from 'firebase';
 import 'firebase/auth';
 import 'firebase/functions';
@@ -160,7 +160,7 @@ const ProviderList = () => {
 	return (
 		<List>
 			{roles.map(role => {
-				return <ProviderListItem role={role} />
+				return <ProviderListItem key={role.id} role={role} />
 			})}
 		</List>
 	)
@@ -168,6 +168,7 @@ const ProviderList = () => {
 
 const ProviderListItem = ({ role }: { role: Role }) => {
 	const history = useHistory()
+	const location = useLocation()
 	const [provider, isLoading] = useDocumentListen<Provider>(Provider, new Provider(role.id).documentReference)
 	const [setDialog] = useDialog()
 	const [setProcessing] = useProcessing()
@@ -191,7 +192,7 @@ const ProviderListItem = ({ role }: { role: Role }) => {
 					const adminAttach = firebase.functions().httpsCallable('v1-commerce-admin-attach')
 					try {
 						await adminAttach({ providerID: provider!.id })
-						history.push('/admin')
+						window.location.href = '/admin'
 					} catch (error) {
 						setDialog('Error', 'Error', [{
 							title: 'OK'

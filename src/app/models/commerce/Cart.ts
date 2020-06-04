@@ -123,7 +123,7 @@ export class CartGroup extends Model implements Accounting {
 	@Codable(CartItem)
 	@Field items: CartItem[] = []
 	@Field currency: CurrencyCode = 'USD'
-	@Field shippable: boolean = false
+	@Field isShippable: boolean = false
 	@Field shippingDate?: any
 	@Field estimatedArrivalDate?: any
 
@@ -205,7 +205,7 @@ export class CartGroup extends Model implements Accounting {
 		order.currency = this.currency
 		order.amount = this.total()
 		order.items = items
-		order.deliveryRequired = this.shippable
+		order.deliveryRequired = this.isShippable
 		order.deliveryStatus = 'none'
 		order.paymentStatus = 'none'
 		order.isCancelled = false
@@ -279,7 +279,7 @@ export default class Cart extends Doc {
 		const group = CartGroup.fromSKU(sku)
 		group.groupID = groupID
 		this.groups = [group]
-		group.shippable = group.shippable || product.shippable
+		group.isShippable = group.isShippable || product.isShippable
 		if ((group.currency !== null) && (group.currency !== sku.currency)) {
 			console.log(`[APP] invalid currency. The cart now contains ${group.currency}, but the added item is ${sku.currency}.`)
 			return
@@ -296,7 +296,7 @@ export default class Cart extends Doc {
 			group.groupID = groupID
 			this.groups.push(group)
 		}
-		group.shippable = group.shippable || product.shippable
+		group.isShippable = group.isShippable || product.isShippable
 		if ((group.currency !== null) && (group.currency !== sku.currency)) {
 			console.log(`[APP] invalid currency. The cart now contains ${group.currency}, but the added item is ${sku.currency}.`)
 			return

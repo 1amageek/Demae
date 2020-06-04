@@ -29,8 +29,7 @@ const useStyles = makeStyles((theme: Theme) =>
 			paddingBottom: '100px',
 		},
 		content: {
-			flexGrow: 1,
-			padding: theme.spacing(1, 0),
+			flexGrow: 1
 		}
 	})
 );

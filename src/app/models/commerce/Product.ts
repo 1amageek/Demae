@@ -21,7 +21,7 @@ export default class Product extends Doc {
 	@Field description?: string
 	@Field unitLabel: string = ""
 	@Field price: { [key in CurrencyCode]?: number } = {}
-	@Field shippable: boolean = true
+	@Field isShippable: boolean = true
 	@Field isAvailable: boolean = true
 	@Field metadata?: any
 	@SubCollection skus: Collection<SKU> = new Collection()
