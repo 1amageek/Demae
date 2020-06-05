@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import { Card, CardActionArea, CardMedia, CardContent, CardActions, Box, Avatar } from '@material-ui/core';
 import IconButton from '@material-ui/core/IconButton';
@@ -11,6 +11,7 @@ import { useUser } from 'hooks/commerce'
 import { Product } from 'models/commerce';
 import ImageIcon from '@material-ui/icons/Image';
 import { Symbol } from 'common/Currency'
+import { useURL } from 'hooks/url'
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
@@ -43,6 +44,7 @@ const useStyles = makeStyles((theme: Theme) =>
 export default ({ providerID, product }: { providerID: string, product: Product }) => {
 	const classes = useStyles();
 	const [user] = useUser()
+	const url = useURL();
 
 	const prices = product.price
 	const currency = user?.currency || 'USD'
@@ -53,7 +55,7 @@ export default ({ providerID, product }: { providerID: string, product: Product 
 
 	return (
 		<Card variant='outlined' style={{ border: 'none', background: 'none', borderRadius: '0px' }}>
-			<Link to={`/providers/${providerID}/products/${product.id}`}>
+			<Link to={url(`/providers/${providerID}/products/${product.id}`)}>
 				<CardActionArea>
 					<CardMedia
 						className={classes.media}
@@ -74,14 +76,6 @@ export default ({ providerID, product }: { providerID: string, product: Product 
 					{price}
 				</Box>
 			</CardContent>
-			{/* <CardActions disableSpacing>
-				<IconButton aria-label="add to favorites">
-					<FavoriteIcon />
-				</IconButton>
-				<IconButton aria-label="share">
-					<ShareIcon />
-				</IconButton>
-			</CardActions> */}
 		</Card >
 	);
 }
