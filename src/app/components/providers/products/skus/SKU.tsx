@@ -16,6 +16,7 @@ import { useHistory } from 'react-router-dom';
 import QuickCheckout from 'components/checkout/checkout'
 import ActionBar from 'components/ActionBar'
 import { useMediator } from 'hooks/url'
+import { CartGroup } from 'models/commerce/Cart';
 
 export default ({ providerID, productID, skuID }: { providerID: string, productID: string, skuID: string }) => {
 
@@ -63,11 +64,17 @@ export default ({ providerID, productID, skuID }: { providerID: string, productI
 			if (!product) return
 			if (user) {
 				if (cart) {
-					cart.addSKU(product, sku, providerID)
+					const group = cart?.cartGroup(providerID) || CartGroup.fromSKU(sku)
+					group.groupID = providerID
+					group.addSKU(product, sku, mediatorID)
+					cart?.setCartGroup(group)
 					await cart.save()
 				} else {
 					const cart = new Cart(user.id)
-					cart.addSKU(product, sku, providerID)
+					const group = cart.cartGroup(providerID) || CartGroup.fromSKU(sku)
+					group.groupID = providerID
+					group.addSKU(product, sku, mediatorID)
+					cart?.setCartGroup(group)
 					await cart.save()
 				}
 			}
@@ -161,8 +168,10 @@ export default ({ providerID, productID, skuID }: { providerID: string, productI
 										onClick={(e) => {
 											e.preventDefault()
 											if (user) {
-												cart?.setSKU(product, sku, 'quick')
-												cart?.cartGroup('quick')?.setMediator(mediatorID)
+												const group = cart?.cartGroup('quick') || CartGroup.fromSKU(sku)
+												group.groupID = 'quick'
+												group.setSKU(product, sku, mediatorID)
+												cart?.setCartGroup(group)
 												cart?.save()
 												showDrawer(
 													<QuickCheckout

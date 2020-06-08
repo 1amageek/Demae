@@ -118,11 +118,13 @@ const CartItemCell = ({ cartGroup, cartItem }: { cartGroup: CartGroup, cartItem:
 		event.stopPropagation()
 		if (user) {
 			if (cart) {
-				cart.addItem(cartItem, cartGroup.groupID)
+				const group = cart.cartGroup(cartGroup.groupID)
+				group?.addItem(cartItem)
 				await cart.save()
 			} else {
 				const cart = new Cart(user.id)
-				cart.addItem(cartItem, cartGroup.groupID)
+				const group = cart.cartGroup(cartGroup.groupID)
+				group?.addItem(cartItem)
 				await cart.save()
 			}
 		}
@@ -132,7 +134,11 @@ const CartItemCell = ({ cartGroup, cartItem }: { cartGroup: CartGroup, cartItem:
 		event.preventDefault()
 		event.stopPropagation()
 		if (!cart) { return }
-		cart.subtractItem(cartItem, cartGroup.groupID)
+		const group = cart.cartGroup(cartGroup.groupID)
+		group?.subtractItem(cartItem)
+		if ((group?.items.length || 0) <= 0) {
+			cart.groups = cart.groups.filter(group => group.groupID !== cartGroup.groupID)
+		}
 		await cart.save()
 	}
 

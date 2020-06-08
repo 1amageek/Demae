@@ -5,6 +5,7 @@ import Shipping from './Shipping'
 
 export class OrderItem extends Model {
 	@Field images: File[] = []
+	@Field mediatedBy?: string
 	@Field productType?: ProductType
 	@Field productReference?: DocumentReference
 	@Field skuReference?: DocumentReference

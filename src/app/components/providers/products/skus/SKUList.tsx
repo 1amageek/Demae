@@ -13,11 +13,12 @@ import DataLoading from 'components/DataLoading';
 import { useDataSourceListen, useDocumentListen, Where } from 'hooks/firestore';
 import { Provider, Product, SKU } from 'models/commerce';
 import { useCart, useUser } from 'hooks/commerce'
-import Cart from 'models/commerce/Cart';
+import Cart, { CartGroup } from 'models/commerce/Cart';
 import NotFound from 'components/NotFound'
 import Login from 'components/Login'
 import { useDialog } from 'components/Dialog'
 import { useModal } from 'components/Modal';
+import { useMediator } from 'hooks/url'
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
@@ -70,6 +71,7 @@ const SKUListItem = ({ providerID, product, sku }: { providerID: string, product
 	const [cart] = useCart()
 	const [setDialog] = useDialog()
 	const [setModal, modalClose] = useModal()
+	const mediatorID = useMediator()
 
 	const imageURL = (sku.imageURLs().length > 0) ? sku.imageURLs()[0] : undefined
 	const amount = sku.price || 0
@@ -103,11 +105,17 @@ const SKUListItem = ({ providerID, product, sku }: { providerID: string, product
 			if (!product) return
 			if (user) {
 				if (cart) {
-					cart.addSKU(product, sku, providerID)
+					const group = cart?.cartGroup(providerID) || CartGroup.fromSKU(sku)
+					group.groupID = providerID
+					group.addSKU(product, sku, mediatorID)
+					cart?.setCartGroup(group)
 					await cart.save()
 				} else {
 					const cart = new Cart(user.id)
-					cart.addSKU(product, sku, providerID)
+					const group = cart?.cartGroup(providerID) || CartGroup.fromSKU(sku)
+					group.groupID = providerID
+					group.addSKU(product, sku, mediatorID)
+					cart?.setCartGroup(group)
 					await cart.save()
 				}
 			}
@@ -116,7 +124,11 @@ const SKUListItem = ({ providerID, product, sku }: { providerID: string, product
 
 	const deleteSKU = async (sku: SKU) => {
 		if (!cart) { return }
-		cart.deleteSKU(sku, providerID)
+		const group = cart.cartGroup(providerID)
+		group?.deleteSKU(sku)
+		if ((group?.items.length || 0) <= 0) {
+			cart.groups = cart.groups.filter(group => group.groupID !== providerID)
+		}
 		await cart.save()
 	}
 

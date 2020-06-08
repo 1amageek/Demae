@@ -192,7 +192,7 @@ const ProviderListItem = ({ role }: { role: Role }) => {
 					const adminAttach = firebase.functions().httpsCallable('v1-commerce-admin-attach')
 					try {
 						await adminAttach({ providerID: provider!.id })
-						window.location.href = '/admin'
+						window.open('/admin', '_blank')
 					} catch (error) {
 						setDialog('Error', 'Error', [{
 							title: 'OK'

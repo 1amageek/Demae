@@ -55,7 +55,10 @@ export const create = regionFunctions.https.onCall(async (data, context) => {
 
 	const orderRef = new User(uid).orders.collectionReference.doc()
 	const order: Order = Order.fromData(orderData, orderRef, { convertDocumentReference: true })
-	const cartItemgroups = cart.groups.filter(group => group.providedBy !== order.providedBy)
+	const cartItemGroups = cart.groups.filter(group => group.providedBy !== order.providedBy)
+
+
+
 
 	const request = {
 		setup_future_usage: 'off_session',
@@ -64,6 +67,7 @@ export const create = regionFunctions.https.onCall(async (data, context) => {
 		customer: customerID,
 		shipping: order.shipping?.data(),
 		payment_method: paymentMethodID,
+		transfer_group: order.id,
 		metadata: {
 			uid: uid,
 		}
@@ -112,7 +116,7 @@ export const create = regionFunctions.https.onCall(async (data, context) => {
 					updatedAt: admin.firestore.FieldValue.serverTimestamp()
 				})
 				transaction.set(cart.documentReference, {
-					groups: cartItemgroups
+					groups: cartItemGroups
 				}, { merge: true })
 				return order.data({ convertDocumentReference: true })
 			} catch (error) {
@@ -211,6 +215,17 @@ export const create = regionFunctions.https.onCall(async (data, context) => {
 // 		throw error
 // 	}
 // })
+
+// const transferData = async (order: Order) => {
+// 	const items = order.items.filter(item => item.mediatedBy !== null)
+// 	items.map(async item => {
+// 		const account = await Account.get(item.mediatedBy!)
+// 		return {
+
+// 		}
+// 	})
+
+// }
 
 const checkOrder = async (order: Order) => {
 

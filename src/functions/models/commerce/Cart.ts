@@ -13,6 +13,7 @@ class Deliverable extends Model {
 
 export class CartItem extends Deliverable {
 	@Field providedBy!: string
+	@Field mediatedBy?: string
 	@Field images: File[] = []
 	@Field productType?: ProductType
 	@Field productReference?: DocumentReference
@@ -32,7 +33,6 @@ export class CartItem extends Deliverable {
 export class CartGroup extends Model {
 	@Field groupID!: string
 	@Field providedBy!: string
-	@Field mediatedby?: string
 	@Codable(CartItem)
 	@Field items: CartItem[] = []
 	@Field currency: CurrencyCode = 'USD'

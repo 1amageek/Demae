@@ -24,7 +24,7 @@ export default ({ groupID, onClose, onComplete }: { groupID: string, onClose: ()
 }
 
 const Checkout = ({ groupID, onClose, onComplete }: { groupID: string, onClose: () => void, onComplete: () => void }) => {
-	// const { providerID } = props.match.params
+
 	const [user, isUserLoading] = useUser()
 	const [cart, isCartLoading] = useCart()
 
@@ -38,22 +38,24 @@ const Checkout = ({ groupID, onClose, onComplete }: { groupID: string, onClose: 
 
 	const checkout = async () => {
 		if (!user) return
-
+		if (!cartGroup) return
 		// customerID
 		const customerID = user.customerID
 		if (!customerID) return
-
-		// defaultShipping
-		const defaultShipping = user.defaultShipping
-		if (!defaultShipping) return
 
 		// paymentMethodID
 		const paymentMethodID = user.defaultCard?.id
 		if (!paymentMethodID) return
 
-		if (!cartGroup) return
+		if (cartGroup.isShippable) {
+			// defaultShipping
+			const defaultShipping = user.defaultShipping
+			if (!defaultShipping) return
 
-		cartGroup.shipping = defaultShipping
+			cartGroup.shipping = defaultShipping
+		}
+
+		// create order
 		const data = cartGroup.order(user.id)
 
 		try {
@@ -80,7 +82,6 @@ const Checkout = ({ groupID, onClose, onComplete }: { groupID: string, onClose: 
 		}
 		setProcessing(false)
 	}
-
 
 	if (isUserLoading || isCartLoading) {
 		return <DataLoading />
@@ -124,26 +125,28 @@ const Checkout = ({ groupID, onClose, onComplete }: { groupID: string, onClose: 
 								<Box display='flex' flexGrow={1} justifyContent="flex-end" alignItems='center'>{defaultCart ? <NavigateNextIcon /> : <ErrorIcon color="secondary" />}</Box>
 							</TableCell>
 						</TableRow>
-						<TableRow onClick={(e) => {
-							e.preventDefault()
-							e.stopPropagation()
-							push(
-								<ShippingAddressList user={user!} />
-							)
-						}}>
-							<TableCell style={{ width: '90px' }}>
-								<Box color='text.secondary' fontWeight={700} flexGrow={1}>SHIPPING</Box>
-							</TableCell>
-							<TableCell>
-								{defaultShipping?.name && <Box>{defaultShipping?.name}</Box>}
-								{defaultShipping?.address?.state && <Box>{defaultShipping?.address?.state}</Box>}
-								{defaultShipping?.address?.city && <Box>{defaultShipping?.address?.city}</Box>}
-								{defaultShipping?.address?.line1 && <Box>{`${defaultShipping?.address?.line1}${defaultShipping?.address?.line2}`}</Box>}
-							</TableCell>
-							<TableCell align='left'>
-								<Box display='flex' flexGrow={1} justifyContent="flex-end" alignItems='center'>{defaultShipping ? <NavigateNextIcon /> : <ErrorIcon color="secondary" />}</Box>
-							</TableCell>
-						</TableRow>
+						{cartGroup.isShippable &&
+							<TableRow onClick={(e) => {
+								e.preventDefault()
+								e.stopPropagation()
+								push(
+									<ShippingAddressList user={user!} />
+								)
+							}}>
+								<TableCell style={{ width: '90px' }}>
+									<Box color='text.secondary' fontWeight={700} flexGrow={1}>SHIPPING</Box>
+								</TableCell>
+								<TableCell>
+									{defaultShipping?.name && <Box>{defaultShipping?.name}</Box>}
+									{defaultShipping?.address?.state && <Box>{defaultShipping?.address?.state}</Box>}
+									{defaultShipping?.address?.city && <Box>{defaultShipping?.address?.city}</Box>}
+									{defaultShipping?.address?.line1 && <Box>{`${defaultShipping?.address?.line1}${defaultShipping?.address?.line2}`}</Box>}
+								</TableCell>
+								<TableCell align='left'>
+									<Box display='flex' flexGrow={1} justifyContent="flex-end" alignItems='center'>{defaultShipping ? <NavigateNextIcon /> : <ErrorIcon color="secondary" />}</Box>
+								</TableCell>
+							</TableRow>
+						}
 					</TableBody>
 				</Table>
 			</TableContainer>

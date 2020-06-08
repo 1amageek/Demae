@@ -29,11 +29,13 @@ export default React.forwardRef(({ groupID, cartItem }: { groupID: string, cartI
 		event.stopPropagation()
 		if (user) {
 			if (cart) {
-				cart.addItem(cartItem, groupID)
+				const group = cart.cartGroup(groupID)
+				group?.addItem(cartItem)
 				await cart.save()
 			} else {
 				const cart = new Cart(user.id)
-				cart.addItem(cartItem, groupID)
+				const group = cart.cartGroup(groupID)
+				group?.addItem(cartItem)
 				await cart.save()
 			}
 		}
@@ -43,7 +45,11 @@ export default React.forwardRef(({ groupID, cartItem }: { groupID: string, cartI
 		event.preventDefault()
 		event.stopPropagation()
 		if (!cart) { return }
-		cart.subtractItem(cartItem, groupID)
+		const group = cart.cartGroup(groupID)
+		group?.subtractItem(cartItem)
+		if ((group?.items.length || 0) <= 0) {
+			cart.groups = cart.groups.filter(group => group.groupID !== groupID)
+		}
 		await cart.save()
 	}
 

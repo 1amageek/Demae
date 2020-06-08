@@ -42,6 +42,7 @@ class Deliverable extends Model {
 
 export class CartItem extends Deliverable implements Accounting {
 	@Field providedBy!: string
+	@Field mediatedBy?: string
 	@Field images: File[] = []
 	@Field productType?: ProductType
 	@Field productReference?: DocumentReference
@@ -120,7 +121,6 @@ export class CartItem extends Deliverable implements Accounting {
 export class CartGroup extends Model implements Accounting {
 	@Field groupID!: string
 	@Field providedBy!: string
-	@Field mediatedby?: string
 	@Codable(CartItem)
 	@Field items: CartItem[] = []
 	@Field currency: CurrencyCode = 'USD'
@@ -181,6 +181,7 @@ export class CartGroup extends Model implements Accounting {
 	order(purchasedBy: string) {
 		const items = this.items.map(item => {
 			const orderItem: OrderItem = new OrderItem()
+			orderItem.mediatedBy = item.mediatedBy
 			orderItem.images = item.images
 			orderItem.name = item.name
 			orderItem.productReference = item.productReference
@@ -216,13 +217,72 @@ export class CartGroup extends Model implements Accounting {
 
 	// -
 
-	setMediator(mediatorID: string | null) {
-		if (!mediatorID) return
-		if (this.providedBy === mediatorID) {
-			this.mediatedby = undefined
+	setSKU(product: Product, sku: SKU, mediatedBy: string | null) {
+		if (product.providedBy !== sku.providedBy) return
+		this.isShippable = this.isShippable || product.isShippable
+		if ((this.currency !== null) && (this.currency !== sku.currency)) {
+			console.log(`[APP] invalid currency. The cart now contains ${this.currency}, but the added item is ${sku.currency}.`)
 			return
 		}
-		this.mediatedby = mediatorID
+		const cartItem: CartItem = CartItem.fromSKU(product, sku)
+		if (mediatedBy) cartItem.mediatedBy = mediatedBy
+		this.items = [cartItem]
+	}
+
+	addSKU(product: Product, sku: SKU, mediatedBy: string | null) {
+		if (product.providedBy !== sku.providedBy) return
+		this.isShippable = this.isShippable || product.isShippable
+		if ((this.currency !== null) && (this.currency !== sku.currency)) {
+			console.log(`[APP] invalid currency. The cart now contains ${this.currency}, but the added item is ${sku.currency}.`)
+			return
+		}
+		const cartItem = this.items.find(value => value.skuReference!.path == sku.path)
+		if (cartItem) {
+			cartItem.quantity += 1
+			if (mediatedBy) cartItem.mediatedBy = mediatedBy
+		} else {
+			const cartItem: CartItem = CartItem.fromSKU(product, sku)
+			if (mediatedBy) cartItem.mediatedBy = mediatedBy
+			this.items.push(cartItem)
+		}
+	}
+
+	deleteSKU(sku: SKU) {
+		const cartItem = this.items.find(value => value.skuReference!.path == sku.path)
+		if (cartItem) {
+			cartItem.quantity -= 1
+			if (cartItem.quantity <= 0) {
+				cartItem.quantity = 0
+				this.items = this.items.filter(item => item.skuReference!.path !== sku.path)
+			}
+		} else {
+			this.items = this.items.filter(item => item.skuReference!.path !== sku.path)
+		}
+	}
+
+	addItem(item: CartItem) {
+		const cartItem = this.items.find(value => value.skuReference!.path == item.skuReference!.path)
+		if (cartItem) {
+			cartItem.quantity += 1
+		} else {
+			this.items.push(item)
+		}
+	}
+
+	subtractItem(item: CartItem) {
+		const cartItem = this.items.find(value => value.skuReference!.path == item.skuReference!.path)
+		if (cartItem) {
+			cartItem.quantity -= 1
+			if (cartItem.quantity == 0) {
+				this.deleteItem(item)
+			}
+		} else {
+			this.items.push(item)
+		}
+	}
+
+	deleteItem(item: CartItem) {
+		this.items = this.items.filter(value => value.skuReference!.path !== item.skuReference!.path)
 	}
 }
 
@@ -286,97 +346,104 @@ export default class Cart extends Doc {
 		return this.subtotal() + this.tax()
 	}
 
-	setSKU(product: Product, sku: SKU, groupID: string) {
-		if (product.providedBy !== sku.providedBy) return
-		const group = CartGroup.fromSKU(sku)
-		group.groupID = groupID
-		this.groups = [group]
-		group.isShippable = group.isShippable || product.isShippable
-		if ((group.currency !== null) && (group.currency !== sku.currency)) {
-			console.log(`[APP] invalid currency. The cart now contains ${group.currency}, but the added item is ${sku.currency}.`)
-			return
-		}
-		const cartItem: CartItem = CartItem.fromSKU(product, sku)
-		group.items = [cartItem]
-	}
+	// setSKU(product: Product, sku: SKU, groupID: string) {
+	// 	if (product.providedBy !== sku.providedBy) return
+	// 	const group = CartGroup.fromSKU(sku)
+	// 	group.groupID = groupID
+	// 	this.groups = [group]
+	// 	group.isShippable = group.isShippable || product.isShippable
+	// 	if ((group.currency !== null) && (group.currency !== sku.currency)) {
+	// 		console.log(`[APP] invalid currency. The cart now contains ${group.currency}, but the added item is ${sku.currency}.`)
+	// 		return
+	// 	}
+	// 	const cartItem: CartItem = CartItem.fromSKU(product, sku)
+	// 	group.items = [cartItem]
+	// }
 
-	addSKU(product: Product, sku: SKU, groupID: string) {
-		if (product.providedBy !== sku.providedBy) return
-		let group = this.groups.find(group => group.groupID === groupID)
-		if (!group) {
-			group = CartGroup.fromSKU(sku)
-			group.groupID = groupID
-			this.groups.push(group)
-		}
-		group.isShippable = group.isShippable || product.isShippable
-		if ((group.currency !== null) && (group.currency !== sku.currency)) {
-			console.log(`[APP] invalid currency. The cart now contains ${group.currency}, but the added item is ${sku.currency}.`)
-			return
-		}
+	// addSKU(product: Product, sku: SKU, groupID: string) {
+	// 	if (product.providedBy !== sku.providedBy) return
+	// 	let group = this.groups.find(group => group.groupID === groupID)
+	// 	if (!group) {
+	// 		group = CartGroup.fromSKU(sku)
+	// 		group.groupID = groupID
+	// 		this.groups.push(group)
+	// 	}
+	// 	group.isShippable = group.isShippable || product.isShippable
+	// 	if ((group.currency !== null) && (group.currency !== sku.currency)) {
+	// 		console.log(`[APP] invalid currency. The cart now contains ${group.currency}, but the added item is ${sku.currency}.`)
+	// 		return
+	// 	}
 
-		const cartItem = group.items.find(value => value.skuReference!.path == sku.path)
-		if (cartItem) {
-			cartItem.quantity += 1
-		} else {
-			const cartItem: CartItem = CartItem.fromSKU(product, sku)
-			group.items.push(cartItem)
-		}
-	}
+	// 	const cartItem = group.items.find(value => value.skuReference!.path == sku.path)
+	// 	if (cartItem) {
+	// 		cartItem.quantity += 1
+	// 	} else {
+	// 		const cartItem: CartItem = CartItem.fromSKU(product, sku)
+	// 		group.items.push(cartItem)
+	// 	}
+	// }
 
-	deleteSKU(sku: SKU, groupID: string) {
-		const group = this.groups.find(group => group.groupID === groupID)
-		if (!group) return
-		const cartItem = group.items.find(value => value.skuReference!.path == sku.path)
-		if (cartItem) {
-			cartItem.quantity -= 1
-			if (cartItem.quantity <= 0) {
-				cartItem.quantity = 0
-				group.items = group.items.filter(item => item.skuReference!.path !== sku.path)
-			}
-		} else {
-			group.items = group.items.filter(item => item.skuReference!.path !== sku.path)
-		}
-		if (group.items.length <= 0) {
-			this.groups = this.groups.filter(group => group.providedBy !== sku.providedBy)
-		}
-	}
+	// deleteSKU(sku: SKU, groupID: string) {
+	// 	const group = this.groups.find(group => group.groupID === groupID)
+	// 	if (!group) return
+	// 	const cartItem = group.items.find(value => value.skuReference!.path == sku.path)
+	// 	if (cartItem) {
+	// 		cartItem.quantity -= 1
+	// 		if (cartItem.quantity <= 0) {
+	// 			cartItem.quantity = 0
+	// 			group.items = group.items.filter(item => item.skuReference!.path !== sku.path)
+	// 		}
+	// 	} else {
+	// 		group.items = group.items.filter(item => item.skuReference!.path !== sku.path)
+	// 	}
+	// 	if (group.items.length <= 0) {
+	// 		this.groups = this.groups.filter(group => group.providedBy !== sku.providedBy)
+	// 	}
+	// }
 
-	addItem(item: CartItem, groupID: string) {
-		const group = this.groups.find(group => group.groupID === groupID)
-		if (!group) return
-		const cartItem = group.items.find(value => value.skuReference!.path == item.skuReference!.path)
-		if (cartItem) {
-			cartItem.quantity += 1
-		} else {
-			group.items.push(item)
-		}
-	}
+	// addItem(item: CartItem, groupID: string) {
+	// 	const group = this.groups.find(group => group.groupID === groupID)
+	// 	if (!group) return
+	// 	const cartItem = group.items.find(value => value.skuReference!.path == item.skuReference!.path)
+	// 	if (cartItem) {
+	// 		cartItem.quantity += 1
+	// 	} else {
+	// 		group.items.push(item)
+	// 	}
+	// }
 
-	subtractItem(item: CartItem, groupID: string) {
-		const group = this.groups.find(group => group.groupID === groupID)
-		if (!group) return
-		const cartItem = group.items.find(value => value.skuReference!.path == item.skuReference!.path)
-		if (cartItem) {
-			cartItem.quantity -= 1
-			if (cartItem.quantity == 0) {
-				this.deleteItem(item, groupID)
-			}
-		} else {
-			group.items.push(item)
-		}
-		if (group.items.length <= 0) {
-			this.groups = this.groups.filter(group => group.groupID !== groupID)
-		}
-	}
+	// subtractItem(item: CartItem, groupID: string) {
+	// 	const group = this.groups.find(group => group.groupID === groupID)
+	// 	if (!group) return
+	// 	const cartItem = group.items.find(value => value.skuReference!.path == item.skuReference!.path)
+	// 	if (cartItem) {
+	// 		cartItem.quantity -= 1
+	// 		if (cartItem.quantity == 0) {
+	// 			this.deleteItem(item, groupID)
+	// 		}
+	// 	} else {
+	// 		group.items.push(item)
+	// 	}
+	// 	if (group.items.length <= 0) {
+	// 		this.groups = this.groups.filter(group => group.groupID !== groupID)
+	// 	}
+	// }
 
-	deleteItem(item: CartItem, groupID: string) {
-		const group = this.groups.find(group => group.groupID === groupID)
-		if (!group) return
-		group.items = group.items.filter(value => value.skuReference!.path !== item.skuReference!.path)
-	}
+	// deleteItem(item: CartItem, groupID: string) {
+	// 	const group = this.groups.find(group => group.groupID === groupID)
+	// 	if (!group) return
+	// 	group.items = group.items.filter(value => value.skuReference!.path !== item.skuReference!.path)
+	// }
 
 	cartGroup(groupID: string) {
 		return this.groups.find(group => group.groupID === groupID)
+	}
+
+	setCartGroup(cartGroup: CartGroup) {
+		const group = this.groups.find(group => group.groupID === cartGroup.groupID)
+		if (!group) {
+			this.groups.push(cartGroup)
+		}
 	}
 
 	order(group: CartGroup) {
