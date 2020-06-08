@@ -1,5 +1,12 @@
 import { useLocation } from 'react-router-dom'
 
+export const useMediator = () => {
+	const { search } = useLocation()
+	const params = new URLSearchParams(search);
+	const mediatedby = params.get('mediatedby');
+	return mediatedby
+}
+
 export const useURL = () => {
 	const { search } = useLocation()
 	const params = new URLSearchParams(search);

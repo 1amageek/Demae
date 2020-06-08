@@ -14,11 +14,13 @@ import { useModal } from 'components/Modal';
 import { useDrawer } from 'components/Drawer';
 import { useHistory } from 'react-router-dom';
 import QuickCheckout from 'components/checkout/checkout'
-
+import ActionBar from 'components/ActionBar'
+import { useMediator } from 'hooks/url'
 
 export default ({ providerID, productID, skuID }: { providerID: string, productID: string, skuID: string }) => {
 
 	const history = useHistory()
+	const mediatorID = useMediator()
 	const [user] = useUser()
 	const [cart] = useCart()
 	const [setDialog] = useDialog()
@@ -94,12 +96,15 @@ export default ({ providerID, productID, skuID }: { providerID: string, productI
 					height="100%"
 				>
 					<Avatar variant="square" src={imageURL} alt={sku.name} style={{
-						minHeight: "200px",
+						minHeight: "300px",
 						height: '100%',
 						width: '100%'
 					}}>
 						<ImageIcon />
 					</Avatar>
+				</Box>
+				<Box paddingX={1}>
+					<ActionBar />
 				</Box>
 				<Box padding={2}>
 					<Box>
@@ -157,6 +162,7 @@ export default ({ providerID, productID, skuID }: { providerID: string, productI
 											e.preventDefault()
 											if (user) {
 												cart?.setSKU(product, sku, 'quick')
+												cart?.cartGroup('quick')?.setMediator(mediatorID)
 												cart?.save()
 												showDrawer(
 													<QuickCheckout

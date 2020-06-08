@@ -24,7 +24,7 @@ export default ({ providerID }: { providerID: string }) => {
 				height="100%"
 			>
 				<Avatar variant="square" src={data.coverImageURL()} alt={data.name} style={{
-					minHeight: '320px',
+					minHeight: "300px",
 					height: '100%',
 					width: '100%'
 				}}>

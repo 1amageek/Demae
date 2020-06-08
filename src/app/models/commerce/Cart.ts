@@ -120,6 +120,7 @@ export class CartItem extends Deliverable implements Accounting {
 export class CartGroup extends Model implements Accounting {
 	@Field groupID!: string
 	@Field providedBy!: string
+	@Field mediatedby?: string
 	@Codable(CartItem)
 	@Field items: CartItem[] = []
 	@Field currency: CurrencyCode = 'USD'
@@ -211,6 +212,17 @@ export class CartGroup extends Model implements Accounting {
 		order.isCancelled = false
 		order.metadata = this.metadata
 		return order.data({ convertDocumentReference: true })
+	}
+
+	// -
+
+	setMediator(mediatorID: string | null) {
+		if (!mediatorID) return
+		if (this.providedBy === mediatorID) {
+			this.mediatedby = undefined
+			return
+		}
+		this.mediatedby = mediatorID
 	}
 }
 

@@ -7,6 +7,7 @@ import DataLoading from 'components/DataLoading';
 import SKUList from './skus/SKUList';
 import { useDocumentListen } from 'hooks/firestore';
 import NotFound from 'components/NotFound'
+import ActionBar from 'components/ActionBar'
 
 export default ({ providerID, productID }: { providerID: string, productID: string }) => {
 	const [data, isLoading] = useDocumentListen<Product>(Product, new Provider(providerID).products.collectionReference.doc(productID))
@@ -24,12 +25,15 @@ export default ({ providerID, productID }: { providerID: string, productID: stri
 				height="100%"
 			>
 				<Avatar variant="square" src={imageURL} alt={data.name} style={{
-					minHeight: '64px',
+					minHeight: "300px",
 					height: '100%',
 					width: '100%'
 				}}>
 					<ImageIcon />
 				</Avatar>
+			</Box>
+			<Box paddingX={1}>
+				<ActionBar />
 			</Box>
 			<Box padding={2}>
 				<Grid container spacing={2}>
