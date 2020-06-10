@@ -2,44 +2,28 @@
 import React, { useState } from 'react'
 import firebase from 'firebase'
 import { DeliveryStatus } from 'common/commerce/Types'
-import { File as StorageFile } from '@1amageek/ballcap'
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
-import Grid from '@material-ui/core/Grid';
-import Button from '@material-ui/core/Button';
-import Tooltip from '@material-ui/core/Tooltip';
-import Typography from '@material-ui/core/Typography';
-import ArrowBackIcon from '@material-ui/icons/ArrowBack';
-import Table from '@material-ui/core/Table';
-import TableRow from '@material-ui/core/TableRow';
-import TableCell from '@material-ui/core/TableCell';
-import TableBody from '@material-ui/core/TableBody';
-import IconButton from '@material-ui/core/IconButton';
-import DndCard from 'components/DndCard'
-import Box from '@material-ui/core/Box';
+import { Typography, Box, Paper } from '@material-ui/core';
 import Input, { useInput } from 'components/Input'
 import Select, { useSelect } from 'components/Select'
-import Product from 'models/commerce/Product'
-
-import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemText from '@material-ui/core/ListItemText';
-import ListItemAvatar from '@material-ui/core/ListItemAvatar';
+import { List, ListItem, ListItemText, ListItemAvatar, ListItemIcon, Divider } from '@material-ui/core';
 import Avatar from '@material-ui/core/Avatar';
-import AddCircleIcon from '@material-ui/icons/AddCircle';
+import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 import ImageIcon from '@material-ui/icons/Image';
 import { useAdminProvider, useAdminProviderOrder, } from 'hooks/commerce';
 import DataLoading from 'components/DataLoading';
 import Board from '../Board';
 import { useHistory } from 'react-router-dom';
 import { SKU } from 'models/commerce';
+import { useDrawer } from 'components/Drawer';
+import { useSnackbar } from 'components/Snackbar';
 
 
 export default ({ orderID }: { orderID?: string }) => {
 	const [provider] = useAdminProvider()
 	const [order, isLoading] = useAdminProviderOrder(orderID)
 	const history = useHistory()
+	const [showDrawer, onClose] = useDrawer()
+	const [showSnackbar] = useSnackbar()
 
 	const deliveryStatus = useSelect({
 		initValue: order?.deliveryStatus, inputProps: {
@@ -89,12 +73,24 @@ export default ({ orderID }: { orderID?: string }) => {
 				<Select disabled={deliveryStatus.value === 'none'} {...deliveryStatus} onChange={async (e) => {
 					e.preventDefault()
 					const status = String(e.target.value) as DeliveryStatus
-					deliveryStatus.setValue(status)
 
-					if (!order) return
-					order.deliveryStatus = status
-					await order.save()
-					console.log(deliveryStatus.value, e.target.value)
+					if (status === 'in_transit') {
+						showDrawer(<ActionSheet onNext={async () => {
+
+
+
+							deliveryStatus.setValue(status)
+							if (!order) return
+							order.deliveryStatus = status
+							await order.save()
+							onClose()
+						}} onClose={onClose} />)
+					} else {
+						deliveryStatus.setValue(status)
+						if (!order) return
+						order.deliveryStatus = status
+						await order.save()
+					}
 				}} />
 			</>
 		} onClick={(e) => {
@@ -132,3 +128,30 @@ export default ({ orderID }: { orderID?: string }) => {
 	)
 }
 
+const ActionSheet = ({ onNext, onClose }: { onNext: () => void, onClose: () => void }) => {
+	return (
+		<Paper>
+			<Box>
+				<Box fontSize={16} fontWeight={600} padding={2} paddingBottom={0} color="text.secondary">
+					Complete the delivery process.
+				</Box>
+				<Box fontSize={16} fontWeight={400} paddingX={2} paddingBottom={2} color="text.secondary">
+					The payment is executed by completing the delivery process.
+				</Box>
+				<List component="nav">
+					<ListItem button onClick={async () => {
+						onNext()
+					}}>
+						<ListItemText primary="OK" />
+					</ListItem>
+				</List>
+				<Divider />
+				<List component="nav">
+					<ListItem button onClick={onClose}>
+						<ListItemText primary="Cancel" />
+					</ListItem>
+				</List>
+			</Box>
+		</Paper>
+	)
+}

@@ -189,6 +189,8 @@ export class CartGroup extends Model implements Accounting {
 			orderItem.productType = item.productType
 			orderItem.quantity = item.quantity
 			orderItem.currency = item.currency
+			orderItem.price = item.amount
+			orderItem.amount = item.subtotal()
 			orderItem.discount = item.discount
 			orderItem.taxRate = item.taxRate
 			orderItem.category = item.category

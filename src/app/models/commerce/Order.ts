@@ -12,6 +12,7 @@ export class OrderItem extends Model {
 	@Field quantity: number = 1
 	@Field currency: CurrencyCode = 'USD'
 	@Field amount: number = 0
+	@Field price: number = 0
 	@Field discount?: Discount
 	@Field taxRate: number = 0
 	@Field status: OrderItemStatus = 'none'
