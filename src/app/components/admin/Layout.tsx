@@ -218,7 +218,7 @@ const UserMenuItem = React.forwardRef(({ role }: { role: Role }, ref) => {
 	return (
 		<MenuItem key={role.id} onClick={async () => {
 			setProcessing(true)
-			const adminAttach = firebase.functions().httpsCallable('v1-commerce-admin-attach')
+			const adminAttach = firebase.functions().httpsCallable('commerce-v1-admin-attach')
 			try {
 				await adminAttach({ providerID: provider!.id })
 				setMessage('success', 'Change admin')

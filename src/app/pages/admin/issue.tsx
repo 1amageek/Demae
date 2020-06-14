@@ -86,7 +86,7 @@ const IndividualForm = ({ individual }: { individual: Partial<Individual> }) => 
 			}
 		}
 
-		const accountCreate = firebase.app().functions('us-central1').httpsCallable('v1-stripe-account-create')
+		const accountCreate = firebase.app().functions('us-central1').httpsCallable('stripe-v1-account-create')
 		try {
 			const result = await accountCreate(data)
 			const account = new Account(uid)

@@ -1,2 +1,3 @@
 import * as Provider from './provider'
-export const provider = { ...Provider }
+const provider = { ...Provider }
+export const v1 = { provider }

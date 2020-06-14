@@ -135,7 +135,7 @@ export default ({ individual, onCallback }: { individual: Partial<Individual>, o
 		}
 		data = nullFilter(data)
 		setLoading(true)
-		const accountCreate = firebase.app().functions('us-central1').httpsCallable('v1-stripe-account-create')
+		const accountCreate = firebase.app().functions('us-central1').httpsCallable('stripe-v1-account-create')
 		try {
 			const response = await accountCreate(data)
 			const { result, error } = response.data
@@ -173,7 +173,7 @@ export default ({ individual, onCallback }: { individual: Partial<Individual>, o
 			if (snapshot.state === 'success') {
 				const metadata = snapshot.metadata
 				const { bucket, fullPath, name, contentType } = metadata
-				const uploadFile = firebase.functions().httpsCallable('v1-stripe-file-upload')
+				const uploadFile = firebase.functions().httpsCallable('stripe-v1-file-upload')
 				try {
 					const result = await uploadFile({ bucket, fullPath, name, contentType, purpose: 'identity_document' })
 					const data = result.data
@@ -198,7 +198,7 @@ export default ({ individual, onCallback }: { individual: Partial<Individual>, o
 			if (snapshot.state === 'success') {
 				const metadata = snapshot.metadata
 				const { bucket, fullPath, name, contentType } = metadata
-				const uploadFile = firebase.functions().httpsCallable('v1-stripe-file-upload')
+				const uploadFile = firebase.functions().httpsCallable('stripe-v1-file-upload')
 				try {
 					const result = await uploadFile({ bucket, fullPath, name, contentType, purpose: 'identity_document' })
 					const data = result.data

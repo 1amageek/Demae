@@ -1,6 +1,8 @@
 import * as Admin from './admin'
 import * as Checkout from './checkout'
 import * as Inventory from './inventory'
-export const admin = { ...Admin }
-export const checkout = { ...Checkout }
-export const inventory = { ...Inventory }
+const admin = { ...Admin }
+const checkout = { ...Checkout }
+const inventory = { ...Inventory }
+
+export const v1 = { admin, checkout, inventory }

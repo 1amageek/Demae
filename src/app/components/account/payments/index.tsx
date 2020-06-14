@@ -30,7 +30,7 @@ export default () => {
 
 const Balance = () => {
 	const history = useHistory()
-	const [data, isLoading] = useFunctions<any>('v1-stripe-balance-retrieve')
+	const [data, isLoading] = useFunctions<any>('stripe-v1-balance-retrieve')
 	const avalable = data?.available || []
 
 	if (isLoading) {

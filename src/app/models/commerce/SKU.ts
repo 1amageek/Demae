@@ -51,7 +51,7 @@ export default class SKU extends Doc {
 	}
 
 	async updateInventory(amount: number) {
-		const updateInventory = firebase.functions().httpsCallable('v1-commerce-inventory-update')
+		const updateInventory = firebase.functions().httpsCallable('commerce-v1-inventory-update')
 		const result = await updateInventory({
 			skuPath: this.path,
 			amount: amount
@@ -60,7 +60,7 @@ export default class SKU extends Doc {
 	}
 
 	async increaseInventory(amount: number) {
-		const increaseInventory = firebase.functions().httpsCallable('v1-commerce-inventory-increase')
+		const increaseInventory = firebase.functions().httpsCallable('commerce-v1-inventory-increase')
 		const result = await increaseInventory({
 			skuPath: this.path,
 			amount: amount

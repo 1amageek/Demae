@@ -60,7 +60,7 @@ const Checkout = ({ groupID, onClose, onComplete }: { groupID: string, onClose: 
 
 		try {
 			setProcessing(true)
-			const checkoutCreate = firebase.functions().httpsCallable('v1-commerce-checkout-create')
+			const checkoutCreate = firebase.functions().httpsCallable('commerce-v1-checkout-create')
 			const response = await checkoutCreate({
 				order: data,
 				paymentMethodID: paymentMethodID,

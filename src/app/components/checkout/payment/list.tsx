@@ -31,7 +31,7 @@ import { useSnackbar } from 'components/Snackbar'
 export default ({ user }: { user: Commerce.User }) => {
 
 	const [setProcessing] = useProcessing()
-	const [paymentMethods, isLoading, error, setPaymentMethods] = useFetchList<PaymentMethod>('v1-stripe-paymentMethod-list', { type: 'card' })
+	const [paymentMethods, isLoading, error, setPaymentMethods] = useFetchList<PaymentMethod>('stripe-v1-paymentMethod-list', { type: 'card' })
 	const [setMessage] = useSnackbar()
 	const [setDialog, close] = useDialog()
 	const [push] = usePush()
@@ -43,7 +43,7 @@ export default ({ user }: { user: Commerce.User }) => {
 
 	const setDefaultPaymentMethod = async (paymentMethod: PaymentMethod) => {
 		setProcessing(true)
-		const customerUpdate = firebase.functions().httpsCallable('v1-stripe-customer-update')
+		const customerUpdate = firebase.functions().httpsCallable('stripe-v1-customer-update')
 		try {
 			const response = await customerUpdate({
 				// payment_method: paymentMethod.id,
@@ -80,7 +80,7 @@ export default ({ user }: { user: Commerce.User }) => {
 		}
 		setProcessing(true)
 		try {
-			const detach = firebase.functions().httpsCallable('v1-stripe-paymentMethod-detach')
+			const detach = firebase.functions().httpsCallable('stripe-v1-paymentMethod-detach')
 			const response = await detach({
 				paymentMethodID: deletePaymentMethod.id
 			})
@@ -284,7 +284,7 @@ const Form = ({ callback }: { callback?: (paymentMethod: PaymentMethod) => void 
 			}
 
 			if (user?.customerID) {
-				const attach = firebase.functions().httpsCallable('v1-stripe-paymentMethod-attach')
+				const attach = firebase.functions().httpsCallable('stripe-v1-paymentMethod-attach')
 				const response = await attach({
 					paymentMethodID: paymentMethod.id
 				})
@@ -301,7 +301,7 @@ const Form = ({ callback }: { callback?: (paymentMethod: PaymentMethod) => void 
 				}
 				console.log('[APP] attach payment method', result)
 			} else {
-				const create = firebase.functions().httpsCallable('v1-stripe-customer-create')
+				const create = firebase.functions().httpsCallable('stripe-v1-customer-create')
 				const response = await create({
 					payment_method: paymentMethod.id,
 					phone: auth.phoneNumber,

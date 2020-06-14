@@ -17,7 +17,7 @@ import { useFunctions } from 'hooks/stripe'
 export default () => {
 
 	const [account, isLoading] = useAccount()
-	// const [data, isLoading] = useFunctions('v1-stripe-balance-retrieve')
+	// const [data, isLoading] = useFunctions('stripe-v1-balance-retrieve')
 
 
 	if (isLoading) {

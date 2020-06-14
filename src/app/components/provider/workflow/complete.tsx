@@ -26,7 +26,7 @@ export default () => {
 				<Button variant='contained' color='primary' size='large' onClick={async () => {
 					if (!auth) return
 					setProcessing(true)
-					const adminAttach = firebase.functions().httpsCallable('v1-commerce-admin-attach')
+					const adminAttach = firebase.functions().httpsCallable('commerce-v1-admin-attach')
 					try {
 						await adminAttach({ providerID: auth.uid })
 						window.location.href = '/admin/products'

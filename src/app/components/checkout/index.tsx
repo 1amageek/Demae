@@ -54,7 +54,7 @@ export default (props: any) => {
 
 		try {
 			setProcessing(true)
-			const checkoutCreate = firebase.functions().httpsCallable('v1-commerce-checkout-create')
+			const checkoutCreate = firebase.functions().httpsCallable('commerce-v1-checkout-create')
 			const response = await checkoutCreate({
 				order: data,
 				paymentMethodID: paymentMethodID,
@@ -203,7 +203,7 @@ const ShippingAddresses = ({ user }: { user: Commerce.User }) => {
 const PaymentMethods = ({ user }: { user: Commerce.User }) => {
 
 	const [setProcessing] = useProcessing()
-	const [paymentMethods, isLoading, error, setPaymentMethods] = useFetchList<PaymentMethod>('v1-stripe-paymentMethod-list', { type: 'card' })
+	const [paymentMethods, isLoading, error, setPaymentMethods] = useFetchList<PaymentMethod>('stripe-v1-paymentMethod-list', { type: 'card' })
 	const [setDialog, close] = useDialog()
 	const [setMessage] = useSnackbar()
 
@@ -213,7 +213,7 @@ const PaymentMethods = ({ user }: { user: Commerce.User }) => {
 
 	const setDefaultPaymentMethod = async (paymentMethod: PaymentMethod) => {
 		setProcessing(true)
-		const customerUpdate = firebase.functions().httpsCallable('v1-stripe-customer-update')
+		const customerUpdate = firebase.functions().httpsCallable('stripe-v1-customer-update')
 		try {
 			const response = await customerUpdate({
 				// payment_method: paymentMethod.id,
@@ -249,7 +249,7 @@ const PaymentMethods = ({ user }: { user: Commerce.User }) => {
 		}
 		setProcessing(true)
 		try {
-			const detach = firebase.functions().httpsCallable('v1-stripe-paymentMethod-detach')
+			const detach = firebase.functions().httpsCallable('stripe-v1-paymentMethod-detach')
 			const response = await detach({
 				paymentMethodID: deletePaymentMethod.id
 			})

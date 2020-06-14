@@ -5,7 +5,7 @@ import "firebase/auth"
 import { PaymentMethod } from '@stripe/stripe-js';
 
 export const usePaymentMethods = (): [PaymentMethod[], boolean, Error | undefined] => {
-	const [data, isLoading, error] = useFunctions<any>('v1-stripe-paymentMethod-list', { type: 'card' })
+	const [data, isLoading, error] = useFunctions<any>('stripe-v1-paymentMethod-list', { type: 'card' })
 	const methods = data?.data as PaymentMethod[]
 	return [methods, isLoading, error]
 }

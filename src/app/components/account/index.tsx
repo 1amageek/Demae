@@ -189,7 +189,7 @@ const ProviderListItem = ({ role }: { role: Role }) => {
 				<ListItemText primary={provider!.name} />
 				<ListItemSecondaryAction onClick={async () => {
 					setProcessing(true)
-					const adminAttach = firebase.functions().httpsCallable('v1-commerce-admin-attach')
+					const adminAttach = firebase.functions().httpsCallable('commerce-v1-admin-attach')
 					try {
 						await adminAttach({ providerID: provider!.id })
 						window.open('/admin', '_blank')

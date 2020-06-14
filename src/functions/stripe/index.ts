@@ -7,12 +7,14 @@ import * as PaymentIntent from './paymentIntent'
 import * as Balance from './balance'
 import * as BalanceTransaction from './balanceTransaction'
 // import * as SubscriptionSchedule from './subscriptionSchedule'
-export const account = { ...Account }
-export const accountLink = { ...AccountLink }
-export const file = { ...File }
-export const customer = { ...Customer }
-export const paymentMethod = { ...PaymentMethod }
-export const paymentIntent = { ...PaymentIntent }
-export const balance = { ...Balance }
-export const balanceTransaction = { ...BalanceTransaction }
-// export const subscriptionSchedule = { ...SubscriptionSchedule }
+const account = { ...Account }
+const accountLink = { ...AccountLink }
+const file = { ...File }
+const customer = { ...Customer }
+const paymentMethod = { ...PaymentMethod }
+const paymentIntent = { ...PaymentIntent }
+const balance = { ...Balance }
+const balanceTransaction = { ...BalanceTransaction }
+// const subscriptionSchedule = { ...SubscriptionSchedule }
+
+export const v1 = { account, accountLink, file, customer, paymentMethod, paymentIntent, balance, balanceTransaction }
