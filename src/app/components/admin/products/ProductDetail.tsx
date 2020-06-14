@@ -17,6 +17,8 @@ import { useAdminProviderProduct } from 'hooks/commerce';
 import DataLoading from 'components/DataLoading';
 import Board from '../Board';
 import { useProcessing } from 'components/Processing';
+import Label from 'components/Label';
+import TextField, { useTextField } from 'components/TextField'
 
 
 export default () => {
@@ -94,15 +96,22 @@ export default () => {
 					</TableRow>
 					<TableRow>
 						<TableCell align='right'><div>description</div></TableCell>
-						<TableCell align='left'><div>{product.description}</div></TableCell>
+						<TableCell align='left'><div style={{
+							wordWrap: "break-word",
+							overflowWrap: "break-word"
+						}}>{product.description}</div></TableCell>
+					</TableRow>
+					<TableRow>
+						<TableCell align='right'><div>Shippiing</div></TableCell>
+						<TableCell align='left'><div>{product.isShippable ? 'Shipping required' : 'No shipping required'}</div></TableCell>
 					</TableRow>
 					<TableRow>
 						<TableCell align='right'><div>Status</div></TableCell>
-						<TableCell align='left'><div>{product.isAvailable ? 'Available' : 'Unavailable'}</div></TableCell>
+						<TableCell align='left'><div>{product.isAvailable ? <Label color='green'>Available</Label> : <Label color='red'>Unavailable</Label>}</div></TableCell>
 					</TableRow>
 				</TableBody>
 			</Table>
-		</Board>
+		</Board >
 	)
 }
 
@@ -110,9 +119,25 @@ export default () => {
 const Edit = ({ product, onClose }: { product: Product, onClose: () => void }) => {
 	const [setProcessing] = useProcessing()
 	const [images, setImages] = useState<File[]>([])
-	const name = useInput(product.name)
-	const caption = useInput(product.caption)
-	const description = useInput(product.description)
+
+	const name = useTextField(product.name)
+	const caption = useTextField(product.caption)
+	const description = useTextField(product.description)
+	const isShippable = useSelect({
+		initValue: product.isShippable.toString() || 'true',
+		inputProps: {
+			menu: [
+				{
+					label: 'Shipping required',
+					value: 'true'
+				},
+				{
+					label: 'No shipping required',
+					value: 'false'
+				}
+			]
+		}
+	})
 	const isAvailable = useSelect({
 		initValue: product.isAvailable.toString() || 'true',
 		inputProps: {
@@ -138,9 +163,9 @@ const Edit = ({ product, onClose }: { product: Product, onClose: () => void }) =
 			const fileterd = uploadedImages.filter(image => !!image) as StorageFile[]
 			product.images = fileterd
 		}
-		product.name = name.value
-		product.caption = caption.value
-		product.description = description.value
+		product.name = name.value as string
+		product.caption = caption.value as string
+		product.description = description.value as string
 		product.isAvailable = (isAvailable.value === 'true')
 		await product.save()
 		setProcessing(false)
@@ -216,7 +241,7 @@ const Edit = ({ product, onClose }: { product: Product, onClose: () => void }) =
 							<TableCell align='right'><div>name</div></TableCell>
 							<TableCell align='left'>
 								<div>
-									<Input variant='outlined' margin='dense' required {...name} />
+									<TextField variant='outlined' margin='dense' required {...name} />
 								</div>
 							</TableCell>
 						</TableRow>
@@ -224,7 +249,7 @@ const Edit = ({ product, onClose }: { product: Product, onClose: () => void }) =
 							<TableCell align='right'><div>caption</div></TableCell>
 							<TableCell align='left'>
 								<div>
-									<Input variant='outlined' margin='dense' {...caption} />
+									<TextField variant='outlined' margin='dense' {...caption} />
 								</div>
 							</TableCell>
 						</TableRow>
@@ -232,7 +257,15 @@ const Edit = ({ product, onClose }: { product: Product, onClose: () => void }) =
 							<TableCell align='right'><div>description</div></TableCell>
 							<TableCell align='left'>
 								<div>
-									<Input variant='outlined' margin='dense' {...description} />
+									<TextField variant='outlined' margin='dense' multiline {...description} />
+								</div>
+							</TableCell>
+						</TableRow>
+						<TableRow>
+							<TableCell align='right'><div>Shipping</div></TableCell>
+							<TableCell align='left'>
+								<div>
+									<Select fullWidth {...isShippable} />
 								</div>
 							</TableCell>
 						</TableRow>

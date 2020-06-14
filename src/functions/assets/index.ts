@@ -4,7 +4,7 @@ import * as admin from 'firebase-admin'
 const app = express()
 
 app.get('*', async (req, res, next) => {
-	res.set('Cache-Control', 'public, max-age=3600, s-maxage=6000')
+	res.set('Cache-Control', 'public, max-age=3600, s-maxage=36000')
 	const path = req.path.slice(1)
 	if (path.includes('.jpg') || path.includes('.jpeg') || path.includes('.png')) {
 		const bucket = admin.storage().bucket()

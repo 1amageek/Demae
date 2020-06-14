@@ -23,8 +23,8 @@ import Board from '../Board';
 import { useProcessing } from 'components/Processing';
 import { StockType, StockValue } from 'common/commerce/Types';
 import { SKU, Product } from 'models/commerce';
-import StockDetail from './StockDetail';
 import InventoryTableRow from './InventoryTableRow';
+import Label from 'components/Label'
 
 export default ({ productID, skuID }: { productID?: string, skuID?: string }) => {
 
@@ -125,7 +125,7 @@ export default ({ productID, skuID }: { productID?: string, skuID?: string }) =>
 						</TableRow>
 						<TableRow>
 							<TableCell align='right'><div>Status</div></TableCell>
-							<TableCell align='left'><div>{sku.isAvailable ? 'Available' : 'Disabled'}</div></TableCell>
+							<TableCell align='left'><div>{sku.isAvailable ? <Label color='green'>Available</Label> : <Label color='red'>Unavailable</Label>}</div></TableCell>
 							<TableCell align='right'></TableCell>
 						</TableRow>
 						{sku.inventory.type !== 'finite' &&
@@ -352,7 +352,7 @@ const Edit = ({ product, sku, onClose }: { product: Product, sku: SKU, onClose: 
 								<TableCell align='right'><div>Description</div></TableCell>
 								<TableCell align='left'>
 									<div>
-										<Input variant='outlined' margin='dense' {...description} />
+										<Input variant='outlined' margin='dense' multiline {...description} />
 									</div>
 								</TableCell>
 								<TableCell align='right'></TableCell>

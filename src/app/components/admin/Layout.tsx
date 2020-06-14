@@ -18,6 +18,7 @@ import { useDocumentListen } from 'hooks/firestore'
 import { useProcessing } from 'components/Processing';
 import { useSnackbar } from 'components/Snackbar';
 import { ListItemIcon } from '@material-ui/core';
+import Label from 'components/Label';
 
 const useStyles = makeStyles({
 	list: {
@@ -73,10 +74,19 @@ export default ({ children }: { children: any }) => {
 				fontSize={18}
 				fontWeight={600}
 				paddingY={3}>
-				<Avatar variant='circle' src={provider?.thumbnailImageURL()} style={{ width: '64px', height: '64px' }}>
+				<Avatar variant='circle' src={provider?.thumbnailImageURL()} style={{ width: '80px', height: '80px' }}>
 					<ImageIcon />
 				</Avatar>
 				{provider && provider.name}
+			</Box>
+
+			<Box display='flex'
+				flexDirection='column'
+				flexGrow={1}
+				justifyContent='center'
+				alignItems='center'
+				paddingY={1}>
+				<Label color={provider?.isAvailable ? 'green' : 'red'}>{provider?.isAvailable ? 'ON SALE' : 'NOW CLOSED'}</Label>
 			</Box>
 
 			<List>
@@ -102,7 +112,7 @@ export default ({ children }: { children: any }) => {
 			<Divider />
 			<List>
 				<ListItem button key={'product'} onClick={() => {
-					window.location.href = previewLink
+					window.open(previewLink, '_blank')
 				}}>
 					<ListItemIcon>
 						<PublicIcon />

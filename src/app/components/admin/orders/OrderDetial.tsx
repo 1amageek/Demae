@@ -77,8 +77,6 @@ export default ({ orderID }: { orderID?: string }) => {
 					if (status === 'in_transit') {
 						showDrawer(<ActionSheet onNext={async () => {
 
-
-
 							deliveryStatus.setValue(status)
 							if (!order) return
 							order.deliveryStatus = status
@@ -132,7 +130,7 @@ const ActionSheet = ({ onNext, onClose }: { onNext: () => void, onClose: () => v
 	return (
 		<Paper>
 			<Box>
-				<Box fontSize={16} fontWeight={600} padding={2} paddingBottom={0} color="text.secondary">
+				<Box fontSize={16} fontWeight={600} padding={2} paddingBottom={0}>
 					Complete the delivery process.
 				</Box>
 				<Box fontSize={16} fontWeight={400} paddingX={2} paddingBottom={2} color="text.secondary">

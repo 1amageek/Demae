@@ -39,5 +39,5 @@ export const hosting = functions.https.onRequest(async (req, res) => {
 import * as firetore from './firestore'
 import * as stripe from './stripe'
 import * as commerce from './commerce'
-export const v1 = { firetore, stripe, commerce }
+export { firetore, stripe, commerce }
 

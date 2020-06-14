@@ -71,7 +71,7 @@ const Form = ({ provider }: { provider: Provider }) => {
 	const caption = useInput(provider.caption)
 	const description = useInput(provider.description)
 	const isAvailable = useSelect({
-		initValue: provider.isAvailable || 'true',
+		initValue: provider.isAvailable || 'false',
 		inputProps: {
 			menu: [
 				{

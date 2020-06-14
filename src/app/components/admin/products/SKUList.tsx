@@ -67,32 +67,45 @@ export default ({ productID }: { productID?: string }) => {
 			</Box>
 		}>
 			<List>
-				{skus.map(data => {
-					const price = data.price
-					const currency = data.currency
+				{skus.map(sku => {
+					const price = sku.price
+					const currency = sku.currency
 					const symbol = Symbol(currency)
 					return (
-						<ListItem key={data.id} button selected={productID === data.id} onClick={() => {
-							history.push(`/admin/products/${productID}/skus/${data.id}`)
+						<ListItem key={sku.id} button selected={productID === sku.id} onClick={() => {
+							history.push(`/admin/products/${productID}/skus/${sku.id}`)
 						}}>
 							<ListItemAvatar>
-								<Avatar variant="rounded" src={data.imageURLs()[0]} >
+								<Avatar variant="rounded" src={sku.imageURLs()[0]} >
 									<ImageIcon />
 								</Avatar>
 							</ListItemAvatar>
-							<ListItemText primary={data.name} secondary={`${symbol}${price.toLocaleString()}`} />
+							<ListItemText primary={sku.name} secondary={`${symbol}${price.toLocaleString()}`} />
 							<ListItemSecondaryAction>
 								<Switch
 									edge="end"
 									onChange={async (e) => {
 										e.preventDefault()
 										setProcessing(true)
-										data.isAvailable = !data.isAvailable
-										await data.save()
+										if (!sku.isAvailable) {
+											if (sku.inventory.type === 'finite') {
+												const snapshot = await sku.stocks.collectionReference.get()
+												const count = snapshot.docs.reduce((prev, current) => {
+													return prev + current.data()!['count']
+												}, 0)
+												if (count <= 0) {
+													setProcessing(false)
+													setMessage('error', `To publish ${sku.name}, Add stock or change the inventory.`)
+													return
+												}
+											}
+										}
+										sku.isAvailable = !sku.isAvailable
+										await sku.save()
 										setProcessing(false)
-										setMessage('success', `${data.name} is published`)
+										setMessage('success', `${sku.name} is published`)
 									}}
-									checked={data.isAvailable}
+									checked={sku.isAvailable}
 								/>
 							</ListItemSecondaryAction>
 						</ListItem>
