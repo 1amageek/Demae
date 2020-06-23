@@ -64,14 +64,14 @@ export default ({ providerID, productID, skuID }: { providerID: string, productI
 			if (!product) return
 			if (user) {
 				if (cart) {
-					const group = cart?.cartGroup(providerID) || CartGroup.fromSKU(sku)
+					const group = cart?.cartGroup(providerID) || CartGroup.fromSKU(product, sku)
 					group.groupID = providerID
 					group.addSKU(product, sku, mediatorID)
 					cart?.setCartGroup(group)
 					await cart.save()
 				} else {
 					const cart = new Cart(user.id)
-					const group = cart.cartGroup(providerID) || CartGroup.fromSKU(sku)
+					const group = cart.cartGroup(providerID) || CartGroup.fromSKU(product, sku)
 					group.groupID = providerID
 					group.addSKU(product, sku, mediatorID)
 					cart?.setCartGroup(group)
@@ -168,7 +168,7 @@ export default ({ providerID, productID, skuID }: { providerID: string, productI
 										onClick={(e) => {
 											e.preventDefault()
 											if (user) {
-												const group = cart?.cartGroup('quick') || CartGroup.fromSKU(sku)
+												const group = cart?.cartGroup('quick') || CartGroup.fromSKU(product, sku)
 												group.groupID = 'quick'
 												group.setSKU(product, sku, mediatorID)
 												cart?.setCartGroup(group)

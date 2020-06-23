@@ -105,14 +105,14 @@ const SKUListItem = ({ providerID, product, sku }: { providerID: string, product
 			if (!product) return
 			if (user) {
 				if (cart) {
-					const group = cart?.cartGroup(providerID) || CartGroup.fromSKU(sku)
+					const group = cart?.cartGroup(providerID) || CartGroup.fromSKU(product, sku)
 					group.groupID = providerID
 					group.addSKU(product, sku, mediatorID)
 					cart?.setCartGroup(group)
 					await cart.save()
 				} else {
 					const cart = new Cart(user.id)
-					const group = cart?.cartGroup(providerID) || CartGroup.fromSKU(sku)
+					const group = cart?.cartGroup(providerID) || CartGroup.fromSKU(product, sku)
 					group.groupID = providerID
 					group.addSKU(product, sku, mediatorID)
 					cart?.setCartGroup(group)

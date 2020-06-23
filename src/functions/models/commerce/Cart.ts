@@ -1,6 +1,7 @@
 import { firestore, Doc, Model, Field, File, DocumentReference, CollectionReference, Codable } from '@1amageek/ballcap-admin'
 import { CurrencyCode } from '../../common/Currency'
-import { Discount, ProductType } from '../../common/commerce/Types'
+import { Discount } from '../../common/commerce/Types'
+import { ProductType, DeliveryMethod } from './Product'
 import Shipping from './Shipping'
 
 
@@ -36,7 +37,7 @@ export class CartGroup extends Model {
 	@Codable(CartItem)
 	@Field items: CartItem[] = []
 	@Field currency: CurrencyCode = 'USD'
-	@Field isShippable: boolean = false
+	@Field deliveryMethod: DeliveryMethod = 'none'
 	@Field shippingDate?: any
 	@Field estimatedArrivalDate?: any
 

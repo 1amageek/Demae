@@ -5,6 +5,8 @@ import SKU from './SKU'
 
 export type ProductType = 'service' | 'good'
 
+export type DeliveryMethod = 'none' | 'shipping' | 'pickup'
+
 export default class Product extends Doc {
 
 	static collectionReference(): CollectionReference {
@@ -21,7 +23,7 @@ export default class Product extends Doc {
 	@Field description?: string
 	@Field unitLabel: string = ""
 	@Field price: { [key in CurrencyCode]?: number } = {}
-	@Field isShippable: boolean = true
+	@Field deliveryMethod: DeliveryMethod = 'none'
 	@Field isAvailable: boolean = true
 	@Field metadata?: any
 	@SubCollection skus: Collection<SKU> = new Collection()

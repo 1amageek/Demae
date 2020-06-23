@@ -29,9 +29,6 @@ export type Tier = {
 	unitAmount?: number;
 };
 
-// Product
-export type ProductType = 'service' | 'good' | 'ticket'
-
 // SKU
 export type StockType = 'bucket' | 'finite' | 'infinite'
 export type StockValue = 'in_stock' | 'limited' | 'out_of_stock'

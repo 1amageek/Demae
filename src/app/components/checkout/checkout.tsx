@@ -47,7 +47,7 @@ const Checkout = ({ groupID, onClose, onComplete }: { groupID: string, onClose: 
 		const paymentMethodID = user.defaultCard?.id
 		if (!paymentMethodID) return
 
-		if (cartGroup.isShippable) {
+		if (cartGroup.deliveryMethod === 'shipping') {
 			// defaultShipping
 			const defaultShipping = user.defaultShipping
 			if (!defaultShipping) return
@@ -125,7 +125,7 @@ const Checkout = ({ groupID, onClose, onComplete }: { groupID: string, onClose: 
 								<Box display='flex' flexGrow={1} justifyContent="flex-end" alignItems='center'>{defaultCart ? <NavigateNextIcon /> : <ErrorIcon color="secondary" />}</Box>
 							</TableCell>
 						</TableRow>
-						{cartGroup.isShippable &&
+						{cartGroup.deliveryMethod === 'shipping' &&
 							<TableRow onClick={(e) => {
 								e.preventDefault()
 								e.stopPropagation()

@@ -9,7 +9,7 @@ import DndCard from 'components/DndCard'
 import Box from '@material-ui/core/Box';
 import Input, { useInput } from 'components/Input'
 import Select, { useSelect } from 'components/Select'
-import Product from 'models/commerce/Product'
+import Product, { DeliveryMethod } from 'models/commerce/Product'
 import ImageIcon from '@material-ui/icons/Image';
 import EditIcon from '@material-ui/icons/Edit';
 import SaveIcon from '@material-ui/icons/Save';
@@ -20,6 +20,11 @@ import { useProcessing } from 'components/Processing';
 import Label from 'components/Label';
 import TextField, { useTextField } from 'components/TextField'
 
+const deliveryMethodLabel: { [key in DeliveryMethod]: string } = {
+	'none': 'No shipping required',
+	'pickup': 'Pickup',
+	'shipping': 'Shipping required'
+}
 
 export default () => {
 	const [product, isLoading] = useAdminProviderProduct()
@@ -102,8 +107,8 @@ export default () => {
 						}}>{product.description}</div></TableCell>
 					</TableRow>
 					<TableRow>
-						<TableCell align='right'><div>Shippiing</div></TableCell>
-						<TableCell align='left'><div>{product.isShippable ? 'Shipping required' : 'No shipping required'}</div></TableCell>
+						<TableCell align='right'><div>Delivery method</div></TableCell>
+						<TableCell align='left'><div>{deliveryMethodLabel[product.deliveryMethod]}</div></TableCell>
 					</TableRow>
 					<TableRow>
 						<TableCell align='right'><div>Status</div></TableCell>
@@ -123,18 +128,22 @@ const Edit = ({ product, onClose }: { product: Product, onClose: () => void }) =
 	const name = useTextField(product.name)
 	const caption = useTextField(product.caption)
 	const description = useTextField(product.description)
-	const isShippable = useSelect({
-		initValue: product.isShippable.toString() || 'true',
+	const deliveryMethod = useSelect({
+		initValue: product.deliveryMethod,
 		inputProps: {
 			menu: [
 				{
-					label: 'Shipping required',
-					value: 'true'
+					label: 'No shipping required',
+					value: 'none'
 				},
 				{
-					label: 'No shipping required',
-					value: 'false'
-				}
+					label: 'Pickup',
+					value: 'pickup'
+				},
+				{
+					label: 'Shipping required',
+					value: 'shipping'
+				},
 			]
 		}
 	})
@@ -265,7 +274,7 @@ const Edit = ({ product, onClose }: { product: Product, onClose: () => void }) =
 							<TableCell align='right'><div>Shipping</div></TableCell>
 							<TableCell align='left'>
 								<div>
-									<Select fullWidth {...isShippable} />
+									<Select fullWidth {...deliveryMethod} />
 								</div>
 							</TableCell>
 						</TableRow>

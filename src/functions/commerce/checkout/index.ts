@@ -102,7 +102,20 @@ export const create = regionFunctions.https.onCall(async (data, context) => {
 				const recieveOrderRef = provider.orders.collectionReference.doc(order.id)
 				order.paymentStatus = 'authorized'
 				order.paymentResult = result
-				order.deliveryStatus = order.deliveryRequired ? 'preparing_for_delivery' : 'none'
+				switch (order.deliveryMethod) {
+					case 'none': {
+						order.deliveryStatus = 'none'
+						break
+					}
+					case 'pickup': {
+						order.deliveryStatus = 'preparing_for_delivery'
+						break
+					}
+					case 'shipping': {
+						order.deliveryStatus = 'preparing_for_delivery'
+						break
+					}
+				}
 				transaction.set(recieveOrderRef, {
 					...order.data(),
 					createdAt: admin.firestore.FieldValue.serverTimestamp(),

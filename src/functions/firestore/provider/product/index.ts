@@ -30,6 +30,7 @@ export const onCreate = regionFunctions.firestore
 			caption: product.caption,
 			description: product.description,
 			active: product.isAvailable,
+			shippable: product.deliveryMethod === 'shipping',
 			metadata: {
 				product_path: product.path
 			}
@@ -69,7 +70,7 @@ export const onUpdate = regionFunctions.firestore
 			caption: product.caption,
 			description: product.description,
 			active: product.isAvailable,
-			shippable: product.isShippable,
+			shippable: product.deliveryMethod === 'shipping',
 			metadata: {
 				product_path: product.path
 			}
