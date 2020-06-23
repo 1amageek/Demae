@@ -29,7 +29,7 @@ export default ({ productID }: { productID?: string }) => {
 		return (
 			<Board hideBackArrow header={
 				<>
-					Product
+					<Box fontSize={16} fontWeight={600}>Product</Box>
 					<Box flexGrow={1} />
 				</>
 			}>
@@ -43,7 +43,7 @@ export default ({ productID }: { productID?: string }) => {
 	return (
 		<Board hideBackArrow header={
 			<>
-				Product
+				<Box fontSize={16} fontWeight={600}>Product</Box>
 				<Box flexGrow={1} />
 				<Button
 					variant="contained"

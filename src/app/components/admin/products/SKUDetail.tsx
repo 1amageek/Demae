@@ -71,7 +71,7 @@ export default ({ productID, skuID }: { productID?: string, skuID?: string }) =>
 		<>
 			<Board header={
 				<Box display="flex" flexGrow={1}>
-					<Typography variant='h6'>{sku.name}</Typography>
+					<Box fontSize={16} fontWeight={600}>{sku.name}</Box>
 					<Box flexGrow={1} />
 					<Button
 						variant="contained"

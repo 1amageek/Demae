@@ -206,7 +206,7 @@ const Edit = ({ product, onClose }: { product: Product, onClose: () => void }) =
 		<form onSubmit={onSubmit}>
 			<Board header={
 				<Box display="flex" flexGrow={1}>
-					<Typography variant='h6'>{product.name}</Typography>
+					<Box fontSize={16} fontWeight={600}>{product.name}</Box>
 					<Box flexGrow={1} />
 					<Button
 						color="primary"

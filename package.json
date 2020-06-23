@@ -46,6 +46,7 @@
 		"react-dropzone": "latest",
 		"react-firebaseui": "latest",
 		"react-router-dom": "latest",
+		"recharts": "^1.8.5",
 		"stripe": "latest",
 		"styled-components": "latest"
 	},

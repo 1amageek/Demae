@@ -63,9 +63,7 @@ export default ({ sku }: { sku: SKU }) => {
 	if (isLoading) {
 		return (
 			<Board header={
-				<Typography variant='h6'>
-					No choise product
-				</Typography>
+				<Box fontSize={16} fontWeight={600}>No choise product</Box>
 			}>
 				<Box flexGrow={1} alignItems='center' justifyContent='center'>
 					<DataLoading />
@@ -78,7 +76,7 @@ export default ({ sku }: { sku: SKU }) => {
 		<Board header={
 			<Box display="flex" flexGrow={1} fontWeight={500} fontSize={20}>
 				Inventory
-				</Box>
+			</Box>
 		}>
 
 			<Table>

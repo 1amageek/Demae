@@ -3,6 +3,9 @@
 
 // Order
 export type OrderItemStatus = 'none' | 'ordered' | 'changed' | 'cancelled'
+
+//
+// Reference: https://docs.aftership.com/api/4/delivery-status
 export type DeliveryStatus =
 	'none' |	// Orders that do not need to be shipped.
 	'pending' | // Delivery is pending.
