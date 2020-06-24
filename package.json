@@ -28,8 +28,8 @@
 		"@material-ui/core": "latest",
 		"@material-ui/icons": "latest",
 		"@material-ui/styles": "latest",
-		"@stripe/react-stripe-js": "^1.1.0",
-		"@stripe/stripe-js": "^1.2.0",
+		"@stripe/react-stripe-js": "^1.1.2",
+		"@stripe/stripe-js": "^1.7.0",
 		"body-parser": "^1.19.0",
 		"dayjs": "^1.8.25",
 		"dotenv": "^8.2.0",
@@ -58,6 +58,7 @@
 		"@types/react-dom": "latest",
 		"@types/react-router-dom": "latest",
 		"@types/stripe": "latest",
+		"@types/webpack": "^4.41.17",
 		"@zeit/next-workers": "^1.0.0",
 		"babel-plugin-styled-components": "latest",
 		"cpx": "^1.5.0",
@@ -70,6 +71,6 @@
 		"ts-loader": "^6.2.1",
 		"tslint": "^5.20.1",
 		"tslint-react": "^4.1.0",
-		"typescript": "^3.9.3"
+		"typescript": "^3.9.5"
 	}
 }
