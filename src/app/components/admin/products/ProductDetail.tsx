@@ -7,7 +7,6 @@ import { Table, TableBody, TableRow, TableCell, Typography } from '@material-ui/
 import Avatar from '@material-ui/core/Avatar';
 import DndCard from 'components/DndCard'
 import Box from '@material-ui/core/Box';
-import Input, { useInput } from 'components/Input'
 import Select, { useSelect } from 'components/Select'
 import Product, { DeliveryMethod } from 'models/commerce/Product'
 import ImageIcon from '@material-ui/icons/Image';
@@ -125,9 +124,9 @@ const Edit = ({ product, onClose }: { product: Product, onClose: () => void }) =
 	const [setProcessing] = useProcessing()
 	const [images, setImages] = useState<File[]>([])
 
-	const name = useTextField(product.name)
-	const caption = useTextField(product.caption)
-	const description = useTextField(product.description)
+	const [name] = useTextField(product.name)
+	const [caption] = useTextField(product.caption)
+	const [description] = useTextField(product.description)
 	const deliveryMethod = useSelect({
 		initValue: product.deliveryMethod,
 		inputProps: {
@@ -168,13 +167,14 @@ const Edit = ({ product, onClose }: { product: Product, onClose: () => void }) =
 		if (!product) return
 		setProcessing(true)
 		const uploadedImages = await Promise.all(uploadImages(images))
-		if (uploadedImages) {
+		if (uploadedImages.length) {
 			const fileterd = uploadedImages.filter(image => !!image) as StorageFile[]
 			product.images = fileterd
 		}
 		product.name = name.value as string
 		product.caption = caption.value as string
 		product.description = description.value as string
+		product.deliveryMethod = deliveryMethod.value as DeliveryMethod
 		product.isAvailable = (isAvailable.value === 'true')
 		await product.save()
 		setProcessing(false)
@@ -266,12 +266,12 @@ const Edit = ({ product, onClose }: { product: Product, onClose: () => void }) =
 							<TableCell align='right'><div>description</div></TableCell>
 							<TableCell align='left'>
 								<div>
-									<TextField variant='outlined' margin='dense' multiline {...description} />
+									<TextField variant='outlined' margin='dense' multiline {...description} fullWidth rows={4} />
 								</div>
 							</TableCell>
 						</TableRow>
 						<TableRow>
-							<TableCell align='right'><div>Shipping</div></TableCell>
+							<TableCell align='right'><div>delivery method</div></TableCell>
 							<TableCell align='left'>
 								<div>
 									<Select fullWidth {...deliveryMethod} />

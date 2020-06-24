@@ -5,7 +5,7 @@ import { File as StorageFile } from '@1amageek/ballcap'
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import Toolbar from '@material-ui/core/Toolbar';
 import { Container, Grid, Button, Table, TableRow, TableCell, TableBody, Divider, Box } from '@material-ui/core';
-import Input, { useInput } from 'components/Input'
+import TextField, { useTextField } from 'components/TextField'
 import Select, { useSelect } from 'components/Select'
 import DndCard from 'components/DndCard'
 import Provider from 'models/commerce/Provider'
@@ -67,9 +67,9 @@ const Form = ({ provider }: { provider: Provider }) => {
 	const [setMessage] = useSnackbar()
 	const [thumbnail, setThumbnail] = useState<File | undefined>()
 	const [cover, setCover] = useState<File | undefined>()
-	const name = useInput(provider.name)
-	const caption = useInput(provider.caption)
-	const description = useInput(provider.description)
+	const [name] = useTextField(provider.name)
+	const [caption] = useTextField(provider.caption)
+	const [description] = useTextField(provider.description)
 	const isAvailable = useSelect({
 		initValue: provider.isAvailable || 'false',
 		inputProps: {
@@ -155,7 +155,7 @@ const Form = ({ provider }: { provider: Provider }) => {
 								<TableCell align='right'><div>name</div></TableCell>
 								<TableCell align='left'>
 									<div>
-										<Input variant='outlined' margin='dense' {...name} />
+										<TextField variant='outlined' margin='dense' {...name} />
 									</div>
 								</TableCell>
 							</TableRow>
@@ -163,7 +163,7 @@ const Form = ({ provider }: { provider: Provider }) => {
 								<TableCell align='right'><div>caption</div></TableCell>
 								<TableCell align='left'>
 									<div>
-										<Input variant='outlined' margin='dense' {...caption} />
+										<TextField variant='outlined' margin='dense' {...caption} />
 									</div>
 								</TableCell>
 							</TableRow>
@@ -171,7 +171,7 @@ const Form = ({ provider }: { provider: Provider }) => {
 								<TableCell align='right'><div>description</div></TableCell>
 								<TableCell align='left'>
 									<div>
-										<Input variant='outlined' margin='dense' {...description} />
+										<TextField variant='outlined' margin='dense' multiline {...description} fullWidth rows={4} />
 									</div>
 								</TableCell>
 							</TableRow>
@@ -206,9 +206,9 @@ const Form = ({ provider }: { provider: Provider }) => {
 										}
 									}
 									try {
-										provider.name = name.value
-										provider.caption = caption.value
-										provider.description = description.value
+										provider.name = name.value as string
+										provider.caption = caption.value as string
+										provider.description = description.value as string
 										provider.isAvailable = isAvailable.value === 'true'
 										await provider.save()
 									} catch (error) {

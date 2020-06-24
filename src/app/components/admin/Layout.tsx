@@ -94,7 +94,7 @@ export default ({ children }: { children: any }) => {
 					<ListItemIcon>
 						<CheckBoxOutlineBlankIcon />
 					</ListItemIcon>
-					<ListItemText primary={'Product'} />
+					<ListItemText primary={'Catalog'} />
 				</ListItem>
 				<ListItem button key={'orders'} component={Link} to='/admin/orders'>
 					<ListItemIcon>

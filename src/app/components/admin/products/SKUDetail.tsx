@@ -25,6 +25,7 @@ import { StockType, StockValue } from 'common/commerce/Types';
 import { SKU, Product } from 'models/commerce';
 import InventoryTableRow from './InventoryTableRow';
 import Label from 'components/Label'
+import TextField, { useTextField } from 'components/TextField'
 
 export default ({ productID, skuID }: { productID?: string, skuID?: string }) => {
 
@@ -155,11 +156,11 @@ const Edit = ({ product, sku, onClose }: { product: Product, sku: SKU, onClose: 
 
 	const [setProcessing] = useProcessing()
 	const [images, setImages] = useState<File[]>([])
-	const name = useInput(sku?.name)
-	const caption = useInput(sku?.caption)
-	const price = useInput(sku?.price)
-	const taxRate = useInput(sku?.taxRate)
-	const description = useInput(sku?.description)
+	const [name] = useTextField(sku?.name)
+	const [caption] = useTextField(sku?.caption)
+	const [price, setPrice] = useTextField(String(sku?.price))
+	const [taxRate, setTaxRate] = useTextField(String(sku?.taxRate))
+	const [description] = useTextField(sku?.description)
 	const currency = useSelect({
 		initValue: sku?.currency, inputProps: {
 			menu: SupportedCurrencies.map(c => {
@@ -230,13 +231,13 @@ const Edit = ({ product, sku, onClose }: { product: Product, sku: SKU, onClose: 
 		if (!sku) return
 		setProcessing(true)
 		const uploadedImages = await Promise.all(uploadImages(images))
-		if (uploadedImages) {
+		if (uploadedImages.length) {
 			const fileterd = uploadedImages.filter(image => !!image) as StorageFile[]
 			sku.images = fileterd
 		}
-		sku.name = name.value
-		sku.caption = caption.value
-		sku.description = description.value
+		sku.name = name.value as string
+		sku.caption = caption.value as string
+		sku.description = description.value as string
 		sku.price = Number(price.value)
 		sku.taxRate = Number(taxRate.value)
 		sku.currency = currency.value as CurrencyCode
@@ -352,7 +353,7 @@ const Edit = ({ product, sku, onClose }: { product: Product, sku: SKU, onClose: 
 								<TableCell align='right'><div>Description</div></TableCell>
 								<TableCell align='left'>
 									<div>
-										<Input variant='outlined' margin='dense' multiline {...description} />
+										<TextField variant='outlined' margin='dense' multiline {...description} fullWidth rows={4} />
 									</div>
 								</TableCell>
 								<TableCell align='right'></TableCell>
@@ -364,7 +365,7 @@ const Edit = ({ product, sku, onClose }: { product: Product, sku: SKU, onClose: 
 										<Select {...currency} />
 										<Input variant='outlined' margin='dense' type='number' style={{ width: '110px', marginLeft: '8px' }} value={price.value} onChange={e => {
 											const newPrice = Math.floor(Number(e.target.value) * 100) / 100
-											price.setValue(`${newPrice}`)
+											setPrice(`${newPrice}`)
 										}} />
 									</div>
 								</TableCell>
@@ -376,7 +377,7 @@ const Edit = ({ product, sku, onClose }: { product: Product, sku: SKU, onClose: 
 									<Box display='flex' alignItems='center'>
 										<Input variant='outlined' margin='dense' type='number' style={{ width: '110px', marginLeft: '8px' }} value={taxRate.value} onChange={e => {
 											const newTaxRate = Math.floor(Number(e.target.value))
-											taxRate.setValue(`${newTaxRate}`)
+											setTaxRate(`${newTaxRate}`)
 										}} />
 										<Box fontSize={16} fontWeight={500} paddingX={1}>%</Box>
 									</Box>

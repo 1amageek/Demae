@@ -1,5 +1,5 @@
-import React, { useContext } from 'react'
-import { Switch, Route, Redirect } from 'react-router-dom'
+import React from 'react'
+import { Switch, Route } from 'react-router-dom'
 import { makeStyles, useTheme, Theme, createStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container'
 import CssBaseline from '@material-ui/core/CssBaseline'
