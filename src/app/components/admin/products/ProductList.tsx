@@ -29,7 +29,7 @@ export default ({ productID }: { productID?: string }) => {
 		return (
 			<Board hideBackArrow header={
 				<>
-					<Box fontSize={16} fontWeight={600}>Product</Box>
+					Product
 					<Box flexGrow={1} />
 				</>
 			}>
@@ -43,7 +43,7 @@ export default ({ productID }: { productID?: string }) => {
 	return (
 		<Board hideBackArrow header={
 			<>
-				<Box fontSize={16} fontWeight={600}>Product</Box>
+				Product
 				<Box flexGrow={1} />
 				<Button
 					variant="contained"
@@ -52,7 +52,6 @@ export default ({ productID }: { productID?: string }) => {
 						<AddCircleIcon />
 					}
 					onClick={async () => {
-						console.log(provider)
 						if (!provider) return
 						const product = new Product(provider.products.collectionReference.doc())
 						product.providedBy = provider.id

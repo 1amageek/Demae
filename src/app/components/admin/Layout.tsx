@@ -11,7 +11,13 @@ import StorefrontIcon from '@material-ui/icons/Storefront';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import ImageIcon from '@material-ui/icons/Image';
 import MenuIcon from '@material-ui/icons/Menu';
-import { Drawer, AppBar, Toolbar, List, ListItem, ListItemText, Avatar, Divider, Box, MenuItem, Menu, IconButton } from '@material-ui/core';
+import NearMeIcon from '@material-ui/icons/NearMe';
+import PlaceIcon from '@material-ui/icons/Place';
+import CloudDownloadIcon from '@material-ui/icons/CloudDownload';
+import LocalShippingIcon from '@material-ui/icons/LocalShipping';
+import ExpandLess from '@material-ui/icons/ExpandLess';
+import ExpandMore from '@material-ui/icons/ExpandMore';
+import { Drawer, AppBar, Toolbar, List, ListItem, ListItemText, Avatar, Divider, Box, MenuItem, Menu, IconButton, Collapse } from '@material-ui/core';
 import Provider, { Role } from 'models/commerce/Provider'
 import { useRoles, useUser, useAdminProvider } from 'hooks/commerce'
 import { useDocumentListen } from 'hooks/firestore'
@@ -20,14 +26,19 @@ import { useSnackbar } from 'components/Snackbar';
 import { ListItemIcon } from '@material-ui/core';
 import Label from 'components/Label';
 
-const useStyles = makeStyles({
-	list: {
-		width: 250,
-	},
-	fullList: {
-		width: 'auto',
-	},
-});
+const useStyles = makeStyles((theme: Theme) =>
+	createStyles({
+		list: {
+			width: 250,
+		},
+		fullList: {
+			width: 'auto',
+		},
+		nested: {
+			paddingLeft: theme.spacing(4),
+		},
+	}),
+);
 
 type Anchor = 'top' | 'left' | 'bottom' | 'right';
 
@@ -42,6 +53,8 @@ export default ({ children }: { children: any }) => {
 		bottom: false,
 		right: false,
 	});
+
+	const [open, setOpen] = useState(false);
 
 	const toggleDrawer = (anchor: Anchor, open: boolean) => (
 		event: React.KeyboardEvent | React.MouseEvent,
@@ -96,12 +109,38 @@ export default ({ children }: { children: any }) => {
 					</ListItemIcon>
 					<ListItemText primary={'Catalog'} />
 				</ListItem>
-				<ListItem button key={'orders'} component={Link} to='/admin/orders'>
+				<ListItem button key={'orders'} onClick={(e) => {
+					e.stopPropagation()
+					setOpen(!open)
+				}}>
 					<ListItemIcon>
 						<ViewListIcon />
 					</ListItemIcon>
 					<ListItemText primary={'Orders'} />
+					{open ? <ExpandLess /> : <ExpandMore />}
 				</ListItem>
+				<Collapse in={open} timeout="auto" unmountOnExit>
+					<List>
+						<ListItem className={classes.nested} button key={'pickup'} component={Link} to='/admin/orders?deliveryMethod=pickup'>
+							<ListItemIcon>
+								<PlaceIcon />
+							</ListItemIcon>
+							<ListItemText primary={'Pickup'} />
+						</ListItem>
+						<ListItem className={classes.nested} button key={'shipping'} component={Link} to='/admin/orders?deliveryMethod=shipping'>
+							<ListItemIcon>
+								<LocalShippingIcon />
+							</ListItemIcon>
+							<ListItemText primary={'Shipping'} />
+						</ListItem>
+						<ListItem className={classes.nested} button key={'download'} component={Link} to='/admin/orders?deliveryMethod=none'>
+							<ListItemIcon>
+								<CloudDownloadIcon />
+							</ListItemIcon>
+							<ListItemText primary={'Download'} />
+						</ListItem>
+					</List>
+				</Collapse>
 				<ListItem button key={'provider'} component={Link} to='/admin/provider'>
 					<ListItemIcon>
 						<StorefrontIcon />

@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react'
-import { Link, useHistory } from 'react-router-dom'
+import { Link, useHistory, useParams, useLocation } from 'react-router-dom'
 import { useTheme } from '@material-ui/core/styles';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 import Grid from '@material-ui/core/Grid';
@@ -45,9 +45,12 @@ const PaymentStatusLabel = {
 	cancel_failure: 'cancel failure'
 }
 
-export default (props: any) => {
-	const { orderID } = props.match.params
+export default () => {
+	const { orderID } = useParams()
 	const history = useHistory()
+	const { search } = useLocation()
+	const params = new URLSearchParams(search);
+	const deliveryMethod = params.get('deliveryMethod') || undefined
 	const [deliveryState, setDeliveryState] = useState(0)
 	const [paymentState, setPaymentState] = useState(0)
 	const handleChangeDeliveryStatus = (event: React.ChangeEvent<{}>, newValue: number) => {
@@ -80,14 +83,14 @@ export default (props: any) => {
 						})}
 					</Tabs>
 				</AppBar> */}
-				<Content orderID={orderID} deliveryStatus={DeliveryTabs[deliveryState].value} paymentStatus={PaymentStatus[paymentState]} />
+				<Content orderID={orderID} deliveryMethod={deliveryMethod} deliveryStatus={DeliveryTabs[deliveryState].value} paymentStatus={PaymentStatus[paymentState]} />
 			</Box>
 		</AdminProviderOrderProvider>
 	)
 }
 
 
-const Content = ({ deliveryStatus, paymentStatus, orderID }: { deliveryStatus?: string, paymentStatus?: string, orderID?: string }) => {
+const Content = ({ deliveryMethod, deliveryStatus, paymentStatus, orderID }: { deliveryMethod?: string, deliveryStatus?: string, paymentStatus?: string, orderID?: string }) => {
 	const theme = useTheme();
 	const matches = useMediaQuery(theme.breakpoints.down('sm'));
 

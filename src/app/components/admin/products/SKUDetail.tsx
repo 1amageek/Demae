@@ -4,7 +4,6 @@ import Link from 'next/link'
 import { File as StorageFile } from '@1amageek/ballcap'
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
-import Typography from '@material-ui/core/Typography';
 import Table from '@material-ui/core/Table';
 import TableRow from '@material-ui/core/TableRow';
 import TableCell from '@material-ui/core/TableCell';
@@ -37,9 +36,7 @@ export default ({ productID, skuID }: { productID?: string, skuID?: string }) =>
 	if (isLoading) {
 		return (
 			<Board header={
-				<Typography variant='h6'>
-					No choise product
-				</Typography>
+				<Box fontSize={16} fontWeight={600}></Box>
 			}>
 				<Box flexGrow={1} alignItems='center' justifyContent='center'>
 					<DataLoading />
@@ -70,9 +67,9 @@ export default ({ productID, skuID }: { productID?: string, skuID?: string }) =>
 
 	return (
 		<>
-			<Board header={
-				<Box display="flex" flexGrow={1}>
-					<Box fontSize={16} fontWeight={600}>{sku.name}</Box>
+			<Board link={`/admin/products/${product.id}`} header={
+				<Box display="flex" flexGrow={1} alignItems='center'>
+					{sku.name}
 					<Box flexGrow={1} />
 					<Button
 						variant="contained"
@@ -298,7 +295,7 @@ const Edit = ({ product, sku, onClose }: { product: Product, sku: SKU, onClose: 
 				<Board
 					hideBackArrow={true}
 					header={
-						<Box display="flex" flexGrow={1}>
+						<Box display="flex" flexGrow={1} alignItems='center'>
 							{sku.name}
 							<Box flexGrow={1} />
 							<Button

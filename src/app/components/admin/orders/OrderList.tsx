@@ -49,10 +49,11 @@ const Status = {
 	'expired': 'Expired'
 }
 
-export default ({ orderID, deliveryStatus, paymentStatus }: { orderID?: string, deliveryStatus?: string, paymentStatus?: string }) => {
+export default ({ orderID, deliveryMethod, deliveryStatus, paymentStatus }: { orderID?: string, deliveryMethod?: string, deliveryStatus?: string, paymentStatus?: string }) => {
 	const [provider, waiting] = useAdminProvider()
 	const collectionReference = provider ? provider.orders.collectionReference : undefined
 	const wheres = [
+		deliveryMethod ? Where('deliveryMethod', '==', deliveryMethod) : undefined,
 		deliveryStatus ? Where('deliveryStatus', '==', deliveryStatus) : undefined,
 		// paymentStatus ? Where('paymentStatus', '==', paymentStatus) : undefined
 	].filter(value => !!value)

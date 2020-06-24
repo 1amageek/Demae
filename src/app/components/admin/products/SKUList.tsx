@@ -31,7 +31,7 @@ export default ({ productID }: { productID?: string }) => {
 		return (
 			<Board header={
 				<Box display="flex" flexGrow={1} fontSize={20} fontWeight={500}>
-					Product
+					SKU
 					<Box flexGrow={1} />
 				</Box>
 			}>

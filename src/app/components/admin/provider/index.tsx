@@ -7,12 +7,14 @@ import Toolbar from '@material-ui/core/Toolbar';
 import { Container, Grid, Button, Table, TableRow, TableCell, TableBody, Divider, Box } from '@material-ui/core';
 import TextField, { useTextField } from 'components/TextField'
 import Select, { useSelect } from 'components/Select'
+import Switch, { useSwitch } from 'components/Switch';
 import DndCard from 'components/DndCard'
 import Provider from 'models/commerce/Provider'
 import Board from 'components/admin/Board'
 import { useAdminProvider } from 'hooks/commerce';
 import { useProcessing } from 'components/Processing';
 import { useSnackbar } from 'components/Snackbar';
+
 import DataLoading from 'components/DataLoading';
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -70,21 +72,7 @@ const Form = ({ provider }: { provider: Provider }) => {
 	const [name] = useTextField(provider.name)
 	const [caption] = useTextField(provider.caption)
 	const [description] = useTextField(provider.description)
-	const isAvailable = useSelect({
-		initValue: provider.isAvailable || 'false',
-		inputProps: {
-			menu: [
-				{
-					label: 'Available',
-					value: 'true'
-				},
-				{
-					label: 'Unavailable',
-					value: 'false'
-				}
-			]
-		}
-	})
+	const [isAvailable, setAvailable] = useSwitch(provider.isAvailable)
 
 	const uploadThumbnail = (file: File): Promise<StorageFile | undefined> => {
 		const ref = firebase.storage().ref(provider.documentReference.path + '/thumbnail.jpg')
@@ -123,7 +111,7 @@ const Form = ({ provider }: { provider: Provider }) => {
 	}
 	return (
 		<Container maxWidth='sm'>
-			<Board header={
+			<Board hideBackArrow header={
 				<Box>Edit your shop</Box>
 			}>
 				<Box className={classes.box} >
@@ -179,7 +167,10 @@ const Form = ({ provider }: { provider: Provider }) => {
 								<TableCell align='right'><div>Status</div></TableCell>
 								<TableCell align='left'>
 									<div>
-										<Select fullWidth {...isAvailable} />
+										<Switch {...isAvailable} onChange={(e) => {
+											const value = e.target.value as unknown as boolean
+											setAvailable(value)
+										}} />
 									</div>
 								</TableCell>
 							</TableRow>
@@ -209,7 +200,7 @@ const Form = ({ provider }: { provider: Provider }) => {
 										provider.name = name.value as string
 										provider.caption = caption.value as string
 										provider.description = description.value as string
-										provider.isAvailable = isAvailable.value === 'true'
+										provider.isAvailable = isAvailable.value as boolean
 										await provider.save()
 									} catch (error) {
 										console.log(error)

@@ -31,10 +31,7 @@ export default () => {
 
 	if (isLoading) {
 		return (
-			<Board header={
-				<Typography variant='h6'>
-				</Typography>
-			}>
+			<Board>
 				<Box flexGrow={1} alignItems='center' justifyContent='center'>
 					<DataLoading />
 				</Box>
@@ -44,12 +41,9 @@ export default () => {
 
 	if (!product) {
 		return (
-			<Board header={
-				<Typography variant='h6'>
-				</Typography>
-			}>
+			<Board link='/admin/products'>
 				<Box flexGrow={1} alignItems='center' justifyContent='center'>
-					<Typography variant='h6'></Typography>
+					<Box fontSize={16} fontWeight={600}></Box>
 				</Box>
 			</Board>
 		)
@@ -62,9 +56,9 @@ export default () => {
 	}
 
 	return (
-		<Board header={
-			<Box display="flex" flexGrow={1}>
-				<Typography variant='h6'>{product.name}</Typography>
+		<Board link='/admin/products' header={
+			<Box display="flex" flexGrow={1} alignItems='center'>
+				{product.name}
 				<Box flexGrow={1} />
 				<Button
 					variant="contained"
@@ -214,8 +208,8 @@ const Edit = ({ product, onClose }: { product: Product, onClose: () => void }) =
 	return (
 		<form onSubmit={onSubmit}>
 			<Board header={
-				<Box display="flex" flexGrow={1}>
-					<Box fontSize={16} fontWeight={600}>{product.name}</Box>
+				<Box display="flex" flexGrow={1} alignItems='center'>
+					{product.name}
 					<Box flexGrow={1} />
 					<Button
 						color="primary"

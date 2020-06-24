@@ -8,20 +8,24 @@ import Paper from '@material-ui/core/Paper';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 
 
-export default ({ header, hideBackArrow = false, onClick, children }: { header?: React.ReactNode, hideBackArrow?: boolean, onClick?: (e) => void, children: any }) => {
+export default ({ header, hideBackArrow, link, onClick, children }: { header?: React.ReactNode, hideBackArrow?: boolean, link?: string, onClick?: (e) => void, children: any }) => {
 	const history = useHistory()
 	return (
 		<Paper style={{ minHeight: '400px' }} square >
 			<AppBar position="static" color="default" elevation={0}>
 				<Toolbar>
-					{!hideBackArrow &&
+					{!(hideBackArrow || false) &&
 						<Hidden mdUp>
 							<Tooltip title='Back' onClick={(e) => {
 								e.preventDefault()
 								if (onClick) {
 									onClick(e)
 								} else {
-									history.goBack()
+									if (link) {
+										history.push(link)
+									} else {
+										history.goBack()
+									}
 								}
 							}}>
 								<IconButton>

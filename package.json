@@ -37,7 +37,6 @@
 		"firebase": "latest",
 		"firebase-admin": "latest",
 		"firebase-functions": "latest",
-		"material-table": "^1.57.2",
 		"next": "latest",
 		"paymentfont": "^1.2.5",
 		"prop-types": "latest",
