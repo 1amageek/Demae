@@ -1,10 +1,10 @@
 
 import React, { useState } from 'react'
-import firebase from 'firebase'
+import { useLocation } from 'react-router-dom'
 import { DeliveryStatus } from 'common/commerce/Types'
-import { Typography, Box, Paper } from '@material-ui/core';
+import { Typography, Box, Paper, FormControl } from '@material-ui/core';
 import Input, { useInput } from 'components/Input'
-import Select, { useSelect } from 'components/Select'
+// import Select, { useSelect } from 'components/Select'
 import { List, ListItem, ListItemText, ListItemAvatar, ListItemIcon, Divider } from '@material-ui/core';
 import Avatar from '@material-ui/core/Avatar';
 import CheckCircleIcon from '@material-ui/icons/CheckCircle';
@@ -16,41 +16,26 @@ import { useHistory } from 'react-router-dom';
 import { SKU } from 'models/commerce';
 import { useDrawer } from 'components/Drawer';
 import { useSnackbar } from 'components/Snackbar';
-
+import Select, { useSelect, useMenu } from 'components/_Select'
+import { DeliveryMethod } from 'models/commerce/Product'
+import { useDeliveryMethod, deliveryStatusesForDeliveryMethod } from './helper'
 
 export default ({ orderID }: { orderID?: string }) => {
 	const [provider] = useAdminProvider()
 	const [order, isLoading] = useAdminProviderOrder(orderID)
+	const deliveryMethod = useDeliveryMethod()
+	const deliveryMethodQuery = (deliveryMethod ? `?deliveryMethod=${deliveryMethod}` : '')
 	const history = useHistory()
 	const [showDrawer, onClose] = useDrawer()
 	const [showSnackbar] = useSnackbar()
 
-	const deliveryStatus = useSelect({
-		initValue: order?.deliveryStatus, inputProps: {
-			menu: [
-				{
-					label: 'Todo',
-					value: 'preparing_for_delivery'
-				},
-				{
-					label: 'Out for delivery',
-					value: 'out_for_delivery'
-				},
-				{
-					label: 'Completed',
-					value: 'in_transit'
-				},
-				{
-					label: 'Pending',
-					value: 'pending'
-				}
-			]
-		}
-	})
+	const deliveryStatuses = deliveryStatusesForDeliveryMethod(order?.deliveryMethod) as any[]
+	const deliveryStatusMenu = useMenu(deliveryStatuses)
+	const [deliveryStatus, setStatus] = useSelect(order?.deliveryStatus)
 
 	if (isLoading) {
 		return (
-			<Board>
+			<Board link={'/admin/orders' + deliveryMethodQuery}>
 				<Box display="flex" flexGrow={1} fontSize={20} fontWeight={500} justifyContent='center' alignItems='center'>
 					<DataLoading />
 				</Box>
@@ -60,40 +45,43 @@ export default ({ orderID }: { orderID?: string }) => {
 
 	if (!order) {
 		return (
-			<Board>
+			<Board link={'/admin/orders' + deliveryMethodQuery}>
 			</Board>
 		)
 	}
 
 	return (
-		<Board header={
+		<Board link={'/admin/orders' + deliveryMethodQuery} header={
 			<>
 				ID: {orderID}
 				<Box flexGrow={1} />
-				<Select disabled={deliveryStatus.value === 'none'} {...deliveryStatus} onChange={async (e) => {
-					e.preventDefault()
-					const status = String(e.target.value) as DeliveryStatus
 
-					if (status === 'in_transit') {
-						showDrawer(<ActionSheet onNext={async () => {
-
-							deliveryStatus.setValue(status)
+				<FormControl variant='outlined' size='small'>
+					<Select disabled={deliveryStatus.value === 'none'} {...deliveryStatus} onChange={async (e) => {
+						e.preventDefault()
+						const status = String(e.target.value) as DeliveryStatus
+						if (status === 'in_transit') {
+							showDrawer(<ActionSheet onNext={async () => {
+								setStatus(status)
+								if (!order) return
+								order.deliveryStatus = status
+								await order.save()
+								onClose()
+								showSnackbar('success', 'Change status.')
+							}} onClose={onClose} />)
+						} else {
+							setStatus(status)
 							if (!order) return
 							order.deliveryStatus = status
 							await order.save()
-							onClose()
-						}} onClose={onClose} />)
-					} else {
-						deliveryStatus.setValue(status)
-						if (!order) return
-						order.deliveryStatus = status
-						await order.save()
-					}
-				}} />
+							showSnackbar('success', 'Change status.')
+						}
+					}}>
+						{deliveryStatusMenu}
+					</Select>
+				</FormControl>
 			</>
-		} onClick={(e) => {
-			history.push('/admin/orders')
-		}}>
+		}>
 			<Box>
 				<Box fontSize={18} fontWeight={600} padding={2}>
 					Shipping Address

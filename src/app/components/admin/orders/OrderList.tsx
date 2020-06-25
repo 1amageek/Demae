@@ -35,18 +35,26 @@ import { Order } from 'models/commerce';
 import { ListItemSecondaryAction } from '@material-ui/core';
 import { useDataSourceListen, Where, OrderBy } from 'hooks/firestore'
 import Dayjs from 'dayjs'
+import Label from 'components/Label';
 
-const Status = {
-	'none': 'None',
-	'pending': 'Pending',
-	'preparing_for_delivery': 'Todo',
-	'out_for_delivery': 'Out for delivery',
-	'in_transit': 'In transit',
-	'failed_attempt': 'Failed attempt',
-	'delivered': 'Delivered',
-	'available_for_pickup': 'Available for pickup',
-	'exception': 'Exception',
-	'expired': 'Expired'
+const DeliveryStatusLabel = {
+	'none': 'NONE',
+	'pending': 'PENDING',
+	'preparing_for_delivery': 'TODO',
+	'out_for_delivery': 'OUT FOR DELIVERY',
+	'in_transit': 'IN TRANSIT',
+	'failed_attempt': 'FAILED ATTEMPT',
+	'delivered': 'DELIVERED',
+	'available_for_pickup': 'AVAILABLE FOR PICKUP',
+	'exception': 'EXCEPTION',
+	'expired': 'EXPIRED'
+}
+
+const PaymentStatusLabel = {
+	'none': 'NONE',
+	'processing': 'PROCESSING',
+	'succeeded': 'SUCCEEDED',
+	'payment_failed': 'FAILED'
 }
 
 export default ({ orderID, deliveryMethod, deliveryStatus, paymentStatus }: { orderID?: string, deliveryMethod?: string, deliveryStatus?: string, paymentStatus?: string }) => {
@@ -103,11 +111,11 @@ export default ({ orderID, deliveryMethod, deliveryStatus, paymentStatus }: { or
 				{orders.map(data => {
 					const orderedDate = Dayjs(data.createdAt.toDate())
 					return (
-						<ListItem key={data.id} button selected={orderID === data.id} onClick={() => {
-							history.push(`/admin/orders/${data.id}`)
+						<ListItem key={data.id} button alignItems="flex-start" selected={orderID === data.id} onClick={() => {
+							history.push(`/admin/orders/${data.id}` + (deliveryMethod ? `?deliveryMethod=${deliveryMethod}` : ''))
 						}}>
 							<ListItemAvatar>
-								<Avatar variant="rounded" src={data.imageURLs()[0]} >
+								<Avatar variant="rounded" src={data.imageURLs()[0]}>
 									<ImageIcon />
 								</Avatar>
 							</ListItemAvatar>
@@ -119,11 +127,15 @@ export default ({ orderID, deliveryMethod, deliveryStatus, paymentStatus }: { or
 									<Typography variant="subtitle2">
 										{`ID: ${data.id}`}
 									</Typography>
+									<Box fontSize={12}>
+										{orderedDate.format('YYYY-MM-DD HH:mm:ss')}
+									</Box>
+									<Box display='flex'>
+										<Label color='gray' fontSize={12}>{DeliveryStatusLabel[data.deliveryStatus]}</Label>
+										<Label color='gray' fontSize={12}>{PaymentStatusLabel[data.paymentStatus]}</Label>
+									</Box>
 								</>
-							} secondary={orderedDate.format('YYYY-MM-DD HH:mm:ss')} />
-							<ListItemSecondaryAction>
-								<Button variant='outlined' disabled style={{ fontSize: '12px', padding: '6px' }}>{Status[data.deliveryStatus]}</Button>
-							</ListItemSecondaryAction>
+							} />
 						</ListItem>
 					)
 				})}

@@ -5,14 +5,16 @@ import { useTheme } from '@material-ui/core/styles';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 import Grid from '@material-ui/core/Grid';
 import Breadcrumbs from '@material-ui/core/Breadcrumbs';
-import { Box, Hidden } from '@material-ui/core';
+import { Box, Hidden, Typography } from '@material-ui/core';
 import { AdminProviderOrderProvider } from 'hooks/commerce';
 import AppBar from '@material-ui/core/AppBar';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import OrderList from './OrderList'
 import OrderDetial from './OrderDetial'
-import { DeliveryStatus } from 'common/commerce/Types'
+import { DeliveryStatus, PaymentStatus } from 'common/commerce/Types'
+import { DeliveryMethod } from 'models/commerce/Product'
+import { useDeliveryMethod, deliveryStatusesForDeliveryMethod } from './helper'
 
 type DeliveryTab = {
 	label: string,
@@ -34,25 +36,21 @@ const DeliveryStatusLabel = {
 	delivered: 'Delivered'
 }
 
-const PaymentStatus = ['none', 'rejected', 'authorized', 'paid', 'cancelled', 'failure', 'cancel_failure']
-const PaymentStatusLabel = {
+const PaymentStatus = ['none', 'processing', 'succeeded', 'payment_failed']
+const PaymentStatusLabel: { [key in PaymentStatus]: string } = {
 	none: 'Received',
-	rejected: 'rejected',
-	authorized: 'authorized',
-	paid: 'paid',
-	cancelled: 'cancelled',
-	failure: 'failure',
-	cancel_failure: 'cancel failure'
+	processing: 'processing',
+	succeeded: 'succeeded',
+	payment_failed: 'payment_failed'
 }
 
 export default () => {
 	const { orderID } = useParams()
-	const history = useHistory()
-	const { search } = useLocation()
-	const params = new URLSearchParams(search);
-	const deliveryMethod = params.get('deliveryMethod') || undefined
+	const deliveryMethod = useDeliveryMethod()
 	const [deliveryState, setDeliveryState] = useState(0)
 	const [paymentState, setPaymentState] = useState(0)
+	const deliveryMethodQuery = (deliveryMethod ? `?deliveryMethod=${deliveryMethod}` : '')
+
 	const handleChangeDeliveryStatus = (event: React.ChangeEvent<{}>, newValue: number) => {
 		setDeliveryState(newValue)
 	}
@@ -60,18 +58,21 @@ export default () => {
 		setPaymentState(newValue)
 	}
 
+	const tabs = deliveryStatusesForDeliveryMethod(deliveryMethod)
+
 	return (
 		<AdminProviderOrderProvider id={orderID}>
 			<Box>
+				<Typography variant='h1'>Order</Typography>
 				<Box py={2}>
 					<Breadcrumbs>
-						<Link to='/admin/orders'>Orders</Link>
-						{orderID && <Link to={`/admin/orders/${orderID}`}>{orderID}</Link>}
+						<Link to={'/admin/orders' + deliveryMethodQuery}>Orders</Link>
+						{orderID && <Link to={`/admin/orders/${orderID}` + deliveryMethodQuery}>{orderID}</Link>}
 					</Breadcrumbs>
 				</Box>
 				<AppBar position="static" color='inherit' elevation={1}>
 					<Tabs value={deliveryState} onChange={handleChangeDeliveryStatus}>
-						{DeliveryTabs.map((tab, index) => {
+						{tabs.map((tab, index) => {
 							return <Tab key={index} label={tab.label} id={`${index}`} />
 						})}
 					</Tabs>
@@ -108,7 +109,7 @@ const Content = ({ deliveryMethod, deliveryStatus, paymentStatus, orderID }: { d
 		return (
 			<Grid container alignItems="stretch" spacing={0} style={{ width: '100%' }}>
 				<Grid item xs={12}>
-					<OrderList orderID={orderID} deliveryStatus={deliveryStatus} paymentStatus={paymentStatus} />
+					<OrderList orderID={orderID} deliveryMethod={deliveryMethod} deliveryStatus={deliveryStatus} paymentStatus={paymentStatus} />
 				</Grid>
 			</Grid>
 		)
@@ -117,7 +118,7 @@ const Content = ({ deliveryMethod, deliveryStatus, paymentStatus, orderID }: { d
 	return (
 		<Grid container alignItems="stretch" spacing={0} style={{ width: '100%' }}>
 			<Grid item xs={12} md={4}>
-				<OrderList orderID={orderID} deliveryStatus={deliveryStatus} paymentStatus={paymentStatus} />
+				<OrderList orderID={orderID} deliveryMethod={deliveryMethod} deliveryStatus={deliveryStatus} paymentStatus={paymentStatus} />
 			</Grid>
 			<Grid item xs={12} md={8}>
 				<OrderDetial orderID={orderID} />
