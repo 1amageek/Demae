@@ -6,14 +6,16 @@ import ErrorIcon from '@material-ui/icons/Error';
 import NavigateNextIcon from '@material-ui/icons/NavigateNext';
 import DataLoading from 'components/DataLoading';
 import CardBrand from 'common/stripe/CardBrand'
-import { useProcessing } from 'components/Processing';
-import { useSnackbar } from 'components/Snackbar'
-import Navigation, { usePush } from 'components/Navigation'
-import { useUser, useCart } from 'hooks/commerce';
+import User from 'models/commerce/User'
 import CartItemCell from './CartItemCell'
 import CardList from './payment/list'
 import ShippingAddressList from './shipping/list'
 import Summary from 'components/cart/summary'
+import Navigation, { usePush } from 'components/Navigation'
+import { useProcessing } from 'components/Processing';
+import { useSnackbar } from 'components/Snackbar'
+import { useAuthUser } from 'hooks/auth'
+import { useUser, useCart, } from 'hooks/commerce';
 
 export default ({ groupID, onClose, onComplete }: { groupID: string, onClose: () => void, onComplete: () => void }) => {
 	return (
@@ -25,6 +27,7 @@ export default ({ groupID, onClose, onComplete }: { groupID: string, onClose: ()
 
 const Checkout = ({ groupID, onClose, onComplete }: { groupID: string, onClose: () => void, onComplete: () => void }) => {
 
+	const [auth] = useAuthUser()
 	const [user, isUserLoading] = useUser()
 	const [cart, isCartLoading] = useCart()
 
@@ -36,21 +39,60 @@ const Checkout = ({ groupID, onClose, onComplete }: { groupID: string, onClose: 
 	const [setMessage] = useSnackbar()
 	const [push] = usePush()
 
+	const isAvailable: boolean = !isUserLoading && !!(defaultShipping) && !!(defaultCart)
+
+	const withCustomer = async (auth: firebase.User, user: User): Promise<{ error?: any, customerID?: any }> => {
+		if (user.customerID) {
+			return { customerID: user.customerID }
+		} else {
+			const create = firebase.functions().httpsCallable('stripe-v1-customer-create')
+			const response = await create({
+				phone: auth.phoneNumber,
+				metadata: {
+					uid: auth.uid
+				}
+			})
+			const { error, result } = response.data
+			if (error) {
+				return { error }
+			} else {
+				const customerID = result.id
+				await user.documentReference.set({ customerID }, { merge: true })
+				return { customerID }
+			}
+		}
+	}
+
 	const checkout = async () => {
+		if (!auth) return
 		if (!user) return
 		if (!cartGroup) return
-		// customerID
-		const customerID = user.customerID
-		if (!customerID) return
 
+		const { error, customerID } = await withCustomer(auth, user)
+
+		if (error) {
+			console.error(error)
+			return
+		}
+
+		if (!customerID) {
+			console.log('[CHECKOUT] customerID is not exist')
+			return
+		}
 		// paymentMethodID
 		const paymentMethodID = user.defaultCard?.id
-		if (!paymentMethodID) return
+		if (!paymentMethodID) {
+			console.log('[CHECKOUT] paymentMethodID is not exist')
+			return
+		}
 
 		if (cartGroup.deliveryMethod === 'shipping') {
 			// defaultShipping
 			const defaultShipping = user.defaultShipping
-			if (!defaultShipping) return
+			if (!defaultShipping) {
+				console.log('[CHECKOUT] defaultShipping is not exist')
+				return
+			}
 
 			cartGroup.shipping = defaultShipping
 		}
@@ -63,6 +105,7 @@ const Checkout = ({ groupID, onClose, onComplete }: { groupID: string, onClose: 
 			const checkoutCreate = firebase.functions().httpsCallable('commerce-v1-checkout-create')
 			const response = await checkoutCreate({
 				order: data,
+				groupID: groupID,
 				paymentMethodID: paymentMethodID,
 				customerID: customerID
 			})
@@ -157,7 +200,7 @@ const Checkout = ({ groupID, onClose, onComplete }: { groupID: string, onClose: 
 					})}
 				</Box>
 				<Summary
-					disabled={isUserLoading}
+					disabled={!isAvailable}
 					onClick={(e) => {
 						e.preventDefault()
 						checkout()

@@ -36,7 +36,10 @@ export default (props: any) => {
 
 		// customerID
 		const customerID = user.customerID
-		if (!customerID) { return }
+		if (!customerID) {
+			console.log('[]')
+			return
+		}
 
 		// defaultShipping
 		const defaultShipping = user.defaultShipping

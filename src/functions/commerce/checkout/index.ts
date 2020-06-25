@@ -31,11 +31,14 @@ export const create = regionFunctions.https.onCall(async (data, context) => {
 	if (!STRIPE_API_KEY) {
 		throw new functions.https.HttpsError('invalid-argument', 'The functions requires STRIPE_API_KEY.')
 	}
-	console.info(data)
-	console.info(context)
+	functions.logger.info(data)
 	const uid: string = context.auth.uid
 	const stripe = new Stripe(STRIPE_API_KEY, { apiVersion: '2020-03-02' })
 
+	const groupID = data.groupID
+	if (!groupID) {
+		throw new functions.https.HttpsError('invalid-argument', 'This request does not include an groupID.')
+	}
 	const orderData = data.order
 	if (!orderData) {
 		throw new functions.https.HttpsError('invalid-argument', 'This request does not include an Order.')
@@ -56,10 +59,13 @@ export const create = regionFunctions.https.onCall(async (data, context) => {
 
 	const orderRef = new User(uid).orders.collectionReference.doc()
 	const order: Order = Order.fromData(orderData, orderRef, { convertDocumentReference: true })
-	const cartItemGroups = cart.groups.filter(group => group.providedBy !== order.providedBy)
+	const cartItemGroups = cart.groups.filter(group => group.groupID !== groupID)
+
+	const isOnSession = order.deliveryMethod === 'none'
+	const setup_future_usage = isOnSession ? 'on_session' : 'off_session'
 
 	const request = {
-		setup_future_usage: 'off_session',
+		setup_future_usage,
 		amount: order.amount,
 		currency: order.currency,
 		customer: customerID,
@@ -76,23 +82,26 @@ export const create = regionFunctions.https.onCall(async (data, context) => {
 		const result = await admin.firestore().runTransaction(async transaction => {
 			try {
 				// Check the stock status.
+
 				const SKUs = await checkOrder(order)
 				const skuItems: OrderItem[] = order.items
 				const finiteSKUs = SKUs.filter(sku => sku.inventory.type === 'finite')
 
 				// Transaction write
-				const stocks = await Promise.all(finiteSKUs.map(sku => {
-					const id = randomShard(sku.shardCharacters)
-					return transaction.get(sku.stocks.collectionReference.doc(id))
-				}))
+				if (finiteSKUs.length) {
+					const stocks = await Promise.all(finiteSKUs.map(sku => {
+						const id = randomShard(sku.shardCharacters)
+						return transaction.get(sku.stocks.collectionReference.doc(id))
+					}))
 
-				finiteSKUs.forEach((sku, index) => {
-					const snapshot = stocks[index]
-					const orderItem = skuItems.find(item => item.skuReference!.path === sku.path)
-					const data = snapshot.data() || { count: 0 }
-					const count = data.count - orderItem!.quantity
-					transaction.set(snapshot.ref, { count })
-				})
+					finiteSKUs.forEach((sku, index) => {
+						const snapshot = stocks[index]
+						const orderItem = skuItems.find(item => item.skuReference!.path === sku.path)
+						const data = snapshot.data() || { count: 0 }
+						const count = data.count - orderItem!.quantity
+						transaction.set(snapshot.ref, { count })
+					})
+				}
 
 				const result = await stripe.paymentIntents.create(request, {
 					idempotencyKey: orderRef.path
@@ -100,18 +109,20 @@ export const create = regionFunctions.https.onCall(async (data, context) => {
 
 				const provider: Provider = new Provider(order.providedBy)
 				const recieveOrderRef = provider.orders.collectionReference.doc(order.id)
-				order.paymentStatus = 'authorized'
 				order.paymentResult = result
 				switch (order.deliveryMethod) {
 					case 'none': {
+						order.paymentStatus = 'succeeded'
 						order.deliveryStatus = 'none'
 						break
 					}
 					case 'pickup': {
+						order.paymentStatus = 'processing'
 						order.deliveryStatus = 'preparing_for_delivery'
 						break
 					}
 					case 'shipping': {
+						order.paymentStatus = 'processing'
 						order.deliveryStatus = 'preparing_for_delivery'
 						break
 					}
@@ -152,7 +163,8 @@ export const confirm = regionFunctions.https.onCall(async (data, context) => {
 	if (!STRIPE_API_KEY) {
 		throw new functions.https.HttpsError('invalid-argument', 'The functions requires STRIPE_API_KEY.')
 	}
-	console.info(context)
+
+	functions.logger.info(data)
 	const uid: string = context.auth.uid
 	const stripe = new Stripe(STRIPE_API_KEY, { apiVersion: '2020-03-02' })
 	const orderID: string = data.orderID
@@ -165,7 +177,6 @@ export const confirm = regionFunctions.https.onCall(async (data, context) => {
 	}
 
 	const orderRef = new User(uid).orders.collectionReference.doc(orderID)
-
 	try {
 		const result = await admin.firestore().runTransaction(async transaction => {
 			const snapshot = await transaction.get(orderRef)
@@ -204,16 +215,16 @@ export const confirm = regionFunctions.https.onCall(async (data, context) => {
 
 			try {
 				// Check the stock status.
-				const result = await stripe.paymentIntents.confirm(paymentIntentID, {
+				const result = await stripe.paymentIntents.capture(paymentIntentID, {
 					idempotencyKey: orderID
 				})
 				if (transferTasks.length > 0) {
 					await Promise.all(transferTasks)
 				}
-				const updateData = {
-					paymentStatus: 'paid',
+				const updateData: Partial<Order> = {
+					paymentStatus: 'succeeded',
 					paymentResult: result,
-					updatedAt: admin.firestore.FieldValue.serverTimestamp()
+					updatedAt: admin.firestore.FieldValue.serverTimestamp() as any
 				}
 				const recieveOrderRef = new Provider(order.providedBy).orders.collectionReference.doc(orderID)
 				transaction.set(orderRef, updateData, { merge: true })

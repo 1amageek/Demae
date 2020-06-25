@@ -110,14 +110,6 @@ export default ({ user }: { user: Commerce.User }) => {
 		setProcessing(false)
 	}
 
-	if (isLoading) {
-		return (
-			<Paper>
-				<DataLoading />
-			</Paper>
-		)
-	}
-
 	return (
 		<Paper>
 			<AppBar position='static' color='transparent' elevation={0}>
@@ -134,7 +126,19 @@ export default ({ user }: { user: Commerce.User }) => {
 					</Box>
 				</Toolbar>
 			</AppBar>
-			{
+			<List>
+				<ListItem button onClick={() => {
+					push(<CardInput callback={(paymentMethod) => {
+						setPaymentMethods([...paymentMethods, paymentMethod])
+					}} />)
+				}}>
+					<ListItemIcon>
+						<AddIcon color="secondary" />
+					</ListItemIcon>
+					<ListItemText primary={`Add new payment method`} />
+				</ListItem>
+			</List>
+			{isLoading ? <DataLoading /> :
 				paymentMethods.map(method => {
 					return (
 						<ExpansionPanel key={method.id} >
@@ -183,18 +187,6 @@ export default ({ user }: { user: Commerce.User }) => {
 					)
 				})
 			}
-			<List>
-				<ListItem button onClick={() => {
-					push(<CardInput callback={(paymentMethod) => {
-						setPaymentMethods([...paymentMethods, paymentMethod])
-					}} />)
-				}}>
-					<ListItemIcon>
-						<AddIcon color="secondary" />
-					</ListItemIcon>
-					<ListItemText primary={`Add new payment method`} />
-				</ListItem>
-			</List>
 		</Paper>
 	)
 }

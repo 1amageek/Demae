@@ -19,6 +19,9 @@
 		"start": "npm run shell",
 		"deploy": "firebase deploy --only functions",
 		"deploy:hosting": "firebase deploy --only functions:hosting",
+		"deploy:commerce": "firebase deploy --only functions:commerce.v1",
+		"deploy:commerce:checkout": "firebase deploy --only functions:commerce.v1.checkout",
+		"deploy:stripe": "firebase deploy --only functions:stripe.v1",
 		"logs": "firebase functions:log",
 		"copy-common": "cpx ./src/functions/common/ ./src/app/common -C"
 	},

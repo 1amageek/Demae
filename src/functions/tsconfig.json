@@ -9,7 +9,7 @@
 		"noImplicitReturns": true,
 		"emitDecoratorMetadata": true,
 		"experimentalDecorators": true,
-		"noUnusedLocals": true,
+		"noUnusedLocals": false,
 		"outDir": "../../dist",
 		"sourceMap": true,
 		"strict": true,

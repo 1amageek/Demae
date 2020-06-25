@@ -168,11 +168,12 @@ export default ({ providerID, productID, skuID }: { providerID: string, productI
 										onClick={(e) => {
 											e.preventDefault()
 											if (user) {
+												const _cart = cart || new Cart(user.id)
 												const group = cart?.cartGroup('quick') || CartGroup.fromSKU(product, sku)
 												group.groupID = 'quick'
 												group.setSKU(product, sku, mediatorID)
-												cart?.setCartGroup(group)
-												cart?.save()
+												_cart?.setCartGroup(group)
+												_cart?.save()
 												showDrawer(
 													<QuickCheckout
 														groupID={'quick'}

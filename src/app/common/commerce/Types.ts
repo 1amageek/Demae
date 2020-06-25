@@ -18,7 +18,12 @@ export type DeliveryStatus =
 	'exception' | // Custom hold, undelivered, returned shipment to sender or any shipping exceptions.
 	'expired' // Shipment has no tracking information for 30 days since added.
 
-export type PaymentStatus = 'none' | 'rejected' | 'authorized' | 'paid' | 'cancelled' | 'failure' | 'cancel_failure'
+export type PaymentStatus =
+	'none' | // Free Product.
+	'processing' | // The customer’s payment was submitted to Stripe successfully. Only applicable to payment methods with delayed success confirmation. https://stripe.com/docs/payments/payment-methods#payment-confirmation
+	'succeeded' | // Customer’s payment succeeded
+	'payment_failed' // Customer’s payment was declined by card network or otherwise expired
+
 
 // Plan
 export type Interval = 'day' | 'week' | 'month' | 'year'
