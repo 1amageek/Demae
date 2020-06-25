@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react'
-import { useLocation } from 'react-router-dom'
+import firebase from 'firebase'
 import { DeliveryStatus } from 'common/commerce/Types'
 import { Typography, Box, Paper, FormControl } from '@material-ui/core';
 import Input, { useInput } from 'components/Input'
@@ -64,10 +64,19 @@ export default ({ orderID }: { orderID?: string }) => {
 							showDrawer(<ActionSheet onNext={async () => {
 								setStatus(status)
 								if (!order) return
-								order.deliveryStatus = status
-								await order.save()
+								if (!order.paymentResult) return
+								const paymentIntentID = order.paymentResult.id
+								const capture = firebase.functions().httpsCallable('commerce-v1-checkout-capture')
+								const response = await capture({ paymentIntentID })
+								const { error, result } = response.data
+								if (error) {
+									showSnackbar('error', error.message)
+									console.error(error)
+								} else {
+									showSnackbar('success', 'The product has been shipped.')
+									console.log(result)
+								}
 								onClose()
-								showSnackbar('success', 'Change status.')
 							}} onClose={onClose} />)
 						} else {
 							setStatus(status)

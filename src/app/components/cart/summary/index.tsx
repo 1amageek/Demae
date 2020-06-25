@@ -31,7 +31,7 @@ export default ({ items, disabled, onClick }: { items: SummaryItem[], disabled: 
 					return (
 						<Box key={index} display='flex' justifyContent='space-between' paddingBottom={1}>
 							<Box fontSize={16} fontWeight={500}>{item.title}</Box>
-							<Box fontSize={18} fontWeight={500}>{item.detail}</Box>
+							<Box fontSize={16} fontWeight={500}>{item.detail}</Box>
 						</Box>
 					)
 				})}

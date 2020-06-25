@@ -68,13 +68,4 @@ export default class Order extends Doc {
 				return undefined
 			}).filter(value => !!value)
 	}
-
-	async completed(amount: number) {
-		const updateInventory = firebase.functions().httpsCallable('commerce-v1-checkout-confirm')
-		const result = await updateInventory({
-			skuPath: this.path,
-			amount: amount
-		})
-		console.log('[APP] inventory update', result)
-	}
 }

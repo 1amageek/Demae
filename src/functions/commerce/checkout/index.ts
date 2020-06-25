@@ -312,6 +312,7 @@ export const capture = regionFunctions.https.onCall(async (data, context) => {
 				}
 				const updateData: Partial<Order> = {
 					paymentStatus: 'succeeded',
+					deliveryStatus: 'in_transit',
 					paymentResult: result,
 					updatedAt: admin.firestore.FieldValue.serverTimestamp() as any
 				}
