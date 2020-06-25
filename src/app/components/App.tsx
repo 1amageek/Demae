@@ -64,6 +64,7 @@ const App = () => {
 			<Route path={`/account`} exact component={Account} />
 			<Route path={`/account/create`} exact component={AccountCreateWorkFlow} />
 			<Route path={`/account/orders`} exact component={Order} />
+			<Route path={`/account/orders/:orderID`} exact component={Order} />
 			<Route path={`/account/payments`} exact component={Payment} />
 			<Route path={`/provider/create`} exact component={ProviderCreateWorkFlow} />
 			<Route path={`/providers`} exact component={Provider} />
