@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 import { Switch, Route, useHistory } from 'react-router-dom'
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles'
-import { Box, CssBaseline } from '@material-ui/core'
+import { Box } from '@material-ui/core'
 
 import AppBar from 'components/AppBar'
 import TabBar from 'components/TabBar'
@@ -42,7 +42,6 @@ export default () => {
 	}, [history.location.pathname])
 	return (
 		<>
-			<CssBaseline />
 			<Box className={classes.box}>
 				<AppBar title={'Demae'} />
 				<main className={classes.content}>

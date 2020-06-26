@@ -50,6 +50,8 @@ export default ({ productID }: { productID?: string }) => {
 				<Button
 					variant="contained"
 					color="primary"
+					size="small"
+					disableElevation
 					startIcon={
 						<AddCircleIcon />
 					}

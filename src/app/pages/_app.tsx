@@ -5,6 +5,8 @@ import * as Ballcap from "@1amageek/ballcap"
 import firebase from "firebase/app"
 import "firebase/firestore"
 import "firebase/auth"
+import { ThemeProvider } from '@material-ui/styles'
+import { CssBaseline } from '@material-ui/core'
 import { AuthProvider } from 'hooks/auth'
 import { AccountProvider } from 'hooks/account'
 import { UserProvider, RolesProvider, AdminProviderProvider, CartProvider, AdminProvider } from 'hooks/commerce'
@@ -14,6 +16,7 @@ import { DialogProvider } from 'components/Dialog'
 import { ModalProvider } from 'components/Modal'
 import { DrawerProvider } from 'components/Drawer'
 
+import theme from '../plugins/theme'
 
 const config = require(`${process.env.FIREBASE_PROJECT!}`)
 const isEmulated = process.env.USE_EMULATOR === 'true'
@@ -87,11 +90,14 @@ const Router = ({ location, children }: { location: string, children: any }) => 
 
 const App = ({ Component, pageProps, router }: AppProps) => {
 	return (
-		<Provider>
-			<Router location={router.asPath}>
-				<Component {...pageProps} />
-			</Router >
-		</Provider>
+		<ThemeProvider theme={theme}>
+			<CssBaseline />
+			<Provider>
+				<Router location={router.asPath}>
+					<Component {...pageProps} />
+				</Router >
+			</Provider>
+		</ThemeProvider>
 	)
 }
 

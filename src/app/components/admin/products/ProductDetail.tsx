@@ -63,6 +63,8 @@ export default () => {
 				<Button
 					variant="contained"
 					color="primary"
+					size="small"
+					disableElevation
 					startIcon={
 						<EditIcon />
 					}

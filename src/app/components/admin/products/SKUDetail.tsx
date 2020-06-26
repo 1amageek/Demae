@@ -74,6 +74,8 @@ export default ({ productID, skuID }: { productID?: string, skuID?: string }) =>
 					<Button
 						variant="contained"
 						color="primary"
+						size="small"
+						disableElevation
 						startIcon={
 							<EditIcon />
 						}

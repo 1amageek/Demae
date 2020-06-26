@@ -2,7 +2,7 @@ import React from 'react';
 import Document, { Head, Main, NextScript, DocumentContext } from 'next/document';
 import styled, { ServerStyleSheet } from 'styled-components'
 import { ServerStyleSheets } from '@material-ui/styles';
-import theme from '../theme';
+import theme from '../plugins/theme';
 
 class MyDocument extends Document {
 	static async getInitialProps(ctx: DocumentContext) {
@@ -65,8 +65,9 @@ class MyDocument extends Document {
 
 const Body = styled.body`
 	min-height: 100vh;
-  /* mobile viewport bug fix */
-  min-height: -webkit-fill-available;
+	min-height: -webkit-fill-available;
+	margin: 0px;
+	padding: 0px;
 `
 
 export default MyDocument

@@ -12,6 +12,7 @@ import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import OrderList from './OrderList'
 import OrderDetial from './OrderDetial'
+import List from './List'
 import { DeliveryStatus, PaymentStatus } from 'common/commerce/Types'
 import { DeliveryMethod } from 'models/commerce/Product'
 import { useDeliveryMethod, deliveryStatusesForDeliveryMethod } from './helper'
@@ -77,13 +78,6 @@ export default () => {
 						})}
 					</Tabs>
 				</AppBar>
-				{/* <AppBar position="static" color='inherit' elevation={1}>
-					<Tabs value={paymentState} onChange={handleChangePaymentStatus}>
-						{PaymentStatus.map(value => {
-							return <Tab key={value} label={PaymentStatusLabel[value]} id={value} />
-						})}
-					</Tabs>
-				</AppBar> */}
 				<Content orderID={orderID} deliveryMethod={deliveryMethod} deliveryStatus={DeliveryTabs[deliveryState].value} paymentStatus={PaymentStatus[paymentState]} />
 			</Box>
 		</AdminProviderOrderProvider>
@@ -109,7 +103,8 @@ const Content = ({ deliveryMethod, deliveryStatus, paymentStatus, orderID }: { d
 		return (
 			<Grid container alignItems="stretch" spacing={0} style={{ width: '100%' }}>
 				<Grid item xs={12}>
-					<OrderList orderID={orderID} deliveryMethod={deliveryMethod} deliveryStatus={deliveryStatus} paymentStatus={paymentStatus} />
+					<List />
+					{/* <OrderList orderID={orderID} deliveryMethod={deliveryMethod} deliveryStatus={deliveryStatus} paymentStatus={paymentStatus} /> */}
 				</Grid>
 			</Grid>
 		)
@@ -118,7 +113,8 @@ const Content = ({ deliveryMethod, deliveryStatus, paymentStatus, orderID }: { d
 	return (
 		<Grid container alignItems="stretch" spacing={0} style={{ width: '100%' }}>
 			<Grid item xs={12} md={4}>
-				<OrderList orderID={orderID} deliveryMethod={deliveryMethod} deliveryStatus={deliveryStatus} paymentStatus={paymentStatus} />
+				<List />
+				{/* <OrderList orderID={orderID} deliveryMethod={deliveryMethod} deliveryStatus={deliveryStatus} paymentStatus={paymentStatus} /> */}
 			</Grid>
 			<Grid item xs={12} md={8}>
 				<OrderDetial orderID={orderID} />
