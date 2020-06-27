@@ -1,5 +1,4 @@
 import { createMuiTheme } from '@material-ui/core/styles';
-import { red } from '@material-ui/core/colors';
 
 // Create a theme instance.
 const theme = createMuiTheme({
@@ -20,7 +19,7 @@ const theme = createMuiTheme({
 						'"Segoe UI Symbol"',
 					].join(','),
 					fontsize: 14,
-					fontWeight: 400
+					fontWeight: 400,
 				},
 				'.MuiButton-root': {
 
@@ -49,8 +48,8 @@ const theme = createMuiTheme({
 			'"Segoe UI Emoji"',
 			'"Segoe UI Symbol"',
 		].join(','),
-		htmlFontSize: 16,
-		fontSize: 14,
+		htmlFontSize: 15,
+		fontSize: 13,
 		fontWeightLight: 300,
 		fontWeightRegular: 400,
 		fontWeightMedium: 500,
@@ -81,31 +80,36 @@ const theme = createMuiTheme({
 		},
 		subtitle1: {
 			fontWeight: 700,
-			fontSize: '1.05rem',
+			fontSize: '1.03rem',
+			lineHeight: 1.5
 		},
 		subtitle2: {
 			fontWeight: 600,
-			fontSize: '1.05rem',
+			fontSize: '1.03rem',
+			lineHeight: 1.5
 		},
 		body1: {
 			fontWeight: 500,
 			fontSize: '1rem',
+			lineHeight: 1.43
 		},
 		body2: {
 			fontWeight: 400,
-			fontSize: '1rem',
+			fontSize: '0.92rem',
+			lineHeight: 1.42
 		},
 		button: {
-			fontWeight: 600,
-			fontSize: '1rem',
+			fontWeight: 700,
+			fontSize: '0.80rem',
+			letterSpacing: 0.0
 		},
 		caption: {
-			fontWeight: 300,
-			fontSize: '0.9rem',
+			fontWeight: 400,
+			fontSize: '0.8rem',
 		},
 		overline: {
 			fontWeight: 400,
-			fontSize: '1rem',
+			fontSize: '0.77rem',
 		}
 	}
 });

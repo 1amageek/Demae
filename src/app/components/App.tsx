@@ -1,32 +1,32 @@
-import React, { useEffect } from 'react'
-import { Switch, Route, useHistory } from 'react-router-dom'
-import { makeStyles, Theme, createStyles } from '@material-ui/core/styles'
-import { Box } from '@material-ui/core'
+import React, { useEffect } from "react"
+import { Switch, Route, useHistory } from "react-router-dom"
+import { makeStyles, Theme, createStyles } from "@material-ui/core/styles"
+import { Box } from "@material-ui/core"
 
-import AppBar from 'components/AppBar'
-import TabBar from 'components/TabBar'
-import Login from 'components/Login'
-import Home from 'components/home'
-import Cart from 'components/cart'
-import Account from 'components/account'
-import AccountCreateWorkFlow from 'components/account/workflow'
-import ProviderCreateWorkFlow from 'components/provider/workflow'
-import Order from 'components/account/histories'
-import Payment from 'components/account/payments'
-import Provider from 'components/providers'
-import Product from 'components/providers/products'
-import SKU from 'components/providers/products/skus'
-import Checkout from 'components/checkout'
-import CheckoutCompleted from 'components/checkout/complete'
-import Shipping from 'components/checkout/shipping'
-import PaymentMethod from 'components/checkout/payment'
+import AppBar from "components/AppBar"
+import TabBar from "components/TabBar"
+import Login from "components/Login"
+import Home from "components/home"
+import Cart from "components/cart"
+import Account from "components/account"
+import AccountCreateWorkFlow from "components/account/workflow"
+import ProviderCreateWorkFlow from "components/provider/workflow"
+import Order from "components/account/histories"
+import Payment from "components/account/payments"
+import Provider from "components/providers"
+import Product from "components/providers/products"
+import SKU from "components/providers/products/skus"
+import Checkout from "components/checkout"
+import CheckoutCompleted from "components/checkout/complete"
+import Shipping from "components/checkout/shipping"
+import PaymentMethod from "components/checkout/payment"
 
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
 		box: {
-			minHeight: '100vh',
-			paddingBottom: '100px',
+			minHeight: "100vh",
+			paddingBottom: "100px",
 		},
 		content: {
 			flexGrow: 1
@@ -43,7 +43,7 @@ export default () => {
 	return (
 		<>
 			<Box className={classes.box}>
-				<AppBar title={'Demae'} />
+				<AppBar title={"Demae"} />
 				<main className={classes.content}>
 					<App />
 				</main>
