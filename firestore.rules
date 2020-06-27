@@ -1,4 +1,4 @@
-rules_version = '2';
+rules_version = "2";
 service cloud.firestore {
   match /databases/{database}/documents {
     
@@ -39,15 +39,15 @@ service cloud.firestore {
 			match /providers/{provider_id} {
 
 				function isOwner() {
-					return 'owner' in get(/databases/$(database)/documents/commerce/$(version)/providers/$(provider_id)/members/$(request.auth.uid)).data.permissions;
+					return "owner" in get(/databases/$(database)/documents/commerce/$(version)/providers/$(provider_id)/members/$(request.auth.uid)).data.permissions;
 				}
 
 				function isEditor() {
-					return 'write' in get(/databases/$(database)/documents/commerce/$(version)/providers/$(provider_id)/members/$(request.auth.uid)).data.permissions;
+					return "write" in get(/databases/$(database)/documents/commerce/$(version)/providers/$(provider_id)/members/$(request.auth.uid)).data.permissions;
 				}
 
 				function isViewer() {
-					return 'write' in get(/databases/$(database)/documents/commerce/$(version)/providers/$(provider_id)/members/$(request.auth.uid)).data.permissions;
+					return "write" in get(/databases/$(database)/documents/commerce/$(version)/providers/$(provider_id)/members/$(request.auth.uid)).data.permissions;
 				}
 
 				allow read: if true;
@@ -76,6 +76,11 @@ service cloud.firestore {
 				match /orders/{order_id} {
 					allow read: if request.auth.uid == provider_id || isOwner() || isEditor() || isViewer();
 					allow write: if request.auth.uid == provider_id || isOwner() || isEditor();
+          
+          match /activities/{activity_id} {
+            allow read: if request.auth.uid == provider_id || isOwner() || isEditor() || isViewer();
+            allow write: if request.auth.uid == provider_id || isOwner() || isEditor();
+					}
 				}
 			}
     }

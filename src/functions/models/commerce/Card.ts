@@ -1,4 +1,4 @@
-import { Doc, Field } from '@1amageek/ballcap-admin'
+import { Doc, Field } from "@1amageek/ballcap-admin"
 
 export default class Card extends Doc {
 	@Field brand!: string

@@ -1,10 +1,10 @@
-import { firestore, Doc, Model, Field, File, DocumentReference, CollectionReference, Codable } from '@1amageek/ballcap'
-import { CurrencyCode, Symbol } from 'common/Currency'
-import { Discount } from 'common/commerce/Types'
-import Shipping from './Shipping'
-import SKU from './SKU'
-import Product, { ProductType, DeliveryMethod } from './Product'
-import Order, { OrderItem } from './Order'
+import { firestore, Doc, Model, Field, File, DocumentReference, CollectionReference, Codable } from "@1amageek/ballcap"
+import { CurrencyCode, Symbol } from "common/Currency"
+import { Discount } from "common/commerce/Types"
+import Shipping from "./Shipping"
+import SKU from "./SKU"
+import Product, { ProductType, DeliveryMethod } from "./Product"
+import Order, { OrderItem } from "./Order"
 
 
 interface TotalTax {
@@ -48,12 +48,12 @@ export class CartItem extends Deliverable implements Accounting {
 	@Field productReference?: DocumentReference
 	@Field skuReference?: DocumentReference
 	@Field quantity: number = 1
-	@Field currency: CurrencyCode = 'USD'
+	@Field currency: CurrencyCode = "USD"
 	@Field amount: number = 0
 	@Field discount?: Discount
 	@Field taxRate: number = 0
-	@Field category: string = ''
-	@Field name: string = ''
+	@Field category: string = ""
+	@Field name: string = ""
 	@Field caption?: string
 	@Field description?: string
 	@Field metadata?: any
@@ -73,7 +73,7 @@ export class CartItem extends Deliverable implements Accounting {
 
 	subtotal() {
 		if (this.discount) {
-			if (this.discount.type === 'rate') {
+			if (this.discount.type === "rate") {
 				return this.amount - Math.floor(this.amount * this.discount.rate!)
 			} else {
 				return Math.max(this.amount - this.discount.amount!, 0)
@@ -123,8 +123,8 @@ export class CartGroup extends Model implements Accounting {
 	@Field providedBy!: string
 	@Codable(CartItem)
 	@Field items: CartItem[] = []
-	@Field currency: CurrencyCode = 'USD'
-	@Field deliveryMethod: DeliveryMethod = 'none'
+	@Field currency: CurrencyCode = "USD"
+	@Field deliveryMethod: DeliveryMethod = "none"
 	@Field shippingDate?: any
 	@Field estimatedArrivalDate?: any
 
@@ -197,13 +197,13 @@ export class CartGroup extends Model implements Accounting {
 			orderItem.category = item.category
 			orderItem.description = item.description
 			orderItem.metadata = item.metadata
-			orderItem.status = 'none'
+			orderItem.status = "none"
 			return orderItem
 		})
 		const order: Order = new Order()
 		order.purchasedBy = purchasedBy
 		order.providedBy = this.providedBy
-		order.title = `${items.map(item => item.name).join(', ')}`
+		order.title = `${items.map(item => item.name).join(", ")}`
 		order.shipping = this.shipping
 		order.shippingDate = this.shippingDate
 		order.estimatedArrivalDate = this.estimatedArrivalDate
@@ -211,8 +211,8 @@ export class CartGroup extends Model implements Accounting {
 		order.amount = this.total()
 		order.items = items
 		order.deliveryMethod = this.deliveryMethod
-		order.deliveryStatus = 'none'
-		order.paymentStatus = 'none'
+		order.deliveryStatus = "none"
+		order.paymentStatus = "none"
 		order.isCancelled = false
 		order.metadata = this.metadata
 		return order.data({ convertDocumentReference: true })
@@ -292,11 +292,11 @@ export class CartGroup extends Model implements Accounting {
 export default class Cart extends Doc {
 
 	static collectionReference(): CollectionReference {
-		return firestore.collection('commerce/v1/carts')
+		return firestore.collection("commerce/v1/carts")
 	}
 
 	@Field purchasedBy!: string
-	@Field currency: CurrencyCode = 'USD'
+	@Field currency: CurrencyCode = "USD"
 	@Field amount: number = 0
 	@Codable(Shipping)
 	@Field shipping?: Shipping

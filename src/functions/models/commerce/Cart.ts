@@ -1,8 +1,8 @@
-import { firestore, Doc, Model, Field, File, DocumentReference, CollectionReference, Codable } from '@1amageek/ballcap-admin'
-import { CurrencyCode } from '../../common/Currency'
-import { Discount } from '../../common/commerce/Types'
-import { ProductType, DeliveryMethod } from './Product'
-import Shipping from './Shipping'
+import { firestore, Doc, Model, Field, File, DocumentReference, CollectionReference, Codable } from "@1amageek/ballcap-admin"
+import { CurrencyCode } from "../../common/Currency"
+import { Discount } from "../../common/commerce/Types"
+import { ProductType, DeliveryMethod } from "./Product"
+import Shipping from "./Shipping"
 
 
 class Deliverable extends Model {
@@ -20,12 +20,12 @@ export class CartItem extends Deliverable {
 	@Field productReference?: DocumentReference
 	@Field skuReference?: DocumentReference
 	@Field quantity: number = 1
-	@Field currency: CurrencyCode = 'USD'
+	@Field currency: CurrencyCode = "USD"
 	@Field amount: number = 0
 	@Field discount?: Discount
 	@Field taxRate: number = 0
-	@Field category: string = ''
-	@Field name: string = ''
+	@Field category: string = ""
+	@Field name: string = ""
 	@Field caption?: string
 	@Field description?: string
 	@Field metadata?: any
@@ -36,8 +36,8 @@ export class CartGroup extends Model {
 	@Field providedBy!: string
 	@Codable(CartItem)
 	@Field items: CartItem[] = []
-	@Field currency: CurrencyCode = 'USD'
-	@Field deliveryMethod: DeliveryMethod = 'none'
+	@Field currency: CurrencyCode = "USD"
+	@Field deliveryMethod: DeliveryMethod = "none"
 	@Field shippingDate?: any
 	@Field estimatedArrivalDate?: any
 
@@ -50,11 +50,11 @@ export class CartGroup extends Model {
 export default class Cart extends Doc {
 
 	static collectionReference(): CollectionReference {
-		return firestore.collection('commerce/v1/carts')
+		return firestore.collection("commerce/v1/carts")
 	}
 
 	@Field purchasedBy!: string
-	@Field currency: CurrencyCode = 'USD'
+	@Field currency: CurrencyCode = "USD"
 	@Field amount: number = 0
 	@Codable(Shipping)
 	@Field shipping?: Shipping

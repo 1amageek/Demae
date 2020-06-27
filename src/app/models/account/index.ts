@@ -1,2 +1,2 @@
-import Account from './Account'
+import Account from "./Account"
 export { Account }

@@ -1,31 +1,31 @@
-import { Doc, Field, Collection, SubCollection, CollectionReference, firestore, GeoPoint, File } from '@1amageek/ballcap-admin'
-import { CurrencyCode } from '../../common/Currency'
-import Product from './Product'
-import Order from './Order'
+import { Doc, Field, Collection, SubCollection, CollectionReference, firestore, GeoPoint, File } from "@1amageek/ballcap-admin"
+import { CurrencyCode } from "../../common/Currency"
+import Product from "./Product"
+import Order from "./Order"
 
-export type Permission = 'read' | 'write' | 'owner'
+export type Permission = "read" | "write" | "owner"
 
 export class Role extends Doc {
-	@Field permissions: Permission[] = ['read', 'write', 'owner']
+	@Field permissions: Permission[] = ["read", "write", "owner"]
 }
 
-export type SNSProvider = 'twitter' | 'facebook' | 'instagram'
+export type SNSProvider = "twitter" | "facebook" | "instagram"
 
 export default class Provider extends Doc {
 
 	static collectionReference(): CollectionReference {
-		return firestore.collection('commerce/v1/providers')
+		return firestore.collection("commerce/v1/providers")
 	}
 
 	@Field thumbnailImage?: File
 	@Field coverImage?: File
-	@Field name: string = ''
-	@Field caption: string = ''
-	@Field description: string = ''
-	@Field country: string = 'US'
-	@Field defaultCurrency: CurrencyCode = 'USD'
-	@Field email: string = ''
-	@Field phone: string = ''
+	@Field name: string = ""
+	@Field caption: string = ""
+	@Field description: string = ""
+	@Field country: string = "US"
+	@Field defaultCurrency: CurrencyCode = "USD"
+	@Field email: string = ""
+	@Field phone: string = ""
 	@Field location?: GeoPoint
 	@Field address?: string
 	@Field isAvailable: boolean = false

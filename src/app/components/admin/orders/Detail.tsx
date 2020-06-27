@@ -17,13 +17,15 @@ import { SKU, User } from "models/commerce";
 import { useDrawer } from "components/Drawer";
 import { useSnackbar } from "components/Snackbar";
 import Select, { useSelect, useMenu } from "components/_Select"
-import Order from 'models/commerce/Order'
+import Order from "models/commerce/Order"
 import { useDeliveryMethod, deliveryStatusesForDeliveryMethod, DeliveryStatusLabel, PaymentStatusLabel } from "./helper"
 import Dayjs from "dayjs"
 import Label from "components/Label";
 import { useDocumentListen } from "hooks/firestore";
-import { useTheme } from '@material-ui/core/styles';
-import TextField, { useTextField } from 'components/TextField'
+import { useTheme } from "@material-ui/core/styles";
+import TextField, { useTextField } from "components/TextField"
+import { Activity, Comment } from "models/commerce/Order"
+import { useAuthUser } from "hooks/auth";
 
 export default ({ orderID }: { orderID?: string }) => {
 	const theme = useTheme();
@@ -143,7 +145,7 @@ export default ({ orderID }: { orderID?: string }) => {
 								<Typography>{order?.shipping?.format(["postal_code", "line1", "line2", "city", "state"])}</Typography>
 							</Box>
 						</Box>
-						<Comment order={order} />
+						<CommentView order={order} />
 					</Box>
 				</article>
 			</Box>
@@ -151,7 +153,7 @@ export default ({ orderID }: { orderID?: string }) => {
 	)
 }
 
-const Activity = ({ order }: { order: Order }) => {
+const ActivityLog = ({ order }: { order: Order }) => {
 	const theme = useTheme();
 	return (
 		<Box display="flex">
@@ -172,47 +174,70 @@ const Activity = ({ order }: { order: Order }) => {
 	)
 }
 
-const Comment = ({ order }: { order: Order }) => {
+const CommentView = ({ order }: { order: Order }) => {
+	const [auth] = useAuthUser()
 	const theme = useTheme();
-	const [textField] = useTextField()
+	const [textField, setValue] = useTextField()
+
+	const onSubmit = async (event) => {
+		event.preventDefault();
+		if (!auth) return
+		const comment = new Comment()
+		comment.text = textField.value as string
+		const activity = new Activity(order.activities.collectionReference.doc())
+		activity.authoredBy = auth.uid
+		activity.comment = comment
+		try {
+			console.log(activity.path)
+			await activity.save()
+			setValue("")
+		} catch (error) {
+			console.error(error)
+		}
+	}
+
 	return (
-		<Box display="flex" paddingY={3}>
-			<Box>
-				<Avatar variant="circle">
-					<ImageIcon />
-				</Avatar>
-			</Box>
-			<Box
-				flexGrow={1}
-				border={1}
-				borderColor={theme.palette.grey[300]}
-				borderRadius={8}
-				padding={2}
-				marginLeft={2}
-			>
-				<TextField
-					{...textField}
-					fullWidth multiline
-					size="small"
-					variant="outlined"
-					placeholder="comment"
-					rows={4}
-				/>
+		<form onSubmit={onSubmit}>
+			<Box display="flex" paddingY={3}>
+				<Box>
+					<Avatar variant="circle">
+						<ImageIcon />
+					</Avatar>
+				</Box>
 				<Box
-					display="flex"
-					justifyContent="flex-end"
-					paddingTop={1}
+					flexGrow={1}
+					border={1}
+					borderColor={theme.palette.grey[300]}
+					borderRadius={8}
+					padding={1}
+					marginLeft={2}
 				>
-					<Button
+					<TextField
+						{...textField}
+						fullWidth multiline
 						size="small"
-						color="primary"
-						variant="contained"
-						disableElevation
-					>Comment</Button>
+						variant="outlined"
+						placeholder="comment"
+						rows={4}
+					/>
+					<Box
+						display="flex"
+						justifyContent="flex-end"
+						paddingTop={2}
+					>
+						<Button
+							type="submit"
+							disabled={((textField.value as string)?.length == 0)}
+							size="small"
+							color="primary"
+							variant="contained"
+							disableElevation
+						>Comment</Button>
+					</Box>
 				</Box>
 
 			</Box>
-		</Box>
+		</form>
 	)
 }
 

@@ -1,9 +1,9 @@
-import firebase from 'firebase'
-import { Doc, Model, Field, File, DocumentReference, Timestamp, Codable } from '@1amageek/ballcap'
-import { CurrencyCode } from 'common/Currency'
-import { OrderItemStatus, DeliveryStatus, PaymentStatus, Discount } from 'common/commerce/Types'
-import { ProductType, DeliveryMethod } from './Product'
-import Shipping from './Shipping'
+import firebase from "firebase"
+import { Doc, Model, Field, File, DocumentReference, SubCollection, Collection, Timestamp, Codable } from "@1amageek/ballcap"
+import { CurrencyCode } from "common/Currency"
+import { OrderItemStatus, DeliveryStatus, PaymentStatus, Discount } from "common/commerce/Types"
+import { ProductType, DeliveryMethod } from "./Product"
+import Shipping from "./Shipping"
 
 export class OrderItem extends Model {
 	@Field images: File[] = []
@@ -12,14 +12,14 @@ export class OrderItem extends Model {
 	@Field productReference?: DocumentReference
 	@Field skuReference?: DocumentReference
 	@Field quantity: number = 1
-	@Field currency: CurrencyCode = 'USD'
+	@Field currency: CurrencyCode = "USD"
 	@Field amount: number = 0
 	@Field price: number = 0
 	@Field discount?: Discount
 	@Field taxRate: number = 0
-	@Field status: OrderItemStatus = 'none'
-	@Field category: string = ''
-	@Field name: string = ''
+	@Field status: OrderItemStatus = "none"
+	@Field category: string = ""
+	@Field name: string = ""
 	@Field caption?: string
 	@Field description?: string
 	@Field metadata?: any
@@ -45,16 +45,18 @@ export default class Order extends Doc {
 	@Field paidAt?: Timestamp
 	@Field shippingDate?: any
 	@Field estimatedArrivalDate?: any
-	@Field currency: CurrencyCode = 'USD'
+	@Field currency: CurrencyCode = "USD"
 	@Field amount: number = 0
 	@Codable(OrderItem)
 	@Field items: OrderItem[] = []
-	@Field deliveryMethod: DeliveryMethod = 'none'
-	@Field deliveryStatus: DeliveryStatus = 'none'
-	@Field paymentStatus: PaymentStatus = 'none'
+	@Field deliveryMethod: DeliveryMethod = "none"
+	@Field deliveryStatus: DeliveryStatus = "none"
+	@Field paymentStatus: PaymentStatus = "none"
 	@Field isCancelled: boolean = false
 	@Field paymentResult?: any
 	@Field metadata?: any
+
+	@SubCollection activities: Collection<Activity> = new Collection()
 
 	imageURLs() {
 		return this.items
@@ -68,4 +70,29 @@ export default class Order extends Doc {
 				return undefined
 			}).filter(value => !!value)
 	}
+}
+
+export class Comment extends Model {
+	@Field text: string = ""
+	@Field attachedFiles: File[] = []
+}
+
+export class Assign extends Model {
+	@Field assignees: string[] = []
+}
+
+export class ChangeDeliveryStatus extends Model {
+	@Field beforeStatus: DeliveryStatus = "none"
+	@Field afterStatus: DeliveryStatus = "none"
+}
+
+export class Activity extends Doc {
+	@Field authoredBy!: string
+	@Codable(Comment)
+	@Field comment?: Comment
+	@Codable(Assign)
+	@Field assign?: Assign
+	@Codable(ChangeDeliveryStatus)
+	@Field changeDeliveryStatus?: ChangeDeliveryStatus
+	@Field metadata?: any
 }

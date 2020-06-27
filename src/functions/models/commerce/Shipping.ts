@@ -1,6 +1,6 @@
-import { Doc, Field } from '@1amageek/ballcap-admin'
-import { Address } from '../../common/commerce/Types'
-import { CountryCode } from '../../common/Country'
+import { Doc, Field } from "@1amageek/ballcap-admin"
+import { Address } from "../../common/commerce/Types"
+import { CountryCode } from "../../common/Country"
 
 export default class Shipping extends Doc {
 
@@ -8,10 +8,10 @@ export default class Shipping extends Doc {
 	@Field name?: string
 	@Field phone?: string
 
-	formatted(countryCode: CountryCode = 'US') {
+	formatted(countryCode: CountryCode = "US") {
 
 		switch (countryCode) {
-			case 'JP': {
+			case "JP": {
 				return `${
 					(this.address?.postal_code || "") +
 					" " +
