@@ -10,6 +10,7 @@ import { AdminProviderOrderProvider } from "hooks/commerce";
 import List from "./List"
 import Detail from "./Detail"
 import { DeliveryStatus, PaymentStatus } from "common/commerce/Types"
+import { NavigationView, ListView, ContentView } from "components/NavigationContainer"
 
 export default () => {
 	const { orderID } = useParams()
@@ -44,21 +45,19 @@ const Content = () => {
 			<Grid container alignItems="stretch" spacing={0} style={{ width: "100%" }}>
 				<Grid item xs={12}>
 					<List />
-					{/* <OrderList orderID={orderID} deliveryMethod={deliveryMethod} deliveryStatus={deliveryStatus} paymentStatus={paymentStatus} /> */}
 				</Grid>
 			</Grid>
 		)
 	}
 
 	return (
-		<Grid container alignItems="stretch" spacing={0} style={{ width: "100%" }}>
-			<Grid item xs={12} md={4}>
+		<NavigationView>
+			<ListView height="100%">
 				<List />
-				{/* <OrderList orderID={orderID} deliveryMethod={deliveryMethod} deliveryStatus={deliveryStatus} paymentStatus={paymentStatus} /> */}
-			</Grid>
-			<Grid item xs={12} md={8}>
+			</ListView>
+			<ContentView>
 				<Detail orderID={orderID} />
-			</Grid>
-		</Grid>
+			</ContentView>
+		</NavigationView>
 	)
 }

@@ -21,11 +21,13 @@ const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
 		selected: {
 			padding: "3px 5px",
+			cursor: "pointer",
 			background: "#FFF",
 			boxShadow: "0 2px 2px rgba(0, 0, 0, 0.15)"
 		},
 		default: {
 			padding: "3px 5px",
+			cursor: "pointer",
 			"&:hover": {
 				backgroud: "rgba(0, 0, 0, 0.6)"
 			}

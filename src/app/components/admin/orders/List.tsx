@@ -51,7 +51,7 @@ export default () => {
 
 	if (isLoading) {
 		return (
-			<Box>
+			<Box height="100%">
 				<Box padding={1} paddingTop={2}>
 					<Typography variant="h1">Order</Typography>
 				</Box>
@@ -64,14 +64,16 @@ export default () => {
 	}
 
 	return (
-		<Box>
+		<Box height="100%">
 			<Box padding={1} paddingTop={2}>
 				<Typography variant="h1">Order</Typography>
 			</Box>
 			<Box padding={1}>
 				<SegmentControl {...segmentControl} />
 			</Box>
-			<List>
+			<List style={{
+				height: "100%"
+			}}>
 				{orders.map(data => {
 					const orderedDate = Dayjs(data.createdAt.toDate())
 					return (

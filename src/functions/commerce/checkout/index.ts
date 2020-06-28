@@ -184,7 +184,7 @@ export const confirm = regionFunctions.https.onCall(async (data, context) => {
 				throw new functions.https.HttpsError('invalid-argument', `The order does not exist. ${orderRef.path}`)
 			}
 			const order = Order.fromSnapshot<Order>(snapshot)
-			if (order.paymentStatus !== 'none') {
+			if (order.paymentStatus !== 'processing') {
 				throw new functions.https.HttpsError('invalid-argument', `Invalid order status.. ${orderRef.path}`)
 			}
 			const tasks = order.items.map(async item => {
@@ -273,7 +273,7 @@ export const capture = regionFunctions.https.onCall(async (data, context) => {
 				throw new functions.https.HttpsError('invalid-argument', `The order does not exist. ${orderRef.path}`)
 			}
 			const order = Order.fromSnapshot<Order>(snapshot)
-			if (order.paymentStatus !== 'none') {
+			if (order.paymentStatus !== 'processing') {
 				throw new functions.https.HttpsError('invalid-argument', `Invalid order status.. ${orderRef.path}`)
 			}
 			const tasks = order.items.map(async item => {

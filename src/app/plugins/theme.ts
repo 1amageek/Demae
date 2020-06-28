@@ -91,13 +91,13 @@ const theme = createMuiTheme({
 			letterSpacing: 0.0
 		},
 		body1: {
-			fontWeight: 600,
+			fontWeight: 500,
 			fontSize: '1rem',
 			lineHeight: 1.5,
 			letterSpacing: 0.0
 		},
 		body2: {
-			fontWeight: 500,
+			fontWeight: 400,
 			fontSize: '1rem',
 			lineHeight: 1.5,
 			letterSpacing: 0.0
