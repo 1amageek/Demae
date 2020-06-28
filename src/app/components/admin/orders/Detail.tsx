@@ -52,22 +52,27 @@ export default ({ orderID }: { orderID?: string }) => {
 		const status = String(e.target.value) as DeliveryStatus
 		if (status === "in_transit") {
 			showDrawer(<ActionSheet onNext={async () => {
-				setStatus(status)
 				if (!order) return
 				if (!order.paymentResult) return
 				const paymentIntentID = order.paymentResult.id
 				const orderID = order.id
 				const capture = firebase.functions().httpsCallable("commerce-v1-checkout-capture")
-				const response = await capture({ paymentIntentID, orderID })
-				const { error, result } = response.data
-				if (error) {
-					showSnackbar("error", error.message)
+				try {
+					const response = await capture({ paymentIntentID, orderID })
+					const { error, result } = response.data
+					if (error) {
+						showSnackbar("error", error.message)
+						console.error(error)
+					} else {
+						setStatus(status)
+						showSnackbar("success", "The product has been shipped.")
+						console.log(result)
+					}
+					onClose()
+				} catch (error) {
 					console.error(error)
-				} else {
-					showSnackbar("success", "The product has been shipped.")
-					console.log(result)
+					onClose()
 				}
-				onClose()
 			}} onClose={onClose} />)
 		} else {
 

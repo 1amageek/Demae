@@ -1,14 +1,14 @@
-import * as admin from 'firebase-admin'
-import * as functions from 'firebase-functions'
-import { regionFunctions } from '../../helper'
-import Stripe from 'stripe'
-import User from '../../models/commerce/User'
-import Cart from '../../models/commerce/Cart'
-import Provider from '../../models/commerce/Provider'
-import Order, { OrderItem } from '../../models/commerce/Order'
-import SKU, { Stock } from '../../models/commerce/SKU'
-import { randomShard } from '../../common/Shard'
-import { Account } from '../../models/account'
+import * as admin from "firebase-admin"
+import * as functions from "firebase-functions"
+import { regionFunctions } from "../../helper"
+import Stripe from "stripe"
+import User from "../../models/commerce/User"
+import Cart from "../../models/commerce/Cart"
+import Provider from "../../models/commerce/Provider"
+import Order, { OrderItem } from "../../models/commerce/Order"
+import SKU, { Stock } from "../../models/commerce/SKU"
+import { randomShard } from "../../common/Shard"
+import { Account } from "../../models/account"
 
 class OrderError extends Error {
 	target: string
@@ -25,47 +25,51 @@ type Response = {
 
 export const create = regionFunctions.https.onCall(async (data, context) => {
 	if (!context.auth) {
-		throw new functions.https.HttpsError('failed-precondition', 'The function must be called while authenticated.')
+		throw new functions.https.HttpsError("failed-precondition", "The function must be called while authenticated.")
 	}
 	const STRIPE_API_KEY = functions.config().stripe.api_key
 	if (!STRIPE_API_KEY) {
-		throw new functions.https.HttpsError('invalid-argument', 'The functions requires STRIPE_API_KEY.')
+		throw new functions.https.HttpsError("invalid-argument", "The functions requires STRIPE_API_KEY.")
 	}
 	functions.logger.info(data)
 	const uid: string = context.auth.uid
-	const stripe = new Stripe(STRIPE_API_KEY, { apiVersion: '2020-03-02' })
+	const stripe = new Stripe(STRIPE_API_KEY, { apiVersion: "2020-03-02" })
 
 	const groupID = data.groupID
 	if (!groupID) {
-		throw new functions.https.HttpsError('invalid-argument', 'This request does not include an groupID.')
+		throw new functions.https.HttpsError("invalid-argument", "This request does not include an groupID.")
 	}
 	const orderData = data.order
 	if (!orderData) {
-		throw new functions.https.HttpsError('invalid-argument', 'This request does not include an Order.')
+		throw new functions.https.HttpsError("invalid-argument", "This request does not include an Order.")
 	}
 	const paymentMethodID = data.paymentMethodID
 	if (!paymentMethodID) {
-		throw new functions.https.HttpsError('invalid-argument', 'This request does not contain a paymentMethodID.')
+		throw new functions.https.HttpsError("invalid-argument", "This request does not contain a paymentMethodID.")
 	}
 	const customerID = data.customerID
 	if (!customerID) {
-		throw new functions.https.HttpsError('invalid-argument', 'This request does not contain a customerID.')
+		throw new functions.https.HttpsError("invalid-argument", "This request does not contain a customerID.")
 	}
 
 	const cart = await Cart.get<Cart>(uid)
 	if (!cart) {
-		throw new functions.https.HttpsError('invalid-argument', 'This user has not cart.')
+		throw new functions.https.HttpsError("invalid-argument", "This user has not cart.")
 	}
 
 	const orderRef = new User(uid).orders.collectionReference.doc()
 	const order: Order = Order.fromData(orderData, orderRef, { convertDocumentReference: true })
 	const cartItemGroups = cart.groups.filter(group => group.groupID !== groupID)
 
-	const isOnSession = order.deliveryMethod === 'none'
-	const setup_future_usage = isOnSession ? 'on_session' : 'off_session'
+	const isOnSession = order.deliveryMethod === "none"
+	const setup_future_usage = isOnSession ? "on_session" : "off_session"
+	const capture_method = isOnSession ? "automatic" : "manual"
+	const confirm = true
 
 	const request = {
 		setup_future_usage,
+		capture_method,
+		confirm,
 		amount: order.amount,
 		currency: order.currency,
 		customer: customerID,
@@ -85,7 +89,7 @@ export const create = regionFunctions.https.onCall(async (data, context) => {
 
 				const SKUs = await checkOrder(order)
 				const skuItems: OrderItem[] = order.items
-				const finiteSKUs = SKUs.filter(sku => sku.inventory.type === 'finite')
+				const finiteSKUs = SKUs.filter(sku => sku.inventory.type === "finite")
 
 				// Transaction write
 				if (finiteSKUs.length) {
@@ -111,19 +115,19 @@ export const create = regionFunctions.https.onCall(async (data, context) => {
 				const recieveOrderRef = provider.orders.collectionReference.doc(order.id)
 				order.paymentResult = result
 				switch (order.deliveryMethod) {
-					case 'none': {
-						order.paymentStatus = 'succeeded'
-						order.deliveryStatus = 'none'
+					case "none": {
+						order.paymentStatus = "succeeded"
+						order.deliveryStatus = "none"
 						break
 					}
-					case 'pickup': {
-						order.paymentStatus = 'processing'
-						order.deliveryStatus = 'preparing_for_delivery'
+					case "pickup": {
+						order.paymentStatus = "processing"
+						order.deliveryStatus = "preparing_for_delivery"
 						break
 					}
-					case 'shipping': {
-						order.paymentStatus = 'processing'
-						order.deliveryStatus = 'preparing_for_delivery'
+					case "shipping": {
+						order.paymentStatus = "processing"
+						order.deliveryStatus = "preparing_for_delivery"
 						break
 					}
 				}
@@ -157,23 +161,23 @@ export const create = regionFunctions.https.onCall(async (data, context) => {
 
 export const confirm = regionFunctions.https.onCall(async (data, context) => {
 	if (!context.auth) {
-		throw new functions.https.HttpsError('failed-precondition', 'The function must be called while authenticated.')
+		throw new functions.https.HttpsError("failed-precondition", "The function must be called while authenticated.")
 	}
 	const STRIPE_API_KEY = functions.config().stripe.api_key
 	if (!STRIPE_API_KEY) {
-		throw new functions.https.HttpsError('invalid-argument', 'The functions requires STRIPE_API_KEY.')
+		throw new functions.https.HttpsError("invalid-argument", "The functions requires STRIPE_API_KEY.")
 	}
 
 	functions.logger.info(data)
 	const uid: string = context.auth.uid
-	const stripe = new Stripe(STRIPE_API_KEY, { apiVersion: '2020-03-02' })
+	const stripe = new Stripe(STRIPE_API_KEY, { apiVersion: "2020-03-02" })
 	const orderID: string = data.orderID
 	if (!orderID) {
-		throw new functions.https.HttpsError('invalid-argument', 'This request does not include an orderID.')
+		throw new functions.https.HttpsError("invalid-argument", "This request does not include an orderID.")
 	}
 	const paymentIntentID = data.paymentIntentID
 	if (!paymentIntentID) {
-		throw new functions.https.HttpsError('invalid-argument', 'This request does not contain a paymentIntentID.')
+		throw new functions.https.HttpsError("invalid-argument", "This request does not contain a paymentIntentID.")
 	}
 
 	const orderRef = new User(uid).orders.collectionReference.doc(orderID)
@@ -181,11 +185,11 @@ export const confirm = regionFunctions.https.onCall(async (data, context) => {
 		const result = await admin.firestore().runTransaction(async transaction => {
 			const snapshot = await transaction.get(orderRef)
 			if (!snapshot.exists) {
-				throw new functions.https.HttpsError('invalid-argument', `The order does not exist. ${orderRef.path}`)
+				throw new functions.https.HttpsError("invalid-argument", `The order does not exist. ${orderRef.path}`)
 			}
 			const order = Order.fromSnapshot<Order>(snapshot)
-			if (order.paymentStatus !== 'processing') {
-				throw new functions.https.HttpsError('invalid-argument', `Invalid order status.. ${orderRef.path}`)
+			if (order.paymentStatus !== "processing") {
+				throw new functions.https.HttpsError("invalid-argument", `Invalid order status.. ${orderRef.path}`)
 			}
 			const tasks = order.items.map(async item => {
 				if (item.mediatedBy) {
@@ -222,7 +226,7 @@ export const confirm = regionFunctions.https.onCall(async (data, context) => {
 					await Promise.all(transferTasks)
 				}
 				const updateData: Partial<Order> = {
-					paymentStatus: 'succeeded',
+					paymentStatus: "succeeded",
 					paymentResult: result,
 					updatedAt: admin.firestore.FieldValue.serverTimestamp() as any
 				}
@@ -246,23 +250,23 @@ export const confirm = regionFunctions.https.onCall(async (data, context) => {
 
 export const capture = regionFunctions.https.onCall(async (data, context) => {
 	if (!context.auth) {
-		throw new functions.https.HttpsError('failed-precondition', 'The function must be called while authenticated.')
+		throw new functions.https.HttpsError("failed-precondition", "The function must be called while authenticated.")
 	}
 	const STRIPE_API_KEY = functions.config().stripe.api_key
 	if (!STRIPE_API_KEY) {
-		throw new functions.https.HttpsError('invalid-argument', 'The functions requires STRIPE_API_KEY.')
+		throw new functions.https.HttpsError("invalid-argument", "The functions requires STRIPE_API_KEY.")
 	}
 
 	functions.logger.info(data)
 	const uid: string = context.auth.uid
-	const stripe = new Stripe(STRIPE_API_KEY, { apiVersion: '2020-03-02' })
+	const stripe = new Stripe(STRIPE_API_KEY, { apiVersion: "2020-03-02" })
 	const orderID: string = data.orderID
 	if (!orderID) {
-		throw new functions.https.HttpsError('invalid-argument', 'This request does not include an orderID.')
+		throw new functions.https.HttpsError("invalid-argument", "This request does not include an orderID.")
 	}
 	const paymentIntentID = data.paymentIntentID
 	if (!paymentIntentID) {
-		throw new functions.https.HttpsError('invalid-argument', 'This request does not contain a paymentIntentID.')
+		throw new functions.https.HttpsError("invalid-argument", "This request does not contain a paymentIntentID.")
 	}
 
 	const orderRef = new User(uid).orders.collectionReference.doc(orderID)
@@ -270,11 +274,11 @@ export const capture = regionFunctions.https.onCall(async (data, context) => {
 		const result = await admin.firestore().runTransaction(async transaction => {
 			const snapshot = await transaction.get(orderRef)
 			if (!snapshot.exists) {
-				throw new functions.https.HttpsError('invalid-argument', `The order does not exist. ${orderRef.path}`)
+				throw new functions.https.HttpsError("invalid-argument", `The order does not exist. ${orderRef.path}`)
 			}
 			const order = Order.fromSnapshot<Order>(snapshot)
-			if (order.paymentStatus !== 'processing') {
-				throw new functions.https.HttpsError('invalid-argument', `Invalid order status.. ${orderRef.path}`)
+			if (order.paymentStatus !== "processing") {
+				throw new functions.https.HttpsError("invalid-argument", `Invalid order status.. ${orderRef.path}`)
 			}
 			const tasks = order.items.map(async item => {
 				if (item.mediatedBy) {
@@ -311,8 +315,8 @@ export const capture = regionFunctions.https.onCall(async (data, context) => {
 					await Promise.all(transferTasks)
 				}
 				const updateData: Partial<Order> = {
-					paymentStatus: 'succeeded',
-					deliveryStatus: 'in_transit',
+					paymentStatus: "succeeded",
+					deliveryStatus: "in_transit",
 					paymentResult: result,
 					updatedAt: admin.firestore.FieldValue.serverTimestamp() as any
 				}
@@ -336,23 +340,23 @@ export const capture = regionFunctions.https.onCall(async (data, context) => {
 
 // export const confirm = regionFunctions.https.onCall(async (data, context) => {
 // 	if (!context.auth) {
-// 		throw new functions.https.HttpsError('failed-precondition', 'The function must be called while authenticated.')
+// 		throw new functions.https.HttpsError("failed-precondition", "The function must be called while authenticated.")
 // 	}
 // 	const STRIPE_API_KEY = functions.config().stripe.api_key
 // 	if (!STRIPE_API_KEY) {
-// 		throw new functions.https.HttpsError('invalid-argument', 'The functions requires STRIPE_API_KEY.')
+// 		throw new functions.https.HttpsError("invalid-argument", "The functions requires STRIPE_API_KEY.")
 // 	}
 // 	console.info(context)
 // 	const uid: string = context.auth.uid
-// 	const stripe = new Stripe(STRIPE_API_KEY, { apiVersion: '2020-03-02' })
+// 	const stripe = new Stripe(STRIPE_API_KEY, { apiVersion: "2020-03-02" })
 // 	const orderID = data.orderID
 
 // 	if (!orderID) {
-// 		throw new functions.https.HttpsError('invalid-argument', 'This request does not include an orderID.')
+// 		throw new functions.https.HttpsError("invalid-argument", "This request does not include an orderID.")
 // 	}
 // 	const paymentIntentID = data.paymentIntentID
 // 	if (!paymentIntentID) {
-// 		throw new functions.https.HttpsError('invalid-argument', 'This request does not contain a paymentIntentID.')
+// 		throw new functions.https.HttpsError("invalid-argument", "This request does not contain a paymentIntentID.")
 // 	}
 
 // 	const orderRef = new User(uid).orders.collectionReference.doc(orderID)
@@ -361,19 +365,19 @@ export const capture = regionFunctions.https.onCall(async (data, context) => {
 // 		const result = await admin.firestore().runTransaction(async transaction => {
 // 			const snapshot = await transaction.get(orderRef)
 // 			if (!snapshot.exists) {
-// 				throw new functions.https.HttpsError('invalid-argument', `The order does not exist. ${orderRef.path}`)
+// 				throw new functions.https.HttpsError("invalid-argument", `The order does not exist. ${orderRef.path}`)
 // 			}
 // 			const order = Order.fromSnapshot<Order>(snapshot)
 
-// 			if (order.paymentStatus !== 'none') {
-// 				throw new functions.https.HttpsError('invalid-argument', `Invalid order status.. ${orderRef.path}`)
+// 			if (order.paymentStatus !== "none") {
+// 				throw new functions.https.HttpsError("invalid-argument", `Invalid order status.. ${orderRef.path}`)
 // 			}
 
 // 			try {
 // 				// Check the stock status.
 // 				const SKUs = await checkOrder(order)
 // 				const skuItems: OrderItem[] = order.items
-// 				const finiteSKUs = SKUs.filter(sku => sku.inventory.type === 'finite')
+// 				const finiteSKUs = SKUs.filter(sku => sku.inventory.type === "finite")
 // 				const result = await stripe.paymentIntents.confirm(paymentIntentID, {
 // 					idempotencyKey: orderID
 // 				})
@@ -391,7 +395,7 @@ export const capture = regionFunctions.https.onCall(async (data, context) => {
 // 					transaction.set(snapshot.ref, { count })
 // 				})
 // 				const recieveOrderRef = new Provider(order.providerID).orders.collectionReference.doc(orderID)
-// 				order.paymentStatus = 'paid'
+// 				order.paymentStatus = "paid"
 // 				order.paymentResult = result
 // 				transaction.set(recieveOrderRef, {
 // 					...order.data(),
@@ -434,7 +438,7 @@ const checkOrder = async (order: Order) => {
 	const skuValidation = skuItems.find(item => { return !(item.skuReference) })
 	if (skuValidation) {
 		console.log(`OrderItem contains items that do not have SKUReference.`)
-		throw new OrderError(`Invalid Request`, skuValidation.productReference?.path || '')
+		throw new OrderError(`Invalid Request`, skuValidation.productReference?.path || "")
 	}
 	const skuReferences = skuItems.map(item => item.skuReference!)
 	const SKUSnapshots = await Promise.all(skuReferences.map(ref => ref.get()))
@@ -447,11 +451,11 @@ const checkOrder = async (order: Order) => {
 		throw new OrderError(`${unavailable.name} sales have been suspended.`, unavailable.path)
 	}
 
-	const bucketSKUs = SKUs.filter(sku => sku.inventory.type === 'bucket')
-	const finiteSKUs = SKUs.filter(sku => sku.inventory.type === 'finite')
+	const bucketSKUs = SKUs.filter(sku => sku.inventory.type === "bucket")
+	const finiteSKUs = SKUs.filter(sku => sku.inventory.type === "finite")
 
 	// Bucket
-	const bucketOutOfStock = bucketSKUs.find(sku => sku.inventory.value! === 'out_of_stock')
+	const bucketOutOfStock = bucketSKUs.find(sku => sku.inventory.value! === "out_of_stock")
 	if (bucketOutOfStock) {
 		console.log(`Bucket SKU is out of stock. ${bucketOutOfStock.path}`)
 		throw new OrderError(`${bucketOutOfStock.name} is sold out.`, bucketOutOfStock.path)
