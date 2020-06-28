@@ -20,12 +20,15 @@ import Select, { useSelect, useMenu } from "components/_Select"
 import Order from "models/commerce/Order"
 import { useDeliveryMethod, deliveryStatusesForDeliveryMethod, DeliveryStatusLabel, PaymentStatusLabel } from "./helper"
 import Dayjs from "dayjs"
+import relativeTime from 'dayjs/plugin/relativeTime';
 import Label from "components/Label";
-import { useDocumentListen } from "hooks/firestore";
+import { useDocumentListen, useDataSourceListen, OrderBy } from "hooks/firestore";
 import { useTheme } from "@material-ui/core/styles";
 import TextField, { useTextField } from "components/TextField"
 import { Activity, Comment } from "models/commerce/Order"
 import { useAuthUser } from "hooks/auth";
+
+Dayjs.extend(relativeTime)
 
 export default ({ orderID }: { orderID?: string }) => {
 	const theme = useTheme();
@@ -68,9 +71,11 @@ export default ({ orderID }: { orderID?: string }) => {
 					<Box paddingBottom={1} display="flex">
 						<Box flexGrow={1}>
 							<Typography variant="h2">{order.title}</Typography>
-							<Typography variant="caption">
-								{`ID: ${order.id}`} - {orderedDate.format("YYYY-MM-DD HH:mm:ss")}
-							</Typography>
+							<Box color="text.secondary">
+								<Typography variant="caption">
+									{`ID: ${order.id}`} - {orderedDate.format("YYYY-MM-DD HH:mm:ss")}
+								</Typography>
+							</Box>
 							<Box display="flex" paddingY={1}>
 								<Label color="gray" fontSize={12}>{DeliveryStatusLabel[order.deliveryStatus]}</Label>
 								<Label color="gray" fontSize={12}>{PaymentStatusLabel[order.paymentStatus]}</Label>
@@ -142,9 +147,10 @@ export default ({ orderID }: { orderID?: string }) => {
 							</Paper>
 							<Box paddingY={2}>
 								<Typography variant="h3" gutterBottom>Shipping Information</Typography>
-								<Typography>{order?.shipping?.format(["postal_code", "line1", "line2", "city", "state"])}</Typography>
+								<Typography variant="body2" >{order?.shipping?.format(["postal_code", "line1", "line2", "city", "state"])}</Typography>
 							</Box>
 						</Box>
+						<ActivityView order={order} />
 						<CommentView order={order} />
 					</Box>
 				</article>
@@ -153,22 +159,76 @@ export default ({ orderID }: { orderID?: string }) => {
 	)
 }
 
-const ActivityLog = ({ order }: { order: Order }) => {
+const ActivityView = ({ order }: { order: Order }) => {
+	const [activies, isLoading] = useDataSourceListen<Activity>(Activity, {
+		path: order.activities.collectionReference.path,
+		orderBy: OrderBy("createdAt")
+	})
+	return (
+		<Box>
+			{activies.map((activity, index) => {
+				if (activity.comment) return <UserComment key={index} activity={activity} />
+				return <ActivityLog key={index} activity={activity} />
+			})}
+		</Box>
+	)
+}
+
+const ActivityLog = ({ activity }: { activity: Activity }) => {
 	const theme = useTheme();
 	return (
-		<Box display="flex">
+		<Box display="flex" alignItems="center" paddingY={3}>
 			<Box>
-				<Avatar variant="rounded">
+				<Avatar variant="circle">
 					<ImageIcon />
 				</Avatar>
 			</Box>
 			<Box
+				display="flex"
+				alignItems="center"
+				flexGrow={1}
+				padding={1}
+				marginLeft={2}
+			>
+				<Avatar variant="circle">
+					<ImageIcon />
+				</Avatar>
+				<Typography>aaaaaa</Typography>
+			</Box>
+		</Box>
+	)
+}
+
+const UserComment = ({ activity }: { activity: Activity }) => {
+	const theme = useTheme();
+	const time = Dayjs(activity.createdAt.toDate()).fromNow()
+	return (
+		<Box display="flex" paddingY={3}>
+			<Box>
+				<Avatar variant="circle">
+					<ImageIcon />
+				</Avatar>
+			</Box>
+			<Box
+				flexGrow={1}
 				border={1}
 				borderColor={theme.palette.grey[300]}
 				borderRadius={8}
-				padding={2}
+				marginLeft={2}
 			>
-				aa
+				<Box display="flex"
+					style={{
+						background: theme.palette.grey[100]
+					}}
+				>
+					<Box display="flex" padding={2} paddingY={1}>
+						<Typography>aaaa</Typography>
+						<Box paddingX={1} color="text.secondary">commented on {time}</Box>
+					</Box>
+				</Box>
+				<Box padding={2} paddingY={2}>
+					<Typography variant="body2">{activity.comment?.text}</Typography>
+				</Box>
 			</Box>
 		</Box>
 	)
@@ -188,7 +248,6 @@ const CommentView = ({ order }: { order: Order }) => {
 		activity.authoredBy = auth.uid
 		activity.comment = comment
 		try {
-			console.log(activity.path)
 			await activity.save()
 			setValue("")
 		} catch (error) {
@@ -235,7 +294,6 @@ const CommentView = ({ order }: { order: Order }) => {
 						>Comment</Button>
 					</Box>
 				</Box>
-
 			</Box>
 		</form>
 	)
@@ -249,7 +307,7 @@ const ActionSheet = ({ onNext, onClose }: { onNext: () => void, onClose: () => v
 				<Box fontSize={16} fontWeight={600} padding={2} paddingBottom={0}>
 					Complete the delivery process.
 				</Box>
-				<Box fontSize={16} fontWeight={400} paddingX={2} paddingBottom={2} color="text.secondary">
+				<Box fontSize={16} fontWeight={300} paddingX={2} paddingBottom={2} color="text.secondary">
 					The payment is executed by completing the delivery process.
 				</Box>
 				<List component="nav">

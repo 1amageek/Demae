@@ -5,7 +5,9 @@ const theme = createMuiTheme({
 	overrides: {
 		MuiCssBaseline: {
 			'@global': {
-				body: {
+				html: {
+					fontSize: '14px',
+					fontWeight: 500,
 					fontFamily: [
 						'-apple-system',
 						'BlinkMacSystemFont',
@@ -18,11 +20,6 @@ const theme = createMuiTheme({
 						'"Segoe UI Emoji"',
 						'"Segoe UI Symbol"',
 					].join(','),
-					fontsize: 14,
-					fontWeight: 400,
-				},
-				'.MuiButton-root': {
-
 				},
 			},
 		},
@@ -33,6 +30,9 @@ const theme = createMuiTheme({
 		},
 		secondary: {
 			main: 'rgb(52, 199, 89)',
+		},
+		text: {
+			primary: 'rgb(40, 40, 40)'
 		}
 	},
 	typography: {
@@ -48,11 +48,11 @@ const theme = createMuiTheme({
 			'"Segoe UI Emoji"',
 			'"Segoe UI Symbol"',
 		].join(','),
-		htmlFontSize: 15,
-		fontSize: 13,
+		htmlFontSize: 14,
+		fontSize: 14,
 		fontWeightLight: 300,
-		fontWeightRegular: 400,
-		fontWeightMedium: 500,
+		fontWeightRegular: 500,
+		fontWeightMedium: 600,
 		fontWeightBold: 700,
 		h1: {
 			fontWeight: 700,
@@ -75,28 +75,32 @@ const theme = createMuiTheme({
 			fontSize: '1.14rem',
 		},
 		h6: {
-			fontWeight: 600,
+			fontWeight: 700,
 			fontSize: '1.14rem',
 		},
 		subtitle1: {
 			fontWeight: 700,
 			fontSize: '1.03rem',
-			lineHeight: 1.5
+			lineHeight: 1.5,
+			letterSpacing: 0.0
 		},
 		subtitle2: {
 			fontWeight: 600,
 			fontSize: '1.03rem',
-			lineHeight: 1.5
+			lineHeight: 1.5,
+			letterSpacing: 0.0
 		},
 		body1: {
-			fontWeight: 500,
+			fontWeight: 600,
 			fontSize: '1rem',
-			lineHeight: 1.43
+			lineHeight: 1.5,
+			letterSpacing: 0.0
 		},
 		body2: {
-			fontWeight: 400,
-			fontSize: '0.92rem',
-			lineHeight: 1.42
+			fontWeight: 500,
+			fontSize: '1rem',
+			lineHeight: 1.5,
+			letterSpacing: 0.0
 		},
 		button: {
 			fontWeight: 700,
@@ -104,11 +108,11 @@ const theme = createMuiTheme({
 			letterSpacing: 0.0
 		},
 		caption: {
-			fontWeight: 400,
-			fontSize: '0.8rem',
+			fontWeight: 500,
+			fontSize: '0.88rem',
 		},
 		overline: {
-			fontWeight: 400,
+			fontWeight: 500,
 			fontSize: '0.77rem',
 		}
 	}
