@@ -113,8 +113,13 @@ export default ({ orderID }: { orderID?: string }) => {
 
 	if (!order) {
 		return (
-			<Box padding={2} height="100%" display="flex" alignItems="center">
-			</Box>
+			<Paper elevation={0} style={{
+				height: "100%"
+			}}>
+				<Box padding={2} height="100%" display="flex" justifyContent="center" alignItems="center">
+					<Typography variant="subtitle1" color="textSecondary">No item is selected.</Typography>
+				</Box>
+			</Paper>
 		)
 	}
 
@@ -212,7 +217,7 @@ const ActivityLog = ({ activity }: { activity: Activity }) => {
 	const time = Dayjs(activity.createdAt.toDate()).fromNow()
 	const [user, isLoading] = useDocumentListen<Social.User>(Social.User, Social.User.collectionReference().doc(activity.authoredBy))
 	return (
-		<Box paddingY={1} paddingX={2} paddingLeft={7}>
+		<Box paddingY={2} paddingX={2} paddingLeft={7}>
 			<Box display="flex" alignItems="center">
 				<Avatar variant="circle" style={{
 					width: theme.spacing(3),

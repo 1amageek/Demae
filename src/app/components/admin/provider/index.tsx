@@ -6,7 +6,6 @@ import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import Toolbar from '@material-ui/core/Toolbar';
 import { Container, Grid, Button, Table, TableRow, TableCell, TableBody, Divider, Box } from '@material-ui/core';
 import TextField, { useTextField } from 'components/TextField'
-import Select, { useSelect } from 'components/Select'
 import Switch, { useSwitch } from 'components/Switch';
 import DndCard from 'components/DndCard'
 import Provider from 'models/commerce/Provider'

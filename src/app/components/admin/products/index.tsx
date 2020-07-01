@@ -5,14 +5,14 @@ import { useTheme } from '@material-ui/core/styles';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 import Grid from '@material-ui/core/Grid';
 import Breadcrumbs from '@material-ui/core/Breadcrumbs';
+import { useParams } from "react-router-dom"
 import { Box, Hidden } from '@material-ui/core';
-import ProductList from './ProductList'
-import ProductDetail from './ProductDetail'
-import Board from '../Board';
+import ProductList from './List'
+import ProductDetail from './Detail'
 import { AdminProviderProductProvider, AdminProviderProductSKUProvider } from 'hooks/commerce';
 import SKUList from './SKUList';
 import SKUDetail from './SKUDetail';
-import StockDetail from './StockDetail';
+import { NavigationView, ListView, ContentView } from "components/NavigationContainer"
 
 export default (props: any) => {
 	const { productID, skuID } = props.match.params
@@ -21,16 +21,16 @@ export default (props: any) => {
 		<AdminProviderProductProvider id={productID}>
 			<AdminProviderProductSKUProvider id={skuID}>
 				<Box>
-					<Box py={2}>
+					{/* <Box py={2}>
 						<Breadcrumbs>
 							<Link to='/admin/products'>Products</Link>
 							{productID && <Link to={`/admin/products/${productID}`}>{productID}</Link>}
 							{productID && skuID && <Link to={`/admin/products/${productID}/skus`}>SKUs</Link>}
 							{productID && skuID && <Link to={`/admin/products/${productID}/skus`}>{skuID}</Link>}
 						</Breadcrumbs>
-					</Box>
+					</Box> */}
 					<Grid container alignItems="stretch" spacing={0} style={{ width: '100%' }}>
-						<Content productID={productID} skuID={skuID} />
+						<Content />
 					</Grid>
 				</Box>
 			</AdminProviderProductSKUProvider>
@@ -38,8 +38,10 @@ export default (props: any) => {
 	)
 }
 
-const Content = ({ productID, skuID }: { productID?: string, skuID: string }) => {
+const Content = () => {
+
 	const theme = useTheme();
+	const { productID, skuID } = useParams()
 	const matches = useMediaQuery(theme.breakpoints.down('sm'));
 
 	if (matches) {
@@ -65,24 +67,37 @@ const Content = ({ productID, skuID }: { productID?: string, skuID: string }) =>
 		}
 
 		return (
-			<Grid item xs={12}>
-				<ProductList productID={productID} />
-			</Grid>
+			<NavigationView>
+				<ListView height="100%">
+					<ProductList />
+				</ListView>
+			</NavigationView>
 		)
 	}
 
 	return (
-		<Grid container alignItems="stretch" spacing={1} style={{ width: '100%' }}>
-			<Grid item xs={4}>
-				<ProductList productID={productID} />
-			</Grid>
-			<Grid item xs={4}>
+		<NavigationView>
+			<ListView height="100%">
+				<ProductList />
+			</ListView>
+			<ContentView>
 				<ProductDetail />
-				{productID && <SKUList productID={productID} />}
-			</Grid>
-			<Grid item xs={4}>
-				{productID && skuID && <SKUDetail productID={productID} skuID={skuID} />}
-			</Grid>
-		</Grid>
+			</ContentView>
+		</NavigationView>
 	)
+
+	// return (
+	// 	<Grid container alignItems="stretch" spacing={1} style={{ width: '100%' }}>
+	// 		<Grid item xs={4}>
+	// 			<ProductList productID={productID} />
+	// 		</Grid>
+	// 		<Grid item xs={4}>
+	// 			<ProductDetail />
+	// 			{productID && <SKUList productID={productID} />}
+	// 		</Grid>
+	// 		<Grid item xs={4}>
+	// 			{productID && skuID && <SKUDetail productID={productID} skuID={skuID} />}
+	// 		</Grid>
+	// 	</Grid>
+	// )
 }

@@ -1,5 +1,6 @@
 import React from "react"
 import Box, { BoxProps } from '@material-ui/core/Box'
+import { Paper } from "@material-ui/core"
 
 export const NavigationView = (props: BoxProps) => (
 	<Box
@@ -28,6 +29,9 @@ export const ListView = (props: BoxProps) => {
 				position="fixed"
 				width="inherit"
 				maxWidth="inherit"
+				style={{
+					paddingTop: "48px"
+				}}
 				{...props}
 			>
 				{props.children}
@@ -42,6 +46,15 @@ export const ContentView = (props: BoxProps) => (
 		height="100%"
 		{...props}
 	>
-		{props.children}
+		<Paper
+			elevation={0}
+			style={{
+				paddingTop: "48px",
+				height: "100%"
+			}}>
+			<Box>
+				{props.children}
+			</Box>
+		</Paper>
 	</Box>
 )

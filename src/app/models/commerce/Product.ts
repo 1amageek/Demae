@@ -7,6 +7,8 @@ export type ProductType = "service" | "good"
 
 export type DeliveryMethod = "none" | "shipping" | "pickup"
 
+export type AccessControl = "public" | "private" | "limited"
+
 export default class Product extends Doc {
 
 	static collectionReference(): CollectionReference {
@@ -24,6 +26,7 @@ export default class Product extends Doc {
 	@Field unitLabel: string = ""
 	@Field price: { [key in CurrencyCode]?: number } = {}
 	@Field deliveryMethod: DeliveryMethod = "none"
+	@Field accessControl: AccessControl = "public"
 	@Field isAvailable: boolean = true
 	@Field metadata?: any
 	@SubCollection skus: Collection<SKU> = new Collection()

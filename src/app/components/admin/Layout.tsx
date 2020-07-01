@@ -167,12 +167,12 @@ export default ({ children }: { children: any }) => {
 				{list("left")}
 			</Drawer>
 			<Box display="flex" style={{ minHeight: "100vh" }} >
-				{/* <AppBar
+				<AppBar
 					color="inherit"
 					position="fixed"
 					elevation={0}
 				>
-					<Toolbar>
+					<Toolbar variant="dense">
 						<IconButton
 							color="inherit"
 							aria-label="open drawer"
@@ -187,7 +187,7 @@ export default ({ children }: { children: any }) => {
 						<div style={{ flexGrow: 1 }}></div>
 						<AccountMenu />
 					</Toolbar>
-				</AppBar> */}
+				</AppBar>
 				<Box display="flex" style={{ minHeight: "100vh", width: "100%" }} >
 					{children}
 				</Box>
