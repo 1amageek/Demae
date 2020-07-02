@@ -55,7 +55,7 @@ export default () => {
 
 	return (
 		<Box height="100%">
-			<Box padding={1} paddingTop={2} display="flex" justifyContent="space-between" alignItems="center">
+			<Box paddingX={1} display="flex" justifyContent="space-between" alignItems="center">
 				<Typography variant="h1">Product</Typography>
 				<IconButton
 					color="inherit"
