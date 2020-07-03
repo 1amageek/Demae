@@ -1,8 +1,8 @@
-import React, { createContext, useContext, useState, useEffect, useRef, forwardRef } from "react"
+import React, { createContext, useContext, useState, useEffect, useRef, forwardRef, useCallback } from "react"
 import Box, { BoxProps } from "@material-ui/core/Box"
 import { useHistory } from "react-router-dom"
 import Button from "@material-ui/core/Button"
-import { Paper, Toolbar } from "@material-ui/core"
+import { AppBar, Toolbar, Paper } from "@material-ui/core"
 import ArrowBackIosOutlinedIcon from '@material-ui/icons/ArrowBackIosOutlined';
 
 interface Props {
@@ -10,9 +10,11 @@ interface Props {
 	href: string
 }
 
+const NavigationBarHeight = "48px"
+
 export const NavigationView = (props: BoxProps) => (
 	<Box
-		width="100vw"
+		width="100%"
 		height="100vh"
 	>
 		<Box
@@ -34,15 +36,24 @@ export const ListViewProvider = ({ children }: { children: any }) => {
 	if (state) {
 		return (
 			<ListViewContext.Provider value={setState}>
-				<Toolbar variant="dense" disableGutters>
-					<Box paddingX={1}>
-						<Button variant="text" size="small" color="primary"
-							startIcon={<ArrowBackIosOutlinedIcon />}
-							onClick={() => {
-								history.push(state.href)
-							}}>{state.title}</Button>
-					</Box>
-				</Toolbar>
+				<AppBar variant="outlined" position="sticky" style={{
+					top: NavigationBarHeight,
+					backgroundColor: "rgba(255, 255, 255, 0.3)",
+					backdropFilter: "blur(8px)",
+					borderTop: "none",
+					borderLeft: "none",
+					borderRight: "none"
+				}}>
+					<Toolbar variant="dense" disableGutters>
+						<Box paddingX={1}>
+							<Button variant="text" size="small" color="primary"
+								startIcon={<ArrowBackIosOutlinedIcon />}
+								onClick={() => {
+									history.push(state.href)
+								}}>{state.title}</Button>
+						</Box>
+					</Toolbar>
+				</AppBar>
 				{children}
 			</ListViewContext.Provider>
 		)
@@ -50,7 +61,16 @@ export const ListViewProvider = ({ children }: { children: any }) => {
 
 	return (
 		<ListViewContext.Provider value={setState}>
-			<Toolbar variant="dense" disableGutters></Toolbar>
+			<AppBar variant="outlined" position="static" style={{
+				top: NavigationBarHeight,
+				backgroundColor: "rgba(255, 255, 255, 0.3)",
+				backdropFilter: "blur(8px)",
+				// borderTop: "none",
+				borderLeft: "none",
+				borderRight: "none"
+			}}>
+				<Toolbar variant="dense" disableGutters></Toolbar>
+			</AppBar>
 			{children}
 		</ListViewContext.Provider>
 	)
@@ -76,13 +96,21 @@ export const ListView = (props: BoxProps) => {
 				width="inherit"
 				maxWidth="inherit"
 				style={{
-					paddingTop: "48px"
+					paddingTop: NavigationBarHeight
 				}}
 				{...props}
 			>
-				<ListViewProvider>
-					{props.children}
-				</ListViewProvider>
+				<Paper
+					elevation={0}
+					style={{
+						height: "100%",
+						width: "100%",
+						background: "inherit"
+					}}>
+					<ListViewProvider>
+						{props.children}
+					</ListViewProvider>
+				</Paper>
 			</Box>
 		</Box>
 	)
@@ -96,13 +124,14 @@ export const EditContext = createContext<[boolean, React.Dispatch<React.SetState
 export const EditProvider = ({ children }: { children: any }) => {
 	const [isEditing, setEditing] = useState(false)
 	const [onSubmit, setSubmit] = useState<EditProps>()
+	const callback = useCallback(() => {
+
+	}, [])
 
 	if (isEditing) {
 		return (
 			<EditContext.Provider value={[isEditing, setEditing, setSubmit]}>
-				<form onSubmit={(e) => {
-					if (onSubmit) onSubmit.hander(e)
-				}}>{children}</form>
+				<form onSubmit={callback}>{children}</form>
 			</EditContext.Provider >
 		)
 	}
@@ -116,7 +145,7 @@ export const EditProvider = ({ children }: { children: any }) => {
 
 export const useEdit = (onSubmit?: (event: React.FormEvent<HTMLFormElement>) => void): [boolean, React.Dispatch<React.SetStateAction<boolean>>, React.Dispatch<React.SetStateAction<EditProps | undefined>>] => {
 	const [isEditing, setEditing, setSubmit] = useContext(EditContext)
-	useEffect(() => {
+	const callback = useCallback(() => {
 		if (onSubmit) {
 			setSubmit({
 				hander: onSubmit
@@ -132,20 +161,20 @@ export const ContentViewContext = createContext<React.Dispatch<React.SetStateAct
 export const ContentViewProvider = ({ children }: { children: any }) => {
 	const [component, setComponent] = useState<React.ReactNode>()
 
-	if (component) {
-		return (
-			<ContentViewContext.Provider value={setComponent}>
+	return (
+		<ContentViewContext.Provider value={setComponent}>
+			<AppBar variant="outlined" position="sticky" style={{
+				top: NavigationBarHeight,
+				backgroundColor: "rgba(255, 255, 255, 0.3)",
+				backdropFilter: "blur(8px)",
+				// borderTop: "none",
+				borderLeft: "none",
+				borderRight: "none"
+			}}>
 				<Toolbar variant="dense" disableGutters>
 					{component}
 				</Toolbar>
-				{children}
-			</ContentViewContext.Provider>
-		)
-	}
-
-	return (
-		<ContentViewContext.Provider value={setComponent}>
-			<Toolbar variant="dense" disableGutters>{component}</Toolbar>
+			</AppBar>
 			{children}
 		</ContentViewContext.Provider>
 	)
@@ -159,17 +188,20 @@ export const useContentToolbar = (props: React.ReactNode, deps?: React.Dependenc
 }
 
 export const ContentView = (props: BoxProps) => (
-	<Box
-		width="100%"
-		height="100%"
-		{...props}
-	>
-		<Paper
-			elevation={0}
-			style={{
-				paddingTop: "48px",
-				height: "100%"
-			}}>
+
+	<Paper
+		elevation={0}
+		style={{
+			paddingTop: NavigationBarHeight,
+			height: "100%",
+			width: "100%",
+			background: "inherit"
+		}}>
+		<Box
+			width="100%"
+			height="100%"
+			{...props}
+		>
 			<EditProvider>
 				<ContentViewProvider>
 					<Box>
@@ -177,6 +209,7 @@ export const ContentView = (props: BoxProps) => (
 					</Box>
 				</ContentViewProvider>
 			</EditProvider>
-		</Paper>
-	</Box>
+
+		</Box>
+	</Paper>
 )

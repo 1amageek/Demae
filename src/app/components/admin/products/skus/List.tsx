@@ -83,11 +83,7 @@ export default () => {
 				}}>
 					{skus.map(data => {
 						return (
-							<ListItem key={data.id} button selected={skuID === data.id} onClick={() => {
-								history.push(`/admin/products/${productID}/skus/${data.id}`)
-							}}>
-								<SKUListItem key={data.id} productID={productID} sku={data} />
-							</ListItem>
+							<SKUListItem key={data.id} productID={productID} sku={data} />
 						)
 					})}
 				</List>
@@ -147,40 +143,6 @@ const SKUListItem = ({ productID, sku }: { productID?: string, sku: SKU }) => {
 					/>
 				</ListItemSecondaryAction>
 			</ListItem>
-
-			<ListItemAvatar>
-				<Avatar variant="rounded" src={imageURL} >
-					<ImageIcon />
-				</Avatar>
-			</ListItemAvatar>
-			<ListItemText primary={sku.name} secondary={priceWithSymbol} />
-			<ListItemSecondaryAction>
-				<Switch
-					edge="end"
-					onChange={async (e) => {
-						e.preventDefault()
-						setProcessing(true)
-						if (!sku.isAvailable) {
-							if (sku.inventory.type === "finite") {
-								const snapshot = await sku.stocks.collectionReference.get()
-								const count = snapshot.docs.reduce((prev, current) => {
-									return prev + current.data()!["count"]
-								}, 0)
-								if (count <= 0) {
-									setProcessing(false)
-									setMessage("error", `To publish ${sku.name}, Add stock or change the inventory.`)
-									return
-								}
-							}
-						}
-						sku.isAvailable = !sku.isAvailable
-						await sku.save()
-						setProcessing(false)
-						setMessage("success", `${sku.name} is published`)
-					}}
-					checked={sku.isAvailable}
-				/>
-			</ListItemSecondaryAction>
 		</>
 	)
 }

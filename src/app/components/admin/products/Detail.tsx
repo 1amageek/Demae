@@ -3,7 +3,7 @@ import React, { useState } from "react"
 import firebase from "firebase"
 import { File as StorageFile } from "@1amageek/ballcap"
 import { Link } from "react-router-dom"
-import { Typography, Box, Paper, FormControl, Button, ListItemSecondaryAction } from "@material-ui/core";
+import { Typography, Box, Paper, FormControl, Button, Grid, ListItemSecondaryAction } from "@material-ui/core";
 import Input, { useInput } from "components/Input"
 import { List, ListItem, ListItemText, ListItemAvatar, ListItemIcon, Divider } from "@material-ui/core";
 import { Table, TableBody, TableRow, TableCell } from "@material-ui/core";
@@ -15,6 +15,7 @@ import DataLoading from "components/DataLoading";
 import Board from "../Board";
 import DndCard from "components/DndCard"
 import SaveIcon from "@material-ui/icons/Save";
+import NavigateNextIcon from '@material-ui/icons/NavigateNext';
 import { useHistory } from "react-router-dom";
 import { SKU, User } from "models/commerce";
 import { useDrawer } from "components/Drawer";
@@ -86,62 +87,81 @@ export default () => {
 	const updatedAt = Dayjs(product.updatedAt.toDate())
 	return (
 		<Paper elevation={0} style={{
-			height: "100%"
+			height: "100%",
+			width: "100%",
+			background: "inherit"
 		}}>
-			<Box padding={2} height="100%">
-				<article>
-					<Box paddingBottom={1} display="flex">
-						<Box flexGrow={1}>
-							<Typography variant="h2">{product.name}</Typography>
-							<Box color="text.secondary">
-								<Typography variant="caption">
-									{`ID: ${product.id}`} - {updatedAt.format("YYYY-MM-DD HH:mm:ss")}
-								</Typography>
-							</Box>
-							<Box display="flex" paddingY={1}>
-								<Typography variant="subtitle1">
-									{/* Access Control <Label marginX={1} color="gray" fontSize={11}>{product.accessControl}</Label> */}
+			<Box width="100%" padding={2}>
+				<Paper elevation={0} square={false} style={{
+					height: "100%",
+					width: "100%",
+					marginBottom: theme.spacing(2)
+				}}>
+					<Box padding={2} height="100%">
+						<article>
+							<Box paddingBottom={1} display="flex">
+								<Box flexGrow={1}>
+									<Typography variant="h2">{product.name}</Typography>
+									<Box color="text.secondary">
+										<Typography variant="caption">
+											{`ID: ${product.id}`} - {updatedAt.format("YYYY-MM-DD HH:mm:ss")}
+										</Typography>
+									</Box>
+									<Box display="flex" paddingY={1}>
+										<Typography variant="subtitle1">
+											{/* Access Control <Label marginX={1} color="gray" fontSize={11}>{product.accessControl}</Label> */}
 									Delivery Method <Label marginX={1} color="gray" fontSize={11}>{deliveryMethodLabel[product.deliveryMethod]}</Label>
-								</Typography>
+										</Typography>
+									</Box>
+								</Box>
 							</Box>
-						</Box>
+							<Divider />
+							<Box paddingY={2}>
+								<Avatar variant="square" src={product.imageURLs()[0]} style={{
+									minHeight: "200px",
+									width: "100%"
+								}}>
+									<ImageIcon />
+								</Avatar>
+								<Box paddingTop={2}>
+									<Box paddingBottom={2}>
+										<Typography variant="subtitle1" gutterBottom>Caption</Typography>
+										<Typography variant="body1" gutterBottom>{product.caption}</Typography>
+									</Box>
+									<Box paddingBottom={2}>
+										<Typography variant="subtitle1" gutterBottom>Description</Typography>
+										<Typography variant="body1" gutterBottom>{product.description}</Typography>
+									</Box>
+								</Box>
+							</Box>
+						</article>
 					</Box>
-					<Divider />
-					<Box paddingY={2}>
-						<Avatar variant="square" src={product.imageURLs()[0]} style={{
-							minHeight: "200px",
-							width: "100%"
-						}}>
-							<ImageIcon />
-						</Avatar>
-						<Box paddingTop={2}>
-							<Box paddingBottom={2}>
-								<Typography variant="subtitle1" gutterBottom>Caption</Typography>
-								<Typography variant="body1" gutterBottom>{product.caption}</Typography>
-							</Box>
-							<Box paddingBottom={2}>
-								<Typography variant="subtitle1" gutterBottom>Description</Typography>
-								<Typography variant="body1" gutterBottom>{product.description}</Typography>
-							</Box>
-						</Box>
-					</Box>
-				</article>
-				<Divider />
-				<Box paddingY={2}>
-					<List>
-						<ListItem button component={Link} to={`/admin/products/${product.id}/skus`}>
-							<ListItemText primary="SKU" />
-						</ListItem>
-					</List>
-					<Typography variant="body2" gutterBottom>Manage inventory, including different sizes and colors.</Typography>
-				</Box>
+				</Paper >
 			</Box>
-		</Paper >
+
+			<Box padding={2} width="100%">
+				<Typography variant="h2" gutterBottom>Inventory</Typography>
+				<Paper elevation={0} square={false} style={{
+					height: "100%",
+					marginBottom: theme.spacing(2)
+				}}>
+					<Box>
+						<List>
+							<ListItem button component={Link} to={`/admin/products/${product.id}/skus`}>
+								<ListItemText primary="SKU" primaryTypographyProps={{ variant: "subtitle1" }} />
+								<ListItemSecondaryAction><NavigateNextIcon /></ListItemSecondaryAction>
+							</ListItem>
+						</List>
+					</Box>
+				</Paper>
+				<Typography variant="body2" gutterBottom>Manage inventory, including different sizes and colors.</Typography>
+			</Box>
+		</Paper>
 	)
 }
 
-
 const Edit = ({ product, onClose }: { product: Product, onClose: () => void }) => {
+	const theme = useTheme();
 	const [setProcessing] = useProcessing()
 	const [images, setImages] = useState<File[]>([])
 
@@ -229,8 +249,9 @@ const Edit = ({ product, onClose }: { product: Product, onClose: () => void }) =
 
 	const updatedAt = Dayjs(product.updatedAt.toDate())
 	return (
-		<Paper elevation={0} style={{
-			height: "100%"
+		<Paper elevation={0} square={false} style={{
+			height: "100%",
+			margin: theme.spacing(2)
 		}}>
 			<Box padding={2} height="100%">
 				<article>

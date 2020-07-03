@@ -4,11 +4,10 @@ import { Link } from "react-router-dom"
 import { useTheme } from "@material-ui/core/styles";
 import useMediaQuery from "@material-ui/core/useMediaQuery";
 import Grid from "@material-ui/core/Grid";
-import Breadcrumbs from "@material-ui/core/Breadcrumbs";
 import { useParams } from "react-router-dom"
-import { Box, Hidden } from "@material-ui/core";
+import { Box, Hidden, Divider } from "@material-ui/core";
 import SKUList from "./List"
-// import SKUList from "./Detail"
+import SKUDetail from "./Detail"
 import { AdminProviderProductProvider, AdminProviderProductSKUProvider } from "hooks/commerce";
 import { NavigationView, ListView, ContentView } from "components/NavigationContainer"
 
@@ -31,26 +30,15 @@ export default (props: any) => {
 const Content = () => {
 
 	const theme = useTheme();
-	const { productID, skuID } = useParams()
+	const { skuID } = useParams()
 	const matches = useMediaQuery(theme.breakpoints.down("sm"));
 
 	if (matches) {
-		if (productID && skuID) {
-			return (
-				<Grid item xs={12}>
-					{/* <SKUDetail productID={productID} skuID={skuID} /> */}
-				</Grid>
-			)
-		}
-
-		if (productID) {
+		if (skuID) {
 			return (
 				<NavigationView>
-					<ListView height="100%">
-						<SKUList />
-					</ListView>
 					<ContentView>
-						{/* <ProductDetail /> */}
+						<SKUDetail />
 					</ContentView>
 				</NavigationView>
 			)
@@ -70,8 +58,9 @@ const Content = () => {
 			<ListView height="100%">
 				<SKUList />
 			</ListView>
+			<Divider orientation="vertical" flexItem />
 			<ContentView>
-				{/* <ProductDetail /> */}
+				<SKUDetail />
 			</ContentView>
 		</NavigationView>
 	)

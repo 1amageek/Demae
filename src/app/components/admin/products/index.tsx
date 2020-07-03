@@ -3,10 +3,8 @@ import React, { useState } from "react"
 import { Link } from "react-router-dom"
 import { useTheme } from "@material-ui/core/styles";
 import useMediaQuery from "@material-ui/core/useMediaQuery";
-import Grid from "@material-ui/core/Grid";
-import Breadcrumbs from "@material-ui/core/Breadcrumbs";
+import { Grid, Divider, Box, Hidden } from "@material-ui/core";
 import { useParams } from "react-router-dom"
-import { Box, Hidden } from "@material-ui/core";
 import ProductList from "./List"
 import ProductDetail from "./Detail"
 import { AdminProviderProductProvider, AdminProviderProductSKUProvider } from "hooks/commerce";
@@ -45,20 +43,9 @@ const Content = () => {
 	const matches = useMediaQuery(theme.breakpoints.down("sm"));
 
 	if (matches) {
-		if (productID && skuID) {
-			return (
-				<Grid item xs={12}>
-					<SKUDetail productID={productID} skuID={skuID} />
-				</Grid>
-			)
-		}
-
 		if (productID) {
 			return (
 				<NavigationView>
-					<ListView height="100%">
-						<SKUList />
-					</ListView>
 					<ContentView>
 						<ProductDetail />
 					</ContentView>
@@ -80,6 +67,7 @@ const Content = () => {
 			<ListView height="100%">
 				<ProductList />
 			</ListView>
+			<Divider orientation="vertical" flexItem />
 			<ContentView>
 				<ProductDetail />
 			</ContentView>

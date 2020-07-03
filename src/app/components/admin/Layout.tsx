@@ -167,10 +167,18 @@ export default ({ children }: { children: any }) => {
 				{list("left")}
 			</Drawer>
 			<Box display="flex" style={{ minHeight: "100vh" }} >
+
 				<AppBar
-					color="inherit"
+					color="transparent"
 					position="fixed"
-					elevation={0}
+					variant="outlined"
+					style={{
+						backgroundColor: "rgba(255, 255, 255, 0.3)",
+						backdropFilter: "blur(8px)",
+						borderTop: "none",
+						borderLeft: "none",
+						borderRight: "none"
+					}}
 				>
 					<Toolbar variant="dense">
 						<IconButton
