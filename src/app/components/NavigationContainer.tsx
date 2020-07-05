@@ -14,7 +14,7 @@ const NavigationBarHeight = "48px"
 
 export const NavigationView = (props: BoxProps) => (
 	<Box
-		width="100%"
+		width="100vw"
 		height="100vh"
 	>
 		<Box
@@ -26,6 +26,23 @@ export const NavigationView = (props: BoxProps) => (
 		</Box>
 	</Box>
 )
+
+export const NavigationBackButton = ({ title, href }: { title: string, href?: string }) => {
+	const history = useHistory()
+	return (
+		<Box paddingX={1}>
+			<Button variant="text" size="small" color="primary"
+				startIcon={<ArrowBackIosOutlinedIcon />}
+				onClick={() => {
+					if (href) {
+						history.push(href)
+					} else {
+						history.goBack()
+					}
+				}}>{title}</Button>
+		</Box>
+	)
+}
 
 // List View
 
@@ -45,13 +62,7 @@ export const ListViewProvider = ({ children }: { children: any }) => {
 					borderRight: "none"
 				}}>
 					<Toolbar variant="dense" disableGutters>
-						<Box paddingX={1}>
-							<Button variant="text" size="small" color="primary"
-								startIcon={<ArrowBackIosOutlinedIcon />}
-								onClick={() => {
-									history.push(state.href)
-								}}>{state.title}</Button>
-						</Box>
+						<NavigationBackButton title={state.title} href={state.href} />
 					</Toolbar>
 				</AppBar>
 				{children}
@@ -116,43 +127,39 @@ export const ListView = (props: BoxProps) => {
 	)
 }
 
-interface EditProps {
-	hander: (event: React.FormEvent<HTMLFormElement>) => void
+class SubmitConext {
+	handler: ((event: React.FormEvent<HTMLFormElement>) => void) | undefined
 }
 
-export const EditContext = createContext<[boolean, React.Dispatch<React.SetStateAction<boolean>>, React.Dispatch<React.SetStateAction<EditProps | undefined>>]>([false, () => { }, () => { }])
+export const EditContext = createContext<[boolean, React.Dispatch<React.SetStateAction<boolean>>, SubmitConext]>([false, () => { }, new SubmitConext()])
 export const EditProvider = ({ children }: { children: any }) => {
 	const [isEditing, setEditing] = useState(false)
-	const [onSubmit, setSubmit] = useState<EditProps>()
-	const callback = useCallback(() => {
-
-	}, [])
-
+	const [submitContext] = useState(new SubmitConext())
 	if (isEditing) {
 		return (
-			<EditContext.Provider value={[isEditing, setEditing, setSubmit]}>
-				<form onSubmit={callback}>{children}</form>
+			<EditContext.Provider value={[isEditing, setEditing, submitContext]}>
+				<form onSubmit={(e) => {
+					if (submitContext.handler) {
+						submitContext.handler(e)
+					}
+				}}>{children}</form>
 			</EditContext.Provider >
 		)
 	}
 
 	return (
-		<EditContext.Provider value={[isEditing, setEditing, setSubmit]}>
+		<EditContext.Provider value={[isEditing, setEditing, submitContext]}>
 			{children}
 		</EditContext.Provider >
 	)
 }
 
-export const useEdit = (onSubmit?: (event: React.FormEvent<HTMLFormElement>) => void): [boolean, React.Dispatch<React.SetStateAction<boolean>>, React.Dispatch<React.SetStateAction<EditProps | undefined>>] => {
-	const [isEditing, setEditing, setSubmit] = useContext(EditContext)
-	const callback = useCallback(() => {
-		if (onSubmit) {
-			setSubmit({
-				hander: onSubmit
-			})
-		}
-	}, [])
-	return [isEditing, setEditing, setSubmit]
+export const useEdit = (onSubmit?: ((event: React.FormEvent<HTMLFormElement>) => void) | undefined): [boolean, React.Dispatch<React.SetStateAction<boolean>>, SubmitConext] => {
+	const [isEditing, setEditing, submitContext] = useContext(EditContext)
+	if (onSubmit) {
+		submitContext.handler = onSubmit
+	}
+	return [isEditing, setEditing, submitContext]
 }
 
 // ContentView View
@@ -209,7 +216,6 @@ export const ContentView = (props: BoxProps) => (
 					</Box>
 				</ContentViewProvider>
 			</EditProvider>
-
 		</Box>
 	</Paper>
 )

@@ -1,24 +1,24 @@
-import React, { useCallback, useState } from 'react'
-import { useDropzone } from 'react-dropzone'
-import { Avatar, Box, Tooltip, IconButton, BoxProps } from '@material-ui/core';
-import AddPhotoAlternateIcon from '@material-ui/icons/AddPhotoAlternate';
-import ImageIcon from '@material-ui/icons/Image';
-import { createStyles, makeStyles } from '@material-ui/core/styles';
+import React, { useCallback, useState } from "react"
+import { useDropzone } from "react-dropzone"
+import { Avatar, Box, Tooltip, IconButton, BoxProps } from "@material-ui/core";
+import AddPhotoAlternateIcon from "@material-ui/icons/AddPhotoAlternate";
+import ImageIcon from "@material-ui/icons/Image";
+import { createStyles, makeStyles } from "@material-ui/core/styles";
 
 const useStyles = makeStyles(() =>
 	createStyles({
 		box: {
-			background: 'rgba(0, 0, 0, 0.18)',
-			display: 'flex',
-			justifyContent: 'center',
-			alignItems: 'center'
+			background: "rgba(0, 0, 0, 0.18)",
+			display: "flex",
+			justifyContent: "center",
+			alignItems: "center"
 		},
 		innerBox: {
 			flexGrow: 1,
-			display: 'flex',
-			justifyContent: 'center',
-			alignItems: 'center',
-			border: '2px solid #fff'
+			display: "flex",
+			justifyContent: "center",
+			alignItems: "center",
+			border: "2px solid #fff"
 		}
 	})
 )
@@ -45,11 +45,11 @@ export default (props: DnDProps) => {
 		reader.readAsDataURL(file)
 
 	}, [])
-	const { getRootProps, getInputProps, isDragActive } = useDropzone({ accept: 'image/jpeg,image/png', onDrop: callback })
+	const { getRootProps, getInputProps, isDragActive } = useDropzone({ accept: "image/jpeg,image/png", onDrop: callback })
 	return (
 		<Box
-			position='relative'
-			display='flex'
+			position="relative"
+			display="flex"
 			flexGrow={1}
 			width="100%"
 			top={0}
@@ -64,9 +64,9 @@ export default (props: DnDProps) => {
 				{...getRootProps()}
 			>
 				<input {...getInputProps()} />
-				<Tooltip title={'Click to upload'}>
+				<Tooltip title={"Click to upload"}>
 					<IconButton>
-						<AddPhotoAlternateIcon style={{ color: '#fff' }} />
+						<AddPhotoAlternateIcon style={{ color: "#fff" }} />
 					</IconButton>
 				</Tooltip>
 			</Box>
@@ -75,9 +75,9 @@ export default (props: DnDProps) => {
 				height="100%"
 			>
 				<Avatar variant="square" src={image} style={{
-					minHeight: '64px',
-					height: '100%',
-					width: '100%'
+					minHeight: "64px",
+					height: "100%",
+					width: "100%"
 				}}>
 					<ImageIcon />
 				</Avatar>

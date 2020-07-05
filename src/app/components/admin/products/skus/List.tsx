@@ -23,26 +23,39 @@ import SKU from "models/commerce/SKU"
 import { Symbol } from "common/Currency"
 import { useListToolbar } from "components/NavigationContainer"
 
-const tabs = [true, false, undefined]
+const TabLabels = [
+	{
+		label: "All",
+		value: undefined
+	},
+	{
+		label: "Open",
+		value: true
+	},
+	{
+		label: "Close",
+		value: false
+	},
+]
 
 export default () => {
-	const { productID, skuID } = useParams()
-	const [segmentControl] = useSegmentControl(["Open", "Close", "All"])
+	const history = useHistory()
+	const { productID } = useParams()
+	const [segmentControl] = useSegmentControl(TabLabels.map(value => value.label))
 	const [provider, waiting] = useAdminProvider()
-	const isAvailable = tabs[segmentControl.selected]
+	const isAvailable = TabLabels[segmentControl.selected].value
 	const collectionReference = provider && productID ? provider.products.collectionReference.doc(productID).collection("skus") : undefined
 	const wheres = [
-		isAvailable ? Where("isAvailable", "==", isAvailable) : undefined,
+		isAvailable !== undefined ? Where("isAvailable", "==", isAvailable) : undefined,
 	].filter(value => !!value)
-	const [orderBy, setOrderBy] = useState<firebase.firestore.OrderByDirection>("desc")
+	const [orderBy] = useState<firebase.firestore.OrderByDirection>("desc")
 	const [skus, isLoading] = useDataSourceListen<SKU>(SKU, {
 		path: collectionReference?.path,
 		wheres: wheres,
 		orderBy: OrderBy("createdAt", orderBy)
 	}, waiting)
-	const history = useHistory()
-	const [setProcessing] = useProcessing()
-	const [setMessage] = useSnackbar()
+
+	console.log(skus)
 
 	const addSKU = async (e) => {
 		e.preventDefault()

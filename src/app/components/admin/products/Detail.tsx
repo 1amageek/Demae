@@ -23,7 +23,7 @@ import { useSnackbar } from "components/Snackbar";
 import Select, { useSelect, useMenu } from "components/_Select"
 import * as Social from "models/social"
 import { useAdminProviderProduct } from "hooks/commerce";
-import { useContentToolbar, useEdit } from "components/NavigationContainer"
+import { useContentToolbar, useEdit, NavigationBackButton } from "components/NavigationContainer"
 import Dayjs from "dayjs"
 import relativeTime from "dayjs/plugin/relativeTime";
 import Label from "components/Label";
@@ -45,18 +45,34 @@ const deliveryMethodLabel: { [key in DeliveryMethod]: string } = {
 
 export default () => {
 	const theme = useTheme();
-	const [auth] = useAuthUser()
 	const [product, isLoading] = useAdminProviderProduct()
 	const [isEditing, setEdit] = useEdit()
-	const [textField] = useTextField()
 
 	useContentToolbar(() => {
+		if (!product) return <></>
+		if (isEditing) {
+			return (
+				<Box display="flex" flexGrow={1} justifyContent="space-between" paddingX={1}>
+					<Button variant="outlined" color="primary" size="small" onClick={() => setEdit(false)}>Cancel</Button>
+					<Button variant="contained" color="primary" size="small" type="submit"
+						startIcon={
+							<SaveIcon />
+						}
+					>Save</Button>
+				</Box>
+			)
+		}
 		return (
-			<Box display="flex" flexGrow={1} justifyContent="flex-end" paddingX={2}>
-				<Button variant="outlined" color="primary" size="small" onClick={() => setEdit(true)}>Edit</Button>
+			<Box display="flex" flexGrow={1} justifyContent="space-between" paddingX={1}>
+				<Box>
+					<NavigationBackButton title="Products" href="/admin/products" />
+				</Box>
+				<Box display="flex" flexGrow={1} justifyContent="flex-end">
+					<Button variant="outlined" color="primary" size="small" onClick={() => setEdit(true)}>Edit</Button>
+				</Box>
 			</Box>
 		)
-	}, [])
+	})
 
 	if (isLoading) {
 		return (
@@ -234,19 +250,6 @@ const Edit = ({ product, onClose }: { product: Product, onClose: () => void }) =
 		})
 	}
 
-	useContentToolbar(() => {
-		return (
-			<Box display="flex" flexGrow={1} justifyContent="space-between" paddingX={2}>
-				<Button variant="outlined" color="primary" size="small" onClick={onClose}>Cancel</Button>
-				<Button variant="contained" color="primary" size="small" type="submit"
-					startIcon={
-						<SaveIcon />
-					}
-				>Save</Button>
-			</Box>
-		)
-	})
-
 	const updatedAt = Dayjs(product.updatedAt.toDate())
 	return (
 		<Paper elevation={0} square={false} style={{
@@ -273,12 +276,13 @@ const Edit = ({ product, onClose }: { product: Product, onClose: () => void }) =
 					</Box>
 					<Divider />
 					<Box paddingY={2}>
-						<Avatar variant="square" src={product.imageURLs()[0]} style={{
-							minHeight: "200px",
-							width: "100%"
-						}}>
-							<ImageIcon />
-						</Avatar>
+						<Box display="flex" flexGrow={1} minHeight={200}>
+							<DndCard
+								url={product.imageURLs()[0]}
+								onDrop={(files) => {
+									setImages(files)
+								}} />
+						</Box>
 						<Box paddingTop={2}>
 							<Box paddingBottom={2}>
 								<Typography variant="subtitle1" gutterBottom>Name</Typography>
