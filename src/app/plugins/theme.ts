@@ -21,15 +21,15 @@ const theme = createMuiTheme({
 						'"Segoe UI Symbol"',
 					].join(','),
 				},
+				'.MuiSwitch-switchBase': {
+					color: "#0FF"
+				}
 			},
 		},
 	},
 	palette: {
 		primary: {
 			main: 'rgb(0, 113, 227)',
-		},
-		secondary: {
-			main: 'rgb(52, 199, 89)',
 		},
 		text: {
 			primary: 'rgb(40, 40, 40)'

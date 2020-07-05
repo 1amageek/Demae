@@ -1,20 +1,17 @@
-import Paper from '@material-ui/core/Paper';
-import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
-import { Button, Box } from '@material-ui/core';
+import Paper from "@material-ui/core/Paper";
+import { createStyles, Theme, makeStyles } from "@material-ui/core/styles";
+import { Button, Box, Typography } from "@material-ui/core";
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
-		box: {
-			padding: theme.spacing(1),
-		},
 		button: {
-			width: '100%',
+			width: "100%",
 			flexGrow: 1
 		}
 	}),
 );
 
-type SummaryType = 'subtotal' | 'tax' | 'shipping' | 'discount' | 'total'
+type SummaryType = "subtotal" | "tax" | "shipping" | "discount" | "total"
 
 type SummaryItem = {
 	type: SummaryType
@@ -29,17 +26,17 @@ export default ({ items, disabled, onClick }: { items: SummaryItem[], disabled: 
 			<Box paddingY={1} paddingX={2}>
 				{items.map((item, index) => {
 					return (
-						<Box key={index} display='flex' justifyContent='space-between' paddingBottom={1}>
-							<Box fontSize={16} fontWeight={500}>{item.title}</Box>
-							<Box fontSize={16} fontWeight={500}>{item.detail}</Box>
+						<Box key={index} display="flex" justifyContent="space-between" paddingBottom={1}>
+							<Typography variant="subtitle2">{item.title}</Typography>
+							<Typography variant="body2">{item.detail}</Typography>
 						</Box>
 					)
 				})}
 			</Box>
-			<Box className={classes.box}>
+			<Box padding={1}>
 				<Button
 					disabled={disabled}
-					className={classes.button}
+					fullWidth
 					variant="contained"
 					size="large"
 					color="primary"

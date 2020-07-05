@@ -1,5 +1,5 @@
-import React, { createContext, useContext, useState, useEffect, useRef, forwardRef } from 'react'
-import { Slide, Box, Paper } from '@material-ui/core';
+import React, { createContext, useContext, useState, useEffect, useRef, forwardRef } from "react"
+import { Slide, Box, Paper } from "@material-ui/core";
 
 const NavigationChildContext = createContext<() => void>(() => { })
 const NavigationChildProvider = ({ pop, children }: { pop: () => void, children: any }) => {
@@ -25,15 +25,15 @@ const Child = ({ index, open, onClose, children }: { index: number, open: boolea
 			<Box
 				zIndex={zIndex}
 				position="absolute"
-				display='flex'
+				display="flex"
 				flexGrow={1}
-				width='100%'
+				width="100%"
 				top={0}
 				bottom={0}
 				left={0}
 				right={0}
 			>
-				<Paper elevation={0} square style={{ width: '100%' }}>
+				<Paper elevation={0} square style={{ width: "100%" }}>
 					{children}
 				</Paper>
 			</Box>
@@ -48,10 +48,10 @@ interface Prop {
 const Base = ({ props, children }: { props: Prop[], children: any }) => {
 	return (
 		<Box
-			position='relative'
-			display='flex'
+			position="relative"
+			display="flex"
 			flexGrow={1}
-			width='100%'
+			width="100%"
 			top={0}
 			bottom={0}
 			left={0}

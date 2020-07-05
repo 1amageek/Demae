@@ -1,5 +1,5 @@
-import { useState, useEffect, Dispatch, SetStateAction } from 'react'
-import Switch, { SwitchProps } from '@material-ui/core/Switch'
+import { useState, useEffect, Dispatch, SetStateAction } from "react"
+import Switch, { SwitchProps } from "@material-ui/core/Switch"
 
 export const useSwitch = (initValue: boolean, props: SwitchProps = {}): [SwitchProps, Dispatch<SetStateAction<boolean>>] => {
 	const [value, setValue] = useState<boolean>(initValue)

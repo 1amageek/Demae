@@ -1,7 +1,7 @@
-import React, { createContext, useContext, useState } from 'react'
-import Modal from '@material-ui/core/Modal';
-import Backdrop from '@material-ui/core/Backdrop';
-import Fade from '@material-ui/core/Fade';
+import React, { createContext, useContext, useState } from "react"
+import Modal from "@material-ui/core/Modal";
+import Backdrop from "@material-ui/core/Backdrop";
+import Fade from "@material-ui/core/Fade";
 
 interface Prop {
 	component?: React.ReactNode
@@ -19,9 +19,9 @@ const _Modal = ({ open, component, onClose }: { open: boolean, component?: React
 					timeout: 500,
 				}}
 				style={{
-					display: 'flex',
-					alignItems: 'center',
-					justifyContent: 'center'
+					display: "flex",
+					alignItems: "center",
+					justifyContent: "center"
 				}}
 			>
 				<Fade in={open}>

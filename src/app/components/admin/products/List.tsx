@@ -20,6 +20,7 @@ import { useDataSourceListen, Where, OrderBy } from "hooks/firestore"
 import { useAdminProviderProducts, useAdminProvider, useUser } from "hooks/commerce";
 import Product from "models/commerce/Product"
 import { Symbol } from "common/Currency"
+import { useTheme } from "@material-ui/core/styles";
 
 const TabLabels = [
 	{
@@ -103,6 +104,7 @@ export default () => {
 const ProductListItem = ({ productID, product }: { productID?: string, product: Product }) => {
 	const [user] = useUser()
 	const history = useHistory()
+	const theme = useTheme()
 	const price = product.price || {}
 	const currency = user?.currency || "USD"
 	const symbol = Symbol(currency)
@@ -123,6 +125,7 @@ const ProductListItem = ({ productID, product }: { productID?: string, product: 
 			<ListItemSecondaryAction>
 				<Switch
 					edge="end"
+					// color="default"
 					onChange={async (e) => {
 						e.preventDefault()
 						setProcessing(true)

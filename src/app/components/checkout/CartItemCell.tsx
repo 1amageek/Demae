@@ -1,8 +1,7 @@
 
 import React from 'react';
-import firebase from 'firebase'
 import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
-import { Box, Avatar, Tooltip, IconButton } from '@material-ui/core';
+import { Box, Avatar, Tooltip, IconButton, Typography } from '@material-ui/core';
 import ImageIcon from '@material-ui/icons/Image';
 import { useUser, useCart } from 'hooks/commerce';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
@@ -67,18 +66,12 @@ export default React.forwardRef(({ groupID, cartItem }: { groupID: string, cartI
 			<Box flexGrow={1}>
 				<Box display="flex" justifyContent="space-between" flexGrow={1}>
 					<Box mx={2}>
-						<Box flexGrow={1} fontWeight={600} fontSize={18}>
-							{cartItem.name}
-							<Box fontSize={16} fontWeight={400}>
-								{cartItem.caption}
-							</Box>
-							<Box fontSize={16} fontWeight={400} color='text.secondary'>
-								{price}
-							</Box>
-						</Box>
+						<Typography variant="subtitle1">{cartItem.name}</Typography>
+						<Typography variant="body1" color="textSecondary">{cartItem.caption}</Typography>
+						<Typography variant="body1" color="textSecondary">{price}</Typography>
 					</Box>
 					<Box>
-						<Box display="flex" justifyContent="flex-end" fontSize={18} fontWeight={500} >
+						<Box display="flex" justifyContent="flex-end" fontSize={16} fontWeight={500} >
 							{subtotal}
 						</Box>
 						<Box display="flex" justifyContent="flex-end" alignItems="center" mx={0} my={0}>
@@ -89,7 +82,7 @@ export default React.forwardRef(({ groupID, cartItem }: { groupID: string, cartI
 									</IconButton>
 								</div>
 							</Tooltip>
-							<Box fontWeight={600} fontSize={20} mx={1}>
+							<Box fontWeight={600} fontSize={16} mx={1}>
 								{cartItem.quantity}
 							</Box>
 							<Tooltip title='Add'>

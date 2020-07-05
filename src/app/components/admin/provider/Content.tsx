@@ -258,6 +258,4 @@ const Form = ({ provider }: { provider: Provider }) => {
 			</Box>
 		</Container>
 	)
-
-
 }
