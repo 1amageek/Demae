@@ -1,5 +1,5 @@
-import React from 'react'
-import { Box, Typography, Button, Paper } from '@material-ui/core';
+import React from "react"
+import { Box, Typography, Button, Paper } from "@material-ui/core";
 
 export default () => {
 	return (

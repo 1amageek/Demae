@@ -1,8 +1,8 @@
-import React from 'react';
-import Document, { Head, Main, NextScript, DocumentContext } from 'next/document';
-import styled, { ServerStyleSheet } from 'styled-components'
-import { ServerStyleSheets } from '@material-ui/styles';
-import theme from '../plugins/theme';
+import React from "react";
+import Document, { Head, Main, NextScript, DocumentContext } from "next/document";
+import styled, { ServerStyleSheet } from "styled-components"
+import { ServerStyleSheets } from "@material-ui/styles";
+import theme from "../plugins/theme";
 
 class MyDocument extends Document {
 	static async getInitialProps(ctx: DocumentContext) {

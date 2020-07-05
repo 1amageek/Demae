@@ -1,25 +1,25 @@
-import React from 'react'
+import React from "react"
 import NextApp, { AppProps, AppContext } from "next/app"
-import { StaticRouter, BrowserRouter } from 'react-router-dom'
+import { StaticRouter, BrowserRouter } from "react-router-dom"
 import * as Ballcap from "@1amageek/ballcap"
 import firebase from "firebase/app"
 import "firebase/firestore"
 import "firebase/auth"
-import { ThemeProvider } from '@material-ui/styles'
-import { CssBaseline } from '@material-ui/core'
-import { AuthProvider } from 'hooks/auth'
-import { AccountProvider } from 'hooks/account'
-import { UserProvider, RolesProvider, AdminProviderProvider, CartProvider, AdminProvider } from 'hooks/commerce'
-import { ProcessingProvider } from 'components/Processing'
-import { SnackbarProvider } from 'components/Snackbar'
-import { DialogProvider } from 'components/Dialog'
-import { ModalProvider } from 'components/Modal'
-import { DrawerProvider } from 'components/Drawer'
+import { ThemeProvider } from "@material-ui/styles"
+import { CssBaseline } from "@material-ui/core"
+import { AuthProvider } from "hooks/auth"
+import { AccountProvider } from "hooks/account"
+import { UserProvider, RolesProvider, AdminProviderProvider, CartProvider, AdminProvider } from "hooks/commerce"
+import { ProcessingProvider } from "components/Processing"
+import { SnackbarProvider } from "components/Snackbar"
+import { DialogProvider } from "components/Dialog"
+import { ModalProvider } from "components/Modal"
+import { DrawerProvider } from "components/Drawer"
 
-import theme from '../plugins/theme'
+import theme from "../plugins/theme"
 
 const config = require(`${process.env.FIREBASE_PROJECT!}`)
-const isEmulated = process.env.USE_EMULATOR === 'true'
+const isEmulated = process.env.USE_EMULATOR === "true"
 
 if (firebase.apps.length === 0) {
 	const app = firebase.initializeApp(config)

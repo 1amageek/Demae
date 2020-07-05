@@ -1,17 +1,17 @@
-import React, { useState } from 'react';
-import firebase from 'firebase'
-import 'firebase/functions'
-import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
-import TextField from '@material-ui/core/TextField';
-import FormGroup from '@material-ui/core/FormGroup';
-import FormControl from '@material-ui/core/FormControl';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Switch from '@material-ui/core/Switch';
-import Button from '@material-ui/core/Button';
-import { useAuthUser } from 'hooks/auth'
-import Input, { useInput } from 'components/Input'
-import Account from 'models/account/Account'
-import { Create, Individual } from 'common/commerce/account'
+import React, { useState } from "react";
+import firebase from "firebase"
+import "firebase/functions"
+import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
+import TextField from "@material-ui/core/TextField";
+import FormGroup from "@material-ui/core/FormGroup";
+import FormControl from "@material-ui/core/FormControl";
+import FormControlLabel from "@material-ui/core/FormControlLabel";
+import Switch from "@material-ui/core/Switch";
+import Button from "@material-ui/core/Button";
+import { useAuthUser } from "hooks/auth"
+import Input, { useInput } from "components/Input"
+import Account from "models/account/Account"
+import { Create, Individual } from "common/commerce/account"
 
 
 export default () => {
@@ -71,10 +71,10 @@ const IndividualForm = ({ individual }: { individual: Partial<Individual> }) => 
 		if (!shouldSubmit()) { return }
 
 		const data: Create = {
-			type: 'custom',
-			country: 'US',
-			business_type: 'individual',
-			requested_capabilities: ['card_payments', 'transfers'],
+			type: "custom",
+			country: "US",
+			business_type: "individual",
+			requested_capabilities: ["card_payments", "transfers"],
 			individual: {
 				last_name: last_name.value,
 				first_name: first_name.value,
@@ -86,7 +86,7 @@ const IndividualForm = ({ individual }: { individual: Partial<Individual> }) => 
 			}
 		}
 
-		const accountCreate = firebase.app().functions('us-central1').httpsCallable('stripe-v1-account-create')
+		const accountCreate = firebase.app().functions("us-central1").httpsCallable("stripe-v1-account-create")
 		try {
 			const result = await accountCreate(data)
 			const account = new Account(uid)
