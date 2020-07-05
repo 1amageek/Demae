@@ -1,7 +1,7 @@
-import { Address } from '../Types'
-import { Gender } from '../../Gender'
+import { Address } from "../Types"
+import { Gender } from "../../Gender"
 
-export type BusinessType = 'individual' | 'company' | 'non_profit' | 'government_entity'
+export type BusinessType = "individual" | "company" | "non_profit" | "government_entity"
 
 export type TosAcceptance = {
 	date: number,
@@ -9,7 +9,7 @@ export type TosAcceptance = {
 	userAgent: string
 }
 
-export type Structure = 'government_instrumentality' | 'governmental_unit' | 'incorporated_non_profit' | 'multi_member_llc' | 'private_corporation' | 'private_partnership' | 'public_corporation' | 'public_partnership' | 'tax_exempt_government_instrumentality' | 'unincorporated_association' | 'unincorporated_non_profit'
+export type Structure = "government_instrumentality" | "governmental_unit" | "incorporated_non_profit" | "multi_member_llc" | "private_corporation" | "private_partnership" | "public_corporation" | "public_partnership" | "tax_exempt_government_instrumentality" | "unincorporated_association" | "unincorporated_non_profit"
 
 export type Company = {
 	address_kana?: Address

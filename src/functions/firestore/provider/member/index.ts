@@ -1,7 +1,7 @@
-import { regionFunctions } from '../../../helper'
-import User from '../../../models/commerce/User'
+import { regionFunctions } from "../../../helper"
+import User from "../../../models/commerce/User"
 
-const triggerdPath = '/commerce/{version}/providers/{providerID}/members/{userID}'
+const triggerdPath = "/commerce/{version}/providers/{providerID}/members/{userID}"
 
 export const onCreate = regionFunctions.firestore
 	.document(triggerdPath)

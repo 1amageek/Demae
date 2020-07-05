@@ -1,11 +1,11 @@
-import * as functions from 'firebase-functions'
-import { regionFunctions } from '../../../helper'
-import Stripe from 'stripe'
-import { ErrorCode } from '../../helper'
-import { nullFilter } from '../../../helper'
-import SKU from '../../../models/commerce/SKU'
+import * as functions from "firebase-functions"
+import { regionFunctions } from "../../../helper"
+import Stripe from "stripe"
+import { ErrorCode } from "../../helper"
+import { nullFilter } from "../../../helper"
+import SKU from "../../../models/commerce/SKU"
 
-const triggerdPath = '/commerce/{version}/providers/{uid}/products/{productID}/SKUs/{skuID}'
+const triggerdPath = "/commerce/{version}/providers/{uid}/products/{productID}/SKUs/{skuID}"
 
 export const onCreate = regionFunctions.firestore
 	.document(triggerdPath)
@@ -13,10 +13,10 @@ export const onCreate = regionFunctions.firestore
 		console.info(context)
 		const STRIPE_API_KEY = functions.config().stripe.api_key
 		if (!STRIPE_API_KEY) {
-			throw new functions.https.HttpsError('invalid-argument', 'The functions requires STRIPE_API_KEY.')
+			throw new functions.https.HttpsError("invalid-argument", "The functions requires STRIPE_API_KEY.")
 		}
 		const sku: SKU = SKU.fromSnapshot(snapshot)
-		const stripe = new Stripe(STRIPE_API_KEY, { apiVersion: '2020-03-02' })
+		const stripe = new Stripe(STRIPE_API_KEY, { apiVersion: "2020-03-02" })
 		const data: Stripe.SkuCreateParams = {
 			id: sku.id,
 			product: sku.parent.parent!.id,
@@ -53,9 +53,9 @@ export const onUpdate = regionFunctions.firestore
 		}
 		const STRIPE_API_KEY = functions.config().stripe.api_key
 		if (!STRIPE_API_KEY) {
-			throw new functions.https.HttpsError('invalid-argument', 'The functions requires STRIPE_API_KEY.')
+			throw new functions.https.HttpsError("invalid-argument", "The functions requires STRIPE_API_KEY.")
 		}
-		const stripe = new Stripe(STRIPE_API_KEY, { apiVersion: '2020-03-02' })
+		const stripe = new Stripe(STRIPE_API_KEY, { apiVersion: "2020-03-02" })
 		const data: Stripe.SkuUpdateParams = {
 			inventory: sku.inventory,
 			currency: sku.currency,

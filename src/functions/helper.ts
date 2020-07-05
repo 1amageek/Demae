@@ -1,5 +1,5 @@
-import * as functions from 'firebase-functions'
-export const regionFunctions = functions.region('us-central1')
+import * as functions from "firebase-functions"
+export const regionFunctions = functions.region("us-central1")
 
 export const nullFilter = <T>(data: T) => {
 	const mod = data

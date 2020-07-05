@@ -1,17 +1,17 @@
-import * as functions from 'firebase-functions'
-import { regionFunctions } from '../../../helper'
-import Stripe from 'stripe'
-import { ErrorCode } from '../../helper'
-import { nullFilter } from '../../../helper'
-import Product from '../../../models/commerce/Product'
+import * as functions from "firebase-functions"
+import { regionFunctions } from "../../../helper"
+import Stripe from "stripe"
+import { ErrorCode } from "../../helper"
+import { nullFilter } from "../../../helper"
+import Product from "../../../models/commerce/Product"
 
-import * as Plan from './Plan'
-import * as SKU from './SKU'
+import * as Plan from "./Plan"
+import * as SKU from "./SKU"
 
 export const plan = { ...Plan }
 export const sku = { ...SKU }
 
-const triggerdPath = '/commerce/{version}/providers/{uid}/products/{productID}'
+const triggerdPath = "/commerce/{version}/providers/{uid}/products/{productID}"
 
 export const onCreate = regionFunctions.firestore
 	.document(triggerdPath)
@@ -19,10 +19,10 @@ export const onCreate = regionFunctions.firestore
 		console.info(context)
 		const STRIPE_API_KEY = functions.config().stripe.api_key
 		if (!STRIPE_API_KEY) {
-			throw new functions.https.HttpsError('invalid-argument', 'The functions requires STRIPE_API_KEY.')
+			throw new functions.https.HttpsError("invalid-argument", "The functions requires STRIPE_API_KEY.")
 		}
 		const product: Product = Product.fromSnapshot(snapshot)
-		const stripe = new Stripe(STRIPE_API_KEY, { apiVersion: '2020-03-02' })
+		const stripe = new Stripe(STRIPE_API_KEY, { apiVersion: "2020-03-02" })
 		let data: Stripe.ProductCreateParams = {
 			id: product.id,
 			type: product.type,
@@ -30,12 +30,12 @@ export const onCreate = regionFunctions.firestore
 			caption: product.caption,
 			description: product.description,
 			active: product.isAvailable,
-			shippable: product.deliveryMethod === 'shipping',
+			shippable: product.deliveryMethod === "shipping",
 			metadata: {
 				product_path: product.path
 			}
 		}
-		if (product.type === 'service') {
+		if (product.type === "service") {
 			data.unit_label = product.unitLabel
 		}
 		try {
@@ -62,20 +62,20 @@ export const onUpdate = regionFunctions.firestore
 		}
 		const STRIPE_API_KEY = functions.config().stripe.api_key
 		if (!STRIPE_API_KEY) {
-			throw new functions.https.HttpsError('invalid-argument', 'The functions requires STRIPE_API_KEY.')
+			throw new functions.https.HttpsError("invalid-argument", "The functions requires STRIPE_API_KEY.")
 		}
-		const stripe = new Stripe(STRIPE_API_KEY, { apiVersion: '2020-03-02' })
+		const stripe = new Stripe(STRIPE_API_KEY, { apiVersion: "2020-03-02" })
 		let data: Stripe.ProductUpdateParams = {
 			name: product.name,
 			caption: product.caption,
 			description: product.description,
 			active: product.isAvailable,
-			shippable: product.deliveryMethod === 'shipping',
+			shippable: product.deliveryMethod === "shipping",
 			metadata: {
 				product_path: product.path
 			}
 		}
-		if (product.type === 'service') {
+		if (product.type === "service") {
 			data.unit_label = product.unitLabel
 		}
 		try {

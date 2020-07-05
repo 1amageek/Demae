@@ -1,9 +1,9 @@
-import * as functions from 'firebase-functions'
-import { regionFunctions } from '../../../helper'
-import Stripe from 'stripe'
-import { ErrorCode } from '../../helper'
-import { nullFilter } from '../../../helper'
-import Plan from '../../../models/commerce/Plan'
+import * as functions from "firebase-functions"
+import { regionFunctions } from "../../../helper"
+import Stripe from "stripe"
+import { ErrorCode } from "../../helper"
+import { nullFilter } from "../../../helper"
+import Plan from "../../../models/commerce/Plan"
 
 const create = async (stripe: Stripe, plan: Plan) => {
 	const data: Stripe.PlanCreateParams = {
@@ -33,7 +33,7 @@ const create = async (stripe: Stripe, plan: Plan) => {
 	}
 }
 
-const triggerdPath = '/commerce/{version}/providers/{uid}/products/{productID}/plans/{planID}'
+const triggerdPath = "/commerce/{version}/providers/{uid}/products/{productID}/plans/{planID}"
 
 export const onCreate = regionFunctions.firestore
 	.document(triggerdPath)
@@ -41,10 +41,10 @@ export const onCreate = regionFunctions.firestore
 		console.info(context)
 		const STRIPE_API_KEY = functions.config().stripe.api_key
 		if (!STRIPE_API_KEY) {
-			throw new functions.https.HttpsError('invalid-argument', 'The functions requires STRIPE_API_KEY.')
+			throw new functions.https.HttpsError("invalid-argument", "The functions requires STRIPE_API_KEY.")
 		}
 		const plan: Plan = Plan.fromSnapshot(snapshot)
-		const stripe = new Stripe(STRIPE_API_KEY, { apiVersion: '2020-03-02' })
+		const stripe = new Stripe(STRIPE_API_KEY, { apiVersion: "2020-03-02" })
 		try {
 			await create(stripe, plan)
 		} catch (error) {
@@ -64,9 +64,9 @@ export const onUpdate = regionFunctions.firestore
 		}
 		const STRIPE_API_KEY = functions.config().stripe.api_key
 		if (!STRIPE_API_KEY) {
-			throw new functions.https.HttpsError('invalid-argument', 'The functions requires STRIPE_API_KEY.')
+			throw new functions.https.HttpsError("invalid-argument", "The functions requires STRIPE_API_KEY.")
 		}
-		const stripe = new Stripe(STRIPE_API_KEY, { apiVersion: '2020-03-02' })
+		const stripe = new Stripe(STRIPE_API_KEY, { apiVersion: "2020-03-02" })
 		const data: Stripe.PlanUpdateParams = {
 			product: plan.parent.parent!.id,
 			metadata: {
@@ -78,7 +78,7 @@ export const onUpdate = regionFunctions.firestore
 			await stripe.plans.update(plan.id, nullFilter(data))
 		} catch (error) {
 			if (error.raw) {
-				if (error.raw.param === 'product') {
+				if (error.raw.param === "product") {
 					return
 				}
 				if (error.raw.code === ErrorCode.resource_missing) {
