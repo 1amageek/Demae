@@ -1,38 +1,36 @@
-import React, { useState, useEffect } from 'react';
-import { makeStyles, withStyles } from '@material-ui/core/styles';
-import clsx from 'clsx';
-import Stepper from '@material-ui/core/Stepper';
-import Step from '@material-ui/core/Step';
-import StepLabel from '@material-ui/core/StepLabel';
-import Check from '@material-ui/icons/Check';
-import { Container, Box, StepConnector } from '@material-ui/core';
-import Board from 'components/admin/Board'
-import { SupportedCountries, CountryCode } from 'common/Country';
-import Select, { useSelect } from 'components/Select'
-import { StepIconProps } from '@material-ui/core/StepIcon';
-import AccountForm from 'components/account/workflow/form'
-import { Account } from 'models/account';
-import Agreement from './agreement'
-import Completed from './complete'
+import React, { useState, useEffect } from "react";
+import { makeStyles, withStyles } from "@material-ui/core/styles";
+import clsx from "clsx";
+import { Stepper, Step, StepLabel, FormControl } from "@material-ui/core";
+import Check from "@material-ui/icons/Check";
+import { Container, Box, StepConnector } from "@material-ui/core";
+import Board from "components/admin/Board"
+import { SupportedCountries, CountryCode } from "common/Country";
+import Select, { useSelect, useMenu } from "components/_Select"
+import { StepIconProps } from "@material-ui/core/StepIcon";
+import AccountForm from "components/account/workflow/form"
+import { Account } from "models/account";
+import Agreement from "./agreement"
+import Completed from "./complete"
 
 const QontoConnector = withStyles({
 	alternativeLabel: {
 		top: 10,
-		left: 'calc(-50% + 16px)',
-		right: 'calc(50% + 16px)',
+		left: "calc(-50% + 16px)",
+		right: "calc(50% + 16px)",
 	},
 	active: {
-		'& $line': {
-			borderColor: '#784af4',
+		"& $line": {
+			borderColor: "#784af4",
 		},
 	},
 	completed: {
-		'& $line': {
-			borderColor: '#784af4',
+		"& $line": {
+			borderColor: "#784af4",
 		},
 	},
 	line: {
-		borderColor: '#eaeaf0',
+		borderColor: "#eaeaf0",
 		borderTopWidth: 3,
 		borderRadius: 1,
 	},
@@ -40,22 +38,22 @@ const QontoConnector = withStyles({
 
 const useQontoStepIconStyles = makeStyles({
 	root: {
-		color: '#eaeaf0',
-		display: 'flex',
+		color: "#eaeaf0",
+		display: "flex",
 		height: 22,
-		alignItems: 'center',
+		alignItems: "center",
 	},
 	active: {
-		color: '#784af4',
+		color: "#784af4",
 	},
 	circle: {
 		width: 8,
 		height: 8,
-		borderRadius: '50%',
-		backgroundColor: 'currentColor',
+		borderRadius: "50%",
+		backgroundColor: "currentColor",
 	},
 	completed: {
-		color: '#784af4',
+		color: "#784af4",
 		zIndex: 1,
 		fontSize: 18,
 	},
@@ -76,7 +74,7 @@ function QontoStepIcon(props: StepIconProps) {
 	);
 }
 
-const Steps = ['Agreement', 'Create an account', 'Finish']
+const Steps = ["Agreement", "Create an account", "Finish"]
 
 export default () => {
 	const [activeStep, setActiveStep] = useState(0);
@@ -90,40 +88,34 @@ export default () => {
 
 	const account = new Account()
 
-	const country = useSelect({
-		initValue: 'US',
-		inputProps: {
-			menu: SupportedCountries.map(country => {
-				return { value: country.alpha2, label: country.name }
-			})
-		},
-		controlProps: {
-			variant: 'outlined'
-		}
-	})
+	const [country] = useSelect("US")
+	const countries = useMenu(SupportedCountries.map(country => {
+		return { value: country.alpha2, label: country.name }
+	}))
 
-	const businessType = useSelect({
-		initValue: "individual", inputProps: {
-			menu: [
-				{
-					label: 'Individual',
-					value: 'individual'
-				},
-				{
-					label: 'Company',
-					value: 'company'
-				}
-			]
+	const [businessType] = useSelect("individual")
+	const businessTypes = useMenu([
+		{
+			label: "Individual",
+			value: "individual"
+		},
+		{
+			label: "Company",
+			value: "company"
 		}
-	})
+	])
 
 	return (
-		<Container maxWidth='md'>
+		<Container maxWidth="md">
 			<Board header={
-				<Box display='flex' flexGrow={1} alignItems='center' justifyContent='space-between'>
+				<Box display="flex" flexGrow={1} alignItems="center" justifyContent="space-between">
 					<Box flexGrow={1}>Account</Box>
 					<Box>
-						<Select {...country} disabled={activeStep !== 0} />
+						<FormControl variant="outlined" size="small">
+							<Select {...country} disabled={activeStep !== 0}>
+								{countries}
+							</Select>
+						</FormControl>
 					</Box>
 				</Box>
 			}>

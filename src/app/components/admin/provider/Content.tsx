@@ -10,7 +10,6 @@ import TextField, { useTextField } from "components/TextField"
 import Switch, { useSwitch } from "components/Switch";
 import DndCard from "components/DndCard"
 import Provider from "models/commerce/Provider"
-import Board from "components/admin/Board"
 import { useAdminProvider } from "hooks/commerce";
 import { useProcessing } from "components/Processing";
 import { useSnackbar } from "components/Snackbar";
@@ -75,7 +74,7 @@ const Form = ({ provider }: { provider: Provider }) => {
 	const [name] = useTextField(provider.name)
 	const [caption] = useTextField(provider.caption)
 	const [description] = useTextField(provider.description)
-	const [isAvailable, setAvailable] = useSwitch(provider.isAvailable)
+	const [isAvailable] = useSwitch(provider.isAvailable)
 
 	const uploadThumbnail = (file: File): Promise<StorageFile | undefined> => {
 		const ref = firebase.storage().ref(provider.documentReference.path + "/thumbnail.jpg")

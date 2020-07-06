@@ -1,17 +1,14 @@
 import React, { useState } from "react";
 import { makeStyles, Theme, createStyles, withStyles } from "@material-ui/core/styles";
 import clsx from "clsx";
-import Stepper from "@material-ui/core/Stepper";
-import Step from "@material-ui/core/Step";
-import StepLabel from "@material-ui/core/StepLabel";
+import { Stepper, Step, StepLabel, FormControl } from "@material-ui/core";
 import Check from "@material-ui/icons/Check";
 import { Container, Box, Typography, StepConnector } from "@material-ui/core";
 import Board from "components/admin/Board"
 import { SupportedCountries, CountryCode } from "common/Country";
-import Select, { useSelect } from "components/Select"
+import Select, { useSelect, useMenu } from "components/_Select"
 import { StepIconProps } from "@material-ui/core/StepIcon";
 
-import { Account } from "models/account";
 import Agreement from "./agreement"
 import Form from "./form"
 import Completed from "./complete"
@@ -91,17 +88,10 @@ export default () => {
 		setActiveStep((prevActiveStep) => prevActiveStep - 1);
 	};
 
-	const country = useSelect({
-		initValue: "US",
-		inputProps: {
-			menu: SupportedCountries.map(country => {
-				return { value: country.alpha2, label: country.name }
-			})
-		},
-		controlProps: {
-			variant: "outlined"
-		}
-	})
+	const [country] = useSelect("US")
+	const countries = useMenu(SupportedCountries.map(country => {
+		return { value: country.alpha2, label: country.name }
+	}))
 
 	return (
 		<Container maxWidth="md">
@@ -109,7 +99,11 @@ export default () => {
 				<Box display="flex" flexGrow={1} alignItems="center" justifyContent="space-between">
 					<Box flexGrow={1}>Account</Box>
 					<Box>
-						<Select {...country} disabled={activeStep !== 0} />
+						<FormControl variant="outlined" size="small">
+							<Select {...country} disabled={activeStep !== 0}>
+								{countries}
+							</Select>
+						</FormControl>
 					</Box>
 				</Box>
 			}>

@@ -27,7 +27,8 @@ export default () => {
 					setProcessing(true)
 					const adminAttach = firebase.functions().httpsCallable("commerce-v1-admin-attach")
 					try {
-						const response = await adminAttach({ providerID: auth.uid })
+						await adminAttach({ providerID: auth.uid })
+						await firebase.auth().currentUser?.getIdTokenResult(true)
 						window.open("/admin/products", "_blank")
 					} catch (error) {
 						setDialog("Error", "Error", [{

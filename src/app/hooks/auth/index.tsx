@@ -12,7 +12,8 @@ const _useAuthUser = (): [firebase.User | undefined, boolean, firebase.auth.Erro
 	const [state, setState] = useState<Prop>({ loading: true })
 	useEffect(() => {
 		let enabled = true
-		let listener = firebase.auth().onAuthStateChanged(auth => {
+		let listener = firebase.auth().onAuthStateChanged(async auth => {
+			const result = await auth?.getIdTokenResult()
 			if (enabled) {
 				setState({
 					data: auth as firebase.User,

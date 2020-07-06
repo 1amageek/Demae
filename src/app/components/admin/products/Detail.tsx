@@ -16,10 +16,6 @@ import Board from "../Board";
 import DndCard from "components/DndCard"
 import SaveIcon from "@material-ui/icons/Save";
 import NavigateNextIcon from '@material-ui/icons/NavigateNext';
-import { useHistory } from "react-router-dom";
-import { SKU, User } from "models/commerce";
-import { useDrawer } from "components/Drawer";
-import { useSnackbar } from "components/Snackbar";
 import Select, { useSelect, useMenu } from "components/_Select"
 import * as Social from "models/social"
 import { useAdminProviderProduct } from "hooks/commerce";

@@ -2,7 +2,6 @@ import React from "react"
 import { Switch, Route } from "react-router-dom"
 import { makeStyles, useTheme, Theme, createStyles } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container"
-import CssBaseline from "@material-ui/core/CssBaseline"
 import Product from "components/admin/products"
 import SKU from "components/admin/products/skus"
 import Order from "components/admin/orders"

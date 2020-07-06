@@ -72,6 +72,7 @@ const _useAdmin = (): [Role | undefined, boolean, firebase.auth.Error?] => {
 export const AdminContext = createContext<[Role | undefined, boolean, firebase.auth.Error | undefined]>([undefined, true, undefined])
 export const AdminProvider = ({ children }: { children: any }) => {
 	const [auth, isLoading, error] = _useAdmin()
+	console.log(auth, isLoading)
 	if (error) console.error(error)
 	return <AdminContext.Provider value={[auth, isLoading, error]}> {children} </AdminContext.Provider>
 }

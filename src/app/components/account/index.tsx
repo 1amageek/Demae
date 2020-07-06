@@ -1,32 +1,32 @@
-import React from 'react';
-import { Link, useHistory, useLocation } from 'react-router-dom'
-import firebase from 'firebase';
-import 'firebase/auth';
-import 'firebase/functions';
-import List from '@material-ui/core/List';
-import CircularProgress from '@material-ui/core/CircularProgress';
-import ListItem, { ListItemProps } from '@material-ui/core/ListItem';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
-import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
-import ListItemText from '@material-ui/core/ListItemText';
-import StorefrontIcon from '@material-ui/icons/Storefront';
-import IconButton from '@material-ui/core/IconButton';
-import ViewListIcon from '@material-ui/icons/ViewList';
-import SettingsIcon from '@material-ui/icons/Settings';
-import AccountBoxIcon from '@material-ui/icons/AccountBox';
-import { Container } from '@material-ui/core'
-import { useDataSourceListen, useDocumentListen } from 'hooks/firestore';
-import MeetingRoomIcon from '@material-ui/icons/MeetingRoom';
-import Provider, { Role } from 'models/commerce/Provider';
-import DataLoading from 'components/DataLoading';
-import { Paper, Grid } from '@material-ui/core';
-import { useDialog } from 'components/Dialog'
-import { useProcessing } from 'components/Processing';
-import { useModal } from 'components/Modal'
-import { useUser } from 'hooks/commerce'
-import { useAccount } from 'hooks/account'
-import Account from 'models/account/Account'
-import Login from 'components/Login';
+import React, { useEffect } from "react";
+import { Link, useHistory, useLocation } from "react-router-dom"
+import firebase from "firebase";
+import "firebase/auth";
+import "firebase/functions";
+import List from "@material-ui/core/List";
+import CircularProgress from "@material-ui/core/CircularProgress";
+import ListItem, { ListItemProps } from "@material-ui/core/ListItem";
+import ListItemIcon from "@material-ui/core/ListItemIcon";
+import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction";
+import ListItemText from "@material-ui/core/ListItemText";
+import StorefrontIcon from "@material-ui/icons/Storefront";
+import IconButton from "@material-ui/core/IconButton";
+import ViewListIcon from "@material-ui/icons/ViewList";
+import SettingsIcon from "@material-ui/icons/Settings";
+import AccountBoxIcon from "@material-ui/icons/AccountBox";
+import { Container } from "@material-ui/core"
+import { useDataSourceListen, useDocumentListen } from "hooks/firestore";
+import MeetingRoomIcon from "@material-ui/icons/MeetingRoom";
+import Provider, { Role } from "models/commerce/Provider";
+import DataLoading from "components/DataLoading";
+import { Paper, Grid } from "@material-ui/core";
+import { useDialog } from "components/Dialog"
+import { useProcessing } from "components/Processing";
+import { useModal } from "components/Modal"
+import { useUser } from "hooks/commerce"
+import { useAccount } from "hooks/account"
+import Account from "models/account/Account"
+import Login from "components/Login";
 
 export default () => {
 
@@ -37,7 +37,7 @@ export default () => {
 	const [setModal, close] = useModal()
 
 	return (
-		<Container maxWidth='sm'>
+		<Container maxWidth="sm">
 			<Grid container spacing={2}>
 				<Grid item xs={12}>
 					<Paper>
@@ -46,20 +46,20 @@ export default () => {
 								<ListItemIcon>
 									<ViewListIcon />
 								</ListItemIcon>
-								<ListItemText primary='Purchase history' />
+								<ListItemText primary="Purchase history" />
 							</ListItem>
 							<ListItem button disabled={isAccountLoading} onClick={() => {
 								const currentUser = firebase.auth().currentUser
 								if (currentUser) {
 									if (account) {
-										history.push('/account/payments')
+										history.push("/account/payments")
 									} else {
-										history.push('/account/create')
+										history.push("/account/create")
 									}
 								} else {
-									setDialog('Welcome 🎉', 'We support your business. Please log in first.', [
+									setDialog("Welcome 🎉", "We support your business. Please log in first.", [
 										{
-											title: 'OK',
+											title: "OK",
 											handler: () => {
 												setModal(<Login onNext={async (user) => {
 													setProgress(true)
@@ -68,12 +68,12 @@ export default () => {
 														if (!account) {
 															setProgress(false)
 															close()
-															history.push('/account/create')
+															history.push("/account/create")
 														}
 													} catch (error) {
 														setProgress(false)
 														close()
-														history.push('/account/create')
+														history.push("/account/create")
 														console.error(error)
 													}
 												}} />)
@@ -85,7 +85,7 @@ export default () => {
 								<ListItemIcon>
 									<AccountBoxIcon />
 								</ListItemIcon>
-								<ListItemText primary={account ? 'Account' : 'Create new account'} />
+								<ListItemText primary={account ? "Account" : "Create new account"} />
 								<ListItemSecondaryAction>
 									{isAccountLoading && <CircularProgress size={20} />}
 								</ListItemSecondaryAction>
@@ -104,7 +104,7 @@ export default () => {
 							<ListItemIcon>
 								<MeetingRoomIcon />
 							</ListItemIcon>
-							<ListItemText primary='SignOut' color='text.secondary' onClick={async () => {
+							<ListItemText primary="SignOut" color="text.secondary" onClick={async () => {
 								await firebase.auth().signOut()
 							}} />
 						</ListItem>
@@ -134,11 +134,11 @@ const ProviderList = () => {
 				<ListItem button onClick={() => {
 					const currentUser = firebase.auth().currentUser
 					if (currentUser) {
-						history.push('/provider/create')
+						history.push("/provider/create")
 					} else {
-						setDialog('Welcome 🎉', 'We support your business. Please log in first.', [
+						setDialog("Welcome 🎉", "We support your business. Please log in first.", [
 							{
-								title: 'OK',
+								title: "OK",
 								handler: () => {
 									setModal(<Login onNext={() => {
 										close()
@@ -151,7 +151,7 @@ const ProviderList = () => {
 					<ListItemIcon>
 						<StorefrontIcon />
 					</ListItemIcon>
-					<ListItemText primary={'Add your Shop'} />
+					<ListItemText primary={"Add your Shop"} />
 				</ListItem>
 			</List>
 		)
@@ -167,8 +167,6 @@ const ProviderList = () => {
 }
 
 const ProviderListItem = ({ role }: { role: Role }) => {
-	const history = useHistory()
-	const location = useLocation()
 	const [provider, isLoading] = useDocumentListen<Provider>(Provider, new Provider(role.id).documentReference)
 	const [setDialog] = useDialog()
 	const [setProcessing] = useProcessing()
@@ -189,13 +187,14 @@ const ProviderListItem = ({ role }: { role: Role }) => {
 				<ListItemText primary={provider!.name} />
 				<ListItemSecondaryAction onClick={async () => {
 					setProcessing(true)
-					const adminAttach = firebase.functions().httpsCallable('commerce-v1-admin-attach')
+					const adminAttach = firebase.functions().httpsCallable("commerce-v1-admin-attach")
 					try {
 						await adminAttach({ providerID: provider!.id })
-						window.open('/admin', '_blank')
+						await firebase.auth().currentUser?.getIdTokenResult(true)
+						window.open("/admin", "_blank")
 					} catch (error) {
-						setDialog('Error', 'Error', [{
-							title: 'OK'
+						setDialog("Error", "Error", [{
+							title: "OK"
 						}])
 						console.error(error)
 					}
