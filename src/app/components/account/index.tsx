@@ -9,6 +9,7 @@ import ListItem, { ListItemProps } from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction";
 import ListItemText from "@material-ui/core/ListItemText";
+import Typography from "@material-ui/core/Typography";
 import StorefrontIcon from "@material-ui/icons/Storefront";
 import IconButton from "@material-ui/core/IconButton";
 import ViewListIcon from "@material-ui/icons/ViewList";
@@ -38,6 +39,7 @@ export default () => {
 
 	return (
 		<Container maxWidth="sm">
+			<Typography variant="h1" gutterBottom>Account</Typography>
 			<Grid container spacing={2}>
 				<Grid item xs={12}>
 					<Paper>
