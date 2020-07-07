@@ -173,8 +173,9 @@ export default ({ children }: { children: any }) => {
 					position="fixed"
 					variant="outlined"
 					style={{
-						backgroundColor: "rgba(255, 255, 255, 0.3)",
-						backdropFilter: "blur(8px)",
+						backgroundColor: "rgba(255, 255, 255, 0.6)",
+						backdropFilter: "blur(20px)",
+						WebkitBackdropFilter: "blur(20px)",
 						borderTop: "none",
 						borderLeft: "none",
 						borderRight: "none"

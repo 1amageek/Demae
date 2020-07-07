@@ -55,8 +55,9 @@ export const ListViewProvider = ({ children }: { children: any }) => {
 			<ListViewContext.Provider value={setState}>
 				<AppBar variant="outlined" position="sticky" style={{
 					top: NavigationBarHeight,
-					backgroundColor: "rgba(255, 255, 255, 0.3)",
-					backdropFilter: "blur(8px)",
+					backgroundColor: "rgba(255, 255, 255, 0.6)",
+					backdropFilter: "blur(20px)",
+					WebkitBackdropFilter: "blur(20px)",
 					borderTop: "none",
 					borderLeft: "none",
 					borderRight: "none"
@@ -74,8 +75,9 @@ export const ListViewProvider = ({ children }: { children: any }) => {
 		<ListViewContext.Provider value={setState}>
 			<AppBar variant="outlined" position="static" style={{
 				top: NavigationBarHeight,
-				backgroundColor: "rgba(255, 255, 255, 0.3)",
-				backdropFilter: "blur(8px)",
+				backgroundColor: "rgba(255, 255, 255, 0.6)",
+				backdropFilter: "blur(20px)",
+				WebkitBackdropFilter: "blur(20px)",
 				// borderTop: "none",
 				borderLeft: "none",
 				borderRight: "none"
@@ -172,8 +174,9 @@ export const ContentViewProvider = ({ children }: { children: any }) => {
 		<ContentViewContext.Provider value={setComponent}>
 			<AppBar variant="outlined" position="sticky" style={{
 				top: NavigationBarHeight,
-				backgroundColor: "rgba(255, 255, 255, 0.3)",
-				backdropFilter: "blur(8px)",
+				backgroundColor: "rgba(255, 255, 255, 0.6)",
+				backdropFilter: "blur(20px)",
+				WebkitBackdropFilter: "blur(20px)",
 				// borderTop: "none",
 				borderLeft: "none",
 				borderRight: "none"
