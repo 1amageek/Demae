@@ -60,12 +60,13 @@ export default () => {
 	const addSKU = async (e) => {
 		e.preventDefault()
 		if (!provider) return
-		const product = new Product(provider.products.collectionReference.doc())
-		product.providedBy = provider.id
-		product.name = "No name"
-		product.isAvailable = false
-		await product.save()
-		history.push(`/admin/products/${product.id}`)
+		if (!productID) return
+		const sku = new SKU(provider.products.collectionReference.doc(productID).collection('skus').doc())
+		sku.providedBy = provider.id
+		sku.name = "No name"
+		sku.isAvailable = false
+		await sku.save()
+		history.push(`/admin/products/${productID}/skus/${sku.id}`)
 	}
 
 	useListToolbar({
@@ -108,12 +109,12 @@ export default () => {
 const SKUListItem = ({ productID, sku }: { productID?: string, sku: SKU }) => {
 	const [user] = useUser()
 	const history = useHistory()
-	const price = sku.price || {}
-	const currency = user?.currency || "USD"
+	const price = sku.price
+	const currency = sku.currency
 	const symbol = Symbol(currency)
 	const amount = price[currency] || 0
 	const imageURL = sku.imageURLs().length > 0 ? sku.imageURLs()[0] : undefined
-	const priceWithSymbol = amount > 0 ? `${symbol}${amount}` : ""
+
 	const [setProcessing] = useProcessing()
 	const [setMessage] = useSnackbar()
 
@@ -123,11 +124,11 @@ const SKUListItem = ({ productID, sku }: { productID?: string, sku: SKU }) => {
 				history.push(`/admin/products/${productID}/skus/${sku.id}`)
 			}}>
 				<ListItemAvatar>
-					<Avatar variant="rounded" src={sku.imageURLs()[0]} >
+					<Avatar variant="rounded" src={imageURL} >
 						<ImageIcon />
 					</Avatar>
 				</ListItemAvatar>
-				<ListItemText primary={sku.name} secondary={`${symbol}${price.toLocaleString()}`} />
+				<ListItemText primary={sku.name} secondary={`${symbol} ${price.toLocaleString()}`} />
 				<ListItemSecondaryAction>
 					<Switch
 						edge="end"

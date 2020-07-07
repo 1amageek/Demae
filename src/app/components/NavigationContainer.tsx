@@ -53,7 +53,7 @@ export const ListViewProvider = ({ children }: { children: any }) => {
 	if (state) {
 		return (
 			<ListViewContext.Provider value={setState}>
-				<AppBar variant="outlined" position="sticky" style={{
+				<AppBar variant="outlined" position="static" style={{
 					top: NavigationBarHeight,
 					backgroundColor: "rgba(255, 255, 255, 0.6)",
 					backdropFilter: "blur(20px)",
