@@ -4,7 +4,7 @@ import Head from "components/Head"
 
 export default () => (
 	<>
-		<Head title="Deamae" description="SaaS" url={`${process.env.HOST}/`} />
+		<Head title="Demae" description="SaaS" url={`${process.env.HOST}/`} />
 		<App />
 	</>
 )

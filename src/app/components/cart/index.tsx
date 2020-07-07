@@ -40,6 +40,7 @@ export default () => {
 	if (cart?.groups.length === 0) {
 		return (
 			<Container maxWidth="sm">
+				<Typography variant="h1" gutterBottom>Cart</Typography>
 				<Box display="flex" justifyContent="center" alignItems="center" padding={3} fontSize={17} fontWeight={600} color="text.secondary" height={200}>
 					There are no items in your cart.
 				</Box>

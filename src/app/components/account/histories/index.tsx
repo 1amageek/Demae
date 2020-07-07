@@ -37,6 +37,7 @@ export default () => {
 	const { orderID } = useParams()
 	return (
 		<Container maxWidth='sm'>
+			<Typography variant="h1" gutterBottom>Order history</Typography>
 			<Grid container spacing={2}>
 				<Grid item xs={12}>
 					<Paper>

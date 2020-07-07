@@ -14,8 +14,6 @@ export default ({ title, description, url, og, twitter }) => {
 	)
 }
 
-// interface Query extends ParsedUrlQuery
-
 export async function getServerSideProps(context: GetServerSidePropsContext<{
 	providerID: string
 }>) {

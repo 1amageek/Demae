@@ -41,13 +41,13 @@ export default class SKU extends Doc {
 		return Math.floor(this.price * this.taxRate / 100)
 	}
 
-	imageURLs() {
+	imageURLs(): string[] {
 		return this.images.map(image => {
 			if (image) {
 				return `${process.env.HOST}/assets/${image.path}`
 			}
 			return undefined
-		}).filter(value => !!value)
+		}).filter(value => !!value) as string[]
 	}
 
 	async updateInventory(amount: number) {
