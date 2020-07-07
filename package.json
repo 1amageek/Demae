@@ -28,6 +28,7 @@
 	"dependencies": {
 		"@1amageek/ballcap": "^1.2.4",
 		"@1amageek/ballcap-admin": "^1.2.4",
+		"@1amageek/open-graph-protocol": "^0.3.0",
 		"@material-ui/core": "latest",
 		"@material-ui/icons": "latest",
 		"@material-ui/styles": "latest",
