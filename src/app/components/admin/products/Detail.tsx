@@ -29,6 +29,7 @@ Dayjs.extend(relativeTime)
 
 const deliveryMethodLabel: { [key in DeliveryMethod]: string } = {
 	"none": "No shipping required",
+	"download": "Download",
 	"pickup": "Pickup",
 	"shipping": "Shipping required"
 }

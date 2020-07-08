@@ -1,13 +1,13 @@
-import React from 'react';
-import { makeStyles, createStyles, Theme } from '@material-ui/core/styles';
-import Grid from '@material-ui/core/Grid';
-import Container from '@material-ui/core/Container';
-import Typography from '@material-ui/core/Typography';
-import ButtonBase from '@material-ui/core/ButtonBase';
-import Card from 'components/providers/Card'
-import DataLoading from 'components/DataLoading'
-import { useDataSourceListen } from 'hooks/firestore';
-import { Provider } from 'models/commerce';
+import React from "react";
+import { makeStyles, createStyles, Theme } from "@material-ui/core/styles";
+import Grid from "@material-ui/core/Grid";
+import Container from "@material-ui/core/Container";
+import Typography from "@material-ui/core/Typography";
+import ButtonBase from "@material-ui/core/ButtonBase";
+import Card from "components/providers/Card"
+import DataLoading from "components/DataLoading"
+import { useDataSourceListen } from "hooks/firestore";
+import { Provider } from "models/commerce";
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
@@ -16,7 +16,7 @@ const useStyles = makeStyles((theme: Theme) =>
 		},
 		paper: {
 			padding: theme.spacing(2),
-			margin: 'auto',
+			margin: "auto",
 			maxWidth: 500,
 		},
 		image: {
@@ -24,10 +24,10 @@ const useStyles = makeStyles((theme: Theme) =>
 			height: 128,
 		},
 		img: {
-			margin: 'auto',
-			display: 'block',
-			maxWidth: '100%',
-			maxHeight: '100%',
+			margin: "auto",
+			display: "block",
+			maxWidth: "100%",
+			maxHeight: "100%",
 		},
 	}),
 );

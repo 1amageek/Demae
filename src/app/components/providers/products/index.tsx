@@ -13,8 +13,8 @@ export default (props: any) => {
 		)
 	} else {
 		return (
-			<Container maxWidth="sm">
-				<ProductList providerID={providerID} />
+			<Container maxWidth="sm" >
+				<ProductList />
 			</Container>
 		)
 	}

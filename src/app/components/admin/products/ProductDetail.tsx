@@ -21,6 +21,7 @@ import TextField, { useTextField } from "components/TextField"
 
 const deliveryMethodLabel: { [key in DeliveryMethod]: string } = {
 	"none": "No shipping required",
+	"download": "download",
 	"pickup": "Pickup",
 	"shipping": "Shipping required"
 }

@@ -16,7 +16,7 @@ import Board from "../Board";
 import { useHistory, useParams } from "react-router-dom";
 import { Order } from "models/commerce";
 import { useDataSourceListen, Where, OrderBy } from "hooks/firestore"
-import { useDeliveryMethod, deliveryStatusesForDeliveryMethod, DeliveryStatusLabel, PaymentStatusLabel } from "./helper"
+import { useDeliveryMethod, deliveryStatusesForDeliveryMethod, DeliveryStatusLabel, PaymentStatusLabel } from "hooks/commerce/DeliveryMethod"
 import Dayjs from "dayjs"
 import Label from "components/Label";
 

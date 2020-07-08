@@ -1,21 +1,21 @@
-import React, { useState, useEffect, useContext } from 'react';
-import firebase from 'firebase'
-import 'firebase/functions'
-import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
-import TextField from '@material-ui/core/TextField';
-import FormGroup from '@material-ui/core/FormGroup';
-import FormControl from '@material-ui/core/FormControl';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Switch from '@material-ui/core/Switch';
-import Button from '@material-ui/core/Button';
-import Login from 'components/Login'
+import React, { useState, useEffect, useContext } from "react";
+import firebase from "firebase"
+import "firebase/functions"
+import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
+import TextField from "@material-ui/core/TextField";
+import FormGroup from "@material-ui/core/FormGroup";
+import FormControl from "@material-ui/core/FormControl";
+import FormControlLabel from "@material-ui/core/FormControlLabel";
+import Switch from "@material-ui/core/Switch";
+import Button from "@material-ui/core/Button";
+import Login from "components/Login"
 
-import Loading from 'components/Loading'
-import Input, { useInput } from 'components/Input'
-import Provider from 'models/commerce/Provider'
-import { Create, Individual } from 'common/commerce/account'
-import { useAuthUser } from 'hooks/auth'
-import { useAdminProvider } from 'hooks/commerce'
+import Loading from "components/Loading"
+import Input, { useInput } from "components/Input"
+import Provider from "models/commerce/Provider"
+import { Create, Individual } from "common/commerce/account"
+import { useAuthUser } from "hooks/auth"
+import { useAdminProvider } from "hooks/commerce"
 
 export default () => {
 

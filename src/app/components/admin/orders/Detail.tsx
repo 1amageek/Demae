@@ -19,9 +19,9 @@ import { useSnackbar } from "components/Snackbar";
 import Select, { useSelect, useMenu } from "components/_Select"
 import Order from "models/commerce/Order"
 import * as Social from "models/social"
-import { useDeliveryMethod, deliveryStatusesForDeliveryMethod, DeliveryStatusLabel, PaymentStatusLabel } from "./helper"
+import { useDeliveryMethod, deliveryStatusesForDeliveryMethod, DeliveryStatusLabel, PaymentStatusLabel } from "hooks/commerce/DeliveryMethod"
 import Dayjs from "dayjs"
-import relativeTime from 'dayjs/plugin/relativeTime';
+import relativeTime from "dayjs/plugin/relativeTime";
 import Label from "components/Label";
 import { useDocumentListen, useDataSourceListen, OrderBy } from "hooks/firestore";
 import { useTheme } from "@material-ui/core/styles";

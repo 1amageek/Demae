@@ -5,11 +5,11 @@ import { File as StorageFile } from "@1amageek/ballcap"
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import Avatar from "@material-ui/core/Avatar";
 import ImageIcon from "@material-ui/icons/Image";
-import { Container, Grid, Button, Table, TableRow, TableCell, TableBody, Divider, Box, Typography } from "@material-ui/core";
+import { Container, Paper, Button, FormControl, FormGroup, FormLabel, FormControlLabel, Checkbox, FormHelperText, Box, Typography } from "@material-ui/core";
 import TextField, { useTextField } from "components/TextField"
 import Switch, { useSwitch } from "components/Switch";
 import DndCard from "components/DndCard"
-import Provider from "models/commerce/Provider"
+import Provider, { Capability } from "models/commerce/Provider"
 import { useAdminProvider } from "hooks/commerce";
 import { useProcessing } from "components/Processing";
 import { useSnackbar } from "components/Snackbar";
@@ -75,6 +75,19 @@ const Form = ({ provider }: { provider: Provider }) => {
 	const [caption] = useTextField(provider.caption)
 	const [description] = useTextField(provider.description)
 	const [isAvailable] = useSwitch(provider.isAvailable)
+	const providerCapabilities = provider.capabilities || []
+	const [capabilities, setCapabilities] = useState<{ [key in Capability]: boolean }>({
+		"download": providerCapabilities.includes("download"),
+		"instore_sales": providerCapabilities.includes("instore_sales"),
+		"online_sales": providerCapabilities.includes("online_sales"),
+		"takeout": providerCapabilities.includes("takeout")
+	})
+
+	const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+		setCapabilities({ ...capabilities, [event.target.name]: event.target.checked });
+	};
+
+	const capabilitiesError = Object.values(capabilities).filter((v) => v).length < 1;
 
 	const uploadThumbnail = (file: File): Promise<StorageFile | undefined> => {
 		const ref = firebase.storage().ref(provider.documentReference.path + "/thumbnail.jpg")
@@ -133,6 +146,7 @@ const Form = ({ provider }: { provider: Provider }) => {
 			provider.caption = caption.value as string
 			provider.description = description.value as string
 			provider.isAvailable = isAvailable.value as boolean
+			provider.capabilities = Object.keys(capabilities).filter(value => capabilities[value]) as Capability[]
 			await provider.save()
 		} catch (error) {
 			console.log(error)
@@ -170,7 +184,7 @@ const Form = ({ provider }: { provider: Provider }) => {
 			<Container maxWidth="sm">
 				<Box padding={2}>
 					<Typography variant="h1" gutterBottom>Shop</Typography>
-					<Box className={classes.box} >
+					<Paper>
 						<Box display="flex" position="relative" flexGrow={1}>
 							<Box display="flex" flexGrow={1} height={300}>
 								<DndCard
@@ -189,7 +203,7 @@ const Form = ({ provider }: { provider: Provider }) => {
 									}} />
 							</Box>
 						</Box>
-						<Box padding={2}>
+						<Box padding={2} paddingTop={5}>
 							<Box paddingBottom={2}>
 								<Typography variant="subtitle1" gutterBottom>Name</Typography>
 								<TextField variant="outlined" margin="dense" required {...name} fullWidth />
@@ -203,7 +217,33 @@ const Form = ({ provider }: { provider: Provider }) => {
 								<TextField variant="outlined" margin="dense" required fullWidth multiline rows={8} {...description} />
 							</Box>
 						</Box>
-					</Box>
+
+						<Box paddingX={2} paddingBottom={1}>
+							<Typography variant="subtitle1" gutterBottom>Sales method</Typography>
+							<FormControl required error={capabilitiesError} component="fieldset">
+								<FormLabel component="legend">Please select at least one selling method</FormLabel>
+								<FormGroup>
+									<FormControlLabel
+										control={<Checkbox checked={capabilities.download} onChange={handleChange} name="download" />}
+										label="Download"
+									/>
+									<FormControlLabel
+										control={<Checkbox checked={capabilities.instore_sales} onChange={handleChange} name="instore_sales" />}
+										label="In-Store Sales"
+									/>
+									<FormControlLabel
+										control={<Checkbox checked={capabilities.online_sales} onChange={handleChange} name="online_sales" />}
+										label="Online Sales"
+									/>
+									<FormControlLabel
+										control={<Checkbox checked={capabilities.takeout} onChange={handleChange} name="takeout" />}
+										label="Takeout"
+									/>
+								</FormGroup>
+								<FormHelperText>You can choose multiple sales methods.</FormHelperText>
+							</FormControl>
+						</Box>
+					</Paper>
 					<Box padding={1}>
 						<Typography variant="body2" color="textSecondary" gutterBottom>ID: {provider.id}</Typography>
 					</Box>
@@ -216,7 +256,7 @@ const Form = ({ provider }: { provider: Provider }) => {
 		<Container maxWidth="sm">
 			<Box padding={2}>
 				<Typography variant="h1" gutterBottom>Shop</Typography>
-				<Box className={classes.box} >
+				<Paper>
 					<Box display="flex" position="relative" flexGrow={1}>
 						<Box display="flex" flexGrow={1} height={300}>
 							<Avatar variant="square" src={provider.coverImageURL()} style={{
@@ -236,7 +276,8 @@ const Form = ({ provider }: { provider: Provider }) => {
 							</Avatar>
 						</Box>
 					</Box>
-					<Box padding={2}>
+
+					<Box padding={2} paddingTop={5}>
 						<Box paddingBottom={2}>
 							<Typography variant="subtitle1" gutterBottom>Name</Typography>
 							<Typography variant="body1" gutterBottom>{provider.name}</Typography>
@@ -250,7 +291,31 @@ const Form = ({ provider }: { provider: Provider }) => {
 							<Typography variant="body1" gutterBottom>{provider.description}</Typography>
 						</Box>
 					</Box>
-				</Box>
+
+					<Box paddingX={2} paddingBottom={1}>
+						<Typography variant="subtitle1" gutterBottom>Sales method</Typography>
+						<FormControl disabled component="fieldset">
+							<FormGroup>
+								<FormControlLabel
+									control={<Checkbox checked={capabilities.download} onChange={handleChange} name="download" />}
+									label="Download"
+								/>
+								<FormControlLabel
+									control={<Checkbox checked={capabilities.instore_sales} onChange={handleChange} name="instore_sales" />}
+									label="In-Store Sales"
+								/>
+								<FormControlLabel
+									control={<Checkbox checked={capabilities.online_sales} onChange={handleChange} name="online_sales" />}
+									label="Online Sales"
+								/>
+								<FormControlLabel
+									control={<Checkbox checked={capabilities.takeout} onChange={handleChange} name="takeout" />}
+									label="Takeout"
+								/>
+							</FormGroup>
+						</FormControl>
+					</Box>
+				</Paper>
 				<Box padding={1}>
 					<Typography variant="body2" color="textSecondary" gutterBottom>ID: {provider.id}</Typography>
 				</Box>

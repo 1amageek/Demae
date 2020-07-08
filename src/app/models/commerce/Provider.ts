@@ -11,6 +11,8 @@ export class Role extends Doc {
 
 export type SNSProvider = "twitter" | "facebook" | "instagram"
 
+export type Capability = "download" | "instore_sales" | "online_sales" | "takeout"
+
 export default class Provider extends Doc {
 
 	static collectionReference(): CollectionReference {
@@ -19,9 +21,10 @@ export default class Provider extends Doc {
 
 	@Field thumbnailImage?: File
 	@Field coverImage?: File
+	@Field capabilities: Capability[] = []
 	@Field name: string = ""
-	@Field caption?: string
-	@Field description?: string
+	@Field caption: string = ""
+	@Field description: string = ""
 	@Field country: string = "US"
 	@Field defaultCurrency: CurrencyCode = "USD"
 	@Field email: string = ""

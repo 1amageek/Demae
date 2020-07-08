@@ -18,7 +18,7 @@ import { useDrawer } from "components/Drawer";
 import { useSnackbar } from "components/Snackbar";
 import Select, { useSelect, useMenu } from "components/_Select"
 import { DeliveryMethod } from "models/commerce/Product"
-import { useDeliveryMethod, deliveryStatusesForDeliveryMethod } from "./helper"
+import { useDeliveryMethod, deliveryStatusesForDeliveryMethod } from "hooks/commerce/DeliveryMethod"
 
 export default ({ orderID }: { orderID?: string }) => {
 	const [provider] = useAdminProvider()

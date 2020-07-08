@@ -5,7 +5,7 @@ import SKU from "./SKU"
 
 export type ProductType = "service" | "good"
 
-export type DeliveryMethod = "none" | "shipping" | "pickup"
+export type DeliveryMethod = "none" | "shipping" | "pickup" | "download"
 
 export type AccessControl = "public" | "private" | "limited"
 
