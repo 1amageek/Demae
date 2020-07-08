@@ -1,10 +1,8 @@
 import React from "react"
 import firebase from "firebase"
-import { Paper, Box, AppBar, Toolbar, Button, Typography } from "@material-ui/core"
+import { Paper, Box, Button, Typography } from "@material-ui/core"
 import CheckCircleIcon from "@material-ui/icons/CheckCircle";
-import { Account } from "models/account"
 import { useProcessing } from "components/Processing";
-import { Provider } from "models/commerce"
 import { useAuthUser } from "hooks/auth";
 import { useDialog } from "components/Dialog";
 
@@ -29,7 +27,7 @@ export default () => {
 					try {
 						await adminAttach({ providerID: auth.uid })
 						await firebase.auth().currentUser?.getIdTokenResult(true)
-						window.open("/admin/products", "_blank")
+						window.open("/admin/products", "_blank", "height=1000,width=1200")
 					} catch (error) {
 						setDialog("Error", "Error", [{
 							title: "OK"

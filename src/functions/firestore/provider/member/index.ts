@@ -1,3 +1,4 @@
+import * as functions from "firebase-functions"
 import { regionFunctions } from "../../../helper"
 import User from "../../../models/commerce/User"
 
@@ -11,7 +12,7 @@ export const onCreate = regionFunctions.firestore
 		const userID = context.params.providerID
 		const user = new User(userID)
 		const data = snapshot.data()
-		console.log(`[Firestore][${snapshot.ref.path}][onCreate]`, data)
+		functions.logger.log(`[Firestore][${snapshot.ref.path}][onCreate]`, data)
 		if (data) {
 			await user.providers.collectionReference.doc(providerID).set(data)
 		}
@@ -25,7 +26,7 @@ export const onUpdate = regionFunctions.firestore
 		const userID = context.params.providerID
 		const user = new User(userID)
 		const data = snapshot.after.data()
-		console.log(`[Firestore][${snapshot.after.ref.path}][onUpdate]`, data)
+		functions.logger.log(`[Firestore][${snapshot.after.ref.path}][onUpdate]`, data)
 		if (data) {
 			await user.providers.collectionReference.doc(providerID).set(data)
 		}

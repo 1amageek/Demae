@@ -37,7 +37,7 @@ export const onCreate = regionFunctions.firestore
 					return
 				}
 			}
-			console.error(error)
+			functions.logger.error(error)
 			sku.isAvailable = false
 			await sku.update()
 		}
@@ -74,7 +74,7 @@ export const onUpdate = regionFunctions.firestore
 					return
 				}
 			}
-			console.error(error)
+			functions.logger.error(error)
 			sku.isAvailable = false
 			await sku.update()
 		}

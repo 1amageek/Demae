@@ -48,7 +48,7 @@ export const onCreate = regionFunctions.firestore
 		try {
 			await create(stripe, plan)
 		} catch (error) {
-			console.error(error)
+			functions.logger.error(error)
 			plan.isAvailable = false
 			await plan.update()
 		}
@@ -85,14 +85,14 @@ export const onUpdate = regionFunctions.firestore
 					try {
 						await create(stripe, plan)
 					} catch (error) {
-						console.error(error)
+						functions.logger.error(error)
 						plan.isAvailable = false
 						await plan.update()
 					}
 					return
 				}
 			}
-			console.error(error)
+			functions.logger.error(error)
 			plan.isAvailable = false
 			await plan.update()
 		}

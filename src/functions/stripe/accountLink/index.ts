@@ -30,7 +30,7 @@ export const create = regionFunctions.https.onCall(async (data, context) => {
 		})
 		return { result } as Response
 	} catch (error) {
-		console.error(error)
+		functions.logger.error(error)
 		if (error.raw) {
 			return { error: error.raw } as Response
 		}

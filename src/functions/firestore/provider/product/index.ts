@@ -46,7 +46,7 @@ export const onCreate = regionFunctions.firestore
 					return
 				}
 			}
-			console.error(error)
+			functions.logger.error(error)
 			product.isAvailable = false
 			await product.update()
 		}
@@ -86,7 +86,7 @@ export const onUpdate = regionFunctions.firestore
 					return
 				}
 			}
-			console.error(error)
+			functions.logger.error(error)
 			product.isAvailable = false
 			await product.update()
 		}

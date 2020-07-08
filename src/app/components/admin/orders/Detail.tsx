@@ -170,7 +170,10 @@ export default ({ orderID }: { orderID?: string }) => {
 										return (
 											<ListItem key={data.skuReference?.path}>
 												<ListItemAvatar>
-													<Avatar variant="rounded" src={image} >
+													<Avatar variant="rounded" src={image} style={{
+														height: theme.spacing(5),
+														width: theme.spacing(5)
+													}}>
 														<ImageIcon />
 													</Avatar>
 												</ListItemAvatar>

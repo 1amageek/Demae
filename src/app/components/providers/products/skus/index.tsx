@@ -1,7 +1,7 @@
-import React, { useContext } from 'react'
-import { Container } from '@material-ui/core'
-import SKUList from 'components/providers/products/skus/'
-import SKU from 'components/providers/products/skus/SKU'
+import React, { useContext } from "react"
+import { Container } from "@material-ui/core"
+import SKUList from "components/providers/products/skus/"
+import SKU from "components/providers/products/skus/SKU"
 
 export default (props: any) => {
 	const { providerID, productID, skuID } = props.match.params
@@ -11,7 +11,7 @@ export default (props: any) => {
 		)
 	} else {
 		return (
-			<Container maxWidth='sm'>
+			<Container maxWidth="sm">
 				<SKUList providerID={providerID} productID={productID} />
 			</Container>
 		)

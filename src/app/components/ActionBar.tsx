@@ -76,7 +76,7 @@ const ActionSheet = ({ url, text, onClose }: { url: string, text: string, onClos
 					<ListItem button onClick={() => {
 						const encoded = encodeURI(url)
 						const uri = `https://twitter.com/intent/tweet?text=${encoded}`
-						window.open(uri, '_blank')
+						window.open(uri, '_blank', "height=1000,width=1200")
 						onClose()
 					}}>
 						<ListItemIcon>

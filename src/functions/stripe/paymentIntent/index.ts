@@ -20,7 +20,7 @@ export const create = regionFunctions.https.onCall(async (data, context) => {
 		const result = await stripe.paymentIntents.create(data)
 		return { result } as Response
 	} catch (error) {
-		console.error(error)
+		functions.logger.error(error)
 		if (error.raw) {
 			return { error: error.raw } as Response
 		}
@@ -45,7 +45,7 @@ export const retrieve = regionFunctions.https.onCall(async (data, context) => {
 		const result = await stripe.paymentIntents.retrieve(paymentIntentID)
 		return { result } as Response
 	} catch (error) {
-		console.error(error)
+		functions.logger.error(error)
 		if (error.raw) {
 			return { error: error.raw } as Response
 		}
@@ -74,7 +74,7 @@ export const update = regionFunctions.https.onCall(async (data, context) => {
 		const result = await stripe.paymentIntents.update(paymentIntentID, options)
 		return { result } as Response
 	} catch (error) {
-		console.error(error)
+		functions.logger.error(error)
 		if (error.raw) {
 			return { error: error.raw } as Response
 		}
@@ -103,7 +103,7 @@ export const confirm = regionFunctions.https.onCall(async (data, context) => {
 		const result = await stripe.paymentIntents.confirm(paymentIntentID, options)
 		return { result } as Response
 	} catch (error) {
-		console.error(error)
+		functions.logger.error(error)
 		if (error.raw) {
 			return { error: error.raw } as Response
 		}
@@ -128,7 +128,7 @@ export const capture = regionFunctions.https.onCall(async (data, context) => {
 		const result = await stripe.paymentIntents.capture(paymentIntentID)
 		return { result } as Response
 	} catch (error) {
-		console.error(error)
+		functions.logger.error(error)
 		if (error.raw) {
 			return { error: error.raw } as Response
 		}
@@ -153,7 +153,7 @@ export const cancel = regionFunctions.https.onCall(async (data, context) => {
 		const result = await stripe.paymentIntents.cancel(paymentIntentID)
 		return { result } as Response
 	} catch (error) {
-		console.error(error)
+		functions.logger.error(error)
 		if (error.raw) {
 			return { error: error.raw } as Response
 		}

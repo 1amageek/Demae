@@ -174,6 +174,10 @@ export default () => {
 										<Typography variant="subtitle1" gutterBottom>Description</Typography>
 										<Typography variant="body1" gutterBottom>{sku.description}</Typography>
 									</Box>
+									<Box paddingBottom={2}>
+										<Typography variant="subtitle1" gutterBottom>Price</Typography>
+										<Typography variant="body1" gutterBottom>{sku.currency} {sku.price.toLocaleString()}</Typography>
+									</Box>
 								</Box>
 							</Box>
 						</article>

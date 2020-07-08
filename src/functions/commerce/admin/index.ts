@@ -27,7 +27,7 @@ export const attach = regionFunctions.https.onCall(async (data, context) => {
 			result: { providerID }
 		}
 	} catch (error) {
-		console.error(error)
+		functions.logger.error(error)
 		return { error }
 	}
 })

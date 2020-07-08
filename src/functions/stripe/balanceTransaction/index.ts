@@ -24,7 +24,7 @@ export const retrieve = regionFunctions.https.onCall(async (data, context) => {
 		const result = await stripe.balanceTransactions.list(data, { stripeAccount: accountID })
 		return { result } as Response
 	} catch (error) {
-		console.error(error)
+		functions.logger.error(error)
 		if (error.raw) {
 			return { error: error.raw } as Response
 		}

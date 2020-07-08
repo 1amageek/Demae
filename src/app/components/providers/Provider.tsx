@@ -1,13 +1,13 @@
-import React from 'react';
-import { useLocation } from 'react-router-dom'
-import { Grid, Box, Avatar } from '@material-ui/core';
-import ImageIcon from '@material-ui/icons/Image';
-import DataLoading from 'components/DataLoading';
-import ProductList from 'components/providers/products/ProductList'
-import { useDocumentListen } from 'hooks/firestore';
-import { Provider } from 'models/commerce';
-import NotFound from 'components/NotFound'
-import ActionBar from 'components/ActionBar'
+import React from "react";
+import { useLocation } from "react-router-dom"
+import { Grid, Box, Avatar } from "@material-ui/core";
+import ImageIcon from "@material-ui/icons/Image";
+import DataLoading from "components/DataLoading";
+import ProductList from "components/providers/products/ProductList"
+import { useDocumentListen } from "hooks/firestore";
+import { Provider } from "models/commerce";
+import NotFound from "components/NotFound"
+import ActionBar from "components/ActionBar"
 
 export default ({ providerID }: { providerID: string }) => {
 	const [data, isLoading] = useDocumentListen<Provider>(Provider, Provider.collectionReference().doc(providerID))
@@ -25,8 +25,8 @@ export default ({ providerID }: { providerID: string }) => {
 			>
 				<Avatar variant="square" src={data.coverImageURL()} alt={data.name} style={{
 					minHeight: "300px",
-					height: '100%',
-					width: '100%'
+					height: "100%",
+					width: "100%"
 				}}>
 					<ImageIcon />
 				</Avatar>

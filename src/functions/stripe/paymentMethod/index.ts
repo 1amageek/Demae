@@ -22,7 +22,7 @@ export const create = regionFunctions.https.onCall(async (data, context) => {
 		const result = await stripe.paymentMethods.create(data)
 		return { result } as Response
 	} catch (error) {
-		console.error(error)
+		functions.logger.error(error)
 		if (error.raw) {
 			return { error: error.raw } as Response
 		}
@@ -47,7 +47,7 @@ export const retrieve = regionFunctions.https.onCall(async (data, context) => {
 		const result = await stripe.paymentMethods.retrieve(paymentMethodId)
 		return { result } as Response
 	} catch (error) {
-		console.error(error)
+		functions.logger.error(error)
 		if (error.raw) {
 			return { error: error.raw } as Response
 		}
@@ -74,7 +74,7 @@ export const list = regionFunctions.https.onCall(async (data, context) => {
 		})
 		return { result } as Response
 	} catch (error) {
-		console.error(error)
+		functions.logger.error(error)
 		if (error.raw) {
 			return { error: error.raw } as Response
 		}
@@ -103,7 +103,7 @@ export const attach = regionFunctions.https.onCall(async (data, context) => {
 		})
 		return { result } as Response
 	} catch (error) {
-		console.error(error)
+		functions.logger.error(error)
 		if (error.raw) {
 			return { error: error.raw } as Response
 		}
@@ -128,7 +128,7 @@ export const detach = regionFunctions.https.onCall(async (data, context) => {
 		const result = stripe.paymentMethods.detach(paymentMethodId)
 		return { result } as Response
 	} catch (error) {
-		console.error(error)
+		functions.logger.error(error)
 		if (error.raw) {
 			return { error: error.raw } as Response
 		}

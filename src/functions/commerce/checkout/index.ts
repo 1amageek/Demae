@@ -151,7 +151,7 @@ export const create = regionFunctions.https.onCall(async (data, context) => {
 		})
 		return { result } as Response
 	} catch (error) {
-		console.error(error)
+		functions.logger.error(error)
 		if (error instanceof OrderError) {
 			return { error: { message: error.message, target: error.target } } as Response
 		}
@@ -240,7 +240,7 @@ export const confirm = regionFunctions.https.onCall(async (data, context) => {
 		})
 		return { result } as Response
 	} catch (error) {
-		console.error(error)
+		functions.logger.error(error)
 		if (error instanceof OrderError) {
 			return { error: { message: error.message, target: error.target } } as Response
 		}
@@ -330,7 +330,7 @@ export const capture = regionFunctions.https.onCall(async (data, context) => {
 		})
 		return { result } as Response
 	} catch (error) {
-		console.error(error)
+		functions.logger.error(error)
 		if (error instanceof OrderError) {
 			return { error: { message: error.message, target: error.target } } as Response
 		}
@@ -413,7 +413,7 @@ export const capture = regionFunctions.https.onCall(async (data, context) => {
 // 		})
 // 		return { result } as Response
 // 	} catch (error) {
-// 		console.error(error)
+// 		functions.logger.error(error)
 // 		if (error instanceof OrderError) {
 // 			return { error: { message: error.message, target: error.target } } as Response
 // 		}
@@ -437,7 +437,7 @@ const checkOrder = async (order: Order) => {
 	const skuItems: OrderItem[] = order.items
 	const skuValidation = skuItems.find(item => { return !(item.skuReference) })
 	if (skuValidation) {
-		console.log(`OrderItem contains items that do not have SKUReference.`)
+		functions.logger.log(`OrderItem contains items that do not have SKUReference.`)
 		throw new OrderError(`Invalid Request`, skuValidation.productReference?.path || "")
 	}
 	const skuReferences = skuItems.map(item => item.skuReference!)
@@ -447,7 +447,7 @@ const checkOrder = async (order: Order) => {
 	// SKU
 	const unavailable = SKUs.find(sku => sku.isAvailable === false)
 	if (unavailable) {
-		console.log(`Contains unavailable SKU. ${unavailable.path}`)
+		functions.logger.log(`Contains unavailable SKU. ${unavailable.path}`)
 		throw new OrderError(`${unavailable.name} sales have been suspended.`, unavailable.path)
 	}
 
@@ -457,7 +457,7 @@ const checkOrder = async (order: Order) => {
 	// Bucket
 	const bucketOutOfStock = bucketSKUs.find(sku => sku.inventory.value! === "out_of_stock")
 	if (bucketOutOfStock) {
-		console.log(`Bucket SKU is out of stock. ${bucketOutOfStock.path}`)
+		functions.logger.log(`Bucket SKU is out of stock. ${bucketOutOfStock.path}`)
 		throw new OrderError(`${bucketOutOfStock.name} is sold out.`, bucketOutOfStock.path)
 	}
 
@@ -472,7 +472,7 @@ const checkOrder = async (order: Order) => {
 		return orderItem!.quantity > stockCount
 	})
 	if (finiteOutOfStock) {
-		console.log(`Finite SKU is out of stock. ${finiteOutOfStock.path}`)
+		functions.logger.log(`Finite SKU is out of stock. ${finiteOutOfStock.path}`)
 		throw new OrderError(`${finiteOutOfStock.name} is sold out.`, finiteOutOfStock.path)
 	}
 

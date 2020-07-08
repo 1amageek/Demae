@@ -22,7 +22,7 @@ export const create = regionFunctions.https.onCall(async (data, context) => {
 		const result = await stripe.subscriptionSchedules.create(params, options)
 		return { result } as Response
 	} catch (error) {
-		console.error(error)
+		functions.logger.error(error)
 		if (error.raw) {
 			return { error: error.raw } as Response
 		}
@@ -49,7 +49,7 @@ export const retrieve = regionFunctions.https.onCall(async (data, context) => {
 		const result = await stripe.subscriptionSchedules.retrieve(id, params, options)
 		return { result } as Response
 	} catch (error) {
-		console.error(error)
+		functions.logger.error(error)
 		if (error.raw) {
 			return { error: error.raw } as Response
 		}
@@ -79,7 +79,7 @@ export const update = regionFunctions.https.onCall(async (data, context) => {
 		const result = await stripe.subscriptionSchedules.update(id, params, options)
 		return { result } as Response
 	} catch (error) {
-		console.error(error)
+		functions.logger.error(error)
 		if (error.raw) {
 			return { error: error.raw } as Response
 		}
@@ -105,7 +105,7 @@ export const list = regionFunctions.https.onCall(async (data, context) => {
 		const result = await stripe.subscriptionSchedules.list(params, options)
 		return { result } as Response
 	} catch (error) {
-		console.error(error)
+		functions.logger.error(error)
 		if (error.raw) {
 			return { error: error.raw } as Response
 		}
@@ -132,7 +132,7 @@ export const release = regionFunctions.https.onCall(async (data, context) => {
 		const result = await stripe.subscriptionSchedules.release(id, params, options)
 		return { result } as Response
 	} catch (error) {
-		console.error(error)
+		functions.logger.error(error)
 		if (error.raw) {
 			return { error: error.raw } as Response
 		}
@@ -159,7 +159,7 @@ export const cancel = regionFunctions.https.onCall(async (data, context) => {
 		const result = await stripe.subscriptionSchedules.cancel(id, params, options)
 		return { result } as Response
 	} catch (error) {
-		console.error(error)
+		functions.logger.error(error)
 		if (error.raw) {
 			return { error: error.raw } as Response
 		}
