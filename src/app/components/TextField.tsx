@@ -1,5 +1,5 @@
 import { useState, useEffect, Dispatch, SetStateAction } from "react"
-import TextField, { TextFieldProps, StandardTextFieldProps, FilledTextFieldProps, OutlinedTextFieldProps } from "@material-ui/core/TextField"
+import TextField, { TextFieldProps } from "@material-ui/core/TextField"
 
 export const useTextField = (initValue?: string, props: TextFieldProps = {}): [TextFieldProps, Dispatch<SetStateAction<string>>] => {
 	const [value, setValue] = useState<string>(initValue || "")

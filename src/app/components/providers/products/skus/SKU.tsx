@@ -81,6 +81,44 @@ export default ({ providerID, productID, skuID }: { providerID: string, productI
 		})
 	}
 
+	const onPurchaseNow = (e) => {
+		if (!product) return
+		if (!sku) return
+		e.preventDefault()
+		if (user) {
+			const _cart = cart || new Cart(user.id)
+			const group = cart?.cartGroup("quick") || CartGroup.fromSKU(product, sku)
+			group.groupID = "quick"
+			group.setSKU(product, sku, mediatorID)
+			_cart?.setCartGroup(group)
+			_cart?.save()
+			showDrawer(
+				<QuickCheckout
+					groupID={"quick"}
+					onClose={onClose}
+					onComplete={() => {
+						onClose()
+						history.push(`/checkout/${providerID}/completed`)
+					}}
+				/>
+			)
+		} else {
+			setDialog("Welcome 🎉", "Please log in first to purchase this product.", [
+				{
+					title: "OK",
+					handler: () => {
+						setModal(<Login onNext={() => {
+							modalClose()
+						}} />)
+					}
+				}
+			])
+		}
+	}
+
+	const InstantActionButtonTitle = product?.deliveryMethod === "download" ? "DOWNLOAD" : "Purchase now"
+	const InstantActionButtonWidth = (product?.deliveryMethod === "download" || product?.deliveryMethod === "none") ? 12 : 7
+
 	if (isLoading || isProductLoading) {
 		return (
 			<Container maxWidth="sm" disableGutters>
@@ -138,19 +176,22 @@ export default ({ providerID, productID, skuID }: { providerID: string, productI
 					<Paper elevation={3}>
 						<Box padding={1}>
 							<Grid container spacing={1}>
-								<Grid item xs={5}>
-									<Button fullWidth
-										size="large"
-										style={{ fontSize: "13px" }}
-										startIcon={
-											<AddBoxIcon />
-										}
-										onClick={(e) => {
-											e.preventDefault()
-											addSKU(sku)
-										}}>Add to cart</Button>
-								</Grid>
-								<Grid item xs={7}>
+								{(product.deliveryMethod === "pickup" || product.deliveryMethod === "shipping") &&
+									<Grid item xs={5}>
+										<Button fullWidth
+											size="large"
+											style={{ fontSize: "13px" }}
+											startIcon={
+												<AddBoxIcon />
+											}
+											onClick={(e) => {
+												e.preventDefault()
+												addSKU(sku)
+											}}>Add to cart</Button>
+									</Grid>
+								}
+
+								<Grid item xs={InstantActionButtonWidth}>
 									<Button fullWidth
 										variant="contained"
 										color="primary"
@@ -159,38 +200,7 @@ export default ({ providerID, productID, skuID }: { providerID: string, productI
 										startIcon={
 											<PaymentIcon />
 										}
-										onClick={(e) => {
-											e.preventDefault()
-											if (user) {
-												const _cart = cart || new Cart(user.id)
-												const group = cart?.cartGroup("quick") || CartGroup.fromSKU(product, sku)
-												group.groupID = "quick"
-												group.setSKU(product, sku, mediatorID)
-												_cart?.setCartGroup(group)
-												_cart?.save()
-												showDrawer(
-													<QuickCheckout
-														groupID={"quick"}
-														onClose={onClose}
-														onComplete={() => {
-															onClose()
-															history.push(`/checkout/${providerID}/completed`)
-														}}
-													/>
-												)
-											} else {
-												setDialog("Welcome 🎉", "Please log in first to purchase this product.", [
-													{
-														title: "OK",
-														handler: () => {
-															setModal(<Login onNext={() => {
-																modalClose()
-															}} />)
-														}
-													}
-												])
-											}
-										}}>Purchase now</Button>
+										onClick={onPurchaseNow}>{InstantActionButtonTitle}</Button>
 								</Grid>
 							</Grid>
 						</Box>

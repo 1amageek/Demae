@@ -1,11 +1,11 @@
-import React, { useContext, useState } from 'react'
+import React from 'react'
 import Paper from '@material-ui/core/Paper';
 import { useHistory, Link } from 'react-router-dom'
 import firebase from 'firebase'
 import { Grid, AppBar, Toolbar, Checkbox, FormControlLabel } from '@material-ui/core';
 import { List, ListItem, ListItemText, ListItemIcon, Button } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
-import { useUserShippingAddresses, UserContext, CartContext } from 'hooks/commerce'
+import { useUserShippingAddresses, UserContext, CartContext, useUser, useCart } from 'hooks/commerce'
 import { useFetchList } from 'hooks/stripe'
 import Loading from 'components/Loading'
 import { Container, ExpansionPanel, ExpansionPanelSummary, ExpansionPanelDetails, ExpansionPanelActions, Divider, Box } from '@material-ui/core';
@@ -23,8 +23,8 @@ import CheckCircleIcon from '@material-ui/icons/CheckCircle';
 export default (props: any) => {
 	const { providerID } = props.match.params
 	const history = useHistory()
-	const [user, isUserLoading] = useContext(UserContext)
-	const [cart] = useContext(CartContext)
+	const [user, isUserLoading] = useUser()
+	const [cart] = useCart()
 	const [setProcessing] = useProcessing()
 	const [setMessage] = useSnackbar()
 
@@ -37,7 +37,6 @@ export default (props: any) => {
 		// customerID
 		const customerID = user.customerID
 		if (!customerID) {
-			console.log('[]')
 			return
 		}
 
@@ -57,7 +56,7 @@ export default (props: any) => {
 
 		try {
 			setProcessing(true)
-			const checkoutCreate = firebase.functions().httpsCallable('commerce-v1-checkout-create')
+			const checkoutCreate = firebase.functions().httpsCallable('commerce-v1-order-create')
 			const response = await checkoutCreate({
 				order: data,
 				paymentMethodID: paymentMethodID,

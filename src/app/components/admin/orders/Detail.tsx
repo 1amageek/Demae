@@ -56,7 +56,7 @@ export default ({ orderID }: { orderID?: string }) => {
 				if (!order.paymentResult) return
 				const paymentIntentID = order.paymentResult.id
 				const orderID = order.id
-				const capture = firebase.functions().httpsCallable("commerce-v1-checkout-capture")
+				const capture = firebase.functions().httpsCallable("commerce-v1-order-capture")
 				try {
 					const response = await capture({ paymentIntentID, orderID })
 					const { error, result } = response.data
@@ -360,13 +360,11 @@ const ActionSheet = ({ onNext, onClose }: { onNext: () => void, onClose: () => v
 	return (
 		<Paper>
 			<Box>
-				<Box fontSize={16} fontWeight={600} padding={2} paddingBottom={0}>
-					Complete the delivery process.
+				<Box padding={2}>
+					<Typography variant="subtitle1" gutterBottom>Complete the delivery process.</Typography>
+					<Typography variant="body1" color="textSecondary">The payment is executed by completing the delivery process.</Typography>
 				</Box>
-				<Box fontSize={16} fontWeight={300} paddingX={2} paddingBottom={2} color="text.secondary">
-					The payment is executed by completing the delivery process.
-				</Box>
-				<List component="nav">
+				<List>
 					<ListItem button onClick={async () => {
 						onNext()
 					}}>
@@ -374,7 +372,7 @@ const ActionSheet = ({ onNext, onClose }: { onNext: () => void, onClose: () => v
 					</ListItem>
 				</List>
 				<Divider />
-				<List component="nav">
+				<List>
 					<ListItem button onClick={onClose}>
 						<ListItemText primary="Cancel" />
 					</ListItem>

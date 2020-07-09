@@ -1,4 +1,4 @@
-import firebase from "firebase"
+import firebase, { functions } from "firebase"
 import { Doc, Model, Field, File, DocumentReference, SubCollection, Collection, Timestamp, Codable } from "@1amageek/ballcap"
 import { CurrencyCode } from "common/Currency"
 import { OrderItemStatus, DeliveryStatus, PaymentStatus, Discount } from "common/commerce/Types"
@@ -54,6 +54,7 @@ export default class Order extends Doc {
 	@Field paymentStatus: PaymentStatus = "none"
 	@Field isCancelled: boolean = false
 	@Field paymentResult?: any
+	@Field paymentCancelResult?: any
 	@Field metadata?: any
 
 	@SubCollection activities: Collection<Activity> = new Collection()
@@ -69,6 +70,11 @@ export default class Order extends Doc {
 				}
 				return undefined
 			}).filter(value => !!value)
+	}
+
+	cancel() {
+		const orderCancel = firebase.functions().httpsCallable("commerce-v1-order-cancel")
+		return orderCancel({ orderID: this.id })
 	}
 }
 

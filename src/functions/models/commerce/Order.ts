@@ -1,3 +1,4 @@
+import * as admin from "firebase-admin"
 import { Doc, Model, Field, File, DocumentReference, Timestamp, Codable } from "@1amageek/ballcap-admin"
 import { CurrencyCode } from "../../common/Currency"
 import { OrderItemStatus, DeliveryStatus, PaymentStatus, Discount } from "../../common/commerce/Types"
@@ -31,7 +32,7 @@ export default class Order extends Doc {
 	@Field providedBy!: string
 	@Codable(Shipping)
 	@Field shipping?: Shipping
-	@Field paidAt?: Timestamp
+	@Field paidAt?: Timestamp | admin.firestore.FieldValue
 	@Field shippingDate?: any
 	@Field estimatedArrivalDate?: any
 	@Field currency: CurrencyCode = "USD"
@@ -43,6 +44,7 @@ export default class Order extends Doc {
 	@Field paymentStatus: PaymentStatus = "none"
 	@Field isCancelled: boolean = false
 	@Field paymentResult?: any
+	@Field paymentCancelResult?: any
 	@Field metadata?: any
 }
 

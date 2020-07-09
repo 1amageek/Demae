@@ -1,16 +1,9 @@
 import React from 'react'
-import { useLocation } from 'react-router-dom'
 import { Tooltip, IconButton, Toolbar, Paper, Box } from '@material-ui/core';
-import AccountCircle from '@material-ui/icons/AccountCircle';
 import { useUser } from 'hooks/commerce'
 
-import List from '@material-ui/core/List';
-import ListItem, { ListItemProps } from '@material-ui/core/ListItem';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
-import ListItemText from '@material-ui/core/ListItemText';
-import Divider from '@material-ui/core/Divider';
+import { Typography, List, ListItem, ListItemIcon, ListItemText, Divider } from '@material-ui/core';
 
-import FavoriteIcon from '@material-ui/icons/Favorite';
 import FavoriteBorderIcon from '@material-ui/icons/FavoriteBorder';
 import SendIcon from '@material-ui/icons/Send';
 
@@ -59,10 +52,10 @@ const ActionSheet = ({ url, text, onClose }: { url: string, text: string, onClos
 	return (
 		<Paper>
 			<Box>
-				<Box fontSize={16} fontWeight={400} padding={2} color="text.secondary">
-					Share this page.
+				<Box padding={2}>
+					<Typography variant="subtitle1">Share this page</Typography>
 				</Box>
-				<List component="nav">
+				<List>
 					<ListItem button onClick={async () => {
 						await navigator.clipboard.writeText(url)
 						showSnackbar('success', 'Copied this page URL.')
@@ -86,7 +79,7 @@ const ActionSheet = ({ url, text, onClose }: { url: string, text: string, onClos
 					</ListItem>
 				</List>
 				<Divider />
-				<List component="nav">
+				<List>
 					<ListItem button onClick={onClose}>
 						<ListItemText primary="Cancel" />
 					</ListItem>

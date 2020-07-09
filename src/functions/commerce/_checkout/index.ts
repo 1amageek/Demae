@@ -6,6 +6,7 @@ import User from "../../models/commerce/User"
 import Cart from "../../models/commerce/Cart"
 import Provider from "../../models/commerce/Provider"
 import Order, { OrderItem } from "../../models/commerce/Order"
+import { DeliveryMethod } from "../../models/commerce/Product"
 import SKU, { Stock } from "../../models/commerce/SKU"
 import { randomShard } from "../../common/Shard"
 import { Account } from "../../models/account"
@@ -21,6 +22,15 @@ class OrderError extends Error {
 type Response = {
 	error?: { message: string, target: string }
 	result?: any
+}
+
+const captureMethodForDeliveryMethod = (deliveryMethod: DeliveryMethod) => {
+	switch (deliveryMethod) {
+		case "none": return "automatic"
+		case "download": return "automatic"
+		case "pickup": return "manual"
+		case "shipping": return "manual"
+	}
 }
 
 export const create = regionFunctions.https.onCall(async (data, context) => {
@@ -61,9 +71,9 @@ export const create = regionFunctions.https.onCall(async (data, context) => {
 	const order: Order = Order.fromData(orderData, orderRef, { convertDocumentReference: true })
 	const cartItemGroups = cart.groups.filter(group => group.groupID !== groupID)
 
-	const isOnSession = order.deliveryMethod === "none"
+	const isOnSession = order.deliveryMethod === "none" || order.deliveryMethod === "download"
 	const setup_future_usage = isOnSession ? "on_session" : "off_session"
-	const capture_method = isOnSession ? "automatic" : "manual"
+	const capture_method = captureMethodForDeliveryMethod(order.deliveryMethod)
 	const confirm = true
 
 	const request = {
@@ -118,6 +128,12 @@ export const create = regionFunctions.https.onCall(async (data, context) => {
 					case "none": {
 						order.paymentStatus = "succeeded"
 						order.deliveryStatus = "none"
+						break
+					}
+					case "download": {
+						order.paymentStatus = "succeeded"
+						order.deliveryStatus = "none"
+						order.paidAt = admin.firestore.FieldValue.serverTimestamp()
 						break
 					}
 					case "pickup": {

@@ -3,9 +3,13 @@ import { Link, useParams } from "react-router-dom"
 import firebase from "firebase"
 import "firebase/auth";
 import "firebase/functions";
-import { List, ListItem, ListItemAvatar, ListItemText, Avatar, Container, Divider } from "@material-ui/core";
+import { List, ListItem, ListItemAvatar, ListItemIcon, ListItemText, Avatar, Container, Divider } from "@material-ui/core";
 import { useTheme } from "@material-ui/core/styles";
 import ImageIcon from "@material-ui/icons/Image";
+import IconButton from '@material-ui/core/IconButton';
+import Menu from '@material-ui/core/Menu';
+import MenuItem from '@material-ui/core/MenuItem';
+import MoreVertIcon from '@material-ui/icons/MoreVert';
 import { useUser } from "hooks/commerce"
 import { useDataSourceListen, useDocumentListen, OrderBy } from "hooks/firestore";
 import DataLoading from "components/DataLoading";
@@ -14,6 +18,10 @@ import Order from "models/commerce/Order";
 import Provider from "models/commerce/Provider";
 import Dayjs from "dayjs"
 import Label from "components/Label";
+import { useMenu } from "components/Menu";
+import { useDrawer } from "components/Drawer";
+import { useSnackbar } from "components/Snackbar";
+import { useProcessing } from "components/Processing";
 
 const DeliveryStatusLabel = {
 	"none": "NONE",
@@ -119,6 +127,10 @@ const OrderDetail = () => {
 	const [user] = useUser()
 	const ref = user?.orders.collectionReference.doc(orderID)
 	const [order, isLoading] = useDocumentListen<Order>(Order, ref)
+	const [menuPros, menuOpen, handleClose] = useMenu()
+	const [showDrawer, onClose] = useDrawer()
+	const [showSnackbar] = useSnackbar()
+	const [setProcessing] = useProcessing()
 
 	if (isLoading || !order) {
 		return (
@@ -136,8 +148,34 @@ const OrderDetail = () => {
 			}}>
 				<Box padding={2}>
 					<Box paddingBottom={2} display="flex" justifyContent="space-between">
-						<Typography variant="subtitle1">{order.title}</Typography>
-						<Typography variant="body2" color="textSecondary">ORDER ID: {order.id}</Typography>
+						<Box>
+							<Typography variant="subtitle1">{order.title}</Typography>
+							<Typography variant="body2" color="textSecondary">ORDER ID: {order.id}</Typography>
+						</Box>
+						<Box>
+							<IconButton aria-label="settings" onClick={menuOpen}>
+								<MoreVertIcon />
+							</IconButton>
+							<Menu {...menuPros}>
+								<MenuItem onClick={() => {
+									showDrawer(
+										<ActionSheet callback={async () => {
+											setProcessing(true)
+											const response = await order.cancel()
+											const { error, result } = response.data
+											if (error) {
+												console.error(error)
+												showSnackbar('error', error.message)
+												setProcessing(false)
+												return
+											}
+											console.log(result)
+											showSnackbar("success", "The order was cancelled.")
+										}} onClose={onClose} />
+									)
+								}}>Cancel</MenuItem>
+							</Menu>
+						</Box>
 					</Box>
 
 					<Divider />
@@ -239,5 +277,29 @@ const ProviderInfo = ({ order }: { order: Order }) => {
 				</Grid>
 			</Grid>
 		</Box>
+	)
+}
+
+
+const ActionSheet = ({ callback, onClose }: { callback: () => void, onClose: () => void }) => {
+	return (
+		<Paper>
+			<Box>
+				<Box padding={2}>
+					<Typography variant="subtitle1">Would you like to cancel this order?</Typography>
+				</Box>
+				<List>
+					<ListItem button onClick={callback}>
+						<ListItemText primary="Cancel" />
+					</ListItem>
+				</List>
+				<Divider />
+				<List>
+					<ListItem button onClick={onClose}>
+						<ListItemText primary="Close" />
+					</ListItem>
+				</List>
+			</Box>
+		</Paper>
 	)
 }
