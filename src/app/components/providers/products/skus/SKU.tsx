@@ -140,13 +140,17 @@ export default ({ providerID, productID, skuID }: { providerID: string, productI
 					width="100%"
 					height="100%"
 				>
-					<Avatar variant="square" src={imageURL} alt={sku.name} style={{
-						minHeight: "300px",
-						height: "100%",
-						width: "100%"
-					}}>
-						<ImageIcon />
-					</Avatar>
+					<Box>
+						<Avatar variant="square" src={imageURL} alt={sku.name} style={{
+							minHeight: "300px",
+							height: "100%",
+							width: "100%"
+						}}>
+							<ImageIcon />
+						</Avatar>
+						<Box zIndex="mobileStepper"></Box>
+					</Box>
+
 				</Box>
 				<Box paddingX={1}>
 					<ActionBar />

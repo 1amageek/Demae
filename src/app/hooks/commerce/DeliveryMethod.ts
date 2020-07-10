@@ -1,5 +1,9 @@
 import { useLocation } from "react-router-dom"
 import { DeliveryMethod } from "models/commerce/Product"
+import { Capability } from "models/commerce/Provider"
+import { PaymentStatus } from "common/commerce/Types"
+
+export const DeliveryMethods: DeliveryMethod[] = ["none", "download", "pickup", "shipping"]
 
 export const DeliveryStatusLabel = {
 	"none": "NONE",
@@ -14,7 +18,14 @@ export const DeliveryStatusLabel = {
 	"expired": "EXPIRED"
 }
 
-export const PaymentStatusLabel = {
+export const DeliveryMethodLabel: { [key in DeliveryMethod]: string } = {
+	"none": "IN-STORE",
+	"shipping": "ONLINE",
+	"pickup": "TAKEOUT",
+	"download": "DOWNOAD",
+}
+
+export const PaymentStatusLabel: { [key in PaymentStatus]: string } = {
 	"none": "NONE",
 	"processing": "PROCESSING",
 	"succeeded": "SUCCEEDED",
@@ -31,6 +42,19 @@ export const useDeliveryMethod = (): DeliveryMethod => {
 		return deliveryMethod as DeliveryMethod
 	} else {
 		return "none"
+	}
+}
+
+export const capabilityForDeliveryMethod = (deliveryMethod?: DeliveryMethod): Capability | undefined => {
+	if (!deliveryMethod) {
+		return undefined
+	}
+	if (!DeliveryMethods.includes(deliveryMethod)) return undefined
+	switch (deliveryMethod) {
+		case "none": return "instore_sales"
+		case "shipping": return "online_sales"
+		case "pickup": return "takeout"
+		case "download": return "download"
 	}
 }
 

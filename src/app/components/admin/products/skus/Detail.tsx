@@ -5,7 +5,7 @@ import { File as StorageFile } from "@1amageek/ballcap"
 import { Link, useParams } from "react-router-dom"
 import { Typography, Box, Paper, FormControl, Button, Grid, ListItemSecondaryAction, Chip } from "@material-ui/core";
 import Input, { useInput } from "components/Input"
-import { List, ListItem, ListItemText, ListItemAvatar, ListItemIcon, Divider } from "@material-ui/core";
+import { GridList, GridListTile, ListItemText, ListItemAvatar, ListItemIcon, Divider } from "@material-ui/core";
 import { CurrencyCode, SupportedCurrencies } from "common/Currency"
 import Avatar from "@material-ui/core/Avatar";
 import ImageIcon from "@material-ui/icons/Image";
@@ -31,7 +31,8 @@ import TextField, { useTextField } from "components/TextField"
 import { Activity, Comment, ChangeDeliveryStatus } from "models/commerce/Order"
 import { useAuthUser } from "hooks/auth";
 import { useProcessing } from "components/Processing";
-import { Batch } from "@1amageek/ballcap";
+import Carousel from "components/Carousel"
+
 
 Dayjs.extend(relativeTime)
 
@@ -159,12 +160,17 @@ export default () => {
 							</Box>
 							<Divider />
 							<Box paddingY={2}>
-								<Avatar variant="square" src={sku.imageURLs()[0]} style={{
-									minHeight: "200px",
-									width: "100%"
-								}}>
-									<ImageIcon />
-								</Avatar>
+								<Carousel data={sku.imageURLs()} />
+								<Grid container>
+									{sku.imageURLs().map((url, index) => {
+										return (
+											<Grid key={index} item xs={4}>
+												{url}
+											</Grid>
+										)
+									})}
+
+								</Grid>
 								<Box paddingTop={2}>
 									<Box paddingBottom={2}>
 										<Typography variant="subtitle1" gutterBottom>Caption</Typography>
@@ -185,7 +191,8 @@ export default () => {
 				</Paper >
 			</Box>
 
-			{sku.inventory.type === "finite" &&
+			{
+				sku.inventory.type === "finite" &&
 				<Box padding={2} width="100%">
 					<Typography variant="h2" gutterBottom>Inventory</Typography>
 					<Paper elevation={0} square={false} style={{
@@ -199,7 +206,7 @@ export default () => {
 					<Typography variant="body2" gutterBottom>Manage inventory, including different sizes and colors.</Typography>
 				</Box>
 			}
-		</Paper>
+		</Paper >
 	)
 }
 
