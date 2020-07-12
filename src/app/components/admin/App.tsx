@@ -15,6 +15,7 @@ const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
 		content: {
 			flexGrow: 1,
+			overflowX: "hidden"
 		}
 	})
 );

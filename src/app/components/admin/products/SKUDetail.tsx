@@ -22,7 +22,7 @@ import Board from '../Board';
 import { useProcessing } from 'components/Processing';
 import { StockType, StockValue } from 'common/commerce/Types';
 import { SKU, Product } from 'models/commerce';
-import InventoryTableRow from './InventoryTableRow';
+import InventoryTableRow from './Inventory';
 import Label from 'components/Label'
 import TextField, { useTextField } from 'components/TextField'
 

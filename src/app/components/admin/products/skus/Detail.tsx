@@ -5,7 +5,7 @@ import { File as StorageFile } from "@1amageek/ballcap"
 import { Link, useParams } from "react-router-dom"
 import { Typography, Box, Paper, FormControl, Button, Grid, ListItemSecondaryAction, Chip } from "@material-ui/core";
 import Input, { useInput } from "components/Input"
-import { GridList, GridListTile, ListItemText, ListItemAvatar, ListItemIcon, Divider } from "@material-ui/core";
+import { List, ListItem, ListItemText, Divider } from "@material-ui/core";
 import { CurrencyCode, SupportedCurrencies } from "common/Currency"
 import Avatar from "@material-ui/core/Avatar";
 import ImageIcon from "@material-ui/icons/Image";
@@ -19,12 +19,11 @@ import { useSnackbar } from "components/Snackbar";
 import Select, { useSelect, useMenu } from "components/_Select"
 import { StockType, StockValue } from "common/commerce/Types";
 import { SKU, Product } from "models/commerce";
-import InventoryTableRow from "../InventoryTableRow";
+import InventoryTableRow from "../Inventory";
 import { useAdminProviderProduct, useAdminProviderProductSKU } from "hooks/commerce";
 import { useContentToolbar, useEdit, NavigationBackButton } from "components/NavigationContainer"
 import Dayjs from "dayjs"
 import relativeTime from "dayjs/plugin/relativeTime";
-import Label from "components/Label";
 import { useDocumentListen, useDataSourceListen, OrderBy } from "hooks/firestore";
 import { useTheme } from "@material-ui/core/styles";
 import TextField, { useTextField } from "components/TextField"
@@ -32,7 +31,7 @@ import { Activity, Comment, ChangeDeliveryStatus } from "models/commerce/Order"
 import { useAuthUser } from "hooks/auth";
 import { useProcessing } from "components/Processing";
 import Carousel from "components/Carousel"
-
+import MediaController from "components/MediaController"
 
 Dayjs.extend(relativeTime)
 
@@ -68,36 +67,6 @@ export default () => {
 			</Box>
 		)
 	})
-
-	const inventoryMenu = useMenu([
-		{
-			label: "Bucket",
-			value: "bucket"
-		},
-		{
-			label: "Finite",
-			value: "finite"
-		}
-		, {
-			label: "Infinite",
-			value: "infinite"
-		}
-	])
-
-	const stockValueMenu = useMenu([
-		{
-			label: "In Stock",
-			value: "in_stock"
-		},
-		{
-			label: "Limited",
-			value: "limited"
-		}
-		, {
-			label: "Out Of Stock",
-			value: "out_of_stock"
-		}
-	])
 
 	if (isLoading) {
 		return (
@@ -161,16 +130,6 @@ export default () => {
 							<Divider />
 							<Box paddingY={2}>
 								<Carousel data={sku.imageURLs()} />
-								<Grid container>
-									{sku.imageURLs().map((url, index) => {
-										return (
-											<Grid key={index} item xs={4}>
-												{url}
-											</Grid>
-										)
-									})}
-
-								</Grid>
 								<Box paddingTop={2}>
 									<Box paddingBottom={2}>
 										<Typography variant="subtitle1" gutterBottom>Caption</Typography>
@@ -226,6 +185,8 @@ const Edit = ({ sku, onClose }: { sku: SKU, onClose: () => void }) => {
 	const [stockValue, setStockValue] = useSelect(sku.inventory.value || "in_stock")
 	const [quantity] = useTextField(String(sku.inventory.quantity || 0))
 	const [isEditing] = useEdit()
+	const [showDrawer, drawerClose] = useDrawer()
+	const [showSnackbar] = useSnackbar()
 
 	const currencyMenu = useMenu(SupportedCurrencies.map(c => {
 		return {
@@ -364,13 +325,22 @@ const Edit = ({ sku, onClose }: { sku: SKU, onClose: () => void }) => {
 							</Box>
 							<Divider />
 							<Box paddingY={2}>
-								<Box display="flex" flexGrow={1} minHeight={200}>
-									<DndCard
-										url={sku.imageURLs()[0]}
-										onDrop={(files) => {
-											setImages(files)
-										}} />
-								</Box>
+								<MediaController URLs={sku.imageURLs()} onDrop={(files) => {
+									setImages(files)
+								}} onClick={async (props) => {
+									showDrawer(
+										<ActionSheet callback={async () => {
+											const { index } = props
+											const iamge = sku.images[index]
+											const imageData = iamge.data()
+											await sku.documentReference.update({
+												images: firebase.firestore.FieldValue.arrayRemove(imageData)
+											})
+											showSnackbar("success", "The image has been removed.")
+											drawerClose()
+										}} onClose={drawerClose} />
+									)
+								}} />
 								<Box paddingTop={2}>
 									<Box paddingBottom={2}>
 										<Typography variant="subtitle1" gutterBottom>Name</Typography>
@@ -435,5 +405,28 @@ const Edit = ({ sku, onClose }: { sku: SKU, onClose: () => void }) => {
 			}
 		</Paper>
 
+	)
+}
+
+const ActionSheet = ({ callback, onClose }: { callback: () => void, onClose: () => void }) => {
+	return (
+		<Paper>
+			<Box>
+				<Box padding={2}>
+					<Typography variant="subtitle1">Do you want to delete the image?</Typography>
+				</Box>
+				<List>
+					<ListItem button onClick={callback}>
+						<ListItemText primary="Delete" />
+					</ListItem>
+				</List>
+				<Divider />
+				<List>
+					<ListItem button onClick={onClose}>
+						<ListItemText primary="Close" />
+					</ListItem>
+				</List>
+			</Box>
+		</Paper>
 	)
 }

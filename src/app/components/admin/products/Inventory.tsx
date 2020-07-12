@@ -1,10 +1,9 @@
 import React from 'react'
-import { Paper, IconButton, Button, TableRow, TableCell } from '@material-ui/core';
+import { Paper, IconButton, Button, Box, CircularProgress } from '@material-ui/core';
 import Input, { useInput } from 'components/Input'
 import EditIcon from '@material-ui/icons/Edit';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
-import { Box, CircularProgress } from '@material-ui/core'
 import { useProcessing } from 'components/Processing';
 import { SKU, Product } from 'models/commerce';
 import { useDataSourceListen } from 'hooks/firestore';
@@ -35,43 +34,40 @@ export default ({ sku }: { sku: SKU }) => {
 
 	if (isLoading) {
 		return (
-			<TableRow>
-				<TableCell align='right'><div>Stock count</div></TableCell>
-				<TableCell align='left'><div><CircularProgress size='small' /></div></TableCell>
-				<TableCell align='right'></TableCell>
-			</TableRow>
+			<Box display="flex" alignItems="center" padding={2}>
+				<Box>Stock count</Box>
+				<Box><CircularProgress /></Box>
+			</Box>
 		)
 	}
 
 	return (
-		<TableRow>
-			<TableCell align='right'><div>Stock count</div></TableCell>
-			<TableCell align='left'><div>{count.toLocaleString()}</div></TableCell>
-			<TableCell align='right'>
-				<IconButton size="small" onClick={handleClick}>
-					<EditIcon />
-				</IconButton>
-				<Menu
-					anchorEl={anchorEl}
-					keepMounted
-					open={Boolean(anchorEl)}
-					onClose={handleClose}
-				>
-					<MenuItem onClick={() => {
-						handleClose()
-						setModal(
-							<Update sku={sku} callback={close} />
-						)
-					}}>Edit</MenuItem>
-					<MenuItem onClick={() => {
-						handleClose()
-						setModal(
-							<Increase sku={sku} callback={close} />
-						)
-					}}>Add</MenuItem>
-				</Menu>
-			</TableCell>
-		</TableRow>
+		<Box display="flex" alignItems="center" padding={2}>
+			<Box>Stock count</Box>
+			<Box paddingX={1}>{count.toLocaleString()}</Box>
+			<IconButton size="small" onClick={handleClick}>
+				<EditIcon />
+			</IconButton>
+			<Menu
+				anchorEl={anchorEl}
+				keepMounted
+				open={Boolean(anchorEl)}
+				onClose={handleClose}
+			>
+				<MenuItem onClick={() => {
+					handleClose()
+					setModal(
+						<Update sku={sku} callback={close} />
+					)
+				}}>Edit</MenuItem>
+				<MenuItem onClick={() => {
+					handleClose()
+					setModal(
+						<Increase sku={sku} callback={close} />
+					)
+				}}>Add</MenuItem>
+			</Menu>
+		</Box>
 	)
 }
 

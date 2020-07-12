@@ -43,7 +43,6 @@ export default (props: DnDProps) => {
 			}
 		}
 		reader.readAsDataURL(file)
-
 	}, [])
 	const { getRootProps, getInputProps, isDragActive } = useDropzone({ accept: "image/jpeg,image/png", onDrop: callback })
 	return (
@@ -83,6 +82,5 @@ export default (props: DnDProps) => {
 				</Avatar>
 			</Box>
 		</Box>
-
 	)
 }

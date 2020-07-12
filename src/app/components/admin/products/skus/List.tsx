@@ -55,8 +55,6 @@ export default () => {
 		orderBy: OrderBy("createdAt", orderBy)
 	}, waiting)
 
-	console.log(skus)
-
 	const addSKU = async (e) => {
 		e.preventDefault()
 		if (!provider) return
