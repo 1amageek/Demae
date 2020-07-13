@@ -42,7 +42,7 @@ export default (props: SegmentControlProps = { items: [], selected: 0 }) => {
 			borderRadius={10}
 			style={{
 				padding: "3px",
-				background: "rgba(0, 0, 0, 0.045)"
+				background: "rgba(0, 0, 0, 0.065)"
 			}}>
 			<Box display="flex">
 				{props.items.map((item, index) => {

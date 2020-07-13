@@ -5,8 +5,6 @@ import { File as StorageFile } from "@1amageek/ballcap"
 import { Link } from "react-router-dom"
 import { Typography, Box, Paper, FormControl, Button, Grid, ListItemSecondaryAction } from "@material-ui/core";
 import { List, ListItem, ListItemText, Divider } from "@material-ui/core";
-import Avatar from "@material-ui/core/Avatar";
-import ImageIcon from "@material-ui/icons/Image";
 import Product, { DeliveryMethod } from "models/commerce/Product"
 import DataLoading from "components/DataLoading";
 import DndCard from "components/DndCard"
@@ -20,12 +18,14 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import Label from "components/Label";
 import { useTheme } from "@material-ui/core/styles";
 import TextField, { useTextField } from "components/TextField"
-import { Activity, Comment, ChangeDeliveryStatus } from "models/commerce/Order"
-import { useAuthUser } from "hooks/auth";
 import { useProcessing } from "components/Processing";
-import { Batch } from "@1amageek/ballcap";
+import { useDrawer } from "components/Drawer";
+import { useSnackbar } from "components/Snackbar";
+import MediaController from "components/MediaController"
 
 Dayjs.extend(relativeTime)
+
+const MAXIMUM_NUMBER_OF_IMAGES = 10
 
 const deliveryMethodLabel: { [key in DeliveryMethod]: string } = {
 	"none": "No shipping required",
@@ -124,12 +124,7 @@ export default () => {
 							</Box>
 							<Divider />
 							<Box paddingY={2}>
-								<Avatar variant="square" src={product.imageURLs()[0]} style={{
-									minHeight: "200px",
-									width: "100%"
-								}}>
-									<ImageIcon />
-								</Avatar>
+								<MediaController URLs={product.imageURLs()} />
 								<Box paddingTop={2}>
 									<Box paddingBottom={2}>
 										<Typography variant="subtitle1" gutterBottom>Caption</Typography>
@@ -177,6 +172,10 @@ const Edit = ({ product, onClose }: { product: Product, onClose: () => void }) =
 	const [description] = useTextField(product.description)
 	const [deliveryMethod, setDeliveryMethod] = useSelect(product.deliveryMethod)
 	const [isAvailable, setAvailable] = useSelect(product.isAvailable)
+
+	const [showDrawer, drawerClose] = useDrawer()
+	const [showSnackbar] = useSnackbar()
+
 	const deliveryMethodMenu = useMenu([
 		{
 			label: "No shipping required",
@@ -267,13 +266,32 @@ const Edit = ({ product, onClose }: { product: Product, onClose: () => void }) =
 					</Box>
 					<Divider />
 					<Box paddingY={2}>
-						<Box display="flex" flexGrow={1} minHeight={200}>
-							<DndCard
-								url={product.imageURLs()[0]}
-								onDrop={(files) => {
-									setImages(files)
-								}} />
-						</Box>
+						<MediaController URLs={product.imageURLs()} isEditing maxCount={MAXIMUM_NUMBER_OF_IMAGES}
+							onDrop={(files) => {
+								setImages(files)
+							}}
+							onDeleteImage={async (props) => {
+								const { index } = props
+								showDrawer(
+									<ActionSheet callback={async () => {
+										const image = product.images[index]
+										const imageData = image.data()
+										await product.documentReference.update({
+											images: firebase.firestore.FieldValue.arrayRemove(imageData)
+										})
+										showSnackbar("success", "The image has been removed.")
+										drawerClose()
+									}} onClose={drawerClose} />
+								)
+							}}
+							onDeleteUploadImage={(props) => {
+								const { index } = props
+								const _images = images.filter((value, idx) => index !== idx)
+								setImages(_images)
+							}}
+							onError={() => {
+								showSnackbar("error", `The maximum number of images is ${MAXIMUM_NUMBER_OF_IMAGES}.`)
+							}} />
 						<Box paddingTop={2}>
 							<Box paddingBottom={2}>
 								<Typography variant="subtitle1" gutterBottom>Name</Typography>
@@ -300,5 +318,28 @@ const Edit = ({ product, onClose }: { product: Product, onClose: () => void }) =
 				</article>
 			</Box>
 		</Paper >
+	)
+}
+
+const ActionSheet = ({ callback, onClose }: { callback: () => void, onClose: () => void }) => {
+	return (
+		<Paper>
+			<Box>
+				<Box padding={2}>
+					<Typography variant="subtitle1">Do you want to delete the image?</Typography>
+				</Box>
+				<List>
+					<ListItem button onClick={callback}>
+						<ListItemText primary="Delete" />
+					</ListItem>
+				</List>
+				<Divider />
+				<List>
+					<ListItem button onClick={onClose}>
+						<ListItemText primary="Close" />
+					</ListItem>
+				</List>
+			</Box>
+		</Paper>
 	)
 }

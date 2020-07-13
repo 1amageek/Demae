@@ -159,7 +159,7 @@ export default ({ providerID, productID, skuID }: { providerID: string, productI
 					<Box>
 						<Typography variant="h1" gutterBottom>{sku.name}</Typography>
 						<Typography variant="subtitle1">{sku.caption}</Typography>
-						<Box fontSize={18} fontWeight={600} color="text.secondary">
+						<Box paddingY={1} fontSize={18} fontWeight={600} color="text.secondary">
 							{price}
 						</Box>
 						<Typography variant="subtitle2" color="textSecondary">{sku.description}</Typography>
