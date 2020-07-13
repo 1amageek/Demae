@@ -35,6 +35,7 @@ import MediaController from "components/MediaController"
 
 Dayjs.extend(relativeTime)
 
+const MAXIMUM_NUMBER_OF_IMAGES = 10
 
 export default () => {
 	const theme = useTheme();
@@ -129,7 +130,7 @@ export default () => {
 							</Box>
 							<Divider />
 							<Box paddingY={2}>
-								<Carousel data={sku.imageURLs()} />
+								<MediaController URLs={sku.imageURLs()} />
 								<Box paddingTop={2}>
 									<Box paddingBottom={2}>
 										<Typography variant="subtitle1" gutterBottom>Caption</Typography>
@@ -230,11 +231,8 @@ const Edit = ({ sku, onClose }: { sku: SKU, onClose: () => void }) => {
 		if (!product) return
 		if (!sku) return
 		setProcessing(true)
+		const batch = firebase.firestore().batch()
 		const uploadedImages = await Promise.all(uploadImages(images))
-		if (uploadedImages.length) {
-			const fileterd = uploadedImages.filter(image => !!image) as StorageFile[]
-			sku.images = fileterd
-		}
 
 		sku.name = name.value as string
 		sku.caption = caption.value as string
@@ -253,11 +251,29 @@ const Edit = ({ sku, onClose }: { sku: SKU, onClose: () => void }) => {
 		var productPrice = nowPrice[sku.currency] || Infinity
 		productPrice = Math.min(productPrice, sku.price)
 		productPrice = Math.max(productPrice, 0)
-		product.price = {
-			...nowPrice,
-			[sku.currency]: productPrice
+
+		if (uploadedImages.length) {
+			const fileterd = uploadedImages.filter(image => !!image) as StorageFile[]
+			const images = fileterd.map(value => value.data())
+			console.log(images)
+			batch.set(sku.documentReference, {
+				...sku.data(),
+				images: firebase.firestore.FieldValue.arrayUnion(...images)
+			}, { merge: true })
+		} else {
+			batch.set(sku.documentReference, {
+				...sku.data(),
+			}, { merge: true })
 		}
-		await Promise.all([sku.save(), product.update()])
+
+		batch.update(product.documentReference, {
+			price: {
+				...nowPrice,
+				[sku.currency]: productPrice
+			}
+		})
+
+		await batch.commit()
 		setProcessing(false)
 		onClose()
 	})
@@ -325,7 +341,7 @@ const Edit = ({ sku, onClose }: { sku: SKU, onClose: () => void }) => {
 							</Box>
 							<Divider />
 							<Box paddingY={2}>
-								<MediaController URLs={sku.imageURLs()} onDrop={(files) => {
+								<MediaController URLs={sku.imageURLs()} isEditing maxCount={MAXIMUM_NUMBER_OF_IMAGES} onDrop={(files) => {
 									setImages(files)
 								}} onClick={async (props) => {
 									showDrawer(
@@ -340,6 +356,8 @@ const Edit = ({ sku, onClose }: { sku: SKU, onClose: () => void }) => {
 											drawerClose()
 										}} onClose={drawerClose} />
 									)
+								}} onError={() => {
+									showSnackbar("error", `The maximum number of images is ${MAXIMUM_NUMBER_OF_IMAGES}.`)
 								}} />
 								<Box paddingTop={2}>
 									<Box paddingBottom={2}>
