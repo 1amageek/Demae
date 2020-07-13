@@ -20,7 +20,7 @@ import Select, { useSelect, useMenu } from "components/_Select"
 import { StockType, StockValue } from "common/commerce/Types";
 import { SKU, Product } from "models/commerce";
 import InventoryTableRow from "../Inventory";
-import { useAdminProviderProduct, useAdminProviderProductSKU } from "hooks/commerce";
+import { useAdminProvider, useAdminProviderProduct, useAdminProviderProductSKU } from "hooks/commerce";
 import { useContentToolbar, useEdit, NavigationBackButton } from "components/NavigationContainer"
 import Dayjs from "dayjs"
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -40,7 +40,11 @@ const MAXIMUM_NUMBER_OF_IMAGES = 10
 export default () => {
 	const theme = useTheme();
 	const { productID, skuID } = useParams()
-	const [sku, isLoading] = useAdminProviderProductSKU(productID, skuID)
+	const [provider] = useAdminProvider()
+	const ref = skuID ? provider?.documentReference
+		.collection("products").doc(productID)
+		.collection("skus").doc(skuID) : undefined
+	const [sku, isLoading] = useDocumentListen<SKU>(SKU, ref)
 	const [isEditing, setEdit] = useEdit()
 
 	useContentToolbar(() => {
@@ -185,7 +189,7 @@ const Edit = ({ sku, onClose }: { sku: SKU, onClose: () => void }) => {
 	const [inventory, setInventory] = useSelect(sku.inventory.type)
 	const [stockValue, setStockValue] = useSelect(sku.inventory.value || "in_stock")
 	const [quantity] = useTextField(String(sku.inventory.quantity || 0))
-	const [isEditing] = useEdit()
+
 	const [showDrawer, drawerClose] = useDrawer()
 	const [showSnackbar] = useSnackbar()
 
@@ -226,7 +230,7 @@ const Edit = ({ sku, onClose }: { sku: SKU, onClose: () => void }) => {
 		}
 	])
 
-	useEdit(async (event) => {
+	const [isEditing] = useEdit(async (event) => {
 		event.preventDefault()
 		if (!product) return
 		if (!sku) return
@@ -341,24 +345,32 @@ const Edit = ({ sku, onClose }: { sku: SKU, onClose: () => void }) => {
 							</Box>
 							<Divider />
 							<Box paddingY={2}>
-								<MediaController URLs={sku.imageURLs()} isEditing maxCount={MAXIMUM_NUMBER_OF_IMAGES} onDrop={(files) => {
-									setImages(files)
-								}} onClick={async (props) => {
-									showDrawer(
-										<ActionSheet callback={async () => {
-											const { index } = props
-											const iamge = sku.images[index]
-											const imageData = iamge.data()
-											await sku.documentReference.update({
-												images: firebase.firestore.FieldValue.arrayRemove(imageData)
-											})
-											showSnackbar("success", "The image has been removed.")
-											drawerClose()
-										}} onClose={drawerClose} />
-									)
-								}} onError={() => {
-									showSnackbar("error", `The maximum number of images is ${MAXIMUM_NUMBER_OF_IMAGES}.`)
-								}} />
+								<MediaController URLs={sku.imageURLs()} isEditing maxCount={MAXIMUM_NUMBER_OF_IMAGES}
+									onDrop={(files) => {
+										setImages(files)
+									}}
+									onDeleteImage={async (props) => {
+										const { index } = props
+										showDrawer(
+											<ActionSheet callback={async () => {
+												const image = sku.images[index]
+												const imageData = image.data()
+												await sku.documentReference.update({
+													images: firebase.firestore.FieldValue.arrayRemove(imageData)
+												})
+												showSnackbar("success", "The image has been removed.")
+												drawerClose()
+											}} onClose={drawerClose} />
+										)
+									}}
+									onDeleteUploadImage={(props) => {
+										const { index } = props
+										const _images = images.filter((value, idx) => index !== idx)
+										setImages(_images)
+									}}
+									onError={() => {
+										showSnackbar("error", `The maximum number of images is ${MAXIMUM_NUMBER_OF_IMAGES}.`)
+									}} />
 								<Box paddingTop={2}>
 									<Box paddingBottom={2}>
 										<Typography variant="subtitle1" gutterBottom>Name</Typography>

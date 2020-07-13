@@ -1,5 +1,5 @@
 
-import React, { useState, useCallback } from "react"
+import React, { useState, useCallback, useEffect } from "react"
 import firebase from "firebase"
 import { File as StorageFile } from "@1amageek/ballcap"
 import { useDropzone } from "react-dropzone"
@@ -15,7 +15,8 @@ interface Props {
 	isEditing?: boolean
 	URLs: string[]
 	maxCount?: number
-	onClick?: (props: OnClickProps) => void
+	onDeleteImage?: (props: OnClickProps) => void
+	onDeleteUploadImage?: (props: OnClickProps) => void
 	onDrop?: (acceptedFiles) => void
 	onError?: (count: number) => void
 }
@@ -43,9 +44,15 @@ function readFileAsync(file: File) {
 
 export default (props: Props) => {
 	const theme = useTheme();
-	const { URLs, isEditing, maxCount, onDrop, onClick, onError } = props
+	const { URLs, isEditing, maxCount, onDrop, onDeleteImage, onDeleteUploadImage, onError } = props
 	const max = maxCount || 10
 	const [state, setState] = useState<State>({ images: URLs, uploadImages: [] })
+	useEffect(() => {
+		setState({
+			...state,
+			images: URLs
+		})
+	}, [URLs.length])
 	const { images, uploadImages } = state
 	const { getRootProps, getInputProps, isDragActive } = useDropzone({
 		accept: "image/jpeg,image/png",
@@ -80,8 +87,8 @@ export default (props: Props) => {
 										<Tooltip title={"Delete the image."}>
 											<IconButton size="small" onClick={(e) => {
 												e.preventDefault()
-												if (onClick) {
-													onClick({ index, url })
+												if (onDeleteImage) {
+													onDeleteImage({ index, url })
 												}
 											}}>
 												<CloseIcon fontSize="small" />
@@ -115,6 +122,9 @@ export default (props: Props) => {
 													...state,
 													uploadImages: _uploadImages
 												})
+												if (onDeleteUploadImage) {
+													onDeleteUploadImage({ index, url })
+												}
 											}}>
 												<CloseIcon fontSize="small" />
 											</IconButton>
@@ -155,7 +165,7 @@ export default (props: Props) => {
 							{...getRootProps()}
 							style={{
 								borderColor: theme.palette.primary.light
-							}} p
+							}}
 						>
 							<input {...getInputProps()} />
 							<Tooltip title={"Click to upload"}>
