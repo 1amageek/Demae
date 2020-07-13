@@ -8,6 +8,7 @@ export class Stock extends Doc {
 }
 
 export default class SKU extends Doc {
+	@Field index: number = 0
 	@Field images: File[] = []
 	@Field assets: File[] = []
 	@Field tags: string[] = []

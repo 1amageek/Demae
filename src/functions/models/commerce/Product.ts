@@ -15,6 +15,7 @@ export default class Product extends Doc {
 		return firestore.collection("commerce/v1/products")
 	}
 
+	@Field index: number = 0
 	@Field providedBy!: string
 	@Field images: File[] = []
 	@Field assets: File[] = []
