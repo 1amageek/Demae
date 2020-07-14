@@ -1,12 +1,9 @@
 import React from "react";
 import { makeStyles, createStyles, Theme } from "@material-ui/core/styles";
-import Grid from "@material-ui/core/Grid";
-import Container from "@material-ui/core/Container";
-import Typography from "@material-ui/core/Typography";
-import ButtonBase from "@material-ui/core/ButtonBase";
-import Card from "components/providers/Card"
+import { Grid, Paper, Typography, Box } from "@material-ui/core";
+import Card from "./Card"
 import DataLoading from "components/DataLoading"
-import { useDataSourceListen } from "hooks/firestore";
+import { useDataSourceListen, Where } from "hooks/firestore";
 import { Provider } from "models/commerce";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -34,10 +31,25 @@ const useStyles = makeStyles((theme: Theme) =>
 
 export default () => {
 	const ref = Provider.collectionReference()
-	const [data, isLoading] = useDataSourceListen<Provider>(Provider, { path: ref.path, limit: 30 })
+	const [data, isLoading] = useDataSourceListen<Provider>(Provider,
+		{
+			path: ref.path,
+			wheres: [
+				Where("isAvailable", "==", true)
+			],
+			limit: 30
+		})
 
 	if (isLoading) {
 		return <DataLoading />
+	}
+
+	if (data.length === 0) {
+		return (
+			<Box display="flex" justifyContent="center" alignItems="center" paddingY={12}>
+				<Typography variant="subtitle1" color="textSecondary">There is no providers.</Typography>
+			</Box>
+		)
 	}
 
 	return (

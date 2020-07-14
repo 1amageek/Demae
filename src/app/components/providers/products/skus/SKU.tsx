@@ -155,7 +155,7 @@ export default ({ providerID, productID, skuID }: { providerID: string, productI
 				<Box paddingX={1}>
 					<ActionBar />
 				</Box>
-				<Box padding={2}>
+				<Box padding={2} paddingBottom={6}>
 					<Box>
 						<Typography variant="h1" gutterBottom>{sku.name}</Typography>
 						<Typography variant="subtitle1">{sku.caption}</Typography>
@@ -177,7 +177,13 @@ export default ({ providerID, productID, skuID }: { providerID: string, productI
 				justifyContent="center"
 			>
 				<Container maxWidth="sm" disableGutters>
-					<Paper elevation={3}>
+					<Paper elevation={2}
+						style={{
+							backgroundColor: "rgba(255, 255, 255, 0.6)",
+							backdropFilter: "blur(20px)",
+							WebkitBackdropFilter: "blur(20px)"
+						}}
+					>
 						<Box padding={1}>
 							<Grid container spacing={1}>
 								{(product.deliveryMethod === "pickup" || product.deliveryMethod === "shipping") &&
@@ -196,7 +202,9 @@ export default ({ providerID, productID, skuID }: { providerID: string, productI
 								}
 
 								<Grid item xs={InstantActionButtonWidth}>
-									<Button fullWidth
+									<Button
+										fullWidth
+										disableElevation
 										variant="contained"
 										color="primary"
 										size="large"
