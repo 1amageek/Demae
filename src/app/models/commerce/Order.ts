@@ -1,4 +1,4 @@
-import firebase, { functions } from "firebase"
+import firebase from "firebase"
 import { Doc, Model, Field, File, DocumentReference, SubCollection, Collection, Timestamp, Codable } from "@1amageek/ballcap"
 import { CurrencyCode } from "common/Currency"
 import { OrderItemStatus, DeliveryStatus, PaymentStatus, Discount } from "common/commerce/Types"
@@ -92,6 +92,18 @@ export class ChangeDeliveryStatus extends Model {
 	@Field afterStatus: DeliveryStatus = "none"
 }
 
+export class ChangePaymentStatus extends Model {
+	@Field beforeStatus: PaymentStatus = "none"
+	@Field afterStatus: PaymentStatus = "none"
+}
+
+export type CancelReason = "duplicate" | "fraudulent" | "requested_by_customer" | "other"
+
+export class OrderCancel extends Model {
+	@Field reason: CancelReason = "requested_by_customer"
+	@Field comment: string = ""
+}
+
 export class Activity extends Doc {
 	@Field authoredBy!: string
 	@Codable(Comment)
@@ -100,5 +112,9 @@ export class Activity extends Doc {
 	@Field assign?: Assign
 	@Codable(ChangeDeliveryStatus)
 	@Field changeDeliveryStatus?: ChangeDeliveryStatus
+	@Codable(ChangePaymentStatus)
+	@Field changePaymentStatus?: ChangePaymentStatus
+	@Codable(OrderCancel)
+	@Field orderCancel?: OrderCancel
 	@Field metadata?: any
 }

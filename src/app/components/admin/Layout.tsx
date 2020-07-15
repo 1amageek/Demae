@@ -163,11 +163,17 @@ export default ({ children }: { children: any }) => {
 							</ListItemIcon>
 							<ListItemText primary={"Shipping"} />
 						</ListItem>
-						<ListItem className={classes.nested} button key={"download"} component={Link} to="/admin/orders?deliveryMethod=none">
+						<ListItem className={classes.nested} button key={"download"} component={Link} to="/admin/orders?deliveryMethod=download">
 							<ListItemIcon>
 								<CloudDownloadIcon />
 							</ListItemIcon>
 							<ListItemText primary={"Download"} />
+						</ListItem>
+						<ListItem className={classes.nested} button key={"in-store"} component={Link} to="/admin/orders?deliveryMethod=none">
+							<ListItemIcon>
+								<StorefrontIcon />
+							</ListItemIcon>
+							<ListItemText primary={"In-Store"} />
 						</ListItem>
 					</List>
 				</Collapse>

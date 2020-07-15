@@ -3,16 +3,15 @@ import React, { useState } from "react"
 import firebase from "firebase"
 import { DeliveryStatus } from "common/commerce/Types"
 import { Typography, Box, Paper, FormControl, Button } from "@material-ui/core";
-import Input, { useInput } from "components/Input"
-// import Select, { useSelect } from "components/Select"
-import { List, ListItem, ListItemText, ListItemAvatar, ListItemIcon, Divider } from "@material-ui/core";
+import { List, ListItem, ListItemText, ListItemAvatar, IconButton, Divider } from "@material-ui/core";
 import Avatar from "@material-ui/core/Avatar";
-import CheckCircleIcon from "@material-ui/icons/CheckCircle";
 import ImageIcon from "@material-ui/icons/Image";
-import { useAdminProvider, useAdminProviderOrder, } from "hooks/commerce";
+import MoreVertIcon from '@material-ui/icons/MoreVert';
+import { useAdminProviderOrder, } from "hooks/commerce";
 import DataLoading from "components/DataLoading";
-
+import { Menu, MenuItem } from '@material-ui/core';
 import Select, { useSelect, useMenu } from "components/_Select"
+import { useMenu as useMenuProp } from "components/Menu"
 import Order from "models/commerce/Order"
 import * as Social from "models/social"
 import { useDeliveryMethod, deliveryStatusesForDeliveryMethod, DeliveryStatusLabel, PaymentStatusLabel } from "hooks/commerce/DeliveryMethod"
@@ -22,12 +21,14 @@ import Label from "components/Label";
 import { useDocumentListen, useDataSourceListen, OrderBy } from "hooks/firestore";
 import { useTheme } from "@material-ui/core/styles";
 import TextField, { useTextField } from "components/TextField"
-import { Activity, Comment, ChangeDeliveryStatus } from "models/commerce/Order"
+import { Activity, Comment, ChangeDeliveryStatus, OrderCancel } from "models/commerce/Order"
 import { useAuthUser } from "hooks/auth";
 import { Batch } from "@1amageek/ballcap";
 import { useDrawer } from "components/Drawer";
 import { useSnackbar } from "components/Snackbar";
 import { useProcessing } from "components/Processing";
+import ActionSheet from "components/ActionSheet"
+import OrderDetial from "./OrderDetial";
 
 Dayjs.extend(relativeTime)
 
@@ -46,45 +47,56 @@ export default ({ orderID }: { orderID?: string }) => {
 	const deliveryStatusMenu = useMenu(deliveryStatuses)
 	const [deliveryStatus, setStatus] = useSelect(order?.deliveryStatus)
 
+	const [menuProps, handleOpen, handleClose] = useMenuProp()
+
 	const onChageStatus = async (e) => {
 		e.preventDefault()
 		if (!auth) return
 		const status = String(e.target.value) as DeliveryStatus
 		if (status === "in_transit") {
-			showDrawer(<ActionSheet onNext={async () => {
-				if (!order) return
-				if (!order.paymentResult) return
-				setProcessing(true)
-				const paymentIntentID = order.paymentResult.id
-				const orderID = order.id
-				const capture = firebase.functions().httpsCallable("commerce-v1-order-capture")
-				try {
-					const response = await capture({ paymentIntentID, orderID })
-					const { error, result } = response.data
-					if (error) {
-						showSnackbar("error", error.message)
-						console.error(error)
-					} else {
-						const changeDeliveryStatus = new ChangeDeliveryStatus()
-						changeDeliveryStatus.beforeStatus = deliveryStatus.value as DeliveryStatus
-						changeDeliveryStatus.afterStatus = status as DeliveryStatus
+			showDrawer(
+				<ActionSheet
+					title="Complete the delivery process."
+					detail="The payment is executed by completing the delivery process."
+					actions={
+						[{
+							title: "OK",
+							handler: async (e) => {
+								if (!order) return
+								if (!order.paymentResult) return
+								setProcessing(true)
+								const paymentIntentID = order.paymentResult.id
+								const orderID = order.id
+								const capture = firebase.functions().httpsCallable("commerce-v1-order-capture")
+								try {
+									const response = await capture({ paymentIntentID, orderID })
+									const { error, result } = response.data
+									if (error) {
+										showSnackbar("error", error.message)
+										console.error(error)
+									} else {
+										const changeDeliveryStatus = new ChangeDeliveryStatus()
+										changeDeliveryStatus.beforeStatus = deliveryStatus.value as DeliveryStatus
+										changeDeliveryStatus.afterStatus = status as DeliveryStatus
 
-						const activity = new Activity(order.activities.collectionReference.doc())
-						activity.authoredBy = auth.uid
-						activity.changeDeliveryStatus = changeDeliveryStatus
-						setStatus(status)
-						showSnackbar("success", "The product has been shipped.")
-						console.log(result)
-						activity.save()
-					}
-					setProcessing(false)
-					onClose()
-				} catch (error) {
-					console.error(error)
-					setProcessing(false)
-					onClose()
-				}
-			}} onClose={onClose} />)
+										const activity = new Activity(order.activities.collectionReference.doc())
+										activity.authoredBy = auth.uid
+										activity.changeDeliveryStatus = changeDeliveryStatus
+										setStatus(status)
+										showSnackbar("success", "The product has been shipped.")
+										console.log(result)
+										activity.save()
+									}
+									setProcessing(false)
+									onClose()
+								} catch (error) {
+									console.error(error)
+									setProcessing(false)
+									onClose()
+								}
+							}
+						}]
+					} />)
 		} else {
 
 			if (!order) return
@@ -156,12 +168,68 @@ export default ({ orderID }: { orderID?: string }) => {
 								</Typography>
 							</Box>
 						</Box>
-						<Box>
-							<FormControl variant="outlined" size="small">
-								<Select disabled={deliveryStatus.value === "none"} {...deliveryStatus} onChange={onChageStatus}>
-									{deliveryStatusMenu}
-								</Select>
-							</FormControl>
+						<Box display="flex" alignItems="center">
+							<Box paddingX={2}>
+								<FormControl variant="outlined" size="small">
+									<Select disabled={deliveryStatus.value === "none"} {...deliveryStatus} onChange={onChageStatus}>
+										{deliveryStatusMenu}
+									</Select>
+								</FormControl>
+							</Box>
+							<Box>
+								<IconButton onClick={handleOpen}>
+									<MoreVertIcon />
+								</IconButton>
+								<Menu {...menuProps}>
+									<MenuItem onClick={() => {
+										handleClose()
+										showDrawer(
+											<ActionSheet
+												title="Order Cancel"
+												detail="Would you like to cancel your order?"
+												actions={
+													[{
+														title: "OK",
+														handler: async (e) => {
+															if (!auth) return
+															if (!order) return
+
+															// setProcessing(true)
+															// const paymentIntentID = order.paymentResult.id
+															// const orderID = order.id
+															// const cancel = firebase.functions().httpsCallable("commerce-v1-order-cancel")
+															// try {
+															// 	const response = await cancel({ paymentIntentID, orderID })
+															// 	const { error, result } = response.data
+															// 	if (error) {
+															// 		showSnackbar("error", error.message)
+															// 		console.error(error)
+															// 	} else {
+															// 		const orderCancel = new OrderCancel()
+															// 		const activity = new Activity(order.activities.collectionReference.doc())
+															// 		activity.authoredBy = auth.uid
+															// 		activity.orderCancel = orderCancel
+															// 		showSnackbar("success", "The product has been shipped.")
+															// 		console.log(result)
+															// 		activity.save()
+															// 	}
+															// 	setProcessing(false)
+															// 	onClose()
+															// } catch (error) {
+															// 	console.error(error)
+															// 	setProcessing(false)
+															// 	onClose()
+															// }
+														}
+													}]
+												} />)
+									}}>Order Cancel</MenuItem>
+									<MenuItem onClick={() => {
+										handleClose()
+
+									}}>Payment Refund</MenuItem>
+								</Menu>
+							</Box>
 						</Box>
 					</Box>
 					<Divider />
@@ -363,32 +431,5 @@ const CommentView = ({ order }: { order: Order }) => {
 				</Box>
 			</Box>
 		</form>
-	)
-}
-
-
-const ActionSheet = ({ onNext, onClose }: { onNext: () => void, onClose: () => void }) => {
-	return (
-		<Paper>
-			<Box>
-				<Box padding={2}>
-					<Typography variant="subtitle1" gutterBottom>Complete the delivery process.</Typography>
-					<Typography variant="body1" color="textSecondary">The payment is executed by completing the delivery process.</Typography>
-				</Box>
-				<List>
-					<ListItem button onClick={async () => {
-						onNext()
-					}}>
-						<ListItemText primary="OK" />
-					</ListItem>
-				</List>
-				<Divider />
-				<List>
-					<ListItem button onClick={onClose}>
-						<ListItemText primary="Cancel" />
-					</ListItem>
-				</List>
-			</Box>
-		</Paper>
 	)
 }

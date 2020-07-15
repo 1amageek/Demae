@@ -2,8 +2,7 @@ import React from 'react'
 import { Paper, IconButton, Button, Box, CircularProgress } from '@material-ui/core';
 import Input, { useInput } from 'components/Input'
 import EditIcon from '@material-ui/icons/Edit';
-import Menu from '@material-ui/core/Menu';
-import MenuItem from '@material-ui/core/MenuItem';
+import { Menu, MenuItem } from '@material-ui/core';
 import { useProcessing } from 'components/Processing';
 import { SKU, Product } from 'models/commerce';
 import { useDataSourceListen } from 'hooks/firestore';

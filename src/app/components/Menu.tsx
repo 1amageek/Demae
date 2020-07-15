@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import Menu, { MenuProps } from '@material-ui/core/Menu';
+import { MenuProps } from '@material-ui/core/Menu';
 
 export const useMenu = (): [MenuProps, (event: React.MouseEvent<HTMLButtonElement>) => void, () => void] => {
 	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);

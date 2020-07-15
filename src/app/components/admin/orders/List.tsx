@@ -7,7 +7,6 @@ import ListItem from "@material-ui/core/ListItem";
 import ListItemText from "@material-ui/core/ListItemText";
 import ListItemAvatar from "@material-ui/core/ListItemAvatar";
 import Avatar from "@material-ui/core/Avatar";
-import AddCircleIcon from "@material-ui/icons/AddCircle";
 import ImageIcon from "@material-ui/icons/Image";
 import { useAdminProviderOrders, useAdminProvider } from "hooks/commerce";
 import DataLoading from "components/DataLoading";
