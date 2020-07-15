@@ -17,6 +17,7 @@ import { ModalProvider } from "components/Modal"
 import { DrawerProvider } from "components/Drawer"
 
 import theme from "../plugins/theme"
+import "../styles/css/react-mde-all.css";
 
 const config = require(`${process.env.FIREBASE_PROJECT!}`)
 const isEmulated = process.env.USE_EMULATOR === "true"

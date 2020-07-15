@@ -33,13 +33,22 @@ const Checkout = ({ groupID, onClose, onComplete }: { groupID: string, onClose: 
 
 	const cartGroup = cart?.cartGroup(groupID)
 	const defaultShipping = user?.defaultShipping
-	const defaultCart = user?.defaultCard
+	const defaultCard = user?.defaultCard
 
 	const [setProcessing] = useProcessing()
 	const [setMessage] = useSnackbar()
 	const [push] = usePush()
 
-	const isAvailable: boolean = !isUserLoading && !!(defaultShipping) && !!(defaultCart)
+	const shouldBeEnable = () => {
+		if (isUserLoading) return false
+		if (!cartGroup) return false
+		if (cartGroup.deliveryMethod === "shipping") {
+			return !!(defaultShipping) && !!(defaultCard)
+		}
+		return !!(defaultCard)
+	}
+
+	const isAvailable: boolean = shouldBeEnable()
 
 	const withCustomer = async (auth: firebase.User, user: User): Promise<{ error?: any, customerID?: any }> => {
 		if (user.customerID) {
@@ -153,19 +162,19 @@ const Checkout = ({ groupID, onClose, onComplete }: { groupID: string, onClose: 
 								<Box color='text.secondary' fontWeight={700} flexGrow={1}>CARD</Box>
 							</TableCell>
 							<TableCell>
-								{defaultCart &&
+								{defaultCard &&
 									<Box display="flex" alignItems="center" flexGrow={1} style={{ width: '180px' }}>
 										<Box display="flex" alignItems="center" flexGrow={1} fontSize={22}>
-											<i className={`pf ${CardBrand[defaultCart!.brand]}`}></i>
+											<i className={`pf ${CardBrand[defaultCard!.brand]}`}></i>
 										</Box>
 										<Box justifySelf="flex-end" fontSize={16} fontWeight={500}>
-											{`• • • •  ${defaultCart?.last4}`}
+											{`• • • •  ${defaultCard?.last4}`}
 										</Box>
 									</Box>
 								}
 							</TableCell>
 							<TableCell>
-								<Box display='flex' flexGrow={1} justifyContent="flex-end" alignItems='center'>{defaultCart ? <NavigateNextIcon /> : <ErrorIcon color="secondary" />}</Box>
+								<Box display='flex' flexGrow={1} justifyContent="flex-end" alignItems='center'>{defaultCard ? <NavigateNextIcon /> : <ErrorIcon color="secondary" />}</Box>
 							</TableCell>
 						</TableRow>
 						{cartGroup.deliveryMethod === 'shipping' &&

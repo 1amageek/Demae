@@ -1,5 +1,6 @@
 import React from "react";
 import { Button, Box, Grid, Avatar, Paper, Typography, Container } from "@material-ui/core";
+import Markdown from "react-markdown"
 import ImageIcon from "@material-ui/icons/Image";
 import { Provider, Product, SKU, Cart } from "models/commerce";
 import DataLoading from "components/DataLoading";
@@ -63,16 +64,17 @@ export default ({ providerID, productID, skuID }: { providerID: string, productI
 		withLogin(sku, async (sku) => {
 			if (!product) return
 			if (user) {
+				const groupID = CartGroup.ID(product)
 				if (cart) {
-					const group = cart?.cartGroup(providerID) || CartGroup.fromSKU(product, sku)
-					group.groupID = providerID
+					const group = cart?.cartGroup(groupID) || CartGroup.fromSKU(product, sku)
+					group.groupID = groupID
 					group.addSKU(product, sku, mediatorID)
 					cart?.setCartGroup(group)
 					await cart.save()
 				} else {
 					const cart = new Cart(user.id)
-					const group = cart.cartGroup(providerID) || CartGroup.fromSKU(product, sku)
-					group.groupID = providerID
+					const group = cart.cartGroup(groupID) || CartGroup.fromSKU(product, sku)
+					group.groupID = groupID
 					group.addSKU(product, sku, mediatorID)
 					cart?.setCartGroup(group)
 					await cart.save()
@@ -162,7 +164,7 @@ export default ({ providerID, productID, skuID }: { providerID: string, productI
 						<Box paddingY={1} fontSize={18} fontWeight={600} color="text.secondary">
 							{price}
 						</Box>
-						<Typography variant="subtitle2" color="textSecondary">{sku.description}</Typography>
+						<Markdown source={sku.description}></Markdown>
 					</Box>
 				</Box>
 			</Container>

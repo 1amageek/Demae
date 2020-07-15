@@ -16,7 +16,7 @@ import CloudDownloadIcon from "@material-ui/icons/CloudDownload";
 import LocalShippingIcon from "@material-ui/icons/LocalShipping";
 import ExpandLess from "@material-ui/icons/ExpandLess";
 import ExpandMore from "@material-ui/icons/ExpandMore";
-import { Drawer, AppBar, Toolbar, List, ListItem, ListItemText, Avatar, Divider, Box, MenuItem, Menu, IconButton, Collapse } from "@material-ui/core";
+import { Drawer, AppBar, Toolbar, List, ListItem, ListItemText, Avatar, Divider, Box, MenuItem, Menu, IconButton, Collapse, Switch } from "@material-ui/core";
 import Provider, { Role } from "models/commerce/Provider"
 import { useRoles, useUser, useAdminProvider } from "hooks/commerce"
 import { useDocumentListen } from "hooks/firestore"
@@ -28,7 +28,7 @@ import Label from "components/Label";
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
 		list: {
-			width: 250,
+			width: 270,
 		},
 		fullList: {
 			width: "auto",
@@ -36,6 +36,11 @@ const useStyles = makeStyles((theme: Theme) =>
 		nested: {
 			paddingLeft: theme.spacing(4),
 		},
+		paper: {
+			backgroundColor: "rgba(255, 255, 255, 0.7)",
+			backdropFilter: "blur(20px)",
+			WebkitBackdropFilter: "blur(20px)",
+		}
 	}),
 );
 
@@ -44,6 +49,8 @@ type Anchor = "top" | "left" | "bottom" | "right";
 export default ({ children }: { children: any }) => {
 	const classes = useStyles()
 	const [provider] = useAdminProvider()
+	const [setProcessing] = useProcessing()
+	const [setMessage] = useSnackbar()
 
 	const previewLink = provider ? `/providers/${provider.id}` : "/providers"
 	const [state, setState] = React.useState({
@@ -93,12 +100,36 @@ export default ({ children }: { children: any }) => {
 			</Box>
 
 			<Box display="flex"
-				flexDirection="column"
 				flexGrow={1}
-				justifyContent="center"
+				justifyContent="space-between"
 				alignItems="center"
-				paddingY={1}>
+				padding={2}>
 				<Label color={provider?.isAvailable ? "green" : "red"}>{provider?.isAvailable ? "ON SALE" : "NOW CLOSED"}</Label>
+				<Switch
+					edge="end"
+					onClick={e => {
+						e.stopPropagation()
+					}}
+					onChange={async (e) => {
+						e.stopPropagation()
+						if (!provider) return
+						setProcessing(true)
+						if (!provider.isAvailable) {
+							const snapshot = await provider.products.collectionReference.where("isAvailable", "==", true).get()
+							if (snapshot.empty) {
+								setProcessing(false)
+								setMessage("error", `To publish ${provider.name}, add the available Products.`)
+								return
+							}
+						}
+						provider.isAvailable = !provider.isAvailable
+						const message = provider.isAvailable ? `${provider.name} is now on sale.` : `${provider.name} has stopped selling.`
+						await provider.update()
+						setProcessing(false)
+						setMessage("success", message)
+					}}
+					checked={provider?.isAvailable}
+				/>
 			</Box>
 
 			<List>
@@ -163,7 +194,7 @@ export default ({ children }: { children: any }) => {
 
 	return (
 		<>
-			<Drawer anchor="left" open={state["left"]} onClose={toggleDrawer("left", false)}>
+			<Drawer classes={{ paper: classes.paper }} anchor="left" open={state["left"]} onClose={toggleDrawer("left", false)}>
 				{list("left")}
 			</Drawer>
 			<Box display="flex" style={{ minHeight: "100vh" }} >

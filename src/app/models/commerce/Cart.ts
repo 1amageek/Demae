@@ -179,6 +179,10 @@ export class CartGroup extends Model implements Accounting {
 		return group
 	}
 
+	static ID(product: Product) {
+		return `${product.providedBy}-${product.deliveryMethod}`
+	}
+
 	order(purchasedBy: string) {
 		const items = this.items.map(item => {
 			const orderItem: OrderItem = new OrderItem()

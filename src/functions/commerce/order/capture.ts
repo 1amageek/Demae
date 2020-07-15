@@ -37,6 +37,16 @@ export const capture = regionFunctions.https.onCall(async (data, context) => {
 				throw new functions.https.HttpsError("invalid-argument", `The order does not exist. ${orderRef.path}`)
 			}
 			const order = Order.fromSnapshot<Order>(snapshot)
+			if (order.paymentStatus === "succeeded") {
+				const updateData: Partial<Order> = {
+					deliveryStatus: "in_transit",
+					updatedAt: admin.firestore.FieldValue.serverTimestamp() as any
+				}
+				const recieveOrderRef = new Provider(order.providedBy).orders.collectionReference.doc(orderID)
+				transaction.set(orderRef, updateData, { merge: true })
+				transaction.set(recieveOrderRef, updateData, { merge: true })
+				return order.data({ convertDocumentReference: true })
+			}
 			if (order.paymentStatus !== "processing") {
 				throw new functions.https.HttpsError("invalid-argument", `Invalid order status.. ${orderRef.path}`)
 			}

@@ -1,26 +1,26 @@
 
 import React, { useState, useImperativeHandle, useRef } from "react"
 import firebase from "firebase"
+import ReactMde from "react-mde";
+import Showdown from "showdown";
+import Markdown from "react-markdown"
+
 import { File as StorageFile } from "@1amageek/ballcap"
-import { Link, useParams } from "react-router-dom"
-import { Typography, Box, Paper, FormControl, Button, Grid, ListItemSecondaryAction, Chip } from "@material-ui/core";
-import Input, { useInput } from "components/Input"
+import { useParams } from "react-router-dom"
+import { Typography, Box, Paper, FormControl, Button, Chip } from "@material-ui/core";
 import { List, ListItem, ListItemText, Divider } from "@material-ui/core";
 import { CurrencyCode, SupportedCurrencies } from "common/Currency"
-import Avatar from "@material-ui/core/Avatar";
-import ImageIcon from "@material-ui/icons/Image";
 import DataLoading from "components/DataLoading";
-import DndCard from "components/DndCard"
 import SaveIcon from "@material-ui/icons/Save";
 import Select, { useSelect, useMenu } from "components/_Select"
 import { StockType, StockValue } from "common/commerce/Types";
-import { SKU, Product } from "models/commerce";
+import { SKU } from "models/commerce";
 import InventoryTableRow from "../Inventory";
 import { useAdminProvider, useAdminProviderProduct } from "hooks/commerce";
 import { useContentToolbar, useEdit, NavigationBackButton } from "components/NavigationContainer"
 import Dayjs from "dayjs"
 import relativeTime from "dayjs/plugin/relativeTime";
-import { useDocumentListen, useDataSourceListen, OrderBy } from "hooks/firestore";
+import { useDocumentListen } from "hooks/firestore";
 import { useTheme } from "@material-ui/core/styles";
 import TextField, { useTextField } from "components/TextField"
 import { useProcessing } from "components/Processing";
@@ -31,6 +31,13 @@ import MediaController from "components/MediaController"
 Dayjs.extend(relativeTime)
 
 const MAXIMUM_NUMBER_OF_IMAGES = 10
+
+const converter = new Showdown.Converter({
+	tables: true,
+	simplifiedAutoLink: true,
+	strikethrough: true,
+	tasklists: true
+});
 
 export default () => {
 	const theme = useTheme();
@@ -137,7 +144,7 @@ export default () => {
 									</Box>
 									<Box paddingBottom={2}>
 										<Typography variant="subtitle1" gutterBottom>Description</Typography>
-										<Typography variant="body1" gutterBottom>{sku.description}</Typography>
+										<Markdown source={sku.description}></Markdown>
 									</Box>
 									<Box paddingBottom={2}>
 										<Typography variant="subtitle1" gutterBottom>Price</Typography>
@@ -178,12 +185,14 @@ const Edit = ({ sku, onClose }: { sku: SKU, onClose: () => void }) => {
 	const [caption] = useTextField(sku?.caption)
 	const [price, setPrice] = useTextField(String(sku?.price))
 	const [taxRate, setTaxRate] = useTextField(String(sku?.taxRate))
-	const [description] = useTextField(sku?.description)
 
 	const [currency, setCurrency] = useSelect(sku.currency)
 	const [inventory, setInventory] = useSelect(sku.inventory.type)
 	const [stockValue, setStockValue] = useSelect(sku.inventory.value || "in_stock")
 	const [quantity] = useTextField(String(sku.inventory.quantity || 0))
+
+	const [description, setDescription] = useState(sku?.description || "");
+	const [selectedTab, setSelectedTab] = useState<"write" | "preview">("write");
 
 	const [showDrawer, drawerClose] = useDrawer()
 	const [showSnackbar] = useSnackbar()
@@ -225,7 +234,7 @@ const Edit = ({ sku, onClose }: { sku: SKU, onClose: () => void }) => {
 		}
 	])
 
-	const [isEditing] = useEdit(async (event) => {
+	useEdit(async (event) => {
 		event.preventDefault()
 		if (!product) return
 		if (!sku) return
@@ -235,7 +244,7 @@ const Edit = ({ sku, onClose }: { sku: SKU, onClose: () => void }) => {
 
 		sku.name = name.value as string
 		sku.caption = caption.value as string
-		sku.description = description.value as string
+		sku.description = description
 		sku.price = Number(price.value)
 		sku.taxRate = Number(taxRate.value)
 		sku.currency = currency.value as CurrencyCode
@@ -377,7 +386,15 @@ const Edit = ({ sku, onClose }: { sku: SKU, onClose: () => void }) => {
 									</Box>
 									<Box paddingBottom={2}>
 										<Typography variant="subtitle1" gutterBottom>Description</Typography>
-										<TextField variant="outlined" margin="dense" required fullWidth multiline rows={8} {...description} />
+										<ReactMde
+											value={description}
+											onChange={setDescription}
+											selectedTab={selectedTab}
+											onTabChange={setSelectedTab}
+											generateMarkdownPreview={markdown =>
+												Promise.resolve(converter.makeHtml(markdown))
+											}
+										/>
 									</Box>
 									<Box paddingBottom={2}>
 										<Typography variant="subtitle1" gutterBottom>Price</Typography>

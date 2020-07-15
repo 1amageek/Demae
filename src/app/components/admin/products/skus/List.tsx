@@ -18,7 +18,6 @@ import { useSnackbar } from "components/Snackbar";
 import { useHistory, useParams } from "react-router-dom";
 import { useDataSourceListen, Where, OrderBy } from "hooks/firestore"
 import { useAdminProvider, useUser } from "hooks/commerce";
-import Product from "models/commerce/Product"
 import SKU from "models/commerce/SKU"
 import { Symbol } from "common/Currency"
 import { useListToolbar } from "components/NavigationContainer"

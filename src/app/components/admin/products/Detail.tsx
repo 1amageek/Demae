@@ -1,13 +1,15 @@
 
 import React, { useState } from "react"
 import firebase from "firebase"
+import ReactMde from "react-mde";
+import Showdown from "showdown";
+import Markdown from "react-markdown"
 import { File as StorageFile } from "@1amageek/ballcap"
 import { Link } from "react-router-dom"
-import { Typography, Box, Paper, FormControl, Button, Grid, ListItemSecondaryAction } from "@material-ui/core";
+import { Typography, Box, Paper, FormControl, Button, ListItemSecondaryAction } from "@material-ui/core";
 import { List, ListItem, ListItemText, Divider } from "@material-ui/core";
 import Product, { DeliveryMethod } from "models/commerce/Product"
 import DataLoading from "components/DataLoading";
-import DndCard from "components/DndCard"
 import SaveIcon from "@material-ui/icons/Save";
 import NavigateNextIcon from '@material-ui/icons/NavigateNext';
 import Select, { useSelect, useMenu } from "components/_Select"
@@ -26,6 +28,13 @@ import MediaController from "components/MediaController"
 Dayjs.extend(relativeTime)
 
 const MAXIMUM_NUMBER_OF_IMAGES = 10
+
+const converter = new Showdown.Converter({
+	tables: true,
+	simplifiedAutoLink: true,
+	strikethrough: true,
+	tasklists: true
+});
 
 const deliveryMethodLabel: { [key in DeliveryMethod]: string } = {
 	"none": "No shipping required",
@@ -132,7 +141,7 @@ export default () => {
 									</Box>
 									<Box paddingBottom={2}>
 										<Typography variant="subtitle1" gutterBottom>Description</Typography>
-										<Typography variant="body1" gutterBottom>{product.description}</Typography>
+										<Markdown source={product.description}></Markdown>
 									</Box>
 								</Box>
 							</Box>
@@ -169,7 +178,8 @@ const Edit = ({ product, onClose }: { product: Product, onClose: () => void }) =
 
 	const [name] = useTextField(product.name)
 	const [caption] = useTextField(product.caption)
-	const [description] = useTextField(product.description)
+	const [description, setDescription] = useState(product.description || "");
+	const [selectedTab, setSelectedTab] = useState<"write" | "preview">("write");
 	const [deliveryMethod, setDeliveryMethod] = useSelect(product.deliveryMethod)
 	const [isAvailable, setAvailable] = useSelect(product.isAvailable)
 
@@ -202,7 +212,7 @@ const Edit = ({ product, onClose }: { product: Product, onClose: () => void }) =
 		}
 		product.name = name.value as string
 		product.caption = caption.value as string
-		product.description = description.value as string
+		product.description = description
 		product.deliveryMethod = deliveryMethod.value as DeliveryMethod
 		product.isAvailable = (isAvailable.value === "true")
 		await product.save()
@@ -303,7 +313,15 @@ const Edit = ({ product, onClose }: { product: Product, onClose: () => void }) =
 							</Box>
 							<Box paddingBottom={2}>
 								<Typography variant="subtitle1" gutterBottom>Description</Typography>
-								<TextField variant="outlined" margin="dense" required fullWidth multiline rows={8} {...description} />
+								<ReactMde
+									value={description}
+									onChange={setDescription}
+									selectedTab={selectedTab}
+									onTabChange={setSelectedTab}
+									generateMarkdownPreview={markdown =>
+										Promise.resolve(converter.makeHtml(markdown))
+									}
+								/>
 							</Box>
 							<Box paddingBottom={2}>
 								<Typography variant="subtitle1" gutterBottom>Delivery</Typography>

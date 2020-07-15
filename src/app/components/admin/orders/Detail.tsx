@@ -11,11 +11,7 @@ import CheckCircleIcon from "@material-ui/icons/CheckCircle";
 import ImageIcon from "@material-ui/icons/Image";
 import { useAdminProvider, useAdminProviderOrder, } from "hooks/commerce";
 import DataLoading from "components/DataLoading";
-import Board from "../Board";
-import { useHistory } from "react-router-dom";
-import { SKU, User } from "models/commerce";
-import { useDrawer } from "components/Drawer";
-import { useSnackbar } from "components/Snackbar";
+
 import Select, { useSelect, useMenu } from "components/_Select"
 import Order from "models/commerce/Order"
 import * as Social from "models/social"
@@ -29,6 +25,9 @@ import TextField, { useTextField } from "components/TextField"
 import { Activity, Comment, ChangeDeliveryStatus } from "models/commerce/Order"
 import { useAuthUser } from "hooks/auth";
 import { Batch } from "@1amageek/ballcap";
+import { useDrawer } from "components/Drawer";
+import { useSnackbar } from "components/Snackbar";
+import { useProcessing } from "components/Processing";
 
 Dayjs.extend(relativeTime)
 
@@ -41,6 +40,7 @@ export default ({ orderID }: { orderID?: string }) => {
 
 	const [showDrawer, onClose] = useDrawer()
 	const [showSnackbar] = useSnackbar()
+	const [setProcessing] = useProcessing()
 
 	const deliveryStatuses = deliveryStatusesForDeliveryMethod(order?.deliveryMethod) as any[]
 	const deliveryStatusMenu = useMenu(deliveryStatuses)
@@ -54,6 +54,7 @@ export default ({ orderID }: { orderID?: string }) => {
 			showDrawer(<ActionSheet onNext={async () => {
 				if (!order) return
 				if (!order.paymentResult) return
+				setProcessing(true)
 				const paymentIntentID = order.paymentResult.id
 				const orderID = order.id
 				const capture = firebase.functions().httpsCallable("commerce-v1-order-capture")
@@ -64,13 +65,23 @@ export default ({ orderID }: { orderID?: string }) => {
 						showSnackbar("error", error.message)
 						console.error(error)
 					} else {
+						const changeDeliveryStatus = new ChangeDeliveryStatus()
+						changeDeliveryStatus.beforeStatus = deliveryStatus.value as DeliveryStatus
+						changeDeliveryStatus.afterStatus = status as DeliveryStatus
+
+						const activity = new Activity(order.activities.collectionReference.doc())
+						activity.authoredBy = auth.uid
+						activity.changeDeliveryStatus = changeDeliveryStatus
 						setStatus(status)
 						showSnackbar("success", "The product has been shipped.")
 						console.log(result)
+						activity.save()
 					}
+					setProcessing(false)
 					onClose()
 				} catch (error) {
 					console.error(error)
+					setProcessing(false)
 					onClose()
 				}
 			}} onClose={onClose} />)
