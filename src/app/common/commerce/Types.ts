@@ -24,6 +24,11 @@ export type PaymentStatus =
 	'succeeded' | // Customer’s payment succeeded
 	'payment_failed' // Customer’s payment was declined by card network or otherwise expired
 
+export type ReturnStatus =
+	"none" | //
+	"processing" | //
+	"succeeded" | //
+	"failed" //
 
 // Plan
 export type Interval = 'day' | 'week' | 'month' | 'year'

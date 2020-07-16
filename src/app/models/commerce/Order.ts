@@ -1,7 +1,7 @@
 import firebase from "firebase"
 import { Doc, Model, Field, File, DocumentReference, SubCollection, Collection, Timestamp, Codable } from "@1amageek/ballcap"
 import { CurrencyCode } from "common/Currency"
-import { OrderItemStatus, DeliveryStatus, PaymentStatus, Discount } from "common/commerce/Types"
+import { OrderItemStatus, DeliveryStatus, PaymentStatus, ReturnStatus, Discount } from "common/commerce/Types"
 import { ProductType, DeliveryMethod } from "./Product"
 import Shipping from "./Shipping"
 
@@ -52,6 +52,7 @@ export default class Order extends Doc {
 	@Field deliveryMethod: DeliveryMethod = "none"
 	@Field deliveryStatus: DeliveryStatus = "none"
 	@Field paymentStatus: PaymentStatus = "none"
+	@Field returnStatus: ReturnStatus = "none"
 	@Field isCancelled: boolean = false
 	@Field paymentResult?: any
 	@Field paymentCancelResult?: any
@@ -97,10 +98,7 @@ export class ChangePaymentStatus extends Model {
 	@Field afterStatus: PaymentStatus = "none"
 }
 
-export type CancelReason = "duplicate" | "fraudulent" | "requested_by_customer" | "other"
-
 export class OrderCancel extends Model {
-	@Field reason: CancelReason = "requested_by_customer"
 	@Field comment: string = ""
 }
 

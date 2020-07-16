@@ -24,7 +24,6 @@ export const cancel = regionFunctions.https.onCall(async (data, context) => {
 		throw new functions.https.HttpsError("invalid-argument", "This request does not contain a paymentMethodID.")
 	}
 	const orderRef = new User(uid).orders.collectionReference.doc(orderID)
-
 	try {
 		const result = await admin.firestore().runTransaction(async transaction => {
 			try {
@@ -37,21 +36,8 @@ export const cancel = regionFunctions.https.onCall(async (data, context) => {
 				if (!paymentIntentID) {
 					throw new functions.https.HttpsError("internal", "Your order does not contain the required information.")
 				}
-
-				try {
-					// Check order cancellable.
-					canCancelOrder(order)
-				} catch (error) {
-					functions.logger.error(error)
-					return { error }
-				}
-
-				const request = {
-					cancellation_reason: "requested_by_customer",
-					expand: []
-				} as Stripe.PaymentIntentCancelParams
-
-
+				// Check order cancellable.
+				const request = await cancelRequestForOrder(uid, order)
 				const result = await stripe.paymentIntents.cancel(paymentIntentID, request, {
 					idempotencyKey: orderRef.path
 				})
@@ -83,9 +69,29 @@ export const cancel = regionFunctions.https.onCall(async (data, context) => {
 	}
 })
 
-const canCancelOrder = (order: Order) => {
-	if (order.isCancelled) throw new functions.https.HttpsError("invalid-argument", `This order has already been cancelled.`)
-	if (order.deliveryMethod === "pickup") throw new functions.https.HttpsError("invalid-argument", `Take-out orders cannot be cancelled.`)
-	if (order.deliveryMethod === "none") throw new functions.https.HttpsError("invalid-argument", `Orders for in-store sales cannot be cancelled.`)
-	if (order.deliveryStatus === "delivered") throw new functions.https.HttpsError("invalid-argument", `Orders that have already been delivered cannot be cancelled.`)
+const cancelRequestForOrder = async (uid: string, order: Order) => {
+
+	if (uid === order.purchasedBy) {
+		if (order.isCancelled) throw new functions.https.HttpsError("invalid-argument", `This order has already been cancelled.`)
+		if (order.deliveryMethod === "pickup") throw new functions.https.HttpsError("invalid-argument", `Take-out orders cannot be cancelled.`)
+		if (order.deliveryMethod === "none") throw new functions.https.HttpsError("invalid-argument", `Orders for in-store sales cannot be cancelled.`)
+		if (order.deliveryStatus === "delivered") throw new functions.https.HttpsError("invalid-argument", `Orders that have already been delivered cannot be cancelled.`)
+
+		const request = {
+			cancellation_reason: "requested_by_customer",
+			expand: []
+		} as Stripe.PaymentIntentCancelParams
+		return request
+	}
+
+	const userRecord = await admin.auth().getUser(uid)
+	if (!userRecord.customClaims) throw new functions.https.HttpsError("permission-denied", `The user does not have the right to change the order.`)
+	const adminUser = userRecord.customClaims.admin
+	if (!adminUser) throw new functions.https.HttpsError("permission-denied", `The user does not have the right to change the order.`)
+	if (order.providedBy !== adminUser) throw new functions.https.HttpsError("permission-denied", `The user does not have the right to change the order.`)
+	const request = {
+		cancellation_reason: "abandoned",
+		expand: []
+	} as Stripe.PaymentIntentCancelParams
+	return request
 }
