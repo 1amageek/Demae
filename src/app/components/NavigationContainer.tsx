@@ -12,6 +12,7 @@ interface Props {
 }
 
 const NavigationBarHeight = "48px"
+const BottomBarHeight = "48px"
 
 export const NavigationView = (props: BoxProps) => (
 	<Box
@@ -54,7 +55,7 @@ export const ListViewProvider = ({ children }: { children: any }) => {
 	if (state) {
 		return (
 			<ListViewContext.Provider value={setState}>
-				<AppBar variant="outlined" position="static" style={{
+				<AppBar variant="outlined" position="absolute" style={{
 					top: NavigationBarHeight,
 					backgroundColor: "rgba(255, 255, 255, 0.6)",
 					backdropFilter: "blur(20px)",
@@ -74,7 +75,7 @@ export const ListViewProvider = ({ children }: { children: any }) => {
 
 	return (
 		<ListViewContext.Provider value={setState}>
-			<AppBar variant="outlined" position="static" style={{
+			<AppBar variant="outlined" position="absolute" style={{
 				top: NavigationBarHeight,
 				backgroundColor: "rgba(255, 255, 255, 0.6)",
 				backdropFilter: "blur(20px)",
@@ -143,11 +144,17 @@ export const EditProvider = ({ children }: { children: any }) => {
 	if (isEditing) {
 		return (
 			<EditContext.Provider value={[isEditing, setEditing, submitContext]}>
-				<form onSubmit={(e) => {
-					if (submitContext.handler) {
-						submitContext.handler(e)
-					}
-				}}>{children}</form>
+				<form
+					style={{
+						display: "block",
+						height: "100%",
+						width: "100%"
+					}}
+					onSubmit={(e) => {
+						if (submitContext.handler) {
+							submitContext.handler(e)
+						}
+					}}>{children}</form>
 			</EditContext.Provider >
 		)
 	}
@@ -175,19 +182,25 @@ export const ContentViewProvider = ({ children }: { children: any }) => {
 
 	return (
 		<ContentViewContext.Provider value={setComponent}>
-			<AppBar variant="outlined" position="sticky" style={{
-				top: NavigationBarHeight,
-				backgroundColor: "rgba(255, 255, 255, 0.6)",
-				backdropFilter: "blur(20px)",
-				WebkitBackdropFilter: "blur(20px)",
-				// borderTop: "none",
-				borderLeft: "none",
-				borderRight: "none"
+			<Box position="relative" style={{
+				width: "100%",
+				maxWidth: "100%"
 			}}>
-				<Toolbar variant="dense" disableGutters>
-					{component}
-				</Toolbar>
-			</AppBar>
+				<AppBar variant="outlined" position="absolute" style={{
+					backgroundColor: "rgba(255, 255, 255, 0.6)",
+					backdropFilter: "blur(20px)",
+					WebkitBackdropFilter: "blur(20px)",
+					// borderTop: "none",
+					borderLeft: "none",
+					borderRight: "none",
+					width: "inherit",
+					maxWidth: "inherit"
+				}}>
+					<Toolbar variant="dense" disableGutters>
+						{component}
+					</Toolbar>
+				</AppBar>
+			</Box>
 			{children}
 		</ContentViewContext.Provider>
 	)
@@ -201,7 +214,6 @@ export const useContentToolbar = (props: React.ReactNode, deps?: React.Dependenc
 }
 
 export const ContentView = (props: BoxProps) => (
-
 	<Paper
 		elevation={0}
 		style={{
@@ -217,7 +229,14 @@ export const ContentView = (props: BoxProps) => (
 		>
 			<EditProvider>
 				<ContentViewProvider>
-					<Box>
+					<Box
+						width="100%"
+						height="100%"
+						style={{
+							overflowY: "scroll",
+							paddingTop: NavigationBarHeight,
+							paddingBottom: BottomBarHeight
+						}}>
 						{props.children}
 					</Box>
 				</ContentViewProvider>
