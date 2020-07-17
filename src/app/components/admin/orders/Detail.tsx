@@ -2,8 +2,7 @@
 import React, { useState } from "react"
 import firebase from "firebase"
 import { DeliveryStatus } from "common/commerce/Types"
-import { Typography, Box, Paper, FormControl, Button } from "@material-ui/core";
-import { List, ListItem, ListItemText, ListItemAvatar, IconButton, Divider } from "@material-ui/core";
+import { Typography, Box, Paper, FormControl, Button, Grid, List, ListItem, ListItemText, ListItemAvatar, IconButton, Divider } from "@material-ui/core";
 import Avatar from "@material-ui/core/Avatar";
 import ImageIcon from "@material-ui/icons/Image";
 import MoreVertIcon from '@material-ui/icons/MoreVert';
@@ -21,14 +20,16 @@ import Label from "components/Label";
 import { useDocumentListen, useDataSourceListen, OrderBy } from "hooks/firestore";
 import { useTheme } from "@material-ui/core/styles";
 import TextField, { useTextField } from "components/TextField"
+import InputView from "components/InputView"
 import { Activity, Comment, ChangeDeliveryStatus, OrderCancel } from "models/commerce/Order"
 import { useAuthUser } from "hooks/auth";
 import { Batch } from "@1amageek/ballcap";
 import { useDrawer } from "components/Drawer";
 import { useSnackbar } from "components/Snackbar";
 import { useProcessing } from "components/Processing";
+import { useModal } from 'components/Modal';
 import ActionSheet from "components/ActionSheet"
-import OrderDetial from "./OrderDetial";
+
 
 Dayjs.extend(relativeTime)
 
@@ -39,7 +40,8 @@ export default ({ orderID }: { orderID?: string }) => {
 	const deliveryMethod = useDeliveryMethod()
 	const deliveryMethodQuery = (deliveryMethod ? `?deliveryMethod=${deliveryMethod}` : "")
 
-	const [showDrawer, onClose] = useDrawer()
+	const [showModal, closeModal] = useModal()
+	const [showDrawer, closeDrawer] = useDrawer()
 	const [showSnackbar] = useSnackbar()
 	const [setProcessing] = useProcessing()
 
@@ -88,11 +90,11 @@ export default ({ orderID }: { orderID?: string }) => {
 										activity.save()
 									}
 									setProcessing(false)
-									onClose()
+									closeDrawer()
 								} catch (error) {
 									console.error(error)
 									setProcessing(false)
-									onClose()
+									closeDrawer()
 								}
 							}
 						}]
@@ -153,83 +155,99 @@ export default ({ orderID }: { orderID?: string }) => {
 		}}>
 			<Box padding={2} height="100%">
 				<article>
-					<Box paddingBottom={1} display="flex">
-						<Box flexGrow={1}>
-							<Typography variant="h2">{order.title}</Typography>
-							<Box color="text.secondary">
-								<Typography variant="caption">
-									{`ID: ${order.id}`} - {orderedDate.format("YYYY-MM-DD HH:mm:ss")}
-								</Typography>
+					<Box paddingBottom={1}>
+						<Box display="flex">
+							<Box flexGrow={1}>
+								<Typography variant="h2">{order.title}</Typography>
+								<Box color="text.secondary">
+									<Typography variant="caption">
+										{`ID: ${order.id}`} - {orderedDate.format("YYYY-MM-DD HH:mm:ss")}
+									</Typography>
+								</Box>
 							</Box>
-							<Box display="flex" paddingY={1}>
-								<Typography variant="subtitle1">
-									Delivery Status <Label marginX={1} color="gray" fontSize={11}>{DeliveryStatusLabel[order.deliveryStatus]}</Label>
-									Payment Status <Label marginX={1} color="gray" fontSize={11}>{PaymentStatusLabel[order.paymentStatus]}</Label>
-								</Typography>
+							<Box display="flex" alignItems="center">
+								<Box paddingX={2}>
+									<FormControl variant="outlined" size="small">
+										<Select disabled={deliveryStatus.value === "none" || order.isCancelled} {...deliveryStatus} onChange={onChageStatus}>
+											{deliveryStatusMenu}
+										</Select>
+									</FormControl>
+								</Box>
+								<Box>
+									<IconButton onClick={handleOpen}>
+										<MoreVertIcon />
+									</IconButton>
+									<Menu {...menuProps}>
+										<MenuItem disabled={order.isCancelled} onClick={() => {
+											handleClose()
+											showDrawer(
+												<ActionSheet
+													title="Order Cancel"
+													detail="Would you like to cancel your order?"
+													actions={
+														[{
+															title: "OK",
+															handler: async (e) => {
+																closeDrawer()
+																if (!auth) return
+																if (!order) return
+
+																showModal(
+																	<InputView title="Comment" callback={async (text) => {
+																		setProcessing(true)
+																		const paymentIntentID = order.paymentResult.id
+																		const orderID = order.id
+																		const cancel = firebase.functions().httpsCallable("commerce-v1-order-cancel")
+																		try {
+																			const response = await cancel({ paymentIntentID, orderID })
+																			const { error, result } = response.data
+																			if (error) {
+																				showSnackbar("error", error.message)
+																				console.error(error)
+																			} else {
+																				const orderCancel = new OrderCancel()
+																				orderCancel.comment = text
+																				const activity = new Activity(order.activities.collectionReference.doc())
+																				activity.authoredBy = auth.uid
+																				activity.orderCancel = orderCancel
+																				showSnackbar("success", "The product has been shipped.")
+																				console.log(result)
+																				activity.save()
+																			}
+																			setProcessing(false)
+																			closeModal()
+																		} catch (error) {
+																			console.error(error)
+																			setProcessing(false)
+																			closeModal()
+																		}
+																	}} />
+																)
+															}
+														}]
+													} />)
+										}}>Order Cancel</MenuItem>
+										<MenuItem onClick={() => {
+											handleClose()
+
+										}}>Payment Refund</MenuItem>
+									</Menu>
+								</Box>
 							</Box>
 						</Box>
-						<Box display="flex" alignItems="center">
-							<Box paddingX={2}>
-								<FormControl variant="outlined" size="small">
-									<Select disabled={deliveryStatus.value === "none"} {...deliveryStatus} onChange={onChageStatus}>
-										{deliveryStatusMenu}
-									</Select>
-								</FormControl>
-							</Box>
-							<Box>
-								<IconButton onClick={handleOpen}>
-									<MoreVertIcon />
-								</IconButton>
-								<Menu {...menuProps}>
-									<MenuItem onClick={() => {
-										handleClose()
-										showDrawer(
-											<ActionSheet
-												title="Order Cancel"
-												detail="Would you like to cancel your order?"
-												actions={
-													[{
-														title: "OK",
-														handler: async (e) => {
-															if (!auth) return
-															if (!order) return
-
-															// setProcessing(true)
-															// const paymentIntentID = order.paymentResult.id
-															// const orderID = order.id
-															// const cancel = firebase.functions().httpsCallable("commerce-v1-order-cancel")
-															// try {
-															// 	const response = await cancel({ paymentIntentID, orderID })
-															// 	const { error, result } = response.data
-															// 	if (error) {
-															// 		showSnackbar("error", error.message)
-															// 		console.error(error)
-															// 	} else {
-															// 		const orderCancel = new OrderCancel()
-															// 		const activity = new Activity(order.activities.collectionReference.doc())
-															// 		activity.authoredBy = auth.uid
-															// 		activity.orderCancel = orderCancel
-															// 		showSnackbar("success", "The product has been shipped.")
-															// 		console.log(result)
-															// 		activity.save()
-															// 	}
-															// 	setProcessing(false)
-															// 	onClose()
-															// } catch (error) {
-															// 	console.error(error)
-															// 	setProcessing(false)
-															// 	onClose()
-															// }
-														}
-													}]
-												} />)
-									}}>Order Cancel</MenuItem>
-									<MenuItem onClick={() => {
-										handleClose()
-
-									}}>Payment Refund</MenuItem>
-								</Menu>
-							</Box>
+						<Box display="flex" paddingY={1}>
+							<Grid container>
+								<Grid item xs={12} md={4}>
+									<Typography variant="subtitle1">
+										Delivery Status<Label marginX={1} color="gray" fontSize={11}>{DeliveryStatusLabel[order.deliveryStatus]}</Label>
+									</Typography>
+								</Grid>
+								<Grid item xs={12} md={4}>
+									<Typography variant="subtitle1">
+										Payment Status <Label marginX={1} color="gray" fontSize={11}>{PaymentStatusLabel[order.paymentStatus]}</Label>
+									</Typography>
+								</Grid>
+							</Grid>
 						</Box>
 					</Box>
 					<Divider />
@@ -287,7 +305,7 @@ const ActivityView = ({ order }: { order: Order }) => {
 		<Box>
 			{activies.map((activity, index) => {
 				if (activity.comment) return <UserComment key={index} activity={activity} />
-				if (activity.changeDeliveryStatus) return <ActivityLog key={index} activity={activity} />
+				if (activity.orderCancel) return <CancelComment key={index} activity={activity} />
 				return <ActivityLog key={index} activity={activity} />
 			})}
 		</Box>
@@ -297,7 +315,7 @@ const ActivityView = ({ order }: { order: Order }) => {
 const ActivityLog = ({ activity }: { activity: Activity }) => {
 	const theme = useTheme();
 	const time = Dayjs(activity.createdAt.toDate()).fromNow()
-	const [user, isLoading] = useDocumentListen<Social.User>(Social.User, Social.User.collectionReference().doc(activity.authoredBy))
+	const [user] = useDocumentListen<Social.User>(Social.User, Social.User.collectionReference().doc(activity.authoredBy))
 	return (
 		<Box paddingY={2} paddingX={2} paddingLeft={7}>
 			<Box display="flex" alignItems="center">
@@ -308,12 +326,27 @@ const ActivityLog = ({ activity }: { activity: Activity }) => {
 					<ImageIcon />
 				</Avatar>
 				<Box display="flex" alignItems="center" paddingLeft={1}>
-					<Typography>{user?.name || activity.authoredBy}</Typography>
-					<Box paddingLeft={1} color="text.secondary">Changed delivery status on {time} - from
-					<Label marginX={1} fontSize={10} color="green">{DeliveryStatusLabel[activity.changeDeliveryStatus!.beforeStatus]}</Label>
-					to
-					<Label marginX={1} fontSize={10} color="green">{DeliveryStatusLabel[activity.changeDeliveryStatus!.afterStatus]}</Label>
+					<Box maxWidth={theme.spacing(18)}>
+						<Typography noWrap>{user?.name || activity.authoredBy}</Typography>
 					</Box>
+					{
+						activity.changeDeliveryStatus &&
+						<Box paddingLeft={1} color="text.secondary">
+							Changed delivery status on {time} - from
+						<Label marginX={1} fontSize={10} color="green">{DeliveryStatusLabel[activity.changeDeliveryStatus!.beforeStatus]}</Label>
+						to
+						<Label marginX={1} fontSize={10} color="green">{DeliveryStatusLabel[activity.changeDeliveryStatus!.afterStatus]}</Label>
+						</Box>
+					}
+					{
+						activity.changePaymentStatus &&
+						<Box paddingLeft={1} color="text.secondary">
+							Changed payment status on {time} - from
+						<Label marginX={1} fontSize={10} color="green">{PaymentStatusLabel[activity.changePaymentStatus!.beforeStatus]}</Label>
+						to
+						<Label marginX={1} fontSize={10} color="green">{PaymentStatusLabel[activity.changePaymentStatus!.afterStatus]}</Label>
+						</Box>
+					}
 				</Box>
 			</Box>
 		</Box>
@@ -350,6 +383,42 @@ const UserComment = ({ activity }: { activity: Activity }) => {
 				</Box>
 				<Box padding={2}>
 					<Typography variant="body1" display="inline">{activity.comment?.text}</Typography>
+				</Box>
+			</Box>
+		</Box>
+	)
+}
+
+const CancelComment = ({ activity }: { activity: Activity }) => {
+	const theme = useTheme();
+	const time = Dayjs(activity.createdAt.toDate()).fromNow()
+	const [user] = useDocumentListen<Social.User>(Social.User, Social.User.collectionReference().doc(activity.authoredBy))
+	return (
+		<Box display="flex" paddingY={1}>
+			<Box>
+				<Avatar variant="circle">
+					<ImageIcon />
+				</Avatar>
+			</Box>
+			<Box
+				flexGrow={1}
+				border={1}
+				borderColor={theme.palette.error.main}
+				borderRadius={8}
+				marginLeft={2}
+			>
+				<Box display="flex"
+					style={{
+						background: theme.palette.error.light
+					}}
+				>
+					<Box display="flex" padding={2} paddingY={1}>
+						<Typography>{user?.name || activity.authoredBy}</Typography>
+						<Box paddingX={1} color="text.secondary">commented on {time}</Box>
+					</Box>
+				</Box>
+				<Box padding={2}>
+					<Typography variant="body1" display="inline">{activity.orderCancel?.comment}</Typography>
 				</Box>
 			</Box>
 		</Box>

@@ -187,7 +187,7 @@ export default ({ children }: { children: any }) => {
 			<Divider />
 			<List>
 				<ListItem button key={"product"} onClick={() => {
-					window.open(previewLink, "_blank", "height=1000,width=1200")
+					if (!window.open(previewLink)) window.location.href = previewLink
 				}}>
 					<ListItemIcon>
 						<PublicIcon />

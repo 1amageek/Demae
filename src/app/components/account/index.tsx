@@ -193,7 +193,8 @@ const ProviderListItem = ({ role }: { role: Role }) => {
 					try {
 						await adminAttach({ providerID: provider!.id })
 						await firebase.auth().currentUser?.getIdTokenResult(true)
-						window.open("/admin", "_blank", "height=1000,width=1200")
+						const url = "/admin"
+						if (!window.open(url)) window.location.href = url
 					} catch (error) {
 						setDialog("Error", "Error", [{
 							title: "OK"

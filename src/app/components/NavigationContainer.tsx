@@ -2,8 +2,9 @@ import React, { createContext, useContext, useState, useEffect, useRef, forwardR
 import Box, { BoxProps } from "@material-ui/core/Box"
 import { useHistory } from "react-router-dom"
 import Button from "@material-ui/core/Button"
-import { AppBar, Toolbar, Paper } from "@material-ui/core"
+import { AppBar, Toolbar, Paper, useMediaQuery } from "@material-ui/core"
 import ArrowBackIosOutlinedIcon from '@material-ui/icons/ArrowBackIosOutlined';
+import { useTheme } from "@material-ui/core/styles";
 
 interface Props {
 	title: string
@@ -97,7 +98,9 @@ export const useListToolbar = (props: Props) => {
 }
 
 export const ListView = (props: BoxProps) => {
-	const maxWidth = props.maxWidth || "380px"
+	const theme = useTheme()
+	const matches = useMediaQuery(theme.breakpoints.down("sm"));
+	const maxWidth = props.maxWidth || (matches ? "100%" : "380px")
 	return (
 		<Box
 			width="100%"

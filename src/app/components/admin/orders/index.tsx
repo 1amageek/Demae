@@ -3,8 +3,7 @@ import React from "react"
 import { useParams } from "react-router-dom"
 import { useTheme } from "@material-ui/core/styles";
 import useMediaQuery from "@material-ui/core/useMediaQuery";
-import Grid from "@material-ui/core/Grid";
-import { Box, Hidden, Typography } from "@material-ui/core";
+import { Box, Divider } from "@material-ui/core";
 import { AdminProviderOrderProvider } from "hooks/commerce";
 import List from "./List"
 import Detail from "./Detail"
@@ -22,7 +21,6 @@ export default () => {
 	)
 }
 
-
 const Content = () => {
 	const { orderID } = useParams()
 	const theme = useTheme();
@@ -31,20 +29,20 @@ const Content = () => {
 	if (matches) {
 		if (orderID) {
 			return (
-				<Grid container alignItems="stretch" spacing={0} style={{ width: "100%" }}>
-					<Grid item xs={12}>
+				<NavigationView>
+					<ListView height="100%">
 						<Detail orderID={orderID} />
-					</Grid>
-				</Grid>
+					</ListView>
+				</NavigationView>
 			)
 		}
 
 		return (
-			<Grid container alignItems="stretch" spacing={0} style={{ width: "100%" }}>
-				<Grid item xs={12}>
+			<NavigationView>
+				<ListView height="100%">
 					<List />
-				</Grid>
-			</Grid>
+				</ListView>
+			</NavigationView>
 		)
 	}
 
@@ -53,6 +51,7 @@ const Content = () => {
 			<ListView height="100%">
 				<List />
 			</ListView>
+			<Divider orientation="vertical" flexItem />
 			<ContentView>
 				<Detail orderID={orderID} />
 			</ContentView>

@@ -19,14 +19,6 @@ export default (props: any) => {
 		<AdminProviderProductProvider id={productID}>
 			<AdminProviderProductSKUProvider id={skuID}>
 				<Box>
-					{/* <Box py={2}>
-						<Breadcrumbs>
-							<Link to="/admin/products">Products</Link>
-							{productID && <Link to={`/admin/products/${productID}`}>{productID}</Link>}
-							{productID && skuID && <Link to={`/admin/products/${productID}/skus`}>SKUs</Link>}
-							{productID && skuID && <Link to={`/admin/products/${productID}/skus`}>{skuID}</Link>}
-						</Breadcrumbs>
-					</Box> */}
 					<Grid container alignItems="stretch" spacing={0} style={{ width: "100%" }}>
 						<Content />
 					</Grid>
@@ -73,19 +65,4 @@ const Content = () => {
 			</ContentView>
 		</NavigationView>
 	)
-
-	// return (
-	// 	<Grid container alignItems="stretch" spacing={1} style={{ width: "100%" }}>
-	// 		<Grid item xs={4}>
-	// 			<ProductList productID={productID} />
-	// 		</Grid>
-	// 		<Grid item xs={4}>
-	// 			<ProductDetail />
-	// 			{productID && <SKUList productID={productID} />}
-	// 		</Grid>
-	// 		<Grid item xs={4}>
-	// 			{productID && skuID && <SKUDetail productID={productID} skuID={skuID} />}
-	// 		</Grid>
-	// 	</Grid>
-	// )
 }

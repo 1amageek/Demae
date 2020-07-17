@@ -39,7 +39,7 @@ export const cancel = regionFunctions.https.onCall(async (data, context) => {
 				// Check order cancellable.
 				const request = await cancelRequestForOrder(uid, order)
 				const result = await stripe.paymentIntents.cancel(paymentIntentID, request, {
-					idempotencyKey: orderRef.path
+					idempotencyKey: `${orderRef.path}-cancel`
 				})
 				const provider: Provider = new Provider(order.providedBy)
 				const recieveOrderRef = provider.orders.collectionReference.doc(order.id)

@@ -27,7 +27,8 @@ export default () => {
 					try {
 						await adminAttach({ providerID: auth.uid })
 						await firebase.auth().currentUser?.getIdTokenResult(true)
-						window.open("/admin/products", "_blank", "height=1000,width=1200")
+						const url = "/admin/products"
+						if (!window.open(url)) window.location.href = url
 					} catch (error) {
 						setDialog("Error", "Error", [{
 							title: "OK"
