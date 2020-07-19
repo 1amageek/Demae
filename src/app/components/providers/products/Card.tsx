@@ -1,16 +1,13 @@
-import React, { useState, useContext } from "react";
-import { Link, useLocation } from "react-router-dom"
+import React from "react";
+import { Link } from "react-router-dom"
 import { makeStyles, Theme, createStyles } from "@material-ui/core/styles";
-import { Card, CardActionArea, CardMedia, CardContent, CardActions, Box, Avatar } from "@material-ui/core";
-import IconButton from "@material-ui/core/IconButton";
-import Typography from "@material-ui/core/Typography";
+import { Card, CardActionArea, CardMedia, CardContent, Box, Avatar, Typography } from "@material-ui/core";
 import { red } from "@material-ui/core/colors";
-import FavoriteIcon from "@material-ui/icons/Favorite";
-import ShareIcon from "@material-ui/icons/Share";
+import { useImage } from "utils/ImageManager"
 import { useUser } from "hooks/commerce"
 import { Product } from "models/commerce";
 import ImageIcon from "@material-ui/icons/Image";
-import { Symbol } from "common/Currency"
+import { CurrencyCode } from "common/Currency"
 import { useURL } from "hooks/url"
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -47,11 +44,13 @@ export default ({ providerID, product }: { providerID: string, product: Product 
 	const url = useURL();
 
 	const prices = product.price
-	const currency = user?.currency || "USD"
-	const symbol = Symbol(currency)
+	const currencies = Object.keys(prices) as CurrencyCode[]
+	const userCurrency = user?.currency ?? "USD"
+	const currency = currencies.includes(userCurrency) ? userCurrency : currencies[0]
 	const amount = prices[currency] || 0
 	const price = new Intl.NumberFormat("ja-JP", { style: "currency", currency: currency }).format(amount)
-	const imageURL = product.imageURLs().length > 0 ? product.imageURLs()[0] : undefined
+	const imageURL = (product.imagePaths() || []).length > 0 ? product.imagePaths()[0] : undefined
+	const imgProps = useImage({ path: imageURL, alt: `${product.name} ${product.caption ?? ""}` })
 
 	return (
 		<Card variant="outlined" style={{ border: "none", background: "none", borderRadius: "0px" }}>
@@ -62,19 +61,15 @@ export default ({ providerID, product }: { providerID: string, product: Product 
 						image={imageURL}
 						title={product.name}
 					>
-						<Avatar className={classes.media} variant="rounded" src={imageURL}>
+						<Avatar className={classes.media} variant="rounded" {...imgProps}>
 							<ImageIcon />
 						</Avatar>
 					</CardMedia>
 				</CardActionArea>
 			</Link >
 			<CardContent style={{ padding: "12px" }}>
-				<Box fontSize={18} fontWeight={800}>
-					{product.name}
-				</Box>
-				<Box color="text.secondary" >
-					{price}
-				</Box>
+				<Typography variant="subtitle1">{product.name}</Typography>
+				<Box color="text.secondary">{price}</Box>
 			</CardContent>
 		</Card >
 	);

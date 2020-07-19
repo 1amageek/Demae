@@ -8,6 +8,7 @@ import NotFound from "components/NotFound"
 import Login from "components/Login"
 import AddBoxIcon from "@material-ui/icons/AddBox";
 import PaymentIcon from "@material-ui/icons/Payment";
+import { useImage } from "utils/ImageManager"
 import { useDocumentListen } from "hooks/firestore";
 import { useCart, useUser } from "hooks/commerce"
 import { useDialog } from "components/Dialog"
@@ -32,7 +33,8 @@ export default ({ providerID, productID, skuID }: { providerID: string, productI
 	const provider: Provider = new Provider(providerID)
 	const [product, isProductLoading] = useDocumentListen<Product>(Product, provider.products.collectionReference.doc(productID))
 	const [sku, isLoading] = useDocumentListen<SKU>(SKU, provider.products.doc(productID, Product).skus.collectionReference.doc(skuID))
-	const imageURL = (sku?.imageURLs() || []).length > 0 ? sku?.imageURLs()[0] : undefined
+	const imageURL = (sku?.imagePaths() || []).length > 0 ? sku?.imagePaths()[0] : undefined
+	const imgProps = useImage({ path: imageURL, alt: `${sku?.name ?? ""} ${sku?.caption ?? ""}` })
 
 	const amount = sku?.price || 0
 	const price = new Intl.NumberFormat("ja-JP", { style: "currency", currency: sku?.currency || "USD" }).format(amount)
@@ -143,7 +145,7 @@ export default ({ providerID, productID, skuID }: { providerID: string, productI
 					height="100%"
 				>
 					<Box>
-						<Avatar variant="square" src={imageURL} alt={sku.name} style={{
+						<Avatar variant="square" {...imgProps} style={{
 							minHeight: "300px",
 							height: "100%",
 							width: "100%"

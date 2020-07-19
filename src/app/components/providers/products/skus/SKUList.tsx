@@ -1,6 +1,7 @@
 import React, { useContext } from "react";
 import { createStyles, Theme, makeStyles } from "@material-ui/core/styles";
 import { Link } from "react-router-dom"
+import { useTheme } from "@material-ui/core/styles";
 import { Box, Paper, Typography, Tooltip, IconButton, ListItemAvatar, Avatar, Button } from "@material-ui/core";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
@@ -16,6 +17,7 @@ import { useCart, useUser } from "hooks/commerce"
 import Cart, { CartGroup } from "models/commerce/Cart";
 import NotFound from "components/NotFound"
 import Login from "components/Login"
+import { useImage } from "utils/ImageManager"
 import { useDialog } from "components/Dialog"
 import { useModal } from "components/Modal";
 import { useMediator } from "hooks/url"
@@ -67,13 +69,16 @@ export default ({ providerID, productID }: { providerID: string, productID: stri
 
 const SKUListItem = ({ providerID, product, sku }: { providerID: string, product: Product, sku: SKU }) => {
 	const classes = useStyles()
+	const theme = useTheme()
 	const [user] = useUser()
 	const [cart] = useCart()
 	const [setDialog] = useDialog()
 	const [setModal, modalClose] = useModal()
 	const mediatorID = useMediator()
 
-	const imageURL = (sku.imageURLs().length > 0) ? sku.imageURLs()[0] : undefined
+	const imageURL = (sku.imagePaths().length > 0) ? sku.imagePaths()[0] : undefined
+	const imgProps = useImage({ path: imageURL, alt: `${sku.name ?? ""} ${sku.caption ?? ""}`, sizes: "96px" })
+	console.log(imgProps, theme.spacing(12))
 	const amount = sku.price || 0
 	const price = new Intl.NumberFormat("ja-JP", { style: "currency", currency: sku.currency }).format(amount)
 
@@ -136,7 +141,7 @@ const SKUListItem = ({ providerID, product, sku }: { providerID: string, product
 	return (
 		<ListItem button component={Link} to={`/providers/${providerID}/products/${product.id}/skus/${sku.id}`}>
 			<ListItemAvatar>
-				<Avatar className={classes.avater} variant="rounded" src={imageURL} alt={sku.name}>
+				<Avatar className={classes.avater} variant="rounded" {...imgProps}>
 					<ImageIcon />
 				</Avatar>
 			</ListItemAvatar>

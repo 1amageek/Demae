@@ -42,6 +42,15 @@ export default class SKU extends Doc {
 		return Math.floor(this.price * this.taxRate / 100)
 	}
 
+	imagePaths(): string[] {
+		return this.images.map(image => {
+			if (image) {
+				return image.path
+			}
+			return undefined
+		}).filter(value => !!value) as string[]
+	}
+
 	imageURLs(): string[] {
 		return this.images.map(image => {
 			if (image) {

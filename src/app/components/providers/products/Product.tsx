@@ -10,14 +10,15 @@ import { useDocumentListen } from "hooks/firestore";
 import NotFound from "components/NotFound"
 import ActionBar from "components/ActionBar"
 import { DeliveryMethodLabel, capabilityForDeliveryMethod } from "hooks/commerce/DeliveryMethod"
-
+import { useImage } from "utils/ImageManager"
 import { useTheme } from "@material-ui/core/styles";
 
 export default ({ providerID, productID }: { providerID: string, productID: string }) => {
 	const theme = useTheme()
 	const hisotry = useHistory()
 	const [data, isLoading] = useDocumentListen<Product>(Product, new Provider(providerID).products.collectionReference.doc(productID))
-	const imageURL = (data?.imageURLs() || []).length > 0 ? data?.imageURLs()[0] : undefined
+	const imageURL = (data?.imagePaths() || []).length > 0 ? data?.imagePaths()[0] : undefined
+	const imgProps = useImage({ path: imageURL, alt: `${data?.name ?? ""}` })
 	const capability = capabilityForDeliveryMethod(data?.deliveryMethod)
 	if (isLoading) {
 		return <DataLoading />
@@ -54,7 +55,7 @@ export default ({ providerID, productID }: { providerID: string, productID: stri
 							</Paper>
 						</Box>
 					</Box>
-					<Avatar variant="square" src={imageURL} alt={data.name} style={{
+					<Avatar variant="square" {...imgProps} style={{
 						minHeight: "300px",
 						height: "100%",
 						width: "100%"

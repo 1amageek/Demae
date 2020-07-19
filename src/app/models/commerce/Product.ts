@@ -33,6 +33,15 @@ export default class Product extends Doc {
 	@SubCollection skus: Collection<SKU> = new Collection()
 	@SubCollection plans: Collection<Plan> = new Collection()
 
+	imagePaths(): string[] {
+		return this.images.map(image => {
+			if (image) {
+				return image.path
+			}
+			return undefined
+		}).filter(value => !!value) as string[]
+	}
+
 	imageURLs(): string[] {
 		return this.images.map(image => {
 			if (image) {
