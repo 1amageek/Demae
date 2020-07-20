@@ -11,6 +11,7 @@ import ImageIcon from '@material-ui/icons/Image';
 import IconButton from '@material-ui/core/IconButton';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
 import Provider from 'models/commerce/Provider'
+import MediaCard from "components/MediaCard"
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({

@@ -10,16 +10,16 @@ import { useUser } from 'hooks/commerce'
 export default ({ title }: { title: string }) => {
 	return (
 		<AppBar position='static' color='transparent' elevation={0}>
-			<Container maxWidth='md' disableGutters>
-				<Toolbar>
+			<Toolbar variant="dense">
+				<Container maxWidth="sm">
 					<Box display='flex' flexGrow={1} alignItems='center'>
 						<Box component={"h1"} fontSize={18} fontWeight={800} flexGrow={1}>
 							{title}
 						</Box>
 						<LoginButton />
 					</Box>
-				</Toolbar>
-			</Container>
+				</Container>
+			</Toolbar>
 		</AppBar>
 	);
 }

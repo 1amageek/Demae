@@ -30,9 +30,9 @@ const Content = () => {
 		if (orderID) {
 			return (
 				<NavigationView>
-					<ListView height="100%">
+					<ContentView>
 						<Detail orderID={orderID} />
-					</ListView>
+					</ContentView>
 				</NavigationView>
 			)
 		}

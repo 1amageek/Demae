@@ -24,23 +24,17 @@ export default () => {
 	}
 	return (
 		<>
-			<Box
-				width="100%"
-				height="100%"
-			>
-				<Avatar variant="square" src={data.coverImageURL()} alt={data.name} style={{
-					minHeight: "300px",
-					maxHeight: "400px",
-					height: "100%",
-					width: "100%"
-				}}>
-					<ImageIcon />
-				</Avatar>
-			</Box>
+			<Avatar variant="square" src={data.coverImageURL()} alt={data.name} style={{
+				minHeight: "300px",
+				maxHeight: "400px",
+				height: "100%",
+				width: "100%"
+			}}>
+				<ImageIcon />
+			</Avatar>
 			<Box paddingX={1}>
 				<ActionBar />
 			</Box>
-
 
 			{data.capabilities && <CapabilityTabs provider={data} />}
 

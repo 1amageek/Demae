@@ -1,3 +1,3 @@
 export default {
-	targetSizes: [640, 750, 1080]
+	targetWidths: [640, 750, 1080]
 }

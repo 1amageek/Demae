@@ -172,8 +172,6 @@ const SKUListItem = ({ providerID, product, sku }: { providerID: string, product
 				<Tooltip title="Delete" onClick={(e) => {
 					e.stopPropagation()
 					deleteSKU(sku)
-					// const value = Number(qty.value) - 1
-					// qty.setValue(`${Math.max(0, value)}`)
 				}}>
 					<IconButton>
 						<RemoveCircleIcon color="inherit" />
@@ -182,8 +180,6 @@ const SKUListItem = ({ providerID, product, sku }: { providerID: string, product
 				<Tooltip title="Add" onClick={(e) => {
 					e.stopPropagation()
 					addSKU(sku)
-					// const value = Number(qty.value) + 1
-					// qty.setValue(`${value}`)
 				}}>
 					<IconButton>
 						<AddCircleIcon color="inherit" />

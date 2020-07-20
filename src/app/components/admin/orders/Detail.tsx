@@ -22,6 +22,7 @@ import { useTheme } from "@material-ui/core/styles";
 import TextField, { useTextField } from "components/TextField"
 import InputView from "components/InputView"
 import { Activity, Comment, ChangeDeliveryStatus, OrderCancel } from "models/commerce/Order"
+import { useContentToolbar, NavigationBackButton } from "components/NavigationContainer"
 import { useAuthUser } from "hooks/auth";
 import { Batch } from "@1amageek/ballcap";
 import { useDrawer } from "components/Drawer";
@@ -128,6 +129,16 @@ export default ({ orderID }: { orderID?: string }) => {
 		}
 	}
 
+	useContentToolbar(() => {
+		return (
+			<Box display="flex" flexGrow={1} justifyContent="space-between" paddingX={1}>
+				<Box>
+					<NavigationBackButton title="Orders" href={`/admin/orders?deliveryMethod=${deliveryMethod}`} />
+				</Box>
+			</Box>
+		)
+	})
+
 	if (isLoading) {
 		return (
 			<Box padding={2} height="100%" display="flex" alignItems="center">
@@ -178,7 +189,7 @@ export default ({ orderID }: { orderID?: string }) => {
 										<MoreVertIcon />
 									</IconButton>
 									<Menu {...menuProps}>
-										<MenuItem disabled={order.isCancelled} onClick={() => {
+										<MenuItem disabled={order.paymentStatus === "succeeded" || order.isCancelled} onClick={() => {
 											handleClose()
 											showDrawer(
 												<ActionSheet
@@ -218,6 +229,7 @@ export default ({ orderID }: { orderID?: string }) => {
 																			closeModal()
 																		} catch (error) {
 																			console.error(error)
+																			showSnackbar("error", "The product has been shipped.")
 																			setProcessing(false)
 																			closeModal()
 																		}

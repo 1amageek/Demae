@@ -2,7 +2,6 @@ import React from "react";
 import { useHistory } from "react-router-dom"
 import { Grid, Box, Paper, Avatar } from "@material-ui/core";
 import ImageIcon from "@material-ui/icons/Image";
-import Card from "components/providers/products/Card"
 import { Provider, Product } from "models/commerce";
 import DataLoading from "components/DataLoading";
 import SKUList from "./skus/SKUList";
@@ -62,7 +61,6 @@ export default ({ providerID, productID }: { providerID: string, productID: stri
 					}}>
 						<ImageIcon />
 					</Avatar>
-
 				</Box>
 			</Box>
 			<Box paddingX={1}>

@@ -9,6 +9,7 @@ import { Product } from "models/commerce";
 import ImageIcon from "@material-ui/icons/Image";
 import { CurrencyCode } from "common/Currency"
 import { useURL } from "hooks/url"
+import MediaCard from "components/MediaCard"
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
@@ -16,10 +17,13 @@ const useStyles = makeStyles((theme: Theme) =>
 			flexGrow: 1
 		},
 		media: {
-			// height: "56%",
-			minHeight: "200px",
-			width: "100%",
-			borderRadius: "8px"
+			// // height: "56%",
+			// minHeight: "200px",
+			// width: "100%",
+			// borderRadius: "8px"
+			paddingTop: "100%",
+			height: 0,
+			width: "100%"
 		},
 		expand: {
 			transform: "rotate(0deg)",
@@ -56,15 +60,12 @@ export default ({ providerID, product }: { providerID: string, product: Product 
 		<Card variant="outlined" style={{ border: "none", background: "none", borderRadius: "0px" }}>
 			<Link to={url(`/providers/${providerID}/products/${product.id}`)}>
 				<CardActionArea>
-					<CardMedia
+					<MediaCard imageProps={imgProps} />
+					{/* <CardMedia
 						className={classes.media}
-						image={imageURL}
+						image={product.imageURLs()[0]}
 						title={product.name}
-					>
-						<Avatar className={classes.media} variant="rounded" {...imgProps}>
-							<ImageIcon />
-						</Avatar>
-					</CardMedia>
+					/> */}
 				</CardActionArea>
 			</Link >
 			<CardContent style={{ padding: "12px" }}>

@@ -1,6 +1,6 @@
 import Config from "config/ImageConfig"
 
-interface ImageProps {
+export interface ImageProps {
 	/**
 	 * Used in combination with `src` or `srcSet` to
 	 * provide an alt attribute for the rendered `img` element.
@@ -36,10 +36,10 @@ export const useImage = (props: Props): ImageProps => {
 	const path = props.path
 	if (!path) return { alt: props.alt }
 	const alt = props.alt ?? ""
-	const targetSizes = Config.targetSizes
+	const targetWidths = Config.targetWidths
 	const sizes = props.sizes
 	const src = props.src ? props.src : `${process.env.HOST}/assets/${path}`
-	const srcSet = props.srcSet ? props.srcSet : targetSizes.map(size => `${process.env.HOST}/assets/w/${size}/${path} ${size}w`).join(",")
+	const srcSet = props.srcSet ? props.srcSet : targetWidths.map(width => `${process.env.HOST}/assets/w/${width}/${path} ${width}w`).join(",")
 	const decoding = props.decoding ?? "auto"
 	return { alt, decoding, sizes, srcSet, src }
 }
