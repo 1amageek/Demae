@@ -29,7 +29,8 @@ export const PaymentStatusLabel: { [key in PaymentStatus]: string } = {
 	"none": "NONE",
 	"processing": "PROCESSING",
 	"succeeded": "SUCCEEDED",
-	"payment_failed": "FAILED"
+	"payment_failed": "FAILED",
+	"canceled": "CANCELED"
 }
 
 export const useDeliveryMethod = (): DeliveryMethod => {

@@ -170,7 +170,7 @@ const OrderDetail = () => {
 												return
 											}
 											console.log(result)
-											showSnackbar("success", "The order was cancelled.")
+											showSnackbar("success", "The order was canceled.")
 										}} onClose={onClose} />
 									)
 								}}>Cancel</MenuItem>

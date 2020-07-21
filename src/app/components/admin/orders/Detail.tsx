@@ -179,7 +179,7 @@ export default ({ orderID }: { orderID?: string }) => {
 							<Box display="flex" alignItems="center">
 								<Box paddingX={2}>
 									<FormControl variant="outlined" size="small">
-										<Select disabled={deliveryStatus.value === "none" || order.isCancelled} {...deliveryStatus} onChange={onChageStatus}>
+										<Select disabled={deliveryStatus.value === "none" || order.isCanceled} {...deliveryStatus} onChange={onChageStatus}>
 											{deliveryStatusMenu}
 										</Select>
 									</FormControl>
@@ -189,7 +189,7 @@ export default ({ orderID }: { orderID?: string }) => {
 										<MoreVertIcon />
 									</IconButton>
 									<Menu {...menuProps}>
-										<MenuItem disabled={order.paymentStatus === "succeeded" || order.isCancelled} onClick={() => {
+										<MenuItem disabled={order.paymentStatus === "succeeded" || order.isCanceled} onClick={() => {
 											handleClose()
 											showDrawer(
 												<ActionSheet

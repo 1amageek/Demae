@@ -7,7 +7,7 @@ import User from "../../models/commerce/User"
 import Provider from "../../models/commerce/Provider"
 import Order from "../../models/commerce/Order"
 
-export const cancel = regionFunctions.https.onCall(async (data, context) => {
+export const refund = regionFunctions.https.onCall(async (data, context) => {
 	if (!context.auth) {
 		throw new functions.https.HttpsError("failed-precondition", "The function must be called while authenticated.")
 	}
@@ -18,7 +18,6 @@ export const cancel = regionFunctions.https.onCall(async (data, context) => {
 	functions.logger.info(data)
 	const uid: string = context.auth.uid
 	const stripe = new Stripe(STRIPE_API_KEY, { apiVersion: "2020-03-02" })
-
 	const orderID = data.orderID
 	if (!orderID) {
 		throw new functions.https.HttpsError("invalid-argument", "This request does not contain a orderID.")
@@ -32,14 +31,10 @@ export const cancel = regionFunctions.https.onCall(async (data, context) => {
 				if (!order) {
 					throw new functions.https.HttpsError("invalid-argument", "This user has not this order.")
 				}
-				const paymentIntentID = order.paymentResult.id
-				if (!paymentIntentID) {
-					throw new functions.https.HttpsError("internal", "Your order does not contain the required information.")
-				}
 				// Check order cancellable.
-				const request = await cancelRequestForOrder(uid, order)
-				const result = await stripe.paymentIntents.cancel(paymentIntentID, request, {
-					idempotencyKey: `${orderRef.path}-cancel`
+				const request = await refundRequestForOrder(uid, order)
+				const result = await stripe.refunds.create(request, {
+					idempotencyKey: `${orderRef.path}-refund`
 				})
 				const provider: Provider = new Provider(order.providedBy)
 				const recieveOrderRef = provider.orders.collectionReference.doc(order.id)
@@ -47,8 +42,8 @@ export const cancel = regionFunctions.https.onCall(async (data, context) => {
 					item.status = "canceled"
 					return item
 				})
-				order.paymentStatus = "canceled"
-				order.paymentCancelResult = result
+				order.refundStatus = "succeeded"
+				order.refundResult = result
 				order.isCanceled = true
 				transaction.set(recieveOrderRef, {
 					...order.data(),
@@ -70,29 +65,25 @@ export const cancel = regionFunctions.https.onCall(async (data, context) => {
 	}
 })
 
-const cancelRequestForOrder = async (uid: string, order: Order) => {
-
-	if (uid === order.purchasedBy) {
-		if (order.isCanceled) throw new functions.https.HttpsError("invalid-argument", `This order has already been canceled.`)
-		if (order.deliveryMethod === "pickup") throw new functions.https.HttpsError("invalid-argument", `Take-out orders cannot be canceled.`)
-		if (order.deliveryMethod === "none") throw new functions.https.HttpsError("invalid-argument", `Orders for in-store sales cannot be canceled.`)
-		if (order.deliveryStatus === "delivered") throw new functions.https.HttpsError("invalid-argument", `Orders that have already been delivered cannot be canceled.`)
-
-		const request = {
-			cancellation_reason: "requested_by_customer",
-			expand: []
-		} as Stripe.PaymentIntentCancelParams
-		return request
+const refundRequestForOrder = async (uid: string, order: Order) => {
+	const paymentIntentID = order.paymentResult.id
+	if (!paymentIntentID) {
+		throw new functions.https.HttpsError("internal", "Your order does not contain the required information.")
 	}
-
 	const userRecord = await admin.auth().getUser(uid)
 	if (!userRecord.customClaims) throw new functions.https.HttpsError("permission-denied", `The user does not have the right to change the order.`)
 	const adminUser = userRecord.customClaims.admin
 	if (!adminUser) throw new functions.https.HttpsError("permission-denied", `The user does not have the right to change the order.`)
 	if (order.providedBy !== adminUser) throw new functions.https.HttpsError("permission-denied", `The user does not have the right to change the order.`)
 	const request = {
-		cancellation_reason: "abandoned",
-		expand: []
-	} as Stripe.PaymentIntentCancelParams
+		payment_intent: paymentIntentID,
+		reason: "requested_by_customer",
+		refund_application_fee: false,
+		reverse_transfer: true,
+		metadata: {
+			admin: adminUser,
+			uid: uid
+		}
+	} as Stripe.RefundCreateParams
 	return request
 }

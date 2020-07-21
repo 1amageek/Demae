@@ -3,7 +3,7 @@
 
 // Order
 // export type OrderItemType = "sku" | "tax" | "shipping" | "discount"
-export type OrderItemStatus = "none" | "ordered" | "changed" | "cancelled"
+export type OrderItemStatus = "none" | "ordered" | "changed" | "canceled"
 
 //
 // Reference: https://docs.aftership.com/api/4/delivery-status
@@ -23,11 +23,12 @@ export type PaymentStatus =
 	"none" | // Free Product.
 	"processing" | // The customer’s payment was submitted to Stripe successfully. Only applicable to payment methods with delayed success confirmation. https://stripe.com/docs/payments/payment-methods#payment-confirmation
 	"succeeded" | // Customer’s payment succeeded
-	"payment_failed" // Customer’s payment was declined by card network or otherwise expired
+	"payment_failed" | // Customer’s payment was declined by card network or otherwise expired
+	"canceled"
 
-export type ReturnStatus =
+export type RefundStatus =
 	"none" | //
-	"processing" | //
+	"pending" | //
 	"succeeded" | //
 	"failed" //
 

@@ -217,7 +217,7 @@ export class CartGroup extends Model implements Accounting {
 		order.deliveryMethod = this.deliveryMethod
 		order.deliveryStatus = "none"
 		order.paymentStatus = "none"
-		order.isCancelled = false
+		order.isCanceled = false
 		order.metadata = this.metadata
 		return order.data({ convertDocumentReference: true })
 	}

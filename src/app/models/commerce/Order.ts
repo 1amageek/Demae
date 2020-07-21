@@ -1,7 +1,7 @@
 import firebase from "firebase"
 import { Doc, Model, Field, File, DocumentReference, SubCollection, Collection, Timestamp, Codable } from "@1amageek/ballcap"
 import { CurrencyCode } from "common/Currency"
-import { OrderItemStatus, DeliveryStatus, PaymentStatus, ReturnStatus, Discount } from "common/commerce/Types"
+import { OrderItemStatus, DeliveryStatus, PaymentStatus, RefundStatus, Discount } from "common/commerce/Types"
 import { ProductType, DeliveryMethod } from "./Product"
 import Shipping from "./Shipping"
 
@@ -52,10 +52,11 @@ export default class Order extends Doc {
 	@Field deliveryMethod: DeliveryMethod = "none"
 	@Field deliveryStatus: DeliveryStatus = "none"
 	@Field paymentStatus: PaymentStatus = "none"
-	@Field returnStatus: ReturnStatus = "none"
-	@Field isCancelled: boolean = false
+	@Field refundStatus: RefundStatus = "none"
+	@Field isCanceled: boolean = false
 	@Field paymentResult?: any
 	@Field paymentCancelResult?: any
+	@Field refundResult?: any
 	@Field metadata?: any
 
 	@SubCollection activities: Collection<Activity> = new Collection()

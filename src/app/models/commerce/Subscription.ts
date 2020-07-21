@@ -11,7 +11,7 @@ export default class Subscription extends Doc {
 	@Field subscribedBy!: string
 	@Field publishedBy!: string
 	@Field createdBy!: string
-	@Field isCancelled: boolean = false
+	@Field isCanceled: boolean = false
 	@Field interval: Interval = "month"
 	@Field intervalCount: number = 1
 	@Field quantity: number = 0
