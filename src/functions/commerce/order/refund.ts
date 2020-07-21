@@ -75,11 +75,12 @@ const refundRequestForOrder = async (uid: string, order: Order) => {
 	const adminUser = userRecord.customClaims.admin
 	if (!adminUser) throw new functions.https.HttpsError("permission-denied", `The user does not have the right to change the order.`)
 	if (order.providedBy !== adminUser) throw new functions.https.HttpsError("permission-denied", `The user does not have the right to change the order.`)
+	const reverse_transfer = !!order.transferResults
 	const request = {
 		payment_intent: paymentIntentID,
 		reason: "requested_by_customer",
 		refund_application_fee: false,
-		reverse_transfer: true,
+		reverse_transfer: reverse_transfer,
 		metadata: {
 			admin: adminUser,
 			uid: uid

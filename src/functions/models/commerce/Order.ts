@@ -47,6 +47,7 @@ export default class Order extends Doc {
 	@Field paymentResult?: any
 	@Field paymentCancelResult?: any
 	@Field refundResult?: any
+	@Field transferResults?: any[]
 	@Field metadata?: any
 }
 

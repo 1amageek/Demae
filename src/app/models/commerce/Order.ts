@@ -57,6 +57,7 @@ export default class Order extends Doc {
 	@Field paymentResult?: any
 	@Field paymentCancelResult?: any
 	@Field refundResult?: any
+	@Field transferResults?: any[]
 	@Field metadata?: any
 
 	@SubCollection activities: Collection<Activity> = new Collection()
@@ -103,6 +104,10 @@ export class OrderCancel extends Model {
 	@Field comment: string = ""
 }
 
+export class OrderRefund extends Model {
+	@Field comment: string = ""
+}
+
 export class Activity extends Doc {
 	@Field authoredBy!: string
 	@Codable(Comment)
@@ -115,5 +120,7 @@ export class Activity extends Doc {
 	@Field changePaymentStatus?: ChangePaymentStatus
 	@Codable(OrderCancel)
 	@Field orderCancel?: OrderCancel
+	@Codable(OrderRefund)
+	@Field orderRefund?: OrderRefund
 	@Field metadata?: any
 }

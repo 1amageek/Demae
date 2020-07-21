@@ -29,7 +29,9 @@ export default (props: Props) => {
 								<ListItemText
 									disableTypography
 									primary={
-										<Typography variant="button">{prop.title}</Typography>
+										<Typography variant="button" style={{
+											fontSize: "1.05rem"
+										}}>{prop.title}</Typography>
 									}
 								/>
 							</ListItem>
@@ -42,7 +44,9 @@ export default (props: Props) => {
 						<ListItemText
 							disableTypography
 							primary={
-								<Typography variant="button">Cancel</Typography>
+								<Typography variant="button" style={{
+									fontSize: "1.05rem"
+								}}>Cancel</Typography>
 							}
 						/>
 					</ListItem>

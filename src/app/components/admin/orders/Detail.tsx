@@ -21,7 +21,7 @@ import { useDocumentListen, useDataSourceListen, OrderBy } from "hooks/firestore
 import { useTheme } from "@material-ui/core/styles";
 import TextField, { useTextField } from "components/TextField"
 import InputView from "components/InputView"
-import { Activity, Comment, ChangeDeliveryStatus, OrderCancel } from "models/commerce/Order"
+import { Activity, Comment, ChangeDeliveryStatus, OrderCancel, OrderRefund } from "models/commerce/Order"
 import { useContentToolbar, NavigationBackButton } from "components/NavigationContainer"
 import { useAuthUser } from "hooks/auth";
 import { Batch } from "@1amageek/ballcap";
@@ -239,9 +239,54 @@ export default ({ orderID }: { orderID?: string }) => {
 														}]
 													} />)
 										}}>Order Cancel</MenuItem>
-										<MenuItem onClick={() => {
+										<MenuItem disabled={order.paymentStatus !== "succeeded" || order.isCanceled} onClick={() => {
 											handleClose()
+											showDrawer(
+												<ActionSheet
+													title="Refund"
+													detail="Would you like to refund your order?"
+													actions={
+														[{
+															title: "OK",
+															handler: async (e) => {
+																closeDrawer()
+																if (!auth) return
+																if (!order) return
 
+																showModal(
+																	<InputView title="Comment" callback={async (text) => {
+																		setProcessing(true)
+																		const orderID = order.id
+																		const refund = firebase.functions().httpsCallable("commerce-v1-order-refund")
+																		try {
+																			const response = await refund({ orderID })
+																			const { error, result } = response.data
+																			if (error) {
+																				showSnackbar("error", error.message)
+																				console.error(error)
+																			} else {
+																				const orderRefund = new OrderRefund()
+																				orderRefund.comment = text
+																				const activity = new Activity(order.activities.collectionReference.doc())
+																				activity.authoredBy = auth.uid
+																				activity.orderRefund = orderRefund
+																				showSnackbar("success", "The product has been shipped.")
+																				console.log(result)
+																				activity.save()
+																			}
+																			setProcessing(false)
+																			closeModal()
+																		} catch (error) {
+																			console.error(error)
+																			showSnackbar("error", "The product has been shipped.")
+																			setProcessing(false)
+																			closeModal()
+																		}
+																	}} />
+																)
+															}
+														}]
+													} />)
 										}}>Payment Refund</MenuItem>
 									</Menu>
 								</Box>
@@ -318,6 +363,7 @@ const ActivityView = ({ order }: { order: Order }) => {
 			{activies.map((activity, index) => {
 				if (activity.comment) return <UserComment key={index} activity={activity} />
 				if (activity.orderCancel) return <CancelComment key={index} activity={activity} />
+				if (activity.orderRefund) return <RefundComment key={index} activity={activity} />
 				return <ActivityLog key={index} activity={activity} />
 			})}
 		</Box>
@@ -431,6 +477,42 @@ const CancelComment = ({ activity }: { activity: Activity }) => {
 				</Box>
 				<Box padding={2}>
 					<Typography variant="body1" display="inline">{activity.orderCancel?.comment}</Typography>
+				</Box>
+			</Box>
+		</Box>
+	)
+}
+
+const RefundComment = ({ activity }: { activity: Activity }) => {
+	const theme = useTheme();
+	const time = Dayjs(activity.createdAt.toDate()).fromNow()
+	const [user] = useDocumentListen<Social.User>(Social.User, Social.User.collectionReference().doc(activity.authoredBy))
+	return (
+		<Box display="flex" paddingY={1}>
+			<Box>
+				<Avatar variant="circle">
+					<ImageIcon />
+				</Avatar>
+			</Box>
+			<Box
+				flexGrow={1}
+				border={1}
+				borderColor={theme.palette.error.main}
+				borderRadius={8}
+				marginLeft={2}
+			>
+				<Box display="flex"
+					style={{
+						background: theme.palette.error.light
+					}}
+				>
+					<Box display="flex" padding={2} paddingY={1}>
+						<Typography>{user?.name || activity.authoredBy}</Typography>
+						<Box paddingX={1} color="text.secondary">commented on {time}</Box>
+					</Box>
+				</Box>
+				<Box padding={2}>
+					<Typography variant="body1" display="inline">{activity.orderRefund?.comment}</Typography>
 				</Box>
 			</Box>
 		</Box>

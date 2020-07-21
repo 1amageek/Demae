@@ -64,23 +64,23 @@ export const confirm = regionFunctions.https.onCall(async (data, context) => {
 				return undefined
 			})
 
-			const mediatorTransferDataSet = (await Promise.all(tasks)).filter(value => value !== undefined) as Stripe.TransferCreateParams[]
-			const transferTasks = mediatorTransferDataSet.map(async data => {
-				return await stripe.transfers.create(data, { idempotencyKey: `${orderID}-${data.destination}` });
-			})
-
 			try {
 				// Check the stock status.
 				const result = await stripe.paymentIntents.confirm(paymentIntentID, {
 					idempotencyKey: orderID
 				})
-				if (transferTasks.length > 0) {
-					await Promise.all(transferTasks)
-				}
 				const updateData: Partial<Order> = {
 					paymentStatus: "succeeded",
 					paymentResult: result,
 					updatedAt: admin.firestore.FieldValue.serverTimestamp() as any
+				}
+				const mediatorTransferDataSet = (await Promise.all(tasks)).filter(value => value !== undefined) as Stripe.TransferCreateParams[]
+				const transferTasks = mediatorTransferDataSet.map(async data => {
+					return await stripe.transfers.create(data, { idempotencyKey: `${orderID}-${data.destination}` });
+				})
+				if (transferTasks.length > 0) {
+					const result = await Promise.all(transferTasks)
+					updateData.transferResults = result
 				}
 				const recieveOrderRef = new Provider(order.providedBy).orders.collectionReference.doc(orderID)
 				transaction.set(orderRef, updateData, { merge: true })

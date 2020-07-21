@@ -7,6 +7,7 @@ import User from "../../models/commerce/User"
 import Provider from "../../models/commerce/Provider"
 import Order from "../../models/commerce/Order"
 import { Account } from "../../models/account"
+import { request } from "express"
 
 export const capture = regionFunctions.https.onCall(async (data, context) => {
 	if (!context.auth) {
@@ -63,6 +64,7 @@ export const capture = regionFunctions.https.onCall(async (data, context) => {
 							transfer_group: orderID,
 							description: `Transfer from Order: [${orderID}] to UID: [${account.id}]`,
 							metadata: {
+								mediatedBy: item.mediatedBy,
 								uid: account.id
 							}
 						} as Stripe.TransferCreateParams
@@ -71,25 +73,26 @@ export const capture = regionFunctions.https.onCall(async (data, context) => {
 				return undefined
 			})
 
-			const mediatorTransferDataSet = (await Promise.all(tasks)).filter(value => value !== undefined) as Stripe.TransferCreateParams[]
-			const transferTasks = mediatorTransferDataSet.map(async data => {
-				return await stripe.transfers.create(data, { idempotencyKey: `${orderID}-${data.destination}` });
-			})
-
 			try {
 				// Check the stock status.
 				const result = await stripe.paymentIntents.capture(paymentIntentID, {
 					idempotencyKey: orderID
 				})
-				if (transferTasks.length > 0) {
-					await Promise.all(transferTasks)
-				}
-				const updateData: Partial<Order> = {
+				let updateData: Partial<Order> = {
 					paymentStatus: "succeeded",
 					deliveryStatus: "in_transit",
 					paymentResult: result,
 					updatedAt: admin.firestore.FieldValue.serverTimestamp() as any
 				}
+				const mediatorTransferDataSet = (await Promise.all(tasks)).filter(value => value !== undefined) as Stripe.TransferCreateParams[]
+				const transferTasks = mediatorTransferDataSet.map(async data => {
+					return await stripe.transfers.create(data, { idempotencyKey: `${orderID}-${data.destination}` });
+				})
+				if (transferTasks.length > 0) {
+					const result = await Promise.all(transferTasks)
+					updateData.transferResults = result
+				}
+
 				const recieveOrderRef = new Provider(order.providedBy).orders.collectionReference.doc(orderID)
 				transaction.set(orderRef, updateData, { merge: true })
 				transaction.set(recieveOrderRef, updateData, { merge: true })
