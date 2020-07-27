@@ -1,10 +1,11 @@
 import * as admin from "firebase-admin"
 import * as functions from "firebase-functions"
 import { regionFunctions } from "../../helper"
+import { getProviderID } from "../helper"
 import { Response } from "./helper"
 import Stripe from "stripe"
-import User from "../../models/commerce/User"
 import Provider from "../../models/commerce/Provider"
+import User from "../../models/commerce/User"
 import Order from "../../models/commerce/Order"
 
 export const refund = regionFunctions.https.onCall(async (data, context) => {
@@ -22,22 +23,25 @@ export const refund = regionFunctions.https.onCall(async (data, context) => {
 	if (!orderID) {
 		throw new functions.https.HttpsError("invalid-argument", "This request does not contain a orderID.")
 	}
-	const orderRef = new User(uid).orders.collectionReference.doc(orderID)
+	const providerID = await getProviderID(uid)
+	if (!providerID) {
+		throw new functions.https.HttpsError("invalid-argument", "Auth does not maintain a providerID.")
+	}
+	const providerOrderRef = new Provider(providerID).orders.collectionReference.doc(orderID)
 	try {
 		const result = await admin.firestore().runTransaction(async transaction => {
 			try {
-				const snapshot = await transaction.get(orderRef)
-				const order = Order.fromSnapshot<Order>(snapshot, { convertDocument: true })
+				const snapshot = await transaction.get(providerOrderRef)
+				const order = Order.fromSnapshot<Order>(snapshot)
 				if (!order) {
 					throw new functions.https.HttpsError("invalid-argument", "This user has not this order.")
 				}
 				// Check order cancellable.
 				const request = await refundRequestForOrder(uid, order)
 				const result = await stripe.refunds.create(request, {
-					idempotencyKey: `${orderRef.path}-refund`
+					idempotencyKey: `${providerOrderRef.path}-refund`
 				})
-				const provider: Provider = new Provider(order.providedBy)
-				const recieveOrderRef = provider.orders.collectionReference.doc(order.id)
+				const userOrderRef = new User(order.purchasedBy).orders.collectionReference.doc(order.id)
 				order.items = order.items.map(item => {
 					item.status = "canceled"
 					return item
@@ -45,11 +49,11 @@ export const refund = regionFunctions.https.onCall(async (data, context) => {
 				order.refundStatus = "succeeded"
 				order.refundResult = result
 				order.isCanceled = true
-				transaction.set(recieveOrderRef, {
+				transaction.set(userOrderRef, {
 					...order.data(),
 					updatedAt: admin.firestore.FieldValue.serverTimestamp()
 				})
-				transaction.set(orderRef, {
+				transaction.set(providerOrderRef, {
 					...order.data(),
 					updatedAt: admin.firestore.FieldValue.serverTimestamp()
 				})

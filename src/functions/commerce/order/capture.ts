@@ -1,13 +1,13 @@
 import * as admin from "firebase-admin"
 import * as functions from "firebase-functions"
 import { regionFunctions } from "../../helper"
+import { getProviderID } from "../helper"
 import { OrderError, Response } from "./helper"
 import Stripe from "stripe"
-import User from "../../models/commerce/User"
 import Provider from "../../models/commerce/Provider"
+import User from "../../models/commerce/User"
 import Order from "../../models/commerce/Order"
 import { Account } from "../../models/account"
-import { request } from "express"
 
 export const capture = regionFunctions.https.onCall(async (data, context) => {
 	if (!context.auth) {
@@ -29,13 +29,16 @@ export const capture = regionFunctions.https.onCall(async (data, context) => {
 	if (!paymentIntentID) {
 		throw new functions.https.HttpsError("invalid-argument", "This request does not contain a paymentIntentID.")
 	}
-
-	const orderRef = new User(uid).orders.collectionReference.doc(orderID)
+	const providerID = await getProviderID(uid)
+	if (!providerID) {
+		throw new functions.https.HttpsError("invalid-argument", "Auth does not maintain a providerID.")
+	}
+	const providerOrderRef = new Provider(providerID).orders.collectionReference.doc(orderID)
 	try {
 		const result = await admin.firestore().runTransaction(async transaction => {
-			const snapshot = await transaction.get(orderRef)
+			const snapshot = await transaction.get(providerOrderRef)
 			if (!snapshot.exists) {
-				throw new functions.https.HttpsError("invalid-argument", `The order does not exist. ${orderRef.path}`)
+				throw new functions.https.HttpsError("invalid-argument", `The order does not exist. ${providerOrderRef.path}`)
 			}
 			const order = Order.fromSnapshot<Order>(snapshot)
 			if (order.paymentStatus === "succeeded") {
@@ -43,13 +46,13 @@ export const capture = regionFunctions.https.onCall(async (data, context) => {
 					deliveryStatus: "in_transit",
 					updatedAt: admin.firestore.FieldValue.serverTimestamp() as any
 				}
-				const recieveOrderRef = new Provider(order.providedBy).orders.collectionReference.doc(orderID)
-				transaction.set(orderRef, updateData, { merge: true })
-				transaction.set(recieveOrderRef, updateData, { merge: true })
+				const userOrderRef = new User(order.purchasedBy).orders.collectionReference.doc(order.id)
+				transaction.set(providerOrderRef, updateData, { merge: true })
+				transaction.set(userOrderRef, updateData, { merge: true })
 				return order.data({ convertDocumentReference: true })
 			}
 			if (order.paymentStatus !== "processing") {
-				throw new functions.https.HttpsError("invalid-argument", `Invalid order status.. ${orderRef.path}`)
+				throw new functions.https.HttpsError("invalid-argument", `Invalid order status.. ${providerOrderRef.path}`)
 			}
 			const tasks = order.items.map(async item => {
 				if (item.mediatedBy) {
@@ -93,9 +96,9 @@ export const capture = regionFunctions.https.onCall(async (data, context) => {
 					updateData.transferResults = result
 				}
 
-				const recieveOrderRef = new Provider(order.providedBy).orders.collectionReference.doc(orderID)
-				transaction.set(orderRef, updateData, { merge: true })
-				transaction.set(recieveOrderRef, updateData, { merge: true })
+				const userOrderRef = new User(order.purchasedBy).orders.collectionReference.doc(order.id)
+				transaction.set(providerOrderRef, updateData, { merge: true })
+				transaction.set(userOrderRef, updateData, { merge: true })
 				return order.data({ convertDocumentReference: true })
 			} catch (error) {
 				throw error

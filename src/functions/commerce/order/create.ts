@@ -1,11 +1,12 @@
 import * as admin from "firebase-admin"
 import * as functions from "firebase-functions"
 import { regionFunctions } from "../../helper"
+import { getProviderID } from "../helper"
 import { OrderError, Response, captureMethodForDeliveryMethod, checkOrder } from "./helper"
 import Stripe from "stripe"
-import User from "../../models/commerce/User"
 import Cart from "../../models/commerce/Cart"
 import Provider from "../../models/commerce/Provider"
+import User from "../../models/commerce/User"
 import Order, { OrderItem } from "../../models/commerce/Order"
 import { randomShard } from "../../common/Shard"
 
@@ -42,8 +43,11 @@ export const create = regionFunctions.https.onCall(async (data, context) => {
 	if (!cart) {
 		throw new functions.https.HttpsError("invalid-argument", "This user has not cart.")
 	}
-
-	const orderRef = new User(uid).orders.collectionReference.doc()
+	const providerID = await getProviderID(uid)
+	if (!providerID) {
+		throw new functions.https.HttpsError("invalid-argument", "Auth does not maintain a providerID.")
+	}
+	const orderRef = new Provider(providerID).orders.collectionReference.doc()
 	const order: Order = Order.fromData(orderData, orderRef, { convertDocumentReference: true })
 	const cartItemGroups = cart.groups.filter(group => group.groupID !== groupID)
 

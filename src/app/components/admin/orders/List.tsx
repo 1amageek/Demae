@@ -8,11 +8,10 @@ import ImageIcon from "@material-ui/icons/Image";
 import { useAdminProviderOrders, useAdminProvider } from "hooks/commerce";
 import DataLoading from "components/DataLoading";
 import SegmentControl, { useSegmentControl } from "components/SegmentControl"
-import Board from "../Board";
 import { useHistory, useParams } from "react-router-dom";
 import { Order } from "models/commerce";
 import { useDataSourceListen, Where, OrderBy } from "hooks/firestore"
-import { useDeliveryMethod, deliveryStatusesForDeliveryMethod, DeliveryStatusLabel, PaymentStatusLabel } from "hooks/commerce/DeliveryMethod"
+import { useDeliveryMethod, deliveryStatusesForDeliveryMethod, DeliveryStatusLabel, PaymentStatusLabel, DeliveryMethodLabel } from "hooks/commerce/DeliveryMethod"
 import Dayjs from "dayjs"
 
 export default () => {
@@ -20,11 +19,10 @@ export default () => {
 	const history = useHistory()
 	const { orderID } = useParams()
 	const deliveryMethod = useDeliveryMethod()
-	const tabs = deliveryStatusesForDeliveryMethod(deliveryMethod)
-	const [segmentControl] = useSegmentControl(tabs.map(tab => tab.label))
-	const deliveryStatus = tabs.map(tab => tab.value)[segmentControl.selected]
+	const deliveryMethodLables = deliveryStatusesForDeliveryMethod(deliveryMethod)
+	const [segmentControl] = useSegmentControl(deliveryMethodLables.map(tab => tab.label))
+	const deliveryStatus = deliveryMethodLables.map(tab => tab.value)[segmentControl.selected]
 	const [provider, waiting] = useAdminProvider()
-
 	const collectionReference = provider ? provider.orders.collectionReference : undefined
 	const wheres = [
 		deliveryMethod ? Where("deliveryMethod", "==", deliveryMethod) : undefined,
@@ -133,6 +131,7 @@ const ListItem = ({ data }: { data: Order }) => {
 							</Box>
 							<Box className={classes.tags}>
 								<Chip size="small" label={DeliveryStatusLabel[data.deliveryStatus]} />
+								<Chip size="small" label={DeliveryMethodLabel[data.deliveryMethod]} />
 								<Chip size="small" label={PaymentStatusLabel[data.paymentStatus]} />
 								{
 									data.tags.map((tag, index) => {

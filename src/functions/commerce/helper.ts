@@ -1,3 +1,4 @@
+import * as admin from "firebase-admin"
 import * as functions from "firebase-functions"
 import Stripe from "stripe"
 
@@ -12,3 +13,10 @@ export const stripe = new Stripe(STRIPE_API_KEY, {
 		version: '0.1.2',
 	},
 });
+
+export const getProviderID = async (uid: string) => {
+	const user = await admin.auth().getUser(uid)
+	const providerID = user.customClaims?.admin
+	if (!providerID) return null
+	return providerID
+}

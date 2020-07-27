@@ -33,7 +33,7 @@ export const PaymentStatusLabel: { [key in PaymentStatus]: string } = {
 	"canceled": "CANCELED"
 }
 
-export const useDeliveryMethod = (): DeliveryMethod => {
+export const useDeliveryMethod = (): DeliveryMethod | undefined => {
 
 	const { search } = useLocation()
 	const params = new URLSearchParams(search);
@@ -42,7 +42,7 @@ export const useDeliveryMethod = (): DeliveryMethod => {
 	if (["none", "shipping", "pickup", "download"].includes(deliveryMethod)) {
 		return deliveryMethod as DeliveryMethod
 	} else {
-		return "none"
+		return undefined
 	}
 }
 
@@ -59,12 +59,31 @@ export const capabilityForDeliveryMethod = (deliveryMethod?: DeliveryMethod): Ca
 	}
 }
 
-export const deliveryStatusesForDeliveryMethod = (deliveryMethod?: DeliveryMethod): { [label: string]: string }[] => {
+interface Item {
+	label: string
+	value?: string
+}
+
+export const deliveryStatusesForDeliveryMethod = (deliveryMethod?: DeliveryMethod): Item[] => {
 	switch (deliveryMethod) {
 		case "none": return [
 			{
-				label: "DOWNLOADED",
+				label: "IN-STORE",
 				value: "none"
+			},
+			{
+				label: "ALL",
+				value: undefined
+			},
+		]
+		case "download": return [
+			{
+				label: "DOWNLOAD",
+				value: "download"
+			},
+			{
+				label: "ALL",
+				value: undefined
 			},
 		]
 		case "pickup": return [
@@ -79,6 +98,10 @@ export const deliveryStatusesForDeliveryMethod = (deliveryMethod?: DeliveryMetho
 			{
 				label: "COMPLETED",
 				value: "delivered"
+			},
+			{
+				label: "ALL",
+				value: undefined
 			},
 		]
 		case "shipping": return [
@@ -97,6 +120,10 @@ export const deliveryStatusesForDeliveryMethod = (deliveryMethod?: DeliveryMetho
 			{
 				label: "PENDING",
 				value: "pending"
+			},
+			{
+				label: "ALL",
+				value: undefined
 			},
 		]
 		default: return []

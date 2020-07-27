@@ -13,7 +13,7 @@ import Select, { useSelect, useMenu } from "components/_Select"
 import { useMenu as useMenuProp } from "components/Menu"
 import Order from "models/commerce/Order"
 import * as Social from "models/social"
-import { useDeliveryMethod, deliveryStatusesForDeliveryMethod, DeliveryStatusLabel, PaymentStatusLabel } from "hooks/commerce/DeliveryMethod"
+import { useDeliveryMethod, deliveryStatusesForDeliveryMethod, DeliveryStatusLabel, PaymentStatusLabel, DeliveryMethodLabel } from "hooks/commerce/DeliveryMethod"
 import Dayjs from "dayjs"
 import relativeTime from "dayjs/plugin/relativeTime";
 import Label from "components/Label";
@@ -301,6 +301,11 @@ export default ({ orderID }: { orderID?: string }) => {
 								</Grid>
 								<Grid item xs={12} md={4}>
 									<Typography variant="subtitle1">
+										Delivery Method <Label marginX={1} color="gray" fontSize={11}>{DeliveryMethodLabel[order.deliveryMethod]}</Label>
+									</Typography>
+								</Grid>
+								<Grid item xs={12} md={4}>
+									<Typography variant="subtitle1">
 										Payment Status <Label marginX={1} color="gray" fontSize={11}>{PaymentStatusLabel[order.paymentStatus]}</Label>
 									</Typography>
 								</Grid>
@@ -472,7 +477,7 @@ const CancelComment = ({ activity }: { activity: Activity }) => {
 				>
 					<Box display="flex" padding={2} paddingY={1}>
 						<Typography>{user?.name || activity.authoredBy}</Typography>
-						<Box paddingX={1} color="text.secondary">commented on {time}</Box>
+						<Box paddingX={1} color="text.secondary">canceled on {time}</Box>
 					</Box>
 				</Box>
 				<Box padding={2}>
@@ -508,7 +513,7 @@ const RefundComment = ({ activity }: { activity: Activity }) => {
 				>
 					<Box display="flex" padding={2} paddingY={1}>
 						<Typography>{user?.name || activity.authoredBy}</Typography>
-						<Box paddingX={1} color="text.secondary">commented on {time}</Box>
+						<Box paddingX={1} color="text.secondary">refunded on {time}</Box>
 					</Box>
 				</Box>
 				<Box padding={2}>
