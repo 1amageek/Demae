@@ -40,6 +40,7 @@ export default class Order extends Doc {
 	@Field title?: string
 	@Field purchasedBy!: string
 	@Field providedBy!: string
+	@Field tags: string[] = []
 	@Codable(Shipping)
 	@Field shipping?: Shipping
 	@Field paidAt?: Timestamp

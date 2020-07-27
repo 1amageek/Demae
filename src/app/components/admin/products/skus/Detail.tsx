@@ -7,8 +7,7 @@ import Markdown from "react-markdown"
 
 import { File as StorageFile } from "@1amageek/ballcap"
 import { useParams } from "react-router-dom"
-import { Typography, Box, Paper, FormControl, Button, Chip } from "@material-ui/core";
-import { List, ListItem, ListItemText, Divider } from "@material-ui/core";
+import { Typography, Box, Paper, FormControl, Button, Chip, InputAdornment, Divider } from "@material-ui/core";
 import { CurrencyCode, SupportedCurrencies } from "common/Currency"
 import DataLoading from "components/DataLoading";
 import SaveIcon from "@material-ui/icons/Save";
@@ -26,6 +25,7 @@ import TextField, { useTextField } from "components/TextField"
 import { useProcessing } from "components/Processing";
 import { useDrawer } from "components/Drawer";
 import { useSnackbar } from "components/Snackbar";
+import ActionSheet from "components/ActionSheet"
 import MediaController from "components/MediaController"
 
 Dayjs.extend(relativeTime)
@@ -48,6 +48,33 @@ export default () => {
 		.collection("skus").doc(skuID) : undefined
 	const [sku, isLoading] = useDocumentListen<SKU>(SKU, ref)
 	const [isEditing, setEdit] = useEdit()
+	const [showDrawer, drawerClose] = useDrawer()
+	const [showSnackbar] = useSnackbar()
+
+	const copy = () => {
+		showDrawer(
+			<ActionSheet title={`Do you want to copy "${sku?.name}"?`} actions={
+				[
+					{
+						title: "Copy",
+						handler: async () => {
+							if (!sku) {
+								drawerClose()
+								return
+							}
+							const newSKU = new SKU(sku?.documentReference.parent.doc())
+							newSKU.setData(sku.data())
+							newSKU.name = sku.name + "- copy"
+							newSKU.isAvailable = false
+							await newSKU.save()
+							showSnackbar("success", "Copied.")
+							drawerClose()
+						}
+					}
+				]
+			} />
+		)
+	}
 
 	useContentToolbar(() => {
 		if (!sku) return <></>
@@ -69,6 +96,7 @@ export default () => {
 					<NavigationBackButton title="SKU" href={`/admin/products/${productID}/skus`} />
 				</Box>
 				<Box display="flex" flexGrow={1} justifyContent="flex-end">
+					<Button variant="outlined" color="primary" size="small" style={{ marginRight: theme.spacing(1) }} onClick={copy}>Copy</Button>
 					<Button variant="outlined" color="primary" size="small" onClick={() => setEdit(true)}>Edit</Button>
 				</Box>
 			</Box>
@@ -150,6 +178,10 @@ export default () => {
 										<Typography variant="subtitle1" gutterBottom>Price</Typography>
 										<Typography variant="body1" gutterBottom>{sku.currency} {sku.price.toLocaleString()}</Typography>
 									</Box>
+									<Box paddingBottom={2}>
+										<Typography variant="subtitle1" gutterBottom>Tax rate</Typography>
+										<Typography variant="body1" gutterBottom>{sku.taxRate.toLocaleString()}%</Typography>
+									</Box>
 								</Box>
 							</Box>
 						</article>
@@ -183,8 +215,8 @@ const Edit = ({ sku, onClose }: { sku: SKU, onClose: () => void }) => {
 	const [images, setImages] = useState<File[]>([])
 	const [name] = useTextField(sku?.name)
 	const [caption] = useTextField(sku?.caption)
-	const [price, setPrice] = useTextField(String(sku?.price))
-	const [taxRate, setTaxRate] = useTextField(String(sku?.taxRate))
+	const [price, setPrice] = useTextField(String(sku?.price), { inputProps: { pattern: "^[0-9]*$" } })
+	const [taxRate, setTaxRate] = useTextField(String(sku?.taxRate), { inputProps: { pattern: "^([1-9]|[1-9][0-9])$" } })
 
 	const [currency, setCurrency] = useSelect(sku.currency)
 	const [inventory, setInventory] = useSelect(sku.inventory.type)
@@ -242,11 +274,13 @@ const Edit = ({ sku, onClose }: { sku: SKU, onClose: () => void }) => {
 		const batch = firebase.firestore().batch()
 		const uploadedImages = await Promise.all(uploadImages(images))
 
+		const priceValue = price.value as string
+		const taxRateValue = taxRate.value as string
 		sku.name = name.value as string
 		sku.caption = caption.value as string
 		sku.description = description
-		sku.price = Number(price.value)
-		sku.taxRate = Number(taxRate.value)
+		sku.price = Number(priceValue.replace(",", ""))
+		sku.taxRate = Number(taxRateValue.replace(",", ""))
 		sku.currency = currency.value as CurrencyCode
 		sku.inventory = {
 			type: inventory.value as StockType,
@@ -356,15 +390,22 @@ const Edit = ({ sku, onClose }: { sku: SKU, onClose: () => void }) => {
 									onDeleteImage={async (props) => {
 										const { index } = props
 										showDrawer(
-											<ActionSheet callback={async () => {
-												const image = sku.images[index]
-												const imageData = image.data()
-												await sku.documentReference.update({
-													images: firebase.firestore.FieldValue.arrayRemove(imageData)
-												})
-												showSnackbar("success", "The image has been removed.")
-												drawerClose()
-											}} onClose={drawerClose} />
+											<ActionSheet title="Do you want to delete the image?" actions={
+												[
+													{
+														title: "Delete",
+														handler: async () => {
+															const image = sku.images[index]
+															const imageData = image.data()
+															await sku.documentReference.update({
+																images: firebase.firestore.FieldValue.arrayRemove(imageData)
+															})
+															showSnackbar("success", "The image has been removed.")
+															drawerClose()
+														}
+													}
+												]
+											} />
 										)
 									}}
 									onDeleteUploadImage={(props) => {
@@ -410,6 +451,14 @@ const Edit = ({ sku, onClose }: { sku: SKU, onClose: () => void }) => {
 										</Box>
 									</Box>
 									<Box paddingBottom={2}>
+										<Typography variant="subtitle1" gutterBottom>TaxRate</Typography>
+										<Box display="flex">
+											<TextField variant="outlined" margin="dense" required {...taxRate} InputProps={{
+												endAdornment: <InputAdornment position="end">%</InputAdornment>
+											}} />
+										</Box>
+									</Box>
+									<Box paddingBottom={2}>
 										<Typography variant="subtitle1" gutterBottom>Inventory</Typography>
 										<FormControl variant="outlined" size="small">
 											<Select variant="outlined" {...inventory} >
@@ -447,28 +496,5 @@ const Edit = ({ sku, onClose }: { sku: SKU, onClose: () => void }) => {
 			}
 		</Paper>
 
-	)
-}
-
-const ActionSheet = ({ callback, onClose }: { callback: () => void, onClose: () => void }) => {
-	return (
-		<Paper>
-			<Box>
-				<Box padding={2}>
-					<Typography variant="subtitle1">Do you want to delete the image?</Typography>
-				</Box>
-				<List>
-					<ListItem button onClick={callback}>
-						<ListItemText primary="Delete" />
-					</ListItem>
-				</List>
-				<Divider />
-				<List>
-					<ListItem button onClick={onClose}>
-						<ListItemText primary="Close" />
-					</ListItem>
-				</List>
-			</Box>
-		</Paper>
 	)
 }

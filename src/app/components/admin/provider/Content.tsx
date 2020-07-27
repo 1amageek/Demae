@@ -145,7 +145,6 @@ const Form = ({ provider }: { provider: Provider }) => {
 			provider.name = name.value as string
 			provider.caption = caption.value as string
 			provider.description = description.value as string
-			provider.isAvailable = isAvailable.value as boolean
 			provider.capabilities = Object.keys(capabilities).filter(value => capabilities[value]) as Capability[]
 			await provider.save()
 		} catch (error) {
@@ -169,9 +168,6 @@ const Form = ({ provider }: { provider: Provider }) => {
 		}
 		return (
 			<Box display="flex" flexGrow={1} justifyContent="space-between" paddingX={1}>
-				<Box>
-					<NavigationBackButton title="Products" href="/admin/products" />
-				</Box>
 				<Box display="flex" flexGrow={1} justifyContent="flex-end">
 					<Button variant="outlined" color="primary" size="small" onClick={() => setEdit(true)}>Edit</Button>
 				</Box>

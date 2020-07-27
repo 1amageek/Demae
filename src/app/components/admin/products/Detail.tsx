@@ -23,6 +23,7 @@ import TextField, { useTextField } from "components/TextField"
 import { useProcessing } from "components/Processing";
 import { useDrawer } from "components/Drawer";
 import { useSnackbar } from "components/Snackbar";
+import ActionSheet from "components/ActionSheet"
 import MediaController from "components/MediaController"
 
 Dayjs.extend(relativeTime)
@@ -37,7 +38,7 @@ const converter = new Showdown.Converter({
 });
 
 const deliveryMethodLabel: { [key in DeliveryMethod]: string } = {
-	"none": "No shipping required",
+	"none": "In-Store",
 	"download": "Download",
 	"pickup": "Pickup",
 	"shipping": "Shipping required"
@@ -47,6 +48,33 @@ export default () => {
 	const theme = useTheme();
 	const [product, isLoading] = useAdminProviderProduct()
 	const [isEditing, setEdit] = useEdit()
+	const [showDrawer, drawerClose] = useDrawer()
+	const [showSnackbar] = useSnackbar()
+
+	const copy = () => {
+		showDrawer(
+			<ActionSheet title={`Do you want to copy "${product?.name}"?`} actions={
+				[
+					{
+						title: "Copy",
+						handler: async () => {
+							if (!product) {
+								drawerClose()
+								return
+							}
+							const newProduct = new Product(product?.documentReference.parent.doc())
+							newProduct.setData(product.data())
+							newProduct.name = product.name + " - copy"
+							newProduct.isAvailable = false
+							await newProduct.save()
+							showSnackbar("success", "Copied.")
+							drawerClose()
+						}
+					}
+				]
+			} />
+		)
+	}
 
 	useContentToolbar(() => {
 		if (!product) return <></>
@@ -68,6 +96,7 @@ export default () => {
 					<NavigationBackButton title="Products" href="/admin/products" />
 				</Box>
 				<Box display="flex" flexGrow={1} justifyContent="flex-end">
+					<Button variant="outlined" color="primary" size="small" style={{ marginRight: theme.spacing(1) }} onClick={copy}>Copy</Button>
 					<Button variant="outlined" color="primary" size="small" onClick={() => setEdit(true)}>Edit</Button>
 				</Box>
 			</Box>
@@ -188,8 +217,12 @@ const Edit = ({ product, onClose }: { product: Product, onClose: () => void }) =
 
 	const deliveryMethodMenu = useMenu([
 		{
-			label: "No shipping required",
+			label: "In-Store",
 			value: "none"
+		},
+		{
+			label: "Download",
+			value: "download"
 		},
 		{
 			label: "Pickup",
@@ -214,7 +247,7 @@ const Edit = ({ product, onClose }: { product: Product, onClose: () => void }) =
 		product.caption = caption.value as string
 		product.description = description
 		product.deliveryMethod = deliveryMethod.value as DeliveryMethod
-		product.isAvailable = (isAvailable.value === "true")
+
 		await product.save()
 		setProcessing(false)
 		onClose()
@@ -283,15 +316,22 @@ const Edit = ({ product, onClose }: { product: Product, onClose: () => void }) =
 							onDeleteImage={async (props) => {
 								const { index } = props
 								showDrawer(
-									<ActionSheet callback={async () => {
-										const image = product.images[index]
-										const imageData = image.data()
-										await product.documentReference.update({
-											images: firebase.firestore.FieldValue.arrayRemove(imageData)
-										})
-										showSnackbar("success", "The image has been removed.")
-										drawerClose()
-									}} onClose={drawerClose} />
+									<ActionSheet title="Do you want to delete the image?" actions={
+										[
+											{
+												title: "Delete",
+												handler: async () => {
+													const image = product.images[index]
+													const imageData = image.data()
+													await product.documentReference.update({
+														images: firebase.firestore.FieldValue.arrayRemove(imageData)
+													})
+													showSnackbar("success", "The image has been removed.")
+													drawerClose()
+												}
+											}
+										]
+									} />
 								)
 							}}
 							onDeleteUploadImage={(props) => {
@@ -303,6 +343,14 @@ const Edit = ({ product, onClose }: { product: Product, onClose: () => void }) =
 								showSnackbar("error", `The maximum number of images is ${MAXIMUM_NUMBER_OF_IMAGES}.`)
 							}} />
 						<Box paddingTop={2}>
+							<Box paddingBottom={2}>
+								<Typography variant="subtitle1" gutterBottom>Delivery</Typography>
+								<FormControl variant="outlined" size="small">
+									<Select variant="outlined" {...deliveryMethod} >
+										{deliveryMethodMenu}
+									</Select>
+								</FormControl>
+							</Box>
 							<Box paddingBottom={2}>
 								<Typography variant="subtitle1" gutterBottom>Name</Typography>
 								<TextField variant="outlined" margin="dense" required {...name} fullWidth />
@@ -323,41 +371,10 @@ const Edit = ({ product, onClose }: { product: Product, onClose: () => void }) =
 									}
 								/>
 							</Box>
-							<Box paddingBottom={2}>
-								<Typography variant="subtitle1" gutterBottom>Delivery</Typography>
-								<FormControl variant="outlined" size="small">
-									<Select variant="outlined" {...deliveryMethod} >
-										{deliveryMethodMenu}
-									</Select>
-								</FormControl>
-							</Box>
 						</Box>
 					</Box>
 				</article>
 			</Box>
 		</Paper >
-	)
-}
-
-const ActionSheet = ({ callback, onClose }: { callback: () => void, onClose: () => void }) => {
-	return (
-		<Paper>
-			<Box>
-				<Box padding={2}>
-					<Typography variant="subtitle1">Do you want to delete the image?</Typography>
-				</Box>
-				<List>
-					<ListItem button onClick={callback}>
-						<ListItemText primary="Delete" />
-					</ListItem>
-				</List>
-				<Divider />
-				<List>
-					<ListItem button onClick={onClose}>
-						<ListItemText primary="Close" />
-					</ListItem>
-				</List>
-			</Box>
-		</Paper>
 	)
 }

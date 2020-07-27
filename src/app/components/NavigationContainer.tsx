@@ -122,6 +122,7 @@ export const ListView = (props: BoxProps) => {
 					style={{
 						height: "100%",
 						width: "100%",
+						paddingTop: NavigationBarHeight,
 						background: "inherit"
 					}}>
 					<ListViewProvider>

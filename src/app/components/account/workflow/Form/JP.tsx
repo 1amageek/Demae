@@ -126,7 +126,7 @@ export default ({ individual, onCallback }: { individual: Partial<Individual>, o
 	const handleSubmit = async (event) => {
 		event.preventDefault();
 		const uid = authUser?.uid
-		if (!uid) { return }
+		if (!uid) return
 		let data: Create = {
 			type: "custom",
 			country: "JP",
@@ -201,7 +201,7 @@ export default ({ individual, onCallback }: { individual: Partial<Individual>, o
 
 	const handleFrontCapture = async ({ target }) => {
 		const uid = authUser?.uid
-		if (!uid) { return }
+		if (!uid) return
 		setFront(undefined)
 		setFrontLoading(true)
 		const file = target.files[0] as File
@@ -227,7 +227,7 @@ export default ({ individual, onCallback }: { individual: Partial<Individual>, o
 
 	const handleBackCapture = async ({ target }) => {
 		const uid = authUser?.uid
-		if (!uid) { return }
+		if (!uid) return
 		setBack(undefined)
 		setBackLoading(true)
 		const file = target.files[0] as File

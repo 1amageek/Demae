@@ -43,7 +43,7 @@ export default React.forwardRef(({ groupID, cartItem }: { groupID: string, cartI
 	const deleteItem = async (event) => {
 		event.preventDefault()
 		event.stopPropagation()
-		if (!cart) { return }
+		if (!cart) return
 		const group = cart.cartGroup(groupID)
 		group?.subtractItem(cartItem)
 		if ((group?.items.length || 0) <= 0) {

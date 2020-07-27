@@ -19,7 +19,7 @@ export default class SKU extends Doc {
 	@Field shardCharacters: ShardType[] = ShardCharacters.slice(0, 3)
 	@Field currency: CurrencyCode = "USD"
 	@Field productReference?: DocumentReference
-	@Field name!: string
+	@Field name: string = "NO NAME"
 	@Field caption?: string
 	@Field description?: string
 	@Field price: number = 0

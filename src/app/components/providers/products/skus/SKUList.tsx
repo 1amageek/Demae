@@ -78,7 +78,6 @@ const SKUListItem = ({ providerID, product, sku }: { providerID: string, product
 
 	const imageURL = (sku.imagePaths().length > 0) ? sku.imagePaths()[0] : undefined
 	const imgProps = useImage({ path: imageURL, alt: `${sku.name ?? ""} ${sku.caption ?? ""}`, sizes: "96px" })
-	console.log(imgProps, theme.spacing(12))
 	const amount = sku.price || 0
 	const price = new Intl.NumberFormat("ja-JP", { style: "currency", currency: sku.currency }).format(amount)
 
@@ -129,7 +128,7 @@ const SKUListItem = ({ providerID, product, sku }: { providerID: string, product
 	}
 
 	const deleteSKU = async (sku: SKU) => {
-		if (!cart) { return }
+		if (!cart) return
 		const group = cart.cartGroup(providerID)
 		group?.deleteSKU(sku)
 		if ((group?.items.length || 0) <= 0) {

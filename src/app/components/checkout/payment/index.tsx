@@ -1,36 +1,36 @@
-import React, { useState, useContext } from 'react'
-import { createStyles, Theme, makeStyles } from '@material-ui/core/styles'
-import { Tooltip, IconButton, Box } from '@material-ui/core';
-import { useHistory } from 'react-router-dom'
-import { loadStripe } from '@stripe/stripe-js'
+import React, { useState, useContext } from "react"
+import { createStyles, Theme, makeStyles } from "@material-ui/core/styles"
+import { Tooltip, IconButton, Box } from "@material-ui/core";
+import { useHistory } from "react-router-dom"
+import { loadStripe } from "@stripe/stripe-js"
 import {
 	CardElement,
 	Elements,
 	useStripe,
 	useElements,
-} from '@stripe/react-stripe-js'
-import firebase from 'firebase'
-import 'firebase/functions'
-import { Paper, AppBar, Toolbar, Button, Typography } from '@material-ui/core'
-import ArrowBackIcon from '@material-ui/icons/ArrowBack';
-import Loading from 'components/Loading'
-import User from 'models/commerce/User'
-import { useAuthUser } from 'hooks/auth'
-import { UserContext } from 'hooks/commerce'
-import { useProcessing } from 'components/Processing';
+} from "@stripe/react-stripe-js"
+import firebase from "firebase"
+import "firebase/functions"
+import { Paper, AppBar, Toolbar, Button, Typography } from "@material-ui/core"
+import ArrowBackIcon from "@material-ui/icons/ArrowBack";
+import Loading from "components/Loading"
+import User from "models/commerce/User"
+import { useAuthUser } from "hooks/auth"
+import { UserContext } from "hooks/commerce"
+import { useProcessing } from "components/Processing";
 
 const STRIPE_API_KEY = process.env.STRIPE_API_KEY!
 const stripePromise = loadStripe(STRIPE_API_KEY)
 
 const CARD_OPTIONS = {
-	// iconStyle: 'solid',
+	// iconStyle: "solid",
 	style: {
 		base: {
-			fontSize: '16px',
+			fontSize: "16px",
 		},
 		invalid: {
-			iconColor: '#FFC7EE',
-			color: '#FFC7EE',
+			iconColor: "#FFC7EE",
+			color: "#FFC7EE",
 		},
 	},
 	hidePostalCode: true
@@ -50,7 +50,7 @@ const useStyles = makeStyles((theme: Theme) =>
 			padding: theme.spacing(3),
 		},
 		button: {
-			width: '100%',
+			width: "100%",
 			flexGrow: 1,
 			marginTop: theme.spacing(4)
 		}
@@ -69,17 +69,17 @@ const CheckoutForm = () => {
 
 	const handleSubmit = async (event) => {
 		event.preventDefault()
-		if (!auth) { return }
-		if (!stripe) { return }
-		if (!elements) { return }
+		if (!auth) return
+		if (!stripe) return
+		if (!elements) return
 		const card = elements.getElement(CardElement)
-		if (!card) { return }
+		if (!card) return
 
 		setProcessing(true)
 
 		try {
 			const { error, paymentMethod } = await stripe.createPaymentMethod({
-				type: 'card',
+				type: "card",
 				card: card
 			})
 
@@ -95,8 +95,8 @@ const CheckoutForm = () => {
 			}
 
 			const updateData = { defaultPaymentMethodID: paymentMethod.id }
-			if (user?.customerID) {
-				const attach = firebase.functions().httpsCallable('stripe-v1-paymentMethod-attach')
+			if (user?.stripe?.customerID) {
+				const attach = firebase.functions().httpsCallable("stripe-v1-paymentMethod-attach")
 				const response = await attach({
 					paymentMethodID: paymentMethod.id
 				})
@@ -106,9 +106,9 @@ const CheckoutForm = () => {
 					setProcessing(false)
 					return
 				}
-				console.log('[APP] attach payment method', result)
+				console.log("[APP] attach payment method", result)
 			} else {
-				const create = firebase.functions().httpsCallable('stripe-v1-customer-create')
+				const create = firebase.functions().httpsCallable("stripe-v1-customer-create")
 				const response = await create({
 					payment_method: paymentMethod.id,
 					phone: auth.phoneNumber,
@@ -119,7 +119,7 @@ const CheckoutForm = () => {
 						uid: auth.uid
 					}
 				})
-				const { error, result } = response.data
+				const { error, customer } = response.data
 
 				if (error) {
 					console.error(error)
@@ -127,10 +127,14 @@ const CheckoutForm = () => {
 					return
 				}
 
-				console.log('[APP] create customer', result)
-				if (result) {
-					const customerID = result.id
-					updateData['customerID'] = customerID
+				console.log("[APP] create customer", customer)
+				if (customer) {
+					updateData["stripe"] = {
+						customerID: customer.id,
+						link: `https://dashboard.stripe.com${
+							customer.livemode ? "" : "/test"
+							}/customers/${customer.id}`
+					}
 				}
 			}
 			await new User(auth.uid).documentReference.set(updateData, { merge: true })
@@ -147,13 +151,13 @@ const CheckoutForm = () => {
 	} else {
 		return (
 			<Paper>
-				<AppBar position='static' color='transparent' elevation={0}>
+				<AppBar position="static" color="transparent" elevation={0}>
 					<Toolbar disableGutters>
-						<Tooltip title='Back' onClick={() => {
+						<Tooltip title="Back" onClick={() => {
 							history.goBack()
 						}}>
 							<IconButton>
-								<ArrowBackIcon color='inherit' />
+								<ArrowBackIcon color="inherit" />
 							</IconButton>
 						</Tooltip>
 						<Box fontSize={18} fontWeight={600}>

@@ -67,8 +67,8 @@ const IndividualForm = ({ individual }: { individual: Partial<Individual> }) => 
 	const onSubmit = async () => {
 
 		const uid = authUser?.uid
-		if (!uid) { return }
-		if (!shouldSubmit()) { return }
+		if (!uid) return
+		if (!shouldSubmit()) return
 
 		const data: Create = {
 			type: "custom",

@@ -1,21 +1,21 @@
 
-import React, { useEffect } from 'react'
-import firebase from 'firebase'
-import { Box, Paper, TableContainer, Table, TableBody, TableCell, TableRow, Avatar, Tooltip, IconButton, Slide, Button } from '@material-ui/core';
-import ErrorIcon from '@material-ui/icons/Error';
-import NavigateNextIcon from '@material-ui/icons/NavigateNext';
-import DataLoading from 'components/DataLoading';
-import CardBrand from 'common/stripe/CardBrand'
-import User from 'models/commerce/User'
-import CartItemCell from './CartItemCell'
-import CardList from './payment/list'
-import ShippingAddressList from './shipping/list'
-import Summary from 'components/cart/summary'
-import Navigation, { usePush } from 'components/Navigation'
-import { useProcessing } from 'components/Processing';
-import { useSnackbar } from 'components/Snackbar'
-import { useAuthUser } from 'hooks/auth'
-import { useUser, useCart, } from 'hooks/commerce';
+import React, { useEffect } from "react"
+import firebase from "firebase"
+import { Box, Paper, TableContainer, Table, TableBody, TableCell, TableRow, Avatar, Tooltip, IconButton, Slide, Button } from "@material-ui/core";
+import ErrorIcon from "@material-ui/icons/Error";
+import NavigateNextIcon from "@material-ui/icons/NavigateNext";
+import DataLoading from "components/DataLoading";
+import CardBrand from "common/stripe/CardBrand"
+import User from "models/commerce/User"
+import CartItemCell from "./CartItemCell"
+import CardList from "./payment/list"
+import ShippingAddressList from "./shipping/list"
+import Summary from "components/cart/summary"
+import Navigation, { usePush } from "components/Navigation"
+import { useProcessing } from "components/Processing";
+import { useSnackbar } from "components/Snackbar"
+import { useAuthUser } from "hooks/auth"
+import { useUser, useCart, } from "hooks/commerce";
 
 export default ({ groupID, onClose, onComplete }: { groupID: string, onClose: () => void, onComplete: () => void }) => {
 	return (
@@ -54,7 +54,7 @@ const Checkout = ({ groupID, onClose, onComplete }: { groupID: string, onClose: 
 		if (user.stripe?.customerID) {
 			return { customerID: user.stripe.customerID }
 		} else {
-			const create = firebase.functions().httpsCallable('stripe-v1-customer-create')
+			const create = firebase.functions().httpsCallable("stripe-v1-customer-create")
 			const response = await create({
 				phone: auth.phoneNumber,
 				metadata: {
@@ -70,7 +70,7 @@ const Checkout = ({ groupID, onClose, onComplete }: { groupID: string, onClose: 
 					stripe: {
 						customerID: customer.id,
 						link: `https://dashboard.stripe.com${
-							customer.livemode ? '' : '/test'
+							customer.livemode ? "" : "/test"
 							}/customers/${customer.id}`
 					}
 				}, { merge: true })
@@ -92,21 +92,21 @@ const Checkout = ({ groupID, onClose, onComplete }: { groupID: string, onClose: 
 		}
 
 		if (!customerID) {
-			console.log('[CHECKOUT] customerID is not exist')
+			console.log("[CHECKOUT] customerID is not exist")
 			return
 		}
 		// paymentMethodID
 		const paymentMethodID = user.defaultCard?.id
 		if (!paymentMethodID) {
-			console.log('[CHECKOUT] paymentMethodID is not exist')
+			console.log("[CHECKOUT] paymentMethodID is not exist")
 			return
 		}
 
-		if (cartGroup.deliveryMethod === 'shipping') {
+		if (cartGroup.deliveryMethod === "shipping") {
 			// defaultShipping
 			const defaultShipping = user.defaultShipping
 			if (!defaultShipping) {
-				console.log('[CHECKOUT] defaultShipping is not exist')
+				console.log("[CHECKOUT] defaultShipping is not exist")
 				return
 			}
 
@@ -118,7 +118,7 @@ const Checkout = ({ groupID, onClose, onComplete }: { groupID: string, onClose: 
 
 		try {
 			setProcessing(true)
-			const checkoutCreate = firebase.functions().httpsCallable('commerce-v1-order-create')
+			const checkoutCreate = firebase.functions().httpsCallable("commerce-v1-order-create")
 			const response = await checkoutCreate({
 				order: data,
 				groupID: groupID,
@@ -150,11 +150,12 @@ const Checkout = ({ groupID, onClose, onComplete }: { groupID: string, onClose: 
 		return <Empty onClose={onClose} />
 	}
 
-	const subtotal = new Intl.NumberFormat('ja-JP', { style: 'currency', currency: cartGroup.currency }).format(cartGroup.subtotal())
-	const tax = new Intl.NumberFormat('ja-JP', { style: 'currency', currency: cartGroup.currency }).format(cartGroup.tax())
+	const subtotal = new Intl.NumberFormat("ja-JP", { style: "currency", currency: cartGroup.currency }).format(cartGroup.subtotal())
+	const tax = new Intl.NumberFormat("ja-JP", { style: "currency", currency: cartGroup.currency }).format(cartGroup.tax())
+	const total = new Intl.NumberFormat("ja-JP", { style: "currency", currency: cartGroup.currency }).format(cartGroup.total())
 
 	return (
-		<Paper style={{ width: '100%' }}>
+		<Paper style={{ width: "100%" }}>
 			<TableContainer>
 				<Table>
 					<TableBody>
@@ -165,12 +166,12 @@ const Checkout = ({ groupID, onClose, onComplete }: { groupID: string, onClose: 
 								<CardList user={user!} />
 							)
 						}}>
-							<TableCell style={{ width: '90px' }}>
-								<Box color='text.secondary' fontWeight={700} flexGrow={1}>CARD</Box>
+							<TableCell style={{ width: "90px" }}>
+								<Box color="text.secondary" fontWeight={700} flexGrow={1}>CARD</Box>
 							</TableCell>
 							<TableCell>
 								{defaultCard &&
-									<Box display="flex" alignItems="center" flexGrow={1} style={{ width: '180px' }}>
+									<Box display="flex" alignItems="center" flexGrow={1} style={{ width: "180px" }}>
 										<Box display="flex" alignItems="center" flexGrow={1} fontSize={22}>
 											<i className={`pf ${CardBrand[defaultCard!.brand]}`}></i>
 										</Box>
@@ -181,10 +182,10 @@ const Checkout = ({ groupID, onClose, onComplete }: { groupID: string, onClose: 
 								}
 							</TableCell>
 							<TableCell>
-								<Box display='flex' flexGrow={1} justifyContent="flex-end" alignItems='center'>{defaultCard ? <NavigateNextIcon /> : <ErrorIcon color="secondary" />}</Box>
+								<Box display="flex" flexGrow={1} justifyContent="flex-end" alignItems="center">{defaultCard ? <NavigateNextIcon /> : <ErrorIcon color="secondary" />}</Box>
 							</TableCell>
 						</TableRow>
-						{cartGroup.deliveryMethod === 'shipping' &&
+						{cartGroup.deliveryMethod === "shipping" &&
 							<TableRow onClick={(e) => {
 								e.preventDefault()
 								e.stopPropagation()
@@ -192,8 +193,8 @@ const Checkout = ({ groupID, onClose, onComplete }: { groupID: string, onClose: 
 									<ShippingAddressList user={user!} />
 								)
 							}}>
-								<TableCell style={{ width: '90px' }}>
-									<Box color='text.secondary' fontWeight={700} flexGrow={1}>SHIPPING</Box>
+								<TableCell style={{ width: "90px" }}>
+									<Box color="text.secondary" fontWeight={700} flexGrow={1}>SHIPPING</Box>
 								</TableCell>
 								<TableCell>
 									{defaultShipping?.name && <Box>{defaultShipping?.name}</Box>}
@@ -201,8 +202,8 @@ const Checkout = ({ groupID, onClose, onComplete }: { groupID: string, onClose: 
 									{defaultShipping?.address?.city && <Box>{defaultShipping?.address?.city}</Box>}
 									{defaultShipping?.address?.line1 && <Box>{`${defaultShipping?.address?.line1}${defaultShipping?.address?.line2}`}</Box>}
 								</TableCell>
-								<TableCell align='left'>
-									<Box display='flex' flexGrow={1} justifyContent="flex-end" alignItems='center'>{defaultShipping ? <NavigateNextIcon /> : <ErrorIcon color="secondary" />}</Box>
+								<TableCell align="left">
+									<Box display="flex" flexGrow={1} justifyContent="flex-end" alignItems="center">{defaultShipping ? <NavigateNextIcon /> : <ErrorIcon color="secondary" />}</Box>
 								</TableCell>
 							</TableRow>
 						}
@@ -221,15 +222,23 @@ const Checkout = ({ groupID, onClose, onComplete }: { groupID: string, onClose: 
 						e.preventDefault()
 						checkout()
 					}}
-					items={[{
-						type: 'subtotal',
-						title: 'Subtotal',
-						detail: `${subtotal}`
-					}, {
-						type: 'tax',
-						title: 'Tax',
-						detail: `${tax}`
-					}]} />
+					items={[
+						{
+							type: "subtotal",
+							title: "Subtotal",
+							detail: `${subtotal}`
+						},
+						{
+							type: "tax",
+							title: "Tax",
+							detail: `${tax}`
+						},
+						{
+							type: "total",
+							title: "Total",
+							detail: `${total}`
+						}
+					]} />
 			</Box>
 		</Paper>
 	)
@@ -240,7 +249,7 @@ const Empty = ({ onClose }: { onClose: () => void }) => {
 	useEffect(onClose, [])
 
 	return (
-		<Box display='flex' fontSize={18} fontWeight={500} padding={3} justifyContent='center'>
+		<Box display="flex" fontSize={18} fontWeight={500} padding={3} justifyContent="center">
 			The items are empty.
 		</Box>
 	)

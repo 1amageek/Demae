@@ -8,8 +8,6 @@ import { useParams } from "react-router-dom"
 import ProductList from "./List"
 import ProductDetail from "./Detail"
 import { AdminProviderProductProvider, AdminProviderProductSKUProvider } from "hooks/commerce";
-import SKUList from "./skus/List";
-import SKUDetail from "./SKUDetail";
 import { NavigationView, ListView, ContentView } from "components/NavigationContainer"
 
 export default (props: any) => {

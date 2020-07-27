@@ -134,7 +134,7 @@ const CartItemCell = ({ cartGroup, cartItem }: { cartGroup: CartGroup, cartItem:
 	const deleteItem = async (event) => {
 		event.preventDefault()
 		event.stopPropagation()
-		if (!cart) { return }
+		if (!cart) return
 		const group = cart.cartGroup(cartGroup.groupID)
 		group?.subtractItem(cartItem)
 		if ((group?.items.length || 0) <= 0) {

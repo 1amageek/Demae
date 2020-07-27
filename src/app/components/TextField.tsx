@@ -10,7 +10,7 @@ export const useTextField = (initValue?: string, props: TextFieldProps = {}): [T
 	const onChange = props.onChange || ((e) => {
 		const value = e.target.value
 		setValue(value)
-		if (props.inputProps && value && error) {
+		if (props.inputProps && value) {
 			const pattern = props.inputProps["pattern"]
 			const regex = new RegExp(pattern)
 			setError(!value.match(regex))

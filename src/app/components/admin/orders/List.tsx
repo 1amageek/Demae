@@ -1,12 +1,9 @@
 
 import React, { useState } from "react"
 import firebase from "firebase"
-import { Box, Paper, Typography } from "@material-ui/core";
-import List from "@material-ui/core/List";
-import ListItem from "@material-ui/core/ListItem";
-import ListItemText from "@material-ui/core/ListItemText";
-import ListItemAvatar from "@material-ui/core/ListItemAvatar";
-import Avatar from "@material-ui/core/Avatar";
+import { Link } from "react-router-dom"
+import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
+import { Box, Paper, Grid, Typography, Chip, IconButton, Divider, Avatar } from "@material-ui/core";
 import ImageIcon from "@material-ui/icons/Image";
 import { useAdminProviderOrders, useAdminProvider } from "hooks/commerce";
 import DataLoading from "components/DataLoading";
@@ -17,10 +14,9 @@ import { Order } from "models/commerce";
 import { useDataSourceListen, Where, OrderBy } from "hooks/firestore"
 import { useDeliveryMethod, deliveryStatusesForDeliveryMethod, DeliveryStatusLabel, PaymentStatusLabel } from "hooks/commerce/DeliveryMethod"
 import Dayjs from "dayjs"
-import Label from "components/Label";
 
 export default () => {
-
+	const classes = useStyles();
 	const history = useHistory()
 	const { orderID } = useParams()
 	const deliveryMethod = useDeliveryMethod()
@@ -64,42 +60,91 @@ export default () => {
 			<Box padding={1}>
 				<SegmentControl {...segmentControl} />
 			</Box>
-			<List style={{
-				height: "100%"
-			}}>
-				{orders.map(data => {
-					const orderedDate = Dayjs(data.createdAt.toDate())
-					return (
-						<ListItem key={data.id} button alignItems="flex-start" selected={orderID === data.id} onClick={() => {
-							history.push(`/admin/orders/${data.id}` + (deliveryMethod ? `?deliveryMethod=${deliveryMethod}` : ""))
-						}}>
-							<ListItemAvatar>
-								<Avatar variant="rounded" src={data.imageURLs()[0]}>
-									<ImageIcon />
-								</Avatar>
-							</ListItemAvatar>
-							<ListItemText primary={
-								<>
-									<Typography variant="subtitle1">
-										{data.title}
-									</Typography>
-									<Typography variant="body2">
-										{`ID: ${data.id}`}
-									</Typography>
-									<Typography variant="caption">
-										{orderedDate.format("YYYY-MM-DD HH:mm:ss")}
-									</Typography>
-									<Box display="flex" paddingY={1}>
-										<Label color="gray" fontSize={12}>{DeliveryStatusLabel[data.deliveryStatus]}</Label>
-										<Label color="gray" fontSize={12}>{PaymentStatusLabel[data.paymentStatus]}</Label>
-									</Box>
-								</>
-							} />
-						</ListItem>
-					)
-				})}
-			</List>
+			<List data={orders} />
 		</Box>
 	)
 }
 
+const List = ({ data }: { data: Order[] }) => {
+	return (
+		<Box>
+			{
+				data.map((data, index) => {
+					return <ListItem key={index} data={data} />
+				})
+			}
+		</Box>
+	)
+}
+
+const useStyles = makeStyles((theme: Theme) =>
+	createStyles({
+		list: {
+			textDecoration: "none",
+			color: "inherit",
+			"& > *:hover": {
+				backgroundColor: "rgba(0, 0, 0, 0.018)"
+			},
+		},
+		tags: {
+			display: 'flex',
+			flexWrap: 'wrap',
+			marginTop: theme.spacing(1),
+			'& > *': {
+				margin: theme.spacing(0.3),
+			},
+		},
+	}),
+);
+
+const ListItem = ({ data }: { data: Order }) => {
+	const classes = useStyles();
+	const { orderID } = useParams()
+	const deliveryMethod = useDeliveryMethod()
+	const orderedDate = Dayjs(data.createdAt.toDate())
+	const currency = data.currency
+	const amount = data.amount || 0
+	const price = new Intl.NumberFormat("ja-JP", { style: "currency", currency: currency }).format(amount)
+	const imageURL = data.imageURLs().length > 0 ? data.imageURLs()[0] : undefined
+
+	return (
+		<Link className={classes.list} to={`/admin/orders/${data.id}` + (deliveryMethod ? `?deliveryMethod=${deliveryMethod}` : "")}>
+			<Box>
+				<Box padding={1} paddingY={2} style={{
+					backgroundColor: orderID === data.id ? "rgba(0, 0, 140, 0.03)" : "inherit"
+				}}>
+					<Grid container>
+						<Grid item xs={1}>
+						</Grid>
+						<Grid item xs={2}>
+							<Avatar variant="rounded" src={imageURL} >
+								<ImageIcon />
+							</Avatar>
+						</Grid>
+						<Grid item xs={9}>
+							<Box display="flex" justifyContent="space-between">
+								<Box>
+									<Typography variant="subtitle1">{data.title}</Typography>
+									<Typography variant="body2">{data.id}</Typography>
+									<Typography variant="caption">
+										{orderedDate.format("YYYY-MM-DD HH:mm:ss")}
+									</Typography>
+								</Box>
+							</Box>
+							<Box className={classes.tags}>
+								<Chip size="small" label={DeliveryStatusLabel[data.deliveryStatus]} />
+								<Chip size="small" label={PaymentStatusLabel[data.paymentStatus]} />
+								{
+									data.tags.map((tag, index) => {
+										return <Chip key={index} size="small" label={tag} />
+									})
+								}
+							</Box>
+						</Grid>
+					</Grid>
+				</Box>
+				<Divider />
+			</Box>
+		</Link>
+	)
+}

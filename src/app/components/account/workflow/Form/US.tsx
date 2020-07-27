@@ -100,7 +100,7 @@ export default ({ individual, onCallback }: { individual: Partial<Individual>, o
 	const handleSubmit = async (event) => {
 		event.preventDefault();
 		const uid = authUser?.uid
-		if (!uid) { return }
+		if (!uid) return
 		let data: Create = {
 			type: "custom",
 			country: "US",
@@ -165,7 +165,7 @@ export default ({ individual, onCallback }: { individual: Partial<Individual>, o
 
 	const handleFrontCapture = async ({ target }) => {
 		const uid = authUser?.uid
-		if (!uid) { return }
+		if (!uid) return
 		setFrontLoading(true)
 		const file = target.files[0] as File
 		const ref = firebase.storage().ref(new Account(uid).documentReference.path + "/verification/front.jpg")
@@ -190,7 +190,7 @@ export default ({ individual, onCallback }: { individual: Partial<Individual>, o
 
 	const handleBackCapture = async ({ target }) => {
 		const uid = authUser?.uid
-		if (!uid) { return }
+		if (!uid) return
 		setBackLoading(true)
 		const file = target.files[0] as File
 		const ref = firebase.storage().ref(new Account(uid).documentReference.path + "/verification/back.jpg")

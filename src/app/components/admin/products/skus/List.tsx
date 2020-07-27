@@ -1,25 +1,20 @@
 
 import React, { useState } from "react"
 import firebase from "firebase/app";
-import IconButton from "@material-ui/core/IconButton";
-import { Box, Paper, Typography } from "@material-ui/core";
-import List from "@material-ui/core/List";
-import ListItem from "@material-ui/core/ListItem";
-import ListItemText from "@material-ui/core/ListItemText";
-import ListItemAvatar from "@material-ui/core/ListItemAvatar";
-import Avatar from "@material-ui/core/Avatar";
+import { Link } from "react-router-dom"
+import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
+import { Box, Paper, Grid, Typography, Chip, IconButton, Divider, Avatar } from "@material-ui/core";
 import AddIcon from "@material-ui/icons/Add";
 import ImageIcon from "@material-ui/icons/Image";
 import DataLoading from "components/DataLoading";
 import SegmentControl, { useSegmentControl } from "components/SegmentControl"
-import { ListItemSecondaryAction, Switch } from "@material-ui/core";
+import { Switch } from "@material-ui/core";
 import { useProcessing } from "components/Processing";
 import { useSnackbar } from "components/Snackbar";
 import { useHistory, useParams } from "react-router-dom";
 import { useDataSourceListen, Where, OrderBy } from "hooks/firestore"
 import { useAdminProvider, useUser } from "hooks/commerce";
 import SKU from "models/commerce/SKU"
-import { Symbol } from "common/Currency"
 import { useListToolbar } from "components/NavigationContainer"
 
 const TabLabels = [
@@ -87,73 +82,115 @@ export default () => {
 				<SegmentControl {...segmentControl} />
 			</Box>
 
-			{isLoading ?
-				<DataLoading /> :
-				<List style={{
-					height: "100%"
-				}}>
-					{skus.map(data => {
-						return (
-							<SKUListItem key={data.id} productID={productID} sku={data} />
-						)
-					})}
-				</List>
+			{isLoading ? <DataLoading /> : <SKUList skus={skus} />}
+		</Box>
+	)
+}
+
+const SKUList = ({ skus }: { skus: SKU[] }) => {
+	return (
+		<Box>
+			{
+				skus.map((sku, index) => {
+					return <SKUListItem key={index} sku={sku} />
+				})
 			}
 		</Box>
 	)
 }
 
-const SKUListItem = ({ productID, sku }: { productID?: string, sku: SKU }) => {
-	const [user] = useUser()
-	const history = useHistory()
-	const price = sku.price
-	const currency = sku.currency
-	const symbol = Symbol(currency)
-	const amount = price[currency] || 0
-	const imageURL = sku.imageURLs().length > 0 ? sku.imageURLs()[0] : undefined
+const useStyles = makeStyles((theme: Theme) =>
+	createStyles({
+		list: {
+			textDecoration: "none",
+			color: "inherit",
+			"& > *:hover": {
+				backgroundColor: "rgba(0, 0, 0, 0.018)"
+			},
+		},
+		tags: {
+			display: 'flex',
+			flexWrap: 'wrap',
+			marginTop: theme.spacing(1),
+			'& > *': {
+				margin: theme.spacing(0.3),
+			},
+		},
+	}),
+);
 
+const SKUListItem = ({ sku }: { sku: SKU }) => {
+	const classes = useStyles();
+	const [user] = useUser()
+	const { productID, skuID } = useParams()
+	const currency = sku.currency
+	const amount = sku.price || 0
+	const price = new Intl.NumberFormat("ja-JP", { style: "currency", currency: currency }).format(amount)
+	const imageURL = sku.imageURLs().length > 0 ? sku.imageURLs()[0] : undefined
 	const [setProcessing] = useProcessing()
 	const [setMessage] = useSnackbar()
 
 	return (
-		<>
-			<ListItem key={sku.id} button selected={productID === sku.id} onClick={() => {
-				history.push(`/admin/products/${productID}/skus/${sku.id}`)
-			}}>
-				<ListItemAvatar>
-					<Avatar variant="rounded" src={imageURL} >
-						<ImageIcon />
-					</Avatar>
-				</ListItemAvatar>
-				<ListItemText primary={sku.name} secondary={`${symbol} ${price.toLocaleString()}`} />
-				<ListItemSecondaryAction>
-					<Switch
-						edge="end"
-						onChange={async (e) => {
-							e.preventDefault()
-							setProcessing(true)
-							if (!sku.isAvailable) {
-								if (sku.inventory.type === "finite") {
-									const snapshot = await sku.stocks.collectionReference.get()
-									const count = snapshot.docs.reduce((prev, current) => {
-										return prev + current.data()!["count"]
-									}, 0)
-									if (count <= 0) {
-										setProcessing(false)
-										setMessage("error", `To publish ${sku.name}, Add stock or change the inventory.`)
-										return
-									}
+		<Link className={classes.list} to={`/admin/products/${productID}/skus/${sku.id}`}>
+			<Box>
+				<Box padding={1} paddingY={2} style={{
+					backgroundColor: skuID === sku.id ? "rgba(0, 0, 140, 0.03)" : "inherit"
+				}}>
+					<Grid container>
+						<Grid item xs={1}>
+						</Grid>
+						<Grid item xs={2}>
+							<Avatar variant="rounded" src={imageURL} >
+								<ImageIcon />
+							</Avatar>
+						</Grid>
+						<Grid item xs={9}>
+							<Box display="flex" justifyContent="space-between">
+								<Box>
+									<Typography variant="subtitle1">{sku.name}</Typography>
+									<Typography variant="body2">{price}</Typography>
+								</Box>
+								<Box>
+									<Switch
+										edge="end"
+										onChange={async (e) => {
+											e.preventDefault()
+											setProcessing(true)
+											if (!sku.isAvailable) {
+												if (sku.inventory.type === "finite") {
+													const snapshot = await sku.stocks.collectionReference.get()
+													const count = snapshot.docs.reduce((prev, current) => {
+														return prev + current.data()!["count"]
+													}, 0)
+													if (count <= 0) {
+														setProcessing(false)
+														setMessage("error", `To publish ${sku.name}, Add stock or change the inventory.`)
+														return
+													}
+												}
+											}
+											sku.isAvailable = !sku.isAvailable
+											await sku.save()
+											setProcessing(false)
+											setMessage("success", `${sku.name} is published`)
+										}}
+										checked={sku.isAvailable}
+									/>
+								</Box>
+							</Box>
+
+							<Box className={classes.tags}>
+								{
+									sku.tags.map((tag, index) => {
+										return <Chip key={index} size="small" label={tag} />
+									})
 								}
-							}
-							sku.isAvailable = !sku.isAvailable
-							await sku.save()
-							setProcessing(false)
-							setMessage("success", `${sku.name} is published`)
-						}}
-						checked={sku.isAvailable}
-					/>
-				</ListItemSecondaryAction>
-			</ListItem>
-		</>
+							</Box>
+						</Grid>
+					</Grid>
+				</Box>
+				<Divider />
+			</Box>
+		</Link>
 	)
 }

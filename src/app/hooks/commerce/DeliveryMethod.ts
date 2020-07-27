@@ -39,7 +39,7 @@ export const useDeliveryMethod = (): DeliveryMethod => {
 	const params = new URLSearchParams(search);
 	const deliveryMethod = params.get("deliveryMethod") || ""
 
-	if (["none", "shipping", "pickup"].includes(deliveryMethod)) {
+	if (["none", "shipping", "pickup", "download"].includes(deliveryMethod)) {
 		return deliveryMethod as DeliveryMethod
 	} else {
 		return "none"

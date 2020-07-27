@@ -1,17 +1,12 @@
 import { useState, useContext } from 'react';
 import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
-import Input, { useInput } from 'components/Input';
-import Provider, { Role } from 'models/commerce/Provider';
+import Provider, { Role, Capability } from 'models/commerce/Provider';
 import User from 'models/commerce/User';
 import { SupportedCurrencies, CurrencyCode } from 'common/Currency'
 import { SupportedCountries, CountryCode } from 'common/Country';
-import Button from '@material-ui/core/Button';
-import Box from '@material-ui/core/Toolbar';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableRow from '@material-ui/core/TableRow';
-import Select, { useSelect } from 'components/Select'
+import { FormControl, Button, Box, Typography, FormGroup, FormControlLabel, Checkbox, Divider, FormHelperText } from '@material-ui/core';
+import Select, { useSelect, useMenu } from 'components/_Select'
+import TextField, { useTextField } from "components/TextField"
 import { useProcessing } from 'components/Processing'
 import { Batch } from '@1amageek/ballcap';
 import { useDialog } from 'components/Dialog'
@@ -20,7 +15,6 @@ import { useAuthUser } from 'hooks/auth';
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
 		box: {
-			padding: theme.spacing(2),
 			backgroundColor: '#fafafa'
 		},
 		bottomBox: {
@@ -54,26 +48,36 @@ export default ({ country, onCallback }: { country: CountryCode, onCallback: (ne
 	const [auth] = useAuthUser()
 	const [setProcessing] = useProcessing()
 	const [setDialog] = useDialog()
-	const name = useInput("")
-	const currencyInitValue = (country === "JP") ? "JPY" : "USD"
-	const defaultCurrency = useSelect({
-		initValue: currencyInitValue,
-		inputProps: {
-			menu: SupportedCurrencies.map(currency => {
-				return { label: `${currency.code} (${currency.name})`, value: currency.code }
-			})
-		}
+	const [name] = useTextField("")
+	const [capabilities, setCapabilities] = useState<{ [key in Capability]: boolean }>({
+		"download": false,
+		"instore_sales": false,
+		"online_sales": false,
+		"takeout": false
 	})
+	const currencyInitValue = (country === "JP") ? "JPY" : "USD"
+	const [defaultCurrency] = useSelect(currencyInitValue)
+	const defaultCurrencyMenu = useMenu(SupportedCurrencies.map(currency => {
+		return { label: `${currency.code} (${currency.name})`, value: currency.code }
+	}))
+
+	const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+		setCapabilities({ ...capabilities, [event.target.name]: event.target.checked });
+	}
+
+	const error = Object.values(capabilities).filter((v) => v).length === 0;
 
 	const onSubmit = async (event) => {
 		event.preventDefault()
 		if (!auth) return;
+		if (error) return
 		const uid = auth.uid
 		setProcessing(true)
 		const provider = new Provider(uid)
-		provider.name = name.value
+		provider.name = name.value as string
 		provider.country = country as CountryCode
 		provider.defaultCurrency = defaultCurrency.value as CurrencyCode
+		provider.capabilities = Object.keys(capabilities).filter(value => capabilities[value]) as Capability[]
 		const user = new User(uid)
 		const provierRole = new Role(provider.members.collectionReference.doc(user.id))
 		try {
@@ -97,24 +101,53 @@ export default ({ country, onCallback }: { country: CountryCode, onCallback: (ne
 	return (
 		<form autoComplete='off' onSubmit={onSubmit}>
 			<Box className={classes.box}>
-				<Table size='small'>
-					<TableBody>
-						<TableRow>
-							<TableCell className={classes.cellStatus}></TableCell>
-							<TableCell className={classes.cell} align='right'>Shop name</TableCell>
-							<TableCell className={classes.cell} align='left'>
-								<Input className={classes.input} label='name' variant='outlined' margin='dense' size='small' required {...name} />
-							</TableCell>
-						</TableRow>
-						<TableRow>
-							<TableCell className={classes.cellStatus}></TableCell>
-							<TableCell className={classes.cell} align='right'>Currency</TableCell>
-							<TableCell className={classes.cell} align='left'>
-								<Select {...defaultCurrency} />
-							</TableCell>
-						</TableRow>
-					</TableBody>
-				</Table>
+				<Box padding={2}>
+					<Box paddingTop={2}>
+						<Typography variant="h2" gutterBottom>Shop name</Typography>
+						<Box paddingY={2}>
+							<Typography variant="subtitle1" gutterBottom>Default Currency</Typography>
+							<FormControl variant="outlined" size="small">
+								<Select {...defaultCurrency}>
+									{defaultCurrencyMenu}
+								</Select>
+							</FormControl>
+						</Box>
+						<Box paddingBottom={2}>
+							<Typography variant="subtitle1" gutterBottom>Name</Typography>
+							<TextField variant="outlined" margin="dense" required {...name} fullWidth />
+						</Box>
+					</Box>
+					<Divider />
+					<Box paddingTop={2}>
+						<Typography variant="h2" gutterBottom>Capability</Typography>
+						<Typography>Please select a product sales method.</Typography>
+						<Typography>Multiple selections are available.</Typography>
+						<Box paddingY={2}>
+							<Typography variant="subtitle1" gutterBottom>Sales method</Typography>
+							<FormControl required error={error} component="fieldset">
+								<FormGroup>
+									<FormControlLabel
+										control={<Checkbox checked={capabilities.download} onChange={handleChange} name="download" />}
+										label="Download"
+									/>
+									<FormControlLabel
+										control={<Checkbox checked={capabilities.instore_sales} onChange={handleChange} name="instore_sales" />}
+										label="In-Store Sales"
+									/>
+									<FormControlLabel
+										control={<Checkbox checked={capabilities.online_sales} onChange={handleChange} name="online_sales" />}
+										label="Online Sales"
+									/>
+									<FormControlLabel
+										control={<Checkbox checked={capabilities.takeout} onChange={handleChange} name="takeout" />}
+										label="Takeout"
+									/>
+								</FormGroup>
+								{error && <FormHelperText>You must select one or more.</FormHelperText>}
+							</FormControl>
+						</Box>
+					</Box>
+				</Box>
 			</Box>
 			<Box className={classes.bottomBox} >
 				<Button onClick={() => {
@@ -124,6 +157,6 @@ export default ({ country, onCallback }: { country: CountryCode, onCallback: (ne
 					Save
 				</Button>
 			</Box>
-		</form>
+		</form >
 	)
 }

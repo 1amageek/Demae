@@ -239,11 +239,11 @@ const Form = ({ callback }: { callback?: (paymentMethod: PaymentMethod) => void 
 	const pop = usePop()
 	const handleSubmit = async (event) => {
 		event.preventDefault()
-		if (!auth) { return }
-		if (!stripe) { return }
-		if (!elements) { return }
+		if (!auth) return
+		if (!stripe) return
+		if (!elements) return
 		const card = elements.getElement(CardElement)
-		if (!card) { return }
+		if (!card) return
 
 		setProcessing(true)
 
@@ -275,7 +275,7 @@ const Form = ({ callback }: { callback?: (paymentMethod: PaymentMethod) => void 
 				defaultCard: cardMethod.convert()
 			}
 
-			if (user?.customerID) {
+			if (user?.stripe?.customerID) {
 				const attach = firebase.functions().httpsCallable('stripe-v1-paymentMethod-attach')
 				const response = await attach({
 					paymentMethodID: paymentMethod.id
@@ -304,7 +304,7 @@ const Form = ({ callback }: { callback?: (paymentMethod: PaymentMethod) => void 
 						uid: auth.uid
 					}
 				})
-				const { error, result } = response.data
+				const { error, customer } = response.data
 
 				if (error) {
 					console.error(error)
@@ -312,12 +312,13 @@ const Form = ({ callback }: { callback?: (paymentMethod: PaymentMethod) => void 
 					return
 				}
 
-				console.log('[APP] create customer', result)
-				if (result) {
-					const customerID = result.id
-					updateData['customerID'] = customerID
-					if (callback) {
-						callback(result)
+				console.log("[APP] create customer", customer)
+				if (customer) {
+					updateData["stripe"] = {
+						customerID: customer.id,
+						link: `https://dashboard.stripe.com${
+							customer.livemode ? "" : "/test"
+							}/customers/${customer.id}`
 					}
 				}
 			}

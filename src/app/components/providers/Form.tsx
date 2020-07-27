@@ -79,7 +79,7 @@ const Form = ({ provider }: { provider: Provider }) => {
 	}
 
 	const onSubmit = async () => {
-		// if (!shouldSubmit()) { return }
+		// if (!shouldSubmit()) return
 		provider.name = name.value
 		provider.caption = caption.value
 		provider.description = description.value
