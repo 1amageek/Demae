@@ -28,14 +28,14 @@ export default (props: any) => {
 	const [setProcessing] = useProcessing()
 	const [setMessage] = useSnackbar()
 
-	const enabled = (user?.customerID && user?.defaultCard?.id && user?.defaultShipping)
+	const enabled = (user?.stripe?.customerID && user?.defaultCard?.id && user?.defaultShipping)
 
 	const checkout = async () => {
 		if (!user) { return }
 		if (!cart) { return }
 
 		// customerID
-		const customerID = user.customerID
+		const customerID = user.stripe?.customerID
 		if (!customerID) {
 			return
 		}

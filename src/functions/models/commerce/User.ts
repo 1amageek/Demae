@@ -1,4 +1,4 @@
-import { Doc, Field, firestore, CollectionReference, Codable, SubCollection, Collection } from "@1amageek/ballcap-admin"
+import { Doc, Model, Field, firestore, CollectionReference, Codable, SubCollection, Collection } from "@1amageek/ballcap-admin"
 import * as functions from "firebase-functions"
 import { CountryCode } from "../../common/Country"
 import { CurrencyCode } from "../../common/Currency"
@@ -6,6 +6,11 @@ import Shipping from "./Shipping"
 import Order from "./Order"
 import Card from "./Card"
 import { Role } from "./Provider"
+
+export class Stripe extends Model {
+	@Field customerID!: string
+	@Field link!: string
+}
 
 export default class User extends Doc {
 
@@ -18,14 +23,15 @@ export default class User extends Doc {
 		if (!user) {
 			throw new functions.https.HttpsError("invalid-argument", "User have not Customer")
 		}
-		const customerID = user.customerID
+		const customerID = user.stripe?.customerID
 		if (!customerID) {
 			throw new functions.https.HttpsError("invalid-argument", "User have not Stripe customerID")
 		}
 		return customerID
 	}
 
-	@Field customerID?: string
+	@Codable(Stripe, true)
+	@Field stripe?: Stripe
 	@Field isAvailable: boolean = false
 	@Field country: CountryCode = "US"
 	@Field currentOrderID?: string

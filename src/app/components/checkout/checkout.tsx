@@ -51,8 +51,8 @@ const Checkout = ({ groupID, onClose, onComplete }: { groupID: string, onClose: 
 	const isAvailable: boolean = shouldBeEnable()
 
 	const withCustomer = async (auth: firebase.User, user: User): Promise<{ error?: any, customerID?: any }> => {
-		if (user.customerID) {
-			return { customerID: user.customerID }
+		if (user.stripe?.customerID) {
+			return { customerID: user.stripe.customerID }
 		} else {
 			const create = firebase.functions().httpsCallable('stripe-v1-customer-create')
 			const response = await create({
@@ -65,9 +65,16 @@ const Checkout = ({ groupID, onClose, onComplete }: { groupID: string, onClose: 
 			if (error) {
 				return { error }
 			} else {
-				const customerID = result.id
-				await user.documentReference.set({ customerID }, { merge: true })
-				return { customerID }
+				const customer = result
+				await user.documentReference.set({
+					stripe: {
+						customerID: customer.id,
+						link: `https://dashboard.stripe.com${
+							customer.livemode ? '' : '/test'
+							}/customers/${customer.id}`
+					}
+				}, { merge: true })
+				return { customerID: customer.id }
 			}
 		}
 	}
