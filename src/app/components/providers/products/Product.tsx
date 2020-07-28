@@ -1,13 +1,13 @@
 import React from "react";
 import { useHistory } from "react-router-dom"
-import { Grid, Box, Paper, Avatar } from "@material-ui/core";
-import ImageIcon from "@material-ui/icons/Image";
+import { Grid, Box, Paper } from "@material-ui/core";
 import { Provider, Product } from "models/commerce";
 import DataLoading from "components/DataLoading";
 import SKUList from "./skus/SKUList";
 import { useDocumentListen } from "hooks/firestore";
 import NotFound from "components/NotFound"
 import ActionBar from "components/ActionBar"
+import MediaCard from "components/MediaCard"
 import { DeliveryMethodLabel, capabilityForDeliveryMethod } from "hooks/commerce/DeliveryMethod"
 import { useImage } from "utils/ImageManager"
 import { useTheme } from "@material-ui/core/styles";
@@ -54,13 +54,7 @@ export default ({ providerID, productID }: { providerID: string, productID: stri
 							</Paper>
 						</Box>
 					</Box>
-					<Avatar variant="square" {...imgProps} style={{
-						minHeight: "300px",
-						height: "100%",
-						width: "100%"
-					}}>
-						<ImageIcon />
-					</Avatar>
+					<MediaCard imageProps={imgProps} />
 				</Box>
 			</Box>
 			<Box paddingX={1}>

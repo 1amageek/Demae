@@ -78,7 +78,7 @@ export default class Order extends Doc {
 
 	cancel() {
 		const orderCancel = firebase.functions().httpsCallable("commerce-v1-order-cancel")
-		return orderCancel({ orderID: this.id })
+		return orderCancel({ orderID: this.id, canceledBy: "customer" })
 	}
 }
 

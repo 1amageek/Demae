@@ -11,6 +11,7 @@ import SegmentControl, { useSegmentControl } from "components/SegmentControl"
 import { useHistory, useParams } from "react-router-dom";
 import { Order } from "models/commerce";
 import { useDataSourceListen, Where, OrderBy } from "hooks/firestore"
+import { useListHeader } from "components/NavigationContainer"
 import { useDeliveryMethod, deliveryStatusesForDeliveryMethod, DeliveryStatusLabel, PaymentStatusLabel, DeliveryMethodLabel } from "hooks/commerce/DeliveryMethod"
 import Dayjs from "dayjs"
 
@@ -39,28 +40,28 @@ export default () => {
 		orderBy: OrderBy("createdAt", orderBy)
 	}, waiting)
 
-	if (isLoading) {
+
+	useListHeader(() => {
 		return (
-			<Box height="100%">
+			<>
 				<Box padding={1} paddingTop={2}>
 					<Typography variant="h1">Order</Typography>
 				</Box>
 				<Box padding={1}>
 					<SegmentControl {...segmentControl} />
 				</Box>
-				<DataLoading />
-			</Box>
+			</>
+		)
+	})
+
+	if (isLoading) {
+		return (
+			<DataLoading />
 		)
 	}
 
 	return (
 		<Box height="100%">
-			<Box padding={1} paddingTop={2}>
-				<Typography variant="h1">Order</Typography>
-			</Box>
-			<Box padding={1}>
-				<SegmentControl {...segmentControl} />
-			</Box>
 			<List data={orders} />
 		</Box>
 	)

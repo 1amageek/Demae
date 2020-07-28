@@ -5,7 +5,6 @@ import Card from "./Card"
 import { useDataSourceListen, Where } from "hooks/firestore";
 import { Provider, Product } from "models/commerce";
 import DataLoading from "components/DataLoading"
-import { useDeliveryMethod, deliveryStatusesForDeliveryMethod, DeliveryStatusLabel, PaymentStatusLabel } from "hooks/commerce/DeliveryMethod"
 import { useCapability, deliveryMethodForProviderCapability } from "hooks/commerce/ProviderCapabilities"
 
 export default () => {
@@ -14,6 +13,7 @@ export default () => {
 	const capability = useCapability()
 	const deliveryMethod = deliveryMethodForProviderCapability(capability)
 	const ref = new Provider(providerID).products.collectionReference
+	console.log(deliveryMethod)
 	const wheres = [
 		Where("isAvailable", "==", true),
 		deliveryMethod ? Where("deliveryMethod", "==", deliveryMethod) : undefined,

@@ -1,12 +1,11 @@
 import React from "react";
 import { Link } from "react-router-dom"
 import { makeStyles, Theme, createStyles } from "@material-ui/core/styles";
-import { Card, CardActionArea, CardMedia, CardContent, Box, Avatar, Typography } from "@material-ui/core";
+import { Card, CardActionArea, CardContent, Box, Typography } from "@material-ui/core";
 import { red } from "@material-ui/core/colors";
 import { useImage } from "utils/ImageManager"
 import { useUser } from "hooks/commerce"
 import { Product } from "models/commerce";
-import ImageIcon from "@material-ui/icons/Image";
 import { CurrencyCode } from "common/Currency"
 import { useURL } from "hooks/url"
 import MediaCard from "components/MediaCard"
@@ -61,11 +60,6 @@ export default ({ providerID, product }: { providerID: string, product: Product 
 			<Link to={url(`/providers/${providerID}/products/${product.id}`)}>
 				<CardActionArea>
 					<MediaCard imageProps={imgProps} />
-					{/* <CardMedia
-						className={classes.media}
-						image={product.imageURLs()[0]}
-						title={product.name}
-					/> */}
 				</CardActionArea>
 			</Link >
 			<CardContent style={{ padding: "12px" }}>

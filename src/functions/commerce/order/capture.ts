@@ -95,10 +95,7 @@ export const capture = regionFunctions.https.onCall(async (data, context) => {
 					const result = await Promise.all(transferTasks)
 					updateData.transferResults = result
 				}
-
-				const userOrderRef = new User(order.purchasedBy).orders.collectionReference.doc(order.id)
 				transaction.set(providerOrderRef, updateData, { merge: true })
-				transaction.set(userOrderRef, updateData, { merge: true })
 				return order.data({ convertDocumentReference: true })
 			} catch (error) {
 				throw error

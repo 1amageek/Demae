@@ -38,7 +38,6 @@ export const create = regionFunctions.https.onCall(async (data, context) => {
 	if (!customerID) {
 		throw new functions.https.HttpsError("invalid-argument", "This request does not contain a customerID.")
 	}
-
 	const cart = await Cart.get<Cart>(uid)
 	if (!cart) {
 		throw new functions.https.HttpsError("invalid-argument", "This user has not cart.")
@@ -124,11 +123,6 @@ export const create = regionFunctions.https.onCall(async (data, context) => {
 					}
 				}
 				transaction.set(providerOrderRef, {
-					...order.data(),
-					createdAt: admin.firestore.FieldValue.serverTimestamp(),
-					updatedAt: admin.firestore.FieldValue.serverTimestamp()
-				})
-				transaction.set(userOrderRef, {
 					...order.data(),
 					createdAt: admin.firestore.FieldValue.serverTimestamp(),
 					updatedAt: admin.firestore.FieldValue.serverTimestamp()

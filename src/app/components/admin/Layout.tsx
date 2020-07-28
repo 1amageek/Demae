@@ -183,6 +183,12 @@ export default ({ children }: { children: any }) => {
 					</ListItemIcon>
 					<ListItemText primary={"Shop"} />
 				</ListItem>
+				<ListItem button key={"provider"} component={Link} to="/admin/account">
+					<ListItemIcon>
+						<StorefrontIcon />
+					</ListItemIcon>
+					<ListItemText primary={"Account"} />
+				</ListItem>
 			</List>
 			<Divider />
 			<List>

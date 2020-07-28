@@ -14,11 +14,12 @@ import { useProcessing } from "components/Processing";
 import { useSnackbar } from "components/Snackbar";
 import { useHistory, useParams } from "react-router-dom";
 import { useDataSourceListen, Where, OrderBy } from "hooks/firestore"
-import { useAdminProvider, useUser } from "hooks/commerce";
+import { useAdminProvider, useUser } from "hooks/commerce"
+import { useListHeader } from "components/NavigationContainer"
 import { DeliveryMethodLabel } from "hooks/commerce/DeliveryMethod"
 import Product from "models/commerce/Product"
 import { CurrencyCode } from "common/Currency"
-import { useTheme } from "@material-ui/core/styles";
+
 
 const TabLabels = [
 	{
@@ -76,24 +77,31 @@ export default () => {
 		history.push(`/admin/products/${product.id}`)
 	}
 
+	useListHeader(() => {
+		return (
+			<>
+				<Box paddingX={1} display="flex" justifyContent="space-between" alignItems="center">
+					<Typography variant="h1">Product</Typography>
+					<IconButton
+						color="inherit"
+						onClick={addProduct}
+						edge="start"
+					>
+						<AddIcon color="primary" />
+					</IconButton>
+				</Box>
+				<Box padding={1}>
+					<SegmentControl {...segmentControl} />
+				</Box>
+				<Box padding={1} paddingTop={0}>
+					<SegmentControl {...deliveryMethodControl} />
+				</Box>
+			</>
+		)
+	})
+
 	return (
 		<Box height="100%">
-			<Box paddingX={1} display="flex" justifyContent="space-between" alignItems="center">
-				<Typography variant="h1">Product</Typography>
-				<IconButton
-					color="inherit"
-					onClick={addProduct}
-					edge="start"
-				>
-					<AddIcon color="primary" />
-				</IconButton>
-			</Box>
-			<Box padding={1}>
-				<SegmentControl {...segmentControl} />
-			</Box>
-			<Box padding={1} paddingTop={0}>
-				<SegmentControl {...deliveryMethodControl} />
-			</Box>
 			{isLoading ?
 				<DataLoading /> : <ProductList products={products} />
 			}

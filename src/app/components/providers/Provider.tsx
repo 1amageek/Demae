@@ -43,17 +43,24 @@ export default () => {
 	)
 }
 
+export const TabLabel = {
+	"all": "ALL",
+	"download": "DOWNLOAD",
+	"instore_sales": "INSTORE SALE",
+	"online_sales": "ONLINE SALE",
+	"takeout": "TAKEOUT"
+}
+
 const CapabilityTabs = ({ provider }: { provider: Provider }) => {
 	const hisotry = useHistory()
 	const providerCapabilities = provider.capabilities || []
-	const capability: Capability = useCapability() || (providerCapabilities.length > 0 ? providerCapabilities[0] : "online_sales")
-	const capabilities: Capability[] = provider?.capabilities || []
-	const value = Capabilities.includes(capability) ? capabilities.indexOf(capability) : 0
+	const capability: any = useCapability() || (providerCapabilities.length > 0 ? providerCapabilities[0] : "all")
+	const capabilities: any[] = ["all"].concat(provider?.capabilities || [])
+	const value = ["all"].concat(Capabilities).includes(capability) ? capabilities.indexOf(capability) : 0
 	const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
 		const capability = capabilities[newValue]
 		hisotry.push(`/providers/${provider.id}?capability=${capability}`)
 	};
-
 	return (
 		<>
 			<Divider />
@@ -62,11 +69,12 @@ const CapabilityTabs = ({ provider }: { provider: Provider }) => {
 				indicatorColor="primary"
 				textColor="primary"
 				variant="fullWidth"
+				scrollButtons="auto"
 				onChange={handleChange}
 			>
 				{
 					capabilities.map(value => {
-						return <Tab key={value} label={CapabilityLabel[value]} />
+						return <Tab key={value} fullWidth label={TabLabel[value]} />
 					})
 				}
 			</Tabs>

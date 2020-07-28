@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback, useContext } from "react";
-import { Link, useParams } from "react-router-dom"
-import firebase from "firebase"
+import { Link, useParams, useHistory } from "react-router-dom"
 import "firebase/auth";
 import "firebase/functions";
 import { List, ListItem, ListItemAvatar, ListItemIcon, ListItemText, Avatar, Container, Divider } from "@material-ui/core";
@@ -18,12 +17,14 @@ import Order from "models/commerce/Order";
 import Provider from "models/commerce/Provider";
 import Dayjs from "dayjs"
 import Label from "components/Label";
+import ActionSheet from "components/ActionSheet"
+import { PaymentStatus, DeliveryStatus } from "common/commerce/Types"
 import { useMenu } from "components/Menu";
 import { useDrawer } from "components/Drawer";
 import { useSnackbar } from "components/Snackbar";
 import { useProcessing } from "components/Processing";
 
-const DeliveryStatusLabel = {
+const DeliveryStatusLabel: { [key in DeliveryStatus]: string } = {
 	"none": "NONE",
 	"pending": "PENDING",
 	"preparing_for_delivery": "TODO",
@@ -36,11 +37,12 @@ const DeliveryStatusLabel = {
 	"expired": "EXPIRED"
 }
 
-const PaymentStatusLabel = {
+const PaymentStatusLabel: { [key in PaymentStatus]: string } = {
 	"none": "NONE",
 	"processing": "PROCESSING",
 	"succeeded": "SUCCEEDED",
-	"payment_failed": "FAILED"
+	"payment_failed": "FAILED",
+	"canceled": "CANCELED"
 }
 
 export default () => {
@@ -108,7 +110,7 @@ const OrderList = () => {
 										{orderedDate.format("YYYY-MM-DD HH:mm:ss")}
 									</Typography>
 									<Box display="flex" paddingY={1}>
-										<Label color="gray" fontSize={12}>{DeliveryStatusLabel[data.deliveryStatus]}</Label>
+										{data.deliveryMethod === "shipping" && <Label color="gray" fontSize={12}>{DeliveryStatusLabel[data.deliveryStatus]}</Label>}
 										<Label color="gray" fontSize={12}>{PaymentStatusLabel[data.paymentStatus]}</Label>
 									</Box>
 								</>
@@ -127,8 +129,8 @@ const OrderDetail = () => {
 	const [user] = useUser()
 	const ref = user?.orders.collectionReference.doc(orderID)
 	const [order, isLoading] = useDocumentListen<Order>(Order, ref)
-	const [menuPros, menuOpen, handleClose] = useMenu()
-	const [showDrawer, onClose] = useDrawer()
+	const [menuPros, menuOpen] = useMenu()
+	const [showDrawer, closeDrawer] = useDrawer()
 	const [showSnackbar] = useSnackbar()
 	const [setProcessing] = useProcessing()
 
@@ -159,19 +161,29 @@ const OrderDetail = () => {
 							<Menu {...menuPros}>
 								<MenuItem onClick={() => {
 									showDrawer(
-										<ActionSheet callback={async () => {
-											setProcessing(true)
-											const response = await order.cancel()
-											const { error, result } = response.data
-											if (error) {
-												console.error(error)
-												showSnackbar('error', error.message)
-												setProcessing(false)
-												return
-											}
-											console.log(result)
-											showSnackbar("success", "The order was canceled.")
-										}} onClose={onClose} />
+										<ActionSheet title="Would you like to cancel this order?" actions={
+											[
+												{
+													title: "Cancel",
+													handler: async () => {
+														setProcessing(true)
+														const response = await order.cancel()
+														const { error, result } = response.data
+														if (error) {
+															console.error(error)
+															showSnackbar('error', error.message)
+															setProcessing(false)
+															closeDrawer()
+															return
+														}
+														console.log(result)
+														showSnackbar("success", "The order was canceled.")
+														setProcessing(false)
+														closeDrawer()
+													}
+												}
+											]
+										} />
 									)
 								}}>Cancel</MenuItem>
 							</Menu>
@@ -187,7 +199,7 @@ const OrderDetail = () => {
 								{order.items.map(data => {
 									const image = (data.imageURLs().length > 0) ? data.imageURLs()[0] : undefined
 									return (
-										<ListItem key={data.skuReference?.path}>
+										<ListItem key={data.skuReference?.path} button component={Link} to={`/providers/${order.providedBy}/products/${data.productReference?.id}/skus/${data.skuReference?.id}`}>
 											<ListItemAvatar >
 												<Avatar variant="rounded" src={image} style={{
 													height: theme.spacing(5),
@@ -239,6 +251,7 @@ const OrderDetail = () => {
 
 const ProviderInfo = ({ order }: { order: Order }) => {
 	const theme = useTheme()
+	const history = useHistory()
 	const [provider, isLoading] = useDocumentListen<Provider>(Provider, Provider.collectionReference().doc(order.providedBy))
 
 	if (isLoading) {
@@ -256,7 +269,7 @@ const ProviderInfo = ({ order }: { order: Order }) => {
 	}
 
 	return (
-		<Box padding={2}>
+		<Box padding={2} onClick={() => history.push(`/providers/${provider.id}`)}>
 			<Grid container wrap="nowrap" spacing={2}>
 				<Grid item>
 					<Avatar variant="rounded" src={provider.coverImageURL()} alt={provider.name} style={{
@@ -277,29 +290,5 @@ const ProviderInfo = ({ order }: { order: Order }) => {
 				</Grid>
 			</Grid>
 		</Box>
-	)
-}
-
-
-const ActionSheet = ({ callback, onClose }: { callback: () => void, onClose: () => void }) => {
-	return (
-		<Paper>
-			<Box>
-				<Box padding={2}>
-					<Typography variant="subtitle1">Would you like to cancel this order?</Typography>
-				</Box>
-				<List>
-					<ListItem button onClick={callback}>
-						<ListItemText primary="Cancel" />
-					</ListItem>
-				</List>
-				<Divider />
-				<List>
-					<ListItem button onClick={onClose}>
-						<ListItemText primary="Close" />
-					</ListItem>
-				</List>
-			</Box>
-		</Paper>
 	)
 }

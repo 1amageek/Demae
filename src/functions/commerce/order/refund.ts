@@ -5,7 +5,6 @@ import { getProviderID } from "../helper"
 import { Response } from "./helper"
 import Stripe from "stripe"
 import Provider from "../../models/commerce/Provider"
-import User from "../../models/commerce/User"
 import Order from "../../models/commerce/Order"
 
 export const refund = regionFunctions.https.onCall(async (data, context) => {
@@ -41,7 +40,6 @@ export const refund = regionFunctions.https.onCall(async (data, context) => {
 				const result = await stripe.refunds.create(request, {
 					idempotencyKey: `${providerOrderRef.path}-refund`
 				})
-				const userOrderRef = new User(order.purchasedBy).orders.collectionReference.doc(order.id)
 				order.items = order.items.map(item => {
 					item.status = "canceled"
 					return item
@@ -49,10 +47,6 @@ export const refund = regionFunctions.https.onCall(async (data, context) => {
 				order.refundStatus = "succeeded"
 				order.refundResult = result
 				order.isCanceled = true
-				transaction.set(userOrderRef, {
-					...order.data(),
-					updatedAt: admin.firestore.FieldValue.serverTimestamp()
-				})
 				transaction.set(providerOrderRef, {
 					...order.data(),
 					updatedAt: admin.firestore.FieldValue.serverTimestamp()

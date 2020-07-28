@@ -46,7 +46,7 @@ export default (props: Props) => {
 							primary={
 								<Typography variant="button" style={{
 									fontSize: "1.05rem"
-								}}>Cancel</Typography>
+								}}>Close</Typography>
 							}
 						/>
 					</ListItem>

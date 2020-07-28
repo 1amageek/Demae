@@ -110,8 +110,8 @@ export default ({ individual, onCallback }: { individual: Partial<Individual>, o
 
 	const state_kana = useInput(individual.address_kana?.state, { inputProps: { pattern: "^[A-Za-zァ-ヴー・]{1,32}" }, required: true })
 	const city_kana = useInput(individual.address_kana?.city, { inputProps: { pattern: "^[A-Za-zァ-ヴー・]{1,32}" }, required: true })
-	const line1_kana = useInput(individual.address_kana?.line1, { inputProps: { pattern: "^[A-Za-zァ-ヴー・]{1,32}" }, required: true })
-	const line2_kana = useInput(individual.address_kana?.line2)
+	const line1_kana = useInput(individual.address_kana?.line1, { inputProps: { pattern: "^[0-9A-Za-zァ-ヴー・]{1,32}" }, required: true })
+	const line2_kana = useInput(individual.address_kana?.line2, { inputProps: { pattern: "^[0-9A-Za-zァ-ヴー・]{1,32}" } })
 
 	const email = useInput(individual.email, { required: true, type: "email" })
 	const phone = useInput(individual.phone, { required: true, type: "tel" })

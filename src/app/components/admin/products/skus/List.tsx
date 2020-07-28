@@ -15,7 +15,7 @@ import { useHistory, useParams } from "react-router-dom";
 import { useDataSourceListen, Where, OrderBy } from "hooks/firestore"
 import { useAdminProvider, useUser } from "hooks/commerce";
 import SKU from "models/commerce/SKU"
-import { useListToolbar } from "components/NavigationContainer"
+import { useListToolbar, useListHeader } from "components/NavigationContainer"
 
 const TabLabels = [
 	{
@@ -66,22 +66,28 @@ export default () => {
 		href: `/admin/products/${productID}`
 	})
 
+	useListHeader(() => {
+		return (
+			<>
+				<Box paddingX={1} display="flex" justifyContent="space-between" alignItems="center">
+					<Typography variant="h1">SKU</Typography>
+					<IconButton
+						color="inherit"
+						onClick={addSKU}
+						edge="start"
+					>
+						<AddIcon color="primary" />
+					</IconButton>
+				</Box>
+				<Box padding={1}>
+					<SegmentControl {...segmentControl} />
+				</Box>
+			</>
+		)
+	})
+
 	return (
 		<Box height="100%">
-			<Box paddingX={1} display="flex" justifyContent="space-between" alignItems="center">
-				<Typography variant="h1">SKU</Typography>
-				<IconButton
-					color="inherit"
-					onClick={addSKU}
-					edge="start"
-				>
-					<AddIcon color="primary" />
-				</IconButton>
-			</Box>
-			<Box padding={1}>
-				<SegmentControl {...segmentControl} />
-			</Box>
-
 			{isLoading ? <DataLoading /> : <SKUList skus={skus} />}
 		</Box>
 	)

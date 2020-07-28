@@ -5,6 +5,7 @@ import Button from "@material-ui/core/Button"
 import { AppBar, Toolbar, Paper, useMediaQuery } from "@material-ui/core"
 import ArrowBackIosOutlinedIcon from '@material-ui/icons/ArrowBackIosOutlined';
 import { useTheme } from "@material-ui/core/styles";
+import { useHeight } from "hooks/geometry"
 
 interface Props {
 	title: string
@@ -51,7 +52,6 @@ export const NavigationBackButton = ({ title, href }: { title: string, href?: st
 export const ListViewContext = createContext<React.Dispatch<React.SetStateAction<Props | undefined>>>(() => { })
 export const ListViewProvider = ({ children }: { children: any }) => {
 	const [state, setState] = useState<Props>()
-	const history = useHistory()
 	if (state) {
 		return (
 			<ListViewContext.Provider value={setState}>
@@ -98,6 +98,57 @@ export const useListToolbar = (props: Props) => {
 	}, [JSON.stringify(props)])
 }
 
+export const ListHeaderContext = createContext<React.Dispatch<React.SetStateAction<React.ReactNode>>>(() => { })
+export const ListHeaderProvider = ({ children }: { children: any }) => {
+	const [component, setComponent] = useState<React.ReactNode>()
+	const [ref, height] = useHeight<HTMLDivElement>()
+	return (
+		<ListHeaderContext.Provider value={setComponent}>
+			<Box position="relative" style={{
+				width: "100%",
+				maxWidth: "100%"
+			}}>
+				<AppBar
+					variant="outlined"
+					position="absolute"
+					color="inherit"
+					style={{
+						backgroundColor: "rgba(255, 255, 255, 0.6)",
+						backdropFilter: "blur(20px)",
+						WebkitBackdropFilter: "blur(20px)",
+						borderLeft: "none",
+						borderRight: "none",
+						width: "inherit",
+						maxWidth: "inherit"
+					}}>
+					<div ref={ref} style={{
+						height: "100%"
+					}}>
+						{component}
+					</div>
+				</AppBar>
+			</Box>
+			<Box
+				width="100%"
+				height="100%"
+				style={{
+					paddingTop: `${height}px`,
+					overflowY: "scroll"
+				}}
+			>
+				{children}
+			</Box>
+		</ListHeaderContext.Provider>
+	)
+}
+
+export const useListHeader = (props: React.ReactNode, deps?: React.DependencyList) => {
+	const setComponent = useContext(ListHeaderContext)
+	useEffect(() => {
+		setComponent(props)
+	}, deps)
+}
+
 export const ListView = (props: BoxProps) => {
 	const theme = useTheme()
 	const matches = useMediaQuery(theme.breakpoints.down("sm"));
@@ -126,7 +177,9 @@ export const ListView = (props: BoxProps) => {
 						background: "inherit"
 					}}>
 					<ListViewProvider>
-						{props.children}
+						<ListHeaderProvider>
+							{props.children}
+						</ListHeaderProvider>
 					</ListViewProvider>
 				</Paper>
 			</Box>

@@ -1,7 +1,8 @@
-import React, { useRef, useEffect, useState } from "react"
-import { Box, Avatar, Typography } from "@material-ui/core";
+import React from "react"
+import { Box, Avatar } from "@material-ui/core";
 import ImageIcon from "@material-ui/icons/Image";
 import { ImageProps } from "utils/ImageManager"
+import { useWidth } from "hooks/geometry"
 
 interface Props {
 	imageProps: ImageProps
@@ -24,14 +25,3 @@ export default (props: Props) => {
 	)
 }
 
-const useWidth = <T extends HTMLElement>(): [React.RefObject<T>, number] => {
-	const ref = useRef<T>(null)
-	const [width, setWidth] = useState(0)
-	useEffect(() => {
-		if (ref.current) {
-			const { width } = ref.current.getBoundingClientRect()
-			setWidth(width)
-		}
-	}, [ref])
-	return [ref, width]
-}
