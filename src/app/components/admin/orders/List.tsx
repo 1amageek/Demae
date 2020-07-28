@@ -19,7 +19,10 @@ export default () => {
 	const history = useHistory()
 	const { orderID } = useParams()
 	const deliveryMethod = useDeliveryMethod()
-	const deliveryMethodLables = deliveryStatusesForDeliveryMethod(deliveryMethod)
+	const deliveryMethodLables = deliveryStatusesForDeliveryMethod(deliveryMethod).concat({
+		label: "ALL",
+		value: undefined
+	})
 	const [segmentControl] = useSegmentControl(deliveryMethodLables.map(tab => tab.label))
 	const deliveryStatus = deliveryMethodLables.map(tab => tab.value)[segmentControl.selected]
 	const [provider, waiting] = useAdminProvider()

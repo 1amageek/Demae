@@ -85,17 +85,17 @@ export default ({ providerID, productID, skuID }: { providerID: string, productI
 		})
 	}
 
-	const onPurchaseNow = (e) => {
-		if (!product) return
-		if (!sku) return
+	const onPurchaseNow = async (e) => {
 		e.preventDefault()
+		if (!product) throw new Error("Product not found")
+		if (!sku) throw new Error("SKU not found")
 		if (user) {
 			const _cart = cart || new Cart(user.id)
 			const group = cart?.cartGroup("quick") || CartGroup.fromSKU(product, sku)
 			group.groupID = "quick"
 			group.setSKU(product, sku, mediatorID)
 			_cart?.setCartGroup(group)
-			_cart?.save()
+			await _cart?.save()
 			showDrawer(
 				<QuickCheckout
 					groupID={"quick"}
@@ -194,7 +194,7 @@ export default ({ providerID, productID, skuID }: { providerID: string, productI
 									<Grid item xs={5}>
 										<Button fullWidth
 											size="large"
-											style={{ fontSize: "13px" }}
+											style={{ fontSize: "12px" }}
 											startIcon={
 												<AddBoxIcon />
 											}
@@ -212,7 +212,7 @@ export default ({ providerID, productID, skuID }: { providerID: string, productI
 										variant="contained"
 										color="primary"
 										size="large"
-										style={{ fontSize: "13px" }}
+										style={{ fontSize: "12px" }}
 										startIcon={
 											<PaymentIcon />
 										}

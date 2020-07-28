@@ -71,19 +71,11 @@ export const deliveryStatusesForDeliveryMethod = (deliveryMethod?: DeliveryMetho
 				label: "IN-STORE",
 				value: "none"
 			},
-			{
-				label: "ALL",
-				value: undefined
-			},
 		]
 		case "download": return [
 			{
 				label: "DOWNLOAD",
 				value: "download"
-			},
-			{
-				label: "ALL",
-				value: undefined
 			},
 		]
 		case "pickup": return [
@@ -98,10 +90,6 @@ export const deliveryStatusesForDeliveryMethod = (deliveryMethod?: DeliveryMetho
 			{
 				label: "COMPLETED",
 				value: "delivered"
-			},
-			{
-				label: "ALL",
-				value: undefined
 			},
 		]
 		case "shipping": return [
@@ -120,10 +108,6 @@ export const deliveryStatusesForDeliveryMethod = (deliveryMethod?: DeliveryMetho
 			{
 				label: "PENDING",
 				value: "pending"
-			},
-			{
-				label: "ALL",
-				value: undefined
 			},
 		]
 		default: return []

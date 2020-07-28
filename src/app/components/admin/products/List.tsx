@@ -174,15 +174,24 @@ const ProductListItem = ({ product }: { product: Product }) => {
 											e.preventDefault()
 											setProcessing(true)
 											const snapshot = await product.skus.collectionReference.where("isAvailable", "==", true).get()
+
 											if (snapshot.empty) {
 												setProcessing(false)
 												setMessage("error", `To publish ${product.name}, add the available SKUs.`)
-											} else {
-												product.isAvailable = !product.isAvailable
-												await product.save()
-												setProcessing(false)
-												setMessage("success", `${product.name} is published`)
+												return
 											}
+
+											if (product.images.length === 0) {
+												setProcessing(false)
+												setMessage("error", `The product must be set with one or more images.`)
+												return
+											}
+
+											product.isAvailable = !product.isAvailable
+											await product.save()
+											setProcessing(false)
+											setMessage("success", `${product.name} is published`)
+
 										}}
 										checked={product.isAvailable}
 									/>

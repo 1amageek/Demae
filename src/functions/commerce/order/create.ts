@@ -43,12 +43,8 @@ export const create = regionFunctions.https.onCall(async (data, context) => {
 	if (!cart) {
 		throw new functions.https.HttpsError("invalid-argument", "This user has not cart.")
 	}
-	const providerID = await getProviderID(uid)
-	if (!providerID) {
-		throw new functions.https.HttpsError("invalid-argument", "Auth does not maintain a providerID.")
-	}
-	const orderRef = new Provider(providerID).orders.collectionReference.doc()
-	const order: Order = Order.fromData(orderData, orderRef, { convertDocumentReference: true })
+	const userOrderRef = new User(uid).orders.collectionReference.doc()
+	const order: Order = Order.fromData(orderData, userOrderRef, { convertDocumentReference: true })
 	const cartItemGroups = cart.groups.filter(group => group.groupID !== groupID)
 
 	const isOnSession = order.deliveryMethod === "none" || order.deliveryMethod === "download"
@@ -98,11 +94,11 @@ export const create = regionFunctions.https.onCall(async (data, context) => {
 				}
 
 				const result = await stripe.paymentIntents.create(request, {
-					idempotencyKey: orderRef.path
+					idempotencyKey: userOrderRef.path
 				})
 
 				const provider: Provider = new Provider(order.providedBy)
-				const recieveOrderRef = provider.orders.collectionReference.doc(order.id)
+				const providerOrderRef = provider.orders.collectionReference.doc(order.id)
 				order.paymentResult = result
 				switch (order.deliveryMethod) {
 					case "none": {
@@ -127,12 +123,12 @@ export const create = regionFunctions.https.onCall(async (data, context) => {
 						break
 					}
 				}
-				transaction.set(recieveOrderRef, {
+				transaction.set(providerOrderRef, {
 					...order.data(),
 					createdAt: admin.firestore.FieldValue.serverTimestamp(),
 					updatedAt: admin.firestore.FieldValue.serverTimestamp()
 				})
-				transaction.set(orderRef, {
+				transaction.set(userOrderRef, {
 					...order.data(),
 					createdAt: admin.firestore.FieldValue.serverTimestamp(),
 					updatedAt: admin.firestore.FieldValue.serverTimestamp()

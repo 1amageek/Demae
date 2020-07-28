@@ -5,7 +5,7 @@ import firebase from "firebase"
 import { Grid, AppBar, Toolbar, Checkbox, FormControlLabel } from "@material-ui/core";
 import { List, ListItem, ListItemText, ListItemIcon, Button } from "@material-ui/core";
 import AddIcon from "@material-ui/icons/Add";
-import { useUserShippingAddresses, UserContext, CartContext, useUser, useCart } from "hooks/commerce"
+import { useUserShippingAddresses, useUser, useCart } from "hooks/commerce"
 import { useFetchList } from "hooks/stripe"
 import Loading from "components/Loading"
 import { Container, ExpansionPanel, ExpansionPanelSummary, ExpansionPanelDetails, ExpansionPanelActions, Divider, Box } from "@material-ui/core";

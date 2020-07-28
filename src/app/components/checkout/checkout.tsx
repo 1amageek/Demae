@@ -8,8 +8,8 @@ import DataLoading from "components/DataLoading";
 import CardBrand from "common/stripe/CardBrand"
 import User from "models/commerce/User"
 import CartItemCell from "./CartItemCell"
-import CardList from "./payment/list"
-import ShippingAddressList from "./shipping/list"
+import CardList from "./payment"
+import ShippingAddressList from "./shipping"
 import Summary from "components/cart/summary"
 import Navigation, { usePush } from "components/Navigation"
 import { useProcessing } from "components/Processing";
