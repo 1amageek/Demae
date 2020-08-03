@@ -11,6 +11,7 @@ import Cart from "components/cart"
 import Account from "components/account"
 import AccountCreateWorkFlow from "components/account/workflow"
 import ProviderCreateWorkFlow from "components/provider/workflow"
+import Payout from "components/account/payouts"
 import Order from "components/account/histories"
 import Payment from "components/account/payments"
 import Provider from "components/providers"
@@ -65,6 +66,7 @@ const App = () => {
 			<Route path={`/account/orders`} exact component={Order} />
 			<Route path={`/account/orders/:orderID`} exact component={Order} />
 			<Route path={`/account/payments`} exact component={Payment} />
+			<Route path={`/account/payout`} exact component={Payout} />
 			<Route path={`/provider/create`} exact component={ProviderCreateWorkFlow} />
 			<Route path={`/providers`} exact component={Provider} />
 			<Route path={`/providers/:providerID`} exact component={Provider} />

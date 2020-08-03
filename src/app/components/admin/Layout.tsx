@@ -3,12 +3,13 @@ import { Link, useHistory } from "react-router-dom"
 import clsx from "clsx";
 import firebase from "firebase"
 import "firebase/auth"
-import { makeStyles, useTheme, Theme, createStyles } from "@material-ui/core/styles";
+import { makeStyles, Theme, createStyles } from "@material-ui/core/styles";
 import CheckBoxOutlineBlankIcon from "@material-ui/icons/CheckBoxOutlineBlank";
 import PublicIcon from "@material-ui/icons/Public";
 import ViewListIcon from "@material-ui/icons/ViewList";
 import StorefrontIcon from "@material-ui/icons/Storefront";
 import AccountCircle from "@material-ui/icons/AccountCircle";
+import AccountBoxIcon from '@material-ui/icons/AccountBox';
 import ImageIcon from "@material-ui/icons/Image";
 import MenuIcon from "@material-ui/icons/Menu";
 import PlaceIcon from "@material-ui/icons/Place";
@@ -16,14 +17,18 @@ import CloudDownloadIcon from "@material-ui/icons/CloudDownload";
 import LocalShippingIcon from "@material-ui/icons/LocalShipping";
 import ExpandLess from "@material-ui/icons/ExpandLess";
 import ExpandMore from "@material-ui/icons/ExpandMore";
-import { Drawer, AppBar, Toolbar, List, ListItem, ListItemText, Avatar, Divider, Box, MenuItem, Menu, IconButton, Collapse, Switch } from "@material-ui/core";
+import { Drawer, AppBar, Toolbar, List, ListItem, ListItemText, Avatar, Divider, Box, MenuItem, Menu, IconButton, Collapse, Switch, ListItemSecondaryAction, Chip } from "@material-ui/core";
 import Provider, { Role } from "models/commerce/Provider"
 import { useRoles, useUser, useAdminProvider } from "hooks/commerce"
 import { useDocumentListen } from "hooks/firestore"
 import { useProcessing } from "components/Processing";
 import { useSnackbar } from "components/Snackbar";
+import DataLoading from "components/DataLoading"
 import { ListItemIcon } from "@material-ui/core";
 import Label from "components/Label";
+import { useAuthUser } from "hooks/auth";
+import { useAccount } from 'hooks/account'
+import { Account } from "models/account";
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
@@ -48,6 +53,7 @@ type Anchor = "top" | "left" | "bottom" | "right";
 
 export default ({ children }: { children: any }) => {
 	const classes = useStyles()
+	const [auth] = useAuthUser()
 	const [provider] = useAdminProvider()
 	const [setProcessing] = useProcessing()
 	const [setMessage] = useSnackbar()
@@ -183,12 +189,9 @@ export default ({ children }: { children: any }) => {
 					</ListItemIcon>
 					<ListItemText primary={"Shop"} />
 				</ListItem>
-				<ListItem button key={"provider"} component={Link} to="/admin/account">
-					<ListItemIcon>
-						<StorefrontIcon />
-					</ListItemIcon>
-					<ListItemText primary={"Account"} />
-				</ListItem>
+				{
+					(auth && auth.uid === provider?.id) && <AccountListItem />
+				}
 			</List>
 			<Divider />
 			<List>
@@ -248,6 +251,22 @@ export default ({ children }: { children: any }) => {
 	);
 }
 
+const AccountListItem = () => {
+	const [account, isLoading] = useAccount()
+
+	return (
+		<ListItem button key={"provider"} component={Link} to="/admin/account">
+			<ListItemIcon>
+				<AccountBoxIcon />
+			</ListItemIcon>
+			<ListItemText primary={"Account"} />
+			<ListItemSecondaryAction>
+				{isLoading && <DataLoading />}
+				{!isLoading && account === undefined && <Chip variant="outlined" size="small" color="secondary" label="Required" />}
+			</ListItemSecondaryAction>
+		</ListItem>
+	)
+}
 
 const AccountMenu = () => {
 

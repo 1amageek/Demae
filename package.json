@@ -7,6 +7,7 @@
 	},
 	"main": "dist/index.js",
 	"scripts": {
+		"play": "ts-node --project ./playground/tsconfig.json playground",
 		"dev": "NODE_ENV=development next src/app",
 		"clean": "rimraf dist",
 		"build:app": "npm run clean && NODE_ENV=development next build src/app",

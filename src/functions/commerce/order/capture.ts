@@ -34,6 +34,14 @@ export const capture = regionFunctions.https.onCall(async (data, context) => {
 		throw new functions.https.HttpsError("invalid-argument", "Auth does not maintain a providerID.")
 	}
 	const providerOrderRef = new Provider(providerID).orders.collectionReference.doc(orderID)
+	const providerAccount = await Account.get<Account>(providerID)
+	const providerAccountID = providerAccount?.accountID
+	if (!providerAccount) {
+		throw new functions.https.HttpsError("invalid-argument", "Provider does not have an account ID.")
+	}
+	if (!providerAccountID) {
+		throw new functions.https.HttpsError("invalid-argument", "Provider does not have an account ID.")
+	}
 	try {
 		const result = await admin.firestore().runTransaction(async transaction => {
 			const snapshot = await transaction.get(providerOrderRef)
@@ -54,42 +62,61 @@ export const capture = regionFunctions.https.onCall(async (data, context) => {
 			if (order.paymentStatus !== "processing") {
 				throw new functions.https.HttpsError("invalid-argument", `Invalid order status.. ${providerOrderRef.path}`)
 			}
-			const tasks = order.items.map(async item => {
-				if (item.mediatedBy) {
-					const transferAmount = Math.floor(item.amount * 0.2)
-					const account = await Account.get<Account>(item.mediatedBy)
-					const accountID = account?.accountID
-					if (account && accountID) {
-						return {
-							amount: transferAmount,
-							currency: item.currency,
-							destination: accountID,
-							transfer_group: orderID,
-							description: `Transfer from Order: [${orderID}] to UID: [${account.id}]`,
-							metadata: {
-								mediatedBy: item.mediatedBy,
-								uid: account.id
-							}
-						} as Stripe.TransferCreateParams
-					}
-				}
-				return undefined
-			})
 
 			try {
 				// Check the stock status.
-				const result = await stripe.paymentIntents.capture(paymentIntentID, {
+				const paymentIntent = await stripe.paymentIntents.capture(paymentIntentID, {
 					idempotencyKey: orderID
 				})
 				let updateData: Partial<Order> = {
 					paymentStatus: "succeeded",
 					deliveryStatus: "in_transit",
-					paymentResult: result,
+					paymentResult: paymentIntent,
 					updatedAt: admin.firestore.FieldValue.serverTimestamp() as any
 				}
-				const mediatorTransferDataSet = (await Promise.all(tasks)).filter(value => value !== undefined) as Stripe.TransferCreateParams[]
+				const providerTransferTasks = order.items.map(item => {
+					const transferAmount = Math.floor(item.amount * 0.2)
+					return {
+						amount: transferAmount,
+						currency: item.currency,
+						destination: providerAccountID,
+						transfer_group: orderID,
+						description: `Transfer from Order: [${orderID}] to Provider UID: [${providerID}]`,
+						source_transaction: paymentIntent.charges.data[0].id,
+						metadata: {
+							providedBy: providerID,
+							key: `${orderID}-${item.skuReference!.id}-${providerAccount.id}`
+						}
+					} as Stripe.TransferCreateParams
+				})
+				const tasks = order.items.map(async item => {
+					if (item.mediatedBy) {
+						const transferAmount = Math.floor(item.amount * 0.2)
+						const account = await Account.get<Account>(item.mediatedBy)
+						const accountID = account?.accountID
+						if (account && accountID) {
+							return {
+								amount: transferAmount,
+								currency: item.currency,
+								destination: accountID,
+								transfer_group: orderID,
+								description: `Transfer from Order: [${orderID}] to UID: [${account.id}]`,
+								source_transaction: paymentIntent.charges.data[0].id,
+								metadata: {
+									mediatedBy: item.mediatedBy,
+									uid: account.id,
+									key: `${orderID}-${item.skuReference!.id}-${account.id}`
+								}
+							} as Stripe.TransferCreateParams
+						}
+					}
+					return undefined
+				})
+				const mediatorTransferTasks = (await Promise.all(tasks)).filter(value => value !== undefined) as Stripe.TransferCreateParams[]
+				const mediatorTransferDataSet = mediatorTransferTasks.concat(providerTransferTasks)
+				functions.logger.log(JSON.stringify(mediatorTransferDataSet, null, "\t"))
 				const transferTasks = mediatorTransferDataSet.map(async data => {
-					return await stripe.transfers.create(data, { idempotencyKey: `${orderID}-${data.destination}` });
+					return stripe.transfers.create(data, { idempotencyKey: `${data.metadata!.key}` });
 				})
 				if (transferTasks.length > 0) {
 					const result = await Promise.all(transferTasks)
