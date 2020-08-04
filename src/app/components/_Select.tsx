@@ -1,11 +1,11 @@
-import { useState, useEffect, Dispatch, SetStateAction } from 'react'
-import MenuItem from '@material-ui/core/MenuItem'
-import Select, { SelectProps } from '@material-ui/core/Select'
+import { useState, useEffect, Dispatch, SetStateAction } from "react"
+import MenuItem from "@material-ui/core/MenuItem"
+import Select, { SelectProps } from "@material-ui/core/Select"
 
 export const useSelect = <T extends unknown>(initValue?: T, props: SelectProps = {}): [SelectProps, Dispatch<SetStateAction<T>>] => {
-	const [value, setValue] = useState<T>(initValue || '' as T)
+	const [value, setValue] = useState<T>(initValue || "" as T)
 
-	useEffect(() => setValue(initValue || '' as T), [initValue])
+	useEffect(() => setValue(initValue || "" as T), [initValue])
 
 	const onChange = props.onChange || ((
 		event: React.ChangeEvent<{ name?: string; value: unknown }>,

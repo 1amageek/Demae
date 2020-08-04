@@ -1,13 +1,14 @@
 import * as functions from "firebase-functions"
 import { regionFunctions } from "../../helper"
 import Stripe from "stripe"
+import Account from "../../models/account/Account"
 
 type Response = {
 	result?: any
 	error?: any
 }
 
-export const create = regionFunctions.https.onCall(async (data, context) => {
+export const createExternalAccount = regionFunctions.https.onCall(async (data, context) => {
 	if (!context.auth) {
 		throw new functions.https.HttpsError("failed-precondition", "The function must be called while authenticated.")
 	}
@@ -15,27 +16,23 @@ export const create = regionFunctions.https.onCall(async (data, context) => {
 	if (!STRIPE_API_KEY) {
 		throw new functions.https.HttpsError("invalid-argument", "The functions requires STRIPE_API_KEY.")
 	}
-	const ACCOUNT_ID = functions.config().stripe.account
-	if (!ACCOUNT_ID) {
-		throw new functions.https.HttpsError("invalid-argument", "The functions requires ACCOUNT_ID.")
-	}
-	const success_url = functions.config().stripe.account_link_success_url
-	if (!success_url) {
-		throw new functions.https.HttpsError("invalid-argument", "The functions requires success_url.")
-	}
-	const failure_url = functions.config().stripe.account_link_failure_url
-	if (!failure_url) {
-		throw new functions.https.HttpsError("invalid-argument", "The functions requires failure_url.")
-	}
 	console.info(context)
+	const uid: string = context.auth.uid
 	const stripe = new Stripe(STRIPE_API_KEY, { apiVersion: "2020-03-02" })
+	const accountID = await Account.getAccountID(uid)
+	if (!accountID) {
+		throw new functions.https.HttpsError("invalid-argument", "Auth does not maintain a accountID.")
+	}
+
 	try {
-		const result = await stripe.accountLinks.create({
-			account: ACCOUNT_ID,
-			success_url,
-			failure_url,
-			type: "custom_account_verification",
-		})
+		const result = await stripe.accounts.createExternalAccount(
+			accountID,
+			{
+				external_account: "",
+				metadata: {
+					uid: uid
+				}
+			})
 		return { result } as Response
 	} catch (error) {
 		functions.logger.error(error)
