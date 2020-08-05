@@ -14,19 +14,9 @@ import {
 import "firebase/functions"
 import ArrowBackIcon from "@material-ui/icons/ArrowBack";
 import { Paper, AppBar, Toolbar, Button, Typography, Tooltip, IconButton, FormControlLabel, FormControl, Card } from "@material-ui/core"
-import { List, ListItem, ListItemText, ListItemIcon } from "@material-ui/core";
-import AddIcon from "@material-ui/icons/Add";
-import Loading from "components/Loading"
 import { Container, ExpansionPanel, ExpansionPanelSummary, ExpansionPanelDetails, ExpansionPanelActions, Divider, Box } from "@material-ui/core";
-import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-import CardBrand from "common/stripe/CardBrand"
-import * as Commerce from "models/commerce"
-import { PaymentMethod } from "@stripe/stripe-js"
-import DataLoading from "components/DataLoading";
-import { useDialog } from "components/Dialog"
-import { useFetchList } from "hooks/stripe"
 import { useAuthUser } from "hooks/auth"
-import { UserContext } from "hooks/commerce"
+import { useSnackbar } from "components/Snackbar"
 import { useProcessing } from "components/Processing";
 import { usePush, usePop } from "components/Navigation";
 import Select, { useSelect, useMenu } from "components/_Select"
@@ -34,19 +24,6 @@ import TextField, { useTextField } from "components/TextField"
 
 const STRIPE_API_KEY = process.env.STRIPE_API_KEY!
 const stripePromise = loadStripe(STRIPE_API_KEY)
-
-const CARD_OPTIONS = {
-	style: {
-		base: {
-			fontSize: "16px",
-		},
-		invalid: {
-			iconColor: "#FFC7EE",
-			color: "#FFC7EE",
-		},
-	},
-	hidePostalCode: true
-};
 
 export default () => {
 	return (
@@ -56,24 +33,11 @@ export default () => {
 	)
 }
 
-const useStyles = makeStyles((theme: Theme) =>
-	createStyles({
-		box: {
-			padding: theme.spacing(3),
-		},
-		button: {
-			width: "100%",
-			flexGrow: 1,
-			marginTop: theme.spacing(4)
-		}
-	}),
-);
-
 const Form = () => {
-
-	const stripe = useStripe();
-
-
+	const stripe = useStripe()
+	const [auth] = useAuthUser()
+	const [showProgress] = useProcessing()
+	const [showSnackbar] = useSnackbar()
 	const [account_holder_type] = useSelect("individual")
 	const account_holder_types = useMenu([
 		{
@@ -92,7 +56,8 @@ const Form = () => {
 	const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault()
 		if (!stripe) return
-
+		if (!auth) return
+		showProgress(true)
 		const token = await stripe.createToken("bank_account", {
 			country: "JP",
 			currency: "JPY",
@@ -102,35 +67,59 @@ const Form = () => {
 			account_holder_type: account_holder_type.value as string
 		})
 
-		console.log(token)
+		const createExternalAccount = firebase.functions().httpsCallable("stripe-v1-account-createExternalAccount")
+		const response = await createExternalAccount({
+			external_account: token,
+			default_for_currency: true,
+			metadata: {
+				uid: auth.uid
+			}
+		})
+		const { error, result } = response.data
+		if (error) {
+			showProgress(false)
+			showSnackbar("success", "Your bank account registration was unsuccessful.Please try again after a while.")
+			return { error }
+		} else {
+			showSnackbar("success", "You have successfully registered your bank account.")
+			showProgress(false)
+		}
 	}
 
-
 	return (
-		<Box p={2}>
-			<form onSubmit={onSubmit}>
-
-				<Box display="flex">
-					<FormControl variant="outlined" margin="dense" size="small" style={{ width: "140px" }}>
-						<Select variant="outlined" {...account_holder_type} >
-							{account_holder_types}
-						</Select>
-					</FormControl>
-					<TextField label="ROUTING NUMBER" variant="outlined" margin="dense" size="small" fullWidth {...routing_number} />
+		<Container maxWidth="sm" disableGutters>
+			<Typography variant="h1" gutterBottom>Bank Account</Typography>
+			<Paper>
+				<Box padding={2}>
+					<form onSubmit={onSubmit}>
+						<Box display="flex">
+							<FormControl variant="outlined" margin="dense" size="small" style={{ width: "140px" }}>
+								<Select variant="outlined" {...account_holder_type} >
+									{account_holder_types}
+								</Select>
+							</FormControl>
+						</Box>
+						<Box display="flex">
+							<TextField label="ROUTING NUMBER" variant="outlined" margin="dense" size="small" fullWidth {...routing_number} />
+						</Box>
+						<Box display="flex">
+							<TextField label="ACCOUNT NUMBER" variant="outlined" margin="dense" size="small" fullWidth {...account_number} />
+						</Box>
+						<Box display="flex">
+							<TextField label="ACCOUNT NAME" variant="outlined" margin="dense" size="small" fullWidth {...account_holder_name} />
+						</Box>
+						<Box display="flex" justifyContent="flex-end" paddingTop={2}>
+							<Button
+								type="submit"
+								variant="contained"
+								color="primary"
+								size="large"
+								fullWidth
+							>OK</Button>
+						</Box>
+					</form>
 				</Box>
-				<Box display="flex">
-					<TextField label="ACCOUNT NUMBER" variant="outlined" margin="dense" size="small" fullWidth {...account_number} />
-				</Box>
-				<Box display="flex">
-					<TextField label="ACCOUNT NAME" variant="outlined" margin="dense" size="small" fullWidth {...account_holder_name} />
-				</Box>
-				<Button
-					type="submit"
-					variant="contained"
-					color="primary"
-					size="large"
-					onClick={() => { }}>Continue to Payment</Button>
-			</form>
-		</Box>
+			</Paper>
+		</Container>
 	)
 }

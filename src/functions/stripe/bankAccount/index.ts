@@ -19,8 +19,11 @@ export const createSource = regionFunctions.https.onCall(async (_, context) => {
 	console.info(context)
 	const uid: string = context.auth.uid
 	const stripe = new Stripe(STRIPE_API_KEY, { apiVersion: "2020-03-02" })
+	const accountID = await Account.getAccountID(uid)
+	if (!accountID) {
+		throw new functions.https.HttpsError("invalid-argument", "Auth does not maintain a accountID.")
+	}
 	try {
-		const accountID = await Account.getAccountID(uid)
 		const result = await stripe.customers.createSource(accountID, { source: accountID })
 		return { result } as Response
 	} catch (error) {

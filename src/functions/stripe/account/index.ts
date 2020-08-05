@@ -2,6 +2,7 @@ import * as functions from "firebase-functions"
 import { regionFunctions } from "../../helper"
 import Stripe from "stripe"
 import Account from "../../models/account/Account"
+export * from "./createExternalAccount"
 
 type Response = {
 	result?: any
