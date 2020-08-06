@@ -1,6 +1,6 @@
 import { Doc, Field, Collection, SubCollection, firestore, CollectionReference, GeoPoint, File } from "@1amageek/ballcap"
 import { CurrencyCode } from "common/Currency"
-import Product from "./Product"
+import Product, { ProductDraft } from "./Product"
 import Order from "./Order"
 
 export type Permission = "read" | "write" | "owner"
@@ -38,6 +38,7 @@ export default class Provider extends Doc {
 	@Field sns?: { [key in SNSProvider]: any }
 	@Field metadata?: { [key: string]: any } = {}
 
+	@SubCollection productDrafts: Collection<ProductDraft> = new Collection()
 	@SubCollection products: Collection<Product> = new Collection()
 	@SubCollection orders: Collection<Order> = new Collection()
 	@SubCollection members: Collection<Role> = new Collection()

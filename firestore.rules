@@ -47,7 +47,7 @@ service cloud.firestore {
 				}
 
 				function isViewer() {
-					return "write" in get(/databases/$(database)/documents/commerce/$(version)/providers/$(provider_id)/members/$(request.auth.uid)).data.permissions;
+					return "read" in get(/databases/$(database)/documents/commerce/$(version)/providers/$(provider_id)/members/$(request.auth.uid)).data.permissions;
 				}
 
 				allow read: if true;
@@ -56,15 +56,30 @@ service cloud.firestore {
 				match /members/{user_id} {
 					allow read: if request.auth.uid == provider_id || isOwner() || isEditor() || isViewer();
 					allow write: if request.auth.uid == provider_id || isOwner();
-				}			
+				}	
 
-				match /products/{product_id} {
-					allow read: if true;
+				match /productDrafts/{product_id} {
+					allow read: if request.auth.uid == provider_id || isOwner() || isEditor() || isViewer();
 					allow write: if request.auth.uid == provider_id || isOwner() || isEditor();
 
 					match /skus/{sku_id} {
-						allow read: if true;
+						allow read: if request.auth.uid == provider_id || isOwner() || isEditor() || isViewer();
 						allow write: if request.auth.uid == provider_id || isOwner() || isEditor();
+
+						match /stocks/{shard_key} {
+							allow read: if true;
+							allow write: if false;
+						}
+					}
+				}
+
+				match /products/{product_id} {
+					allow read: if true;
+					allow write: if false;
+
+					match /skus/{sku_id} {
+						allow read: if true;
+						allow write: if false;
 
 						match /stocks/{shard_key} {
 							allow read: if true;

@@ -2,8 +2,9 @@
 import React, { useState } from "react"
 import firebase from "firebase/app";
 import { Link } from "react-router-dom"
+import { Box, Paper, Grid, Typography, Chip, IconButton, Divider } from "@material-ui/core";
 import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
-import { Box, Paper, Grid, Typography, Chip, IconButton, Divider, Avatar } from "@material-ui/core";
+import Avatar from "@material-ui/core/Avatar";
 import AddIcon from "@material-ui/icons/Add";
 import ImageIcon from "@material-ui/icons/Image";
 import DataLoading from "components/DataLoading";
@@ -13,9 +14,12 @@ import { useProcessing } from "components/Processing";
 import { useSnackbar } from "components/Snackbar";
 import { useHistory, useParams } from "react-router-dom";
 import { useDataSourceListen, Where, OrderBy } from "hooks/firestore"
-import { useAdminProvider, useUser } from "hooks/commerce";
-import SKU from "models/commerce/SKU"
-import { useListToolbar, useListHeader } from "components/NavigationContainer"
+import { useAdminProvider, useUser } from "hooks/commerce"
+import { useListHeader } from "components/NavigationContainer"
+import { DeliveryMethodLabel } from "hooks/commerce/DeliveryMethod"
+import Product, { ProductDraft } from "models/commerce/Product"
+import { CurrencyCode } from "common/Currency"
+
 
 const TabLabels = [
 	{
@@ -32,48 +36,54 @@ const TabLabels = [
 	},
 ]
 
+const DeliveryMethodLables = [{
+	label: "All",
+	value: undefined
+}].concat(Object.keys(DeliveryMethodLabel).map(key => {
+	return {
+		label: DeliveryMethodLabel[key],
+		value: key,
+	}
+}) as any[])
+
 export default () => {
 	const history = useHistory()
 	const { productID } = useParams()
 	const [segmentControl] = useSegmentControl(TabLabels.map(value => value.label))
+	const [deliveryMethodControl] = useSegmentControl(DeliveryMethodLables.map(value => value.label))
 	const [provider, waiting] = useAdminProvider()
 	const isAvailable = TabLabels[segmentControl.selected].value
-	const collectionReference = provider && productID ? provider.products.collectionReference.doc(productID).collection("skus") : undefined
+	const deliveryMethod = DeliveryMethodLables[deliveryMethodControl.selected].value
+	const collectionReference = provider ? provider.products.collectionReference : undefined
 	const wheres = [
 		isAvailable !== undefined ? Where("isAvailable", "==", isAvailable) : undefined,
+		deliveryMethod !== undefined ? Where("deliveryMethod", "==", deliveryMethod) : undefined,
 	].filter(value => !!value)
 	const [orderBy] = useState<firebase.firestore.OrderByDirection>("desc")
-	const [skus, isLoading] = useDataSourceListen<SKU>(SKU, {
+	const [products, isLoading] = useDataSourceListen<Product>(Product, {
 		path: collectionReference?.path,
 		wheres: wheres,
 		orderBy: OrderBy("createdAt", orderBy)
 	}, waiting)
 
-	const addSKU = async (e) => {
+	const addProduct = async (e) => {
 		e.preventDefault()
 		if (!provider) return
-		if (!productID) return
-		const sku = new SKU(provider.products.collectionReference.doc(productID).collection('skus').doc())
-		sku.providedBy = provider.id
-		sku.name = "No name"
-		sku.isAvailable = false
-		await sku.save()
-		history.push(`/admin/products/${productID}/skus/${sku.id}`)
+		const product = new ProductDraft(provider.productDrafts.collectionReference.doc())
+		product.providedBy = provider.id
+		product.name = "No name"
+		await product.save()
+		history.push(`/admin/products/drafts/${product.id}`)
 	}
-
-	useListToolbar({
-		title: "Product",
-		href: `/admin/products/${productID}`
-	})
 
 	useListHeader(() => {
 		return (
 			<>
 				<Box paddingX={1} display="flex" justifyContent="space-between" alignItems="center">
-					<Typography variant="h1">SKU</Typography>
+					<Typography variant="h1">Product</Typography>
 					<IconButton
 						color="inherit"
-						onClick={addSKU}
+						onClick={addProduct}
 						edge="start"
 					>
 						<AddIcon color="primary" />
@@ -82,23 +92,28 @@ export default () => {
 				<Box padding={1}>
 					<SegmentControl {...segmentControl} />
 				</Box>
+				<Box padding={1} paddingTop={0}>
+					<SegmentControl {...deliveryMethodControl} />
+				</Box>
 			</>
 		)
 	})
 
 	return (
 		<Box height="100%">
-			{isLoading ? <DataLoading /> : <SKUList skus={skus} />}
+			{isLoading ?
+				<DataLoading /> : <ProductList products={products} />
+			}
 		</Box>
 	)
 }
 
-const SKUList = ({ skus }: { skus: SKU[] }) => {
+const ProductList = ({ products }: { products: Product[] }) => {
 	return (
 		<Box>
 			{
-				skus.map((sku, index) => {
-					return <SKUListItem key={index} sku={sku} />
+				products.map((product, index) => {
+					return <ProductListItem key={index} product={product} />
 				})
 			}
 		</Box>
@@ -125,22 +140,25 @@ const useStyles = makeStyles((theme: Theme) =>
 	}),
 );
 
-const SKUListItem = ({ sku }: { sku: SKU }) => {
+const ProductListItem = ({ product }: { product: Product }) => {
 	const classes = useStyles();
 	const [user] = useUser()
-	const { productID, skuID } = useParams()
-	const currency = sku.currency
-	const amount = sku.price || 0
+	const { productID } = useParams()
+	const prices = product.price
+	const currencies = Object.keys(prices) as CurrencyCode[]
+	const userCurrency = user?.currency ?? "USD"
+	const currency = currencies.includes(userCurrency) ? userCurrency : (currencies[0] || "USD")
+	const amount = prices[currency] || 0
 	const price = new Intl.NumberFormat("ja-JP", { style: "currency", currency: currency }).format(amount)
-	const imageURL = sku.imageURLs().length > 0 ? sku.imageURLs()[0] : undefined
+	const imageURL = product.imageURLs().length > 0 ? product.imageURLs()[0] : undefined
 	const [setProcessing] = useProcessing()
 	const [setMessage] = useSnackbar()
 
 	return (
-		<Link className={classes.list} to={`/admin/products/${productID}/skus/${sku.id}`}>
+		<Link className={classes.list} to={`/admin/products/public/${product.id}`}>
 			<Box>
 				<Box padding={1} paddingY={2} style={{
-					backgroundColor: skuID === sku.id ? "rgba(0, 0, 140, 0.03)" : "inherit"
+					backgroundColor: productID === product.id ? "rgba(0, 0, 140, 0.03)" : "inherit"
 				}}>
 					<Grid container>
 						<Grid item xs={1}>
@@ -153,7 +171,7 @@ const SKUListItem = ({ sku }: { sku: SKU }) => {
 						<Grid item xs={9}>
 							<Box display="flex" justifyContent="space-between">
 								<Box>
-									<Typography variant="subtitle1">{sku.name}</Typography>
+									<Typography variant="subtitle1">{product.name}</Typography>
 									<Typography variant="body2">{price}</Typography>
 								</Box>
 								<Box>
@@ -162,32 +180,35 @@ const SKUListItem = ({ sku }: { sku: SKU }) => {
 										onChange={async (e) => {
 											e.preventDefault()
 											setProcessing(true)
-											if (!sku.isAvailable) {
-												if (sku.inventory.type === "finite") {
-													const snapshot = await sku.stocks.collectionReference.get()
-													const count = snapshot.docs.reduce((prev, current) => {
-														return prev + current.data()!["count"]
-													}, 0)
-													if (count <= 0) {
-														setProcessing(false)
-														setMessage("error", `To publish ${sku.name}, Add stock or change the inventory.`)
-														return
-													}
-												}
+											const snapshot = await product.skus.collectionReference.where("isAvailable", "==", true).get()
+
+											if (snapshot.empty) {
+												setProcessing(false)
+												setMessage("error", `To publish ${product.name}, add the available SKUs.`)
+												return
 											}
-											sku.isAvailable = !sku.isAvailable
-											await sku.save()
+
+											if (product.images.length === 0) {
+												setProcessing(false)
+												setMessage("error", `The product must be set with one or more images.`)
+												return
+											}
+
+											product.isAvailable = !product.isAvailable
+											await product.save()
 											setProcessing(false)
-											setMessage("success", `${sku.name} is published`)
+											setMessage("success", `${product.name} is published`)
+
 										}}
-										checked={sku.isAvailable}
+										checked={product.isAvailable}
 									/>
 								</Box>
 							</Box>
 
 							<Box className={classes.tags}>
+								<Chip size="small" label={DeliveryMethodLabel[product.deliveryMethod]} />
 								{
-									sku.tags.map((tag, index) => {
+									product.tags.map((tag, index) => {
 										return <Chip key={index} size="small" label={tag} />
 									})
 								}

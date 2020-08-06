@@ -4,7 +4,7 @@ import "firebase/firestore"
 import "firebase/auth"
 import { useDocumentListen, useDataSourceListen } from '../firestore'
 import Provider, { Role } from 'models/commerce/Provider'
-import Product from 'models/commerce/Product'
+import Product, { ProductDraft } from 'models/commerce/Product'
 import SKU from 'models/commerce/SKU'
 import Cart from 'models/commerce/Cart'
 import User from 'models/commerce/User'
@@ -97,12 +97,12 @@ export const AdminProviderProductProvider = ({ id, children }: { id: string, chi
 	return <AdminProviderProductContext.Provider value={[data, isLoading, error]}> {children} </AdminProviderProductContext.Provider>
 }
 
-export const AdminProviderProductSKUContext = createContext<[SKU | undefined, boolean, Error | undefined]>([undefined, true, undefined])
-export const AdminProviderProductSKUProvider = ({ id, children }: { id: string, children: any }) => {
-	const [product, waiting] = useContext(AdminProviderProductContext)
-	const documentReference = (product && id) ? product.skus.collectionReference.doc(id) : undefined
-	const [data, isLoading, error] = useDocumentListen<SKU>(SKU, documentReference, waiting)
-	return <AdminProviderProductSKUContext.Provider value={[data, isLoading, error]}> {children} </AdminProviderProductSKUContext.Provider>
+export const AdminProviderProductDraftContext = createContext<[ProductDraft | undefined, boolean, Error | undefined]>([undefined, true, undefined])
+export const AdminProviderProductDraftProvider = ({ id, children }: { id: string, children: any }) => {
+	const [provider, waiting] = useContext(AdminProviderContext)
+	const documentReference = (provider && id) ? provider?.productDrafts.collectionReference.doc(id) : undefined
+	const [data, isLoading, error] = useDocumentListen<ProductDraft>(ProductDraft, documentReference, waiting)
+	return <AdminProviderProductDraftContext.Provider value={[data, isLoading, error]}> {children} </AdminProviderProductDraftContext.Provider>
 }
 
 export const AdminProviderOrderContext = createContext<[Order | undefined, boolean, Error | undefined]>([undefined, true, undefined])
@@ -130,6 +130,16 @@ export const useAdminProviderProduct = (): [Product | undefined, boolean, Error 
 export const useAdminProviderProductSKUs = (id?: string): [SKU[], boolean, Error?] => {
 	const [provider, waiting] = useAdminProvider()
 	const collectionReference = (provider && id) ? provider.products.collectionReference.doc(id).collection('skus') : undefined
+	return useDataSourceListen<SKU>(SKU, { path: collectionReference?.path }, waiting)
+}
+
+export const useAdminProviderProductDraft = (): [ProductDraft | undefined, boolean, Error | undefined] => {
+	return useContext(AdminProviderProductDraftContext)
+}
+
+export const useAdminProviderProductDraftSKUs = (id?: string): [SKU[], boolean, Error?] => {
+	const [provider, waiting] = useAdminProvider()
+	const collectionReference = (provider && id) ? provider.productDrafts.collectionReference.doc(id).collection('skus') : undefined
 	return useDataSourceListen<SKU>(SKU, { path: collectionReference?.path }, waiting)
 }
 

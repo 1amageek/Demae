@@ -6,14 +6,16 @@ type SegmentControlProps = {
 	items: string[]
 	selected: number
 	setValue?: (index: number) => void
+	onClick?: (index: number) => void
 }
 
-export const useSegmentControl = (items: string[]): [SegmentControlProps,] => {
-	const [index, setIndex] = useState(0)
+export const useSegmentControl = (items: string[], selected?: number, onClick?: (index: number) => void): [SegmentControlProps] => {
+	const [index, setIndex] = useState(selected || 0)
 	return [{
 		items,
 		selected: index,
-		setValue: setIndex
+		setValue: setIndex,
+		onClick: onClick
 	}]
 }
 
@@ -58,6 +60,9 @@ export default (props: SegmentControlProps = { items: [], selected: 0 }) => {
 						onClick={(e) => {
 							if (props.setValue) {
 								props.setValue(index)
+							}
+							if (props.onClick) {
+								props.onClick(index)
 							}
 						}}
 					><Typography variant="button">{item}</Typography></Box>

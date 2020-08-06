@@ -9,10 +9,9 @@ export type DeliveryMethod = "none" | "shipping" | "pickup" | "download"
 
 export type AccessControl = "public" | "private" | "limited"
 
-export default class Product extends Doc {
-
+export class ProductDraft extends Doc {
 	static collectionReference(): CollectionReference {
-		return firestore.collection("commerce/v1/products")
+		return firestore.collection("commerce/v1/productDrafts")
 	}
 
 	@Field index: number = 0
@@ -28,7 +27,6 @@ export default class Product extends Doc {
 	@Field price: { [key in CurrencyCode]?: number } = {}
 	@Field deliveryMethod: DeliveryMethod = "none"
 	@Field accessControl: AccessControl = "public"
-	@Field isAvailable: boolean = true
 	@Field metadata?: any
 	@SubCollection skus: Collection<SKU> = new Collection()
 	@SubCollection plans: Collection<Plan> = new Collection()
@@ -52,8 +50,12 @@ export default class Product extends Doc {
 	}
 }
 
-export class ProductDraft extends Product {
+
+export default class Product extends ProductDraft {
+
 	static collectionReference(): CollectionReference {
-		return firestore.collection("commerce/v1/productdrafts")
+		return firestore.collection("commerce/v1/products")
 	}
+
+	@Field isAvailable: boolean = true
 }

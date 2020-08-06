@@ -1,28 +1,26 @@
 
-import React, { useState } from "react"
+import React from "react"
+import { useParams } from "react-router-dom"
 import { useTheme } from "@material-ui/core/styles";
 import useMediaQuery from "@material-ui/core/useMediaQuery";
 import Grid from "@material-ui/core/Grid";
-import { useParams } from "react-router-dom"
 import { Box, Hidden, Divider } from "@material-ui/core";
 import SKUList from "./List"
 import SKUDetail from "./Detail"
-import { AdminProviderProductProvider, AdminProviderProductSKUProvider } from "hooks/commerce";
+import { AdminProviderProductDraftProvider } from "hooks/commerce";
 import { NavigationView, ListView, ContentView } from "components/NavigationContainer"
 
-export default (props: any) => {
-	const { productID, skuID } = props.match.params
+export default () => {
+	const { productID, skuID } = useParams()
 
 	return (
-		<AdminProviderProductProvider id={productID}>
-			<AdminProviderProductSKUProvider id={skuID}>
-				<Box>
-					<Grid container alignItems="stretch" spacing={0} style={{ width: "100%" }}>
-						<Content />
-					</Grid>
-				</Box>
-			</AdminProviderProductSKUProvider>
-		</AdminProviderProductProvider >
+		<AdminProviderProductDraftProvider id={productID}>
+			<Box>
+				<Grid container alignItems="stretch" spacing={0} style={{ width: "100%" }}>
+					<Content />
+				</Grid>
+			</Box>
+		</AdminProviderProductDraftProvider>
 	)
 }
 

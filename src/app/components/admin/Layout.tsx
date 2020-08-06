@@ -13,6 +13,8 @@ import AccountBoxIcon from '@material-ui/icons/AccountBox';
 import ImageIcon from "@material-ui/icons/Image";
 import MenuIcon from "@material-ui/icons/Menu";
 import PlaceIcon from "@material-ui/icons/Place";
+import PhotoFilterIcon from '@material-ui/icons/PhotoFilter';
+import ListAltIcon from '@material-ui/icons/ListAlt';
 import CloudDownloadIcon from "@material-ui/icons/CloudDownload";
 import LocalShippingIcon from "@material-ui/icons/LocalShipping";
 import ExpandLess from "@material-ui/icons/ExpandLess";
@@ -141,10 +143,24 @@ export default ({ children }: { children: any }) => {
 			<List>
 				<ListItem button key={"product"} component={Link} to="/admin/products">
 					<ListItemIcon>
-						<CheckBoxOutlineBlankIcon />
+						<ListAltIcon />
 					</ListItemIcon>
 					<ListItemText primary={"Catalog"} />
 				</ListItem>
+				<List>
+					<ListItem className={classes.nested} button key={"published"} component={Link} to="/admin/products/public">
+						<ListItemIcon>
+							<PhotoFilterIcon />
+						</ListItemIcon>
+						<ListItemText primary={"Public"} />
+					</ListItem>
+					<ListItem className={classes.nested} button key={"drafts"} component={Link} to="/admin/products/drafts">
+						<ListItemIcon>
+							<CheckBoxOutlineBlankIcon />
+						</ListItemIcon>
+						<ListItemText primary={"Drafts"} />
+					</ListItem>
+				</List>
 				<ListItem button key={"orders"} onClick={(e) => {
 					e.stopPropagation()
 					setOpen(!open)

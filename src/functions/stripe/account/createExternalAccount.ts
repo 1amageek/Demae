@@ -28,15 +28,7 @@ export const createExternalAccount = regionFunctions.https.onCall(async (data, c
 		throw new functions.https.HttpsError("invalid-argument", "Auth does not maintain a accountID.")
 	}
 	try {
-		const result = await stripe.accounts.createExternalAccount(
-			accountID,
-			{
-				external_account: external_account,
-				default_for_currency: true,
-				metadata: {
-					uid: uid
-				}
-			})
+		const result = await stripe.accounts.createExternalAccount(accountID, data)
 		return { result } as Response
 	} catch (error) {
 		functions.logger.error(error)

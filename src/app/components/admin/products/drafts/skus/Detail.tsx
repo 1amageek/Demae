@@ -15,7 +15,7 @@ import Select, { useSelect, useMenu } from "components/_Select"
 import { StockType, StockValue } from "common/commerce/Types";
 import { SKU } from "models/commerce";
 import InventoryTableRow from "../Inventory";
-import { useAdminProvider, useAdminProviderProduct } from "hooks/commerce";
+import { useAdminProvider, useAdminProviderProductDraft } from "hooks/commerce";
 import { useContentToolbar, useEdit, NavigationBackButton } from "components/NavigationContainer"
 import Dayjs from "dayjs"
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -44,7 +44,7 @@ export default () => {
 	const { productID, skuID } = useParams()
 	const [provider] = useAdminProvider()
 	const ref = skuID ? provider?.documentReference
-		.collection("products").doc(productID)
+		.collection("productDrafts").doc(productID)
 		.collection("skus").doc(skuID) : undefined
 	const [sku, isLoading] = useDocumentListen<SKU>(SKU, ref)
 	const [isEditing, setEdit] = useEdit()
@@ -93,7 +93,7 @@ export default () => {
 		return (
 			<Box display="flex" flexGrow={1} justifyContent="space-between" paddingX={1}>
 				<Box>
-					<NavigationBackButton title="SKU" href={`/admin/products/${productID}/skus`} />
+					<NavigationBackButton title="SKU" href={`/admin/products/drafts/${productID}/skus`} />
 				</Box>
 				<Box display="flex" flexGrow={1} justifyContent="flex-end">
 					<Button variant="outlined" color="primary" size="small" style={{ marginRight: theme.spacing(1) }} onClick={copy}>Copy</Button>
@@ -211,7 +211,7 @@ export default () => {
 const Edit = ({ sku, onClose }: { sku: SKU, onClose: () => void }) => {
 	const theme = useTheme();
 	const [setProcessing] = useProcessing()
-	const [product] = useAdminProviderProduct()
+	const [product] = useAdminProviderProductDraft()
 	const [images, setImages] = useState<File[]>([])
 	const [name] = useTextField(sku?.name)
 	const [caption] = useTextField(sku?.caption)
@@ -495,6 +495,5 @@ const Edit = ({ sku, onClose }: { sku: SKU, onClose: () => void }) => {
 				</Box>
 			}
 		</Paper>
-
 	)
 }

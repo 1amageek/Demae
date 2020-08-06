@@ -8,18 +8,19 @@ import { File as StorageFile } from "@1amageek/ballcap"
 import { Link } from "react-router-dom"
 import { Typography, Box, Paper, FormControl, Button, ListItemSecondaryAction } from "@material-ui/core";
 import { List, ListItem, ListItemText, Divider } from "@material-ui/core";
-import Product, { DeliveryMethod } from "models/commerce/Product"
+import { ProductDraft, DeliveryMethod } from "models/commerce/Product"
 import DataLoading from "components/DataLoading";
 import SaveIcon from "@material-ui/icons/Save";
 import NavigateNextIcon from '@material-ui/icons/NavigateNext';
 import Select, { useSelect, useMenu } from "components/_Select"
-import { useAdminProviderProduct } from "hooks/commerce";
+import { useAdminProviderProductDraft } from "hooks/commerce";
 import { useContentToolbar, useEdit, NavigationBackButton } from "components/NavigationContainer"
 import Dayjs from "dayjs"
 import relativeTime from "dayjs/plugin/relativeTime";
 import Label from "components/Label";
 import { useTheme } from "@material-ui/core/styles";
 import TextField, { useTextField } from "components/TextField"
+import { useAdminProvider, useUser } from "hooks/commerce"
 import { useProcessing } from "components/Processing";
 import { useDrawer } from "components/Drawer";
 import { useSnackbar } from "components/Snackbar";
@@ -46,7 +47,8 @@ const deliveryMethodLabel: { [key in DeliveryMethod]: string } = {
 
 export default () => {
 	const theme = useTheme();
-	const [product, isLoading] = useAdminProviderProduct()
+	const [provider] = useAdminProvider()
+	const [product, isLoading] = useAdminProviderProductDraft()
 	const [isEditing, setEdit] = useEdit()
 	const [showDrawer, drawerClose] = useDrawer()
 	const [showSnackbar] = useSnackbar()
@@ -58,14 +60,13 @@ export default () => {
 					{
 						title: "Copy",
 						handler: async () => {
-							if (!product) {
+							if (!product || !provider) {
 								drawerClose()
 								return
 							}
-							const newProduct = new Product(product?.documentReference.parent.doc())
+							const newProduct = new ProductDraft(provider.productDrafts.collectionReference.doc())
 							newProduct.setData(product.data())
 							newProduct.name = product.name + " - copy"
-							newProduct.isAvailable = false
 							await newProduct.save()
 							showSnackbar("success", "Copied.")
 							drawerClose()
@@ -187,7 +188,7 @@ export default () => {
 				}}>
 					<Box>
 						<List>
-							<ListItem button component={Link} to={`/admin/products/${product.id}/skus`}>
+							<ListItem button component={Link} to={`/admin/products/drafts/${product.id}/skus`}>
 								<ListItemText primary="SKU" primaryTypographyProps={{ variant: "subtitle1" }} />
 								<ListItemSecondaryAction><NavigateNextIcon /></ListItemSecondaryAction>
 							</ListItem>
@@ -200,7 +201,7 @@ export default () => {
 	)
 }
 
-const Edit = ({ product, onClose }: { product: Product, onClose: () => void }) => {
+const Edit = ({ product, onClose }: { product: ProductDraft, onClose: () => void }) => {
 	const theme = useTheme();
 	const [setProcessing] = useProcessing()
 	const [images, setImages] = useState<File[]>([])
@@ -210,7 +211,6 @@ const Edit = ({ product, onClose }: { product: Product, onClose: () => void }) =
 	const [description, setDescription] = useState(product.description || "");
 	const [selectedTab, setSelectedTab] = useState<"write" | "preview">("write");
 	const [deliveryMethod, setDeliveryMethod] = useSelect(product.deliveryMethod)
-	const [isAvailable, setAvailable] = useSelect(product.isAvailable)
 
 	const [showDrawer, drawerClose] = useDrawer()
 	const [showSnackbar] = useSnackbar()
@@ -301,7 +301,6 @@ const Edit = ({ product, onClose }: { product: Product, onClose: () => void }) =
 							</Box>
 							<Box display="flex" paddingY={1}>
 								<Typography variant="subtitle1">
-									{/* Access Control <Label marginX={1} color="gray" fontSize={11}>{product.accessControl}</Label> */}
 									Delivery Method <Label marginX={1} color="gray" fontSize={11}>{deliveryMethodLabel[product.deliveryMethod]}</Label>
 								</Typography>
 							</Box>
