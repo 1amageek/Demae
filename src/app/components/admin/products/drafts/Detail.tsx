@@ -94,7 +94,7 @@ export default () => {
 		return (
 			<Box display="flex" flexGrow={1} justifyContent="space-between" paddingX={1}>
 				<Box>
-					<NavigationBackButton title="Products" href="/admin/products" />
+					<NavigationBackButton title="Products" href="/admin/products/drafts" />
 				</Box>
 				<Box display="flex" flexGrow={1} justifyContent="flex-end">
 					<Button variant="outlined" color="primary" size="small" style={{ marginRight: theme.spacing(1) }} onClick={copy}>Copy</Button>

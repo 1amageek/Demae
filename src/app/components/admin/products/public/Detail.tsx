@@ -100,7 +100,6 @@ export default () => {
 								newProduct.setData(product.data())
 								await newProduct.save()
 							}
-							showSnackbar("success", "Please Edit.")
 							drawerClose()
 							showProcessing(false)
 							history.push(`/admin/products/drafts/${product.id}`)
