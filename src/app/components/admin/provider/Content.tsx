@@ -161,7 +161,7 @@ const Form = ({ provider }: { provider: Provider }) => {
 			return (
 				<Box display="flex" flexGrow={1} justifyContent="space-between" paddingX={1}>
 					<Button variant="outlined" color="primary" size="small" onClick={() => setEdit(false)}>Cancel</Button>
-					<Button variant="contained" color="primary" size="small" type="submit"
+					<Button variant="contained" color="primary" size="small" type="submit" disabled={capabilitiesError}
 					>Save</Button>
 				</Box>
 			)

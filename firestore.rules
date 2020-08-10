@@ -8,6 +8,11 @@ service cloud.firestore {
 				allow read: if request.auth.uid == uid;
 				allow write: if request.auth.uid == uid;
 			}
+
+			match /requirements/{uid} {
+				allow read: if true;
+				allow write: if false;
+			}
     }
 
 		match /commerce/{version} {  
