@@ -161,44 +161,44 @@ export default ({ children }: { children: any }) => {
 						<ListItemText primary={"Drafts"} />
 					</ListItem>
 				</List>
-				<ListItem button key={"orders"} onClick={(e) => {
-					e.stopPropagation()
-					setOpen(!open)
-				}}>
+			</List>
+			<Divider />
+			<List>
+				<ListItem button key={"orders"} component={Link} to="/admin/orders">
 					<ListItemIcon>
 						<ViewListIcon />
 					</ListItemIcon>
 					<ListItemText primary={"Orders"} />
-					{open ? <ExpandLess /> : <ExpandMore />}
 				</ListItem>
-				<Collapse in={open} timeout="auto" unmountOnExit>
-					<List>
-						<ListItem className={classes.nested} button key={"pickup"} component={Link} to="/admin/orders?deliveryMethod=pickup">
-							<ListItemIcon>
-								<PlaceIcon />
-							</ListItemIcon>
-							<ListItemText primary={"Pickup"} />
-						</ListItem>
-						<ListItem className={classes.nested} button key={"shipping"} component={Link} to="/admin/orders?deliveryMethod=shipping">
-							<ListItemIcon>
-								<LocalShippingIcon />
-							</ListItemIcon>
-							<ListItemText primary={"Shipping"} />
-						</ListItem>
-						<ListItem className={classes.nested} button key={"download"} component={Link} to="/admin/orders?deliveryMethod=download">
-							<ListItemIcon>
-								<CloudDownloadIcon />
-							</ListItemIcon>
-							<ListItemText primary={"Download"} />
-						</ListItem>
-						<ListItem className={classes.nested} button key={"in-store"} component={Link} to="/admin/orders?deliveryMethod=none">
-							<ListItemIcon>
-								<StorefrontIcon />
-							</ListItemIcon>
-							<ListItemText primary={"In-Store"} />
-						</ListItem>
-					</List>
-				</Collapse>
+				<List>
+					<ListItem className={classes.nested} button key={"pickup"} component={Link} to="/admin/orders?deliveryMethod=pickup">
+						<ListItemIcon>
+							<PlaceIcon />
+						</ListItemIcon>
+						<ListItemText primary={"Pickup"} />
+					</ListItem>
+					<ListItem className={classes.nested} button key={"shipping"} component={Link} to="/admin/orders?deliveryMethod=shipping">
+						<ListItemIcon>
+							<LocalShippingIcon />
+						</ListItemIcon>
+						<ListItemText primary={"Shipping"} />
+					</ListItem>
+					<ListItem className={classes.nested} button key={"download"} component={Link} to="/admin/orders?deliveryMethod=download">
+						<ListItemIcon>
+							<CloudDownloadIcon />
+						</ListItemIcon>
+						<ListItemText primary={"Download"} />
+					</ListItem>
+					<ListItem className={classes.nested} button key={"in-store"} component={Link} to="/admin/orders?deliveryMethod=none">
+						<ListItemIcon>
+							<StorefrontIcon />
+						</ListItemIcon>
+						<ListItemText primary={"In-Store"} />
+					</ListItem>
+				</List>
+			</List>
+			<Divider />
+			<List>
 				<ListItem button key={"provider"} component={Link} to="/admin/provider">
 					<ListItemIcon>
 						<StorefrontIcon />

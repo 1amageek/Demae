@@ -297,7 +297,6 @@ const Edit = ({ sku, onClose }: { sku: SKU, onClose: () => void }) => {
 		if (uploadedImages.length) {
 			const fileterd = uploadedImages.filter(image => !!image) as StorageFile[]
 			const images = fileterd.map(value => value.data())
-			console.log(images)
 			batch.set(sku.documentReference, {
 				...sku.data(),
 				images: firebase.firestore.FieldValue.arrayUnion(...images)

@@ -52,6 +52,7 @@ export default () => {
 	const [isEditing, setEdit] = useEdit()
 	const [showDrawer, drawerClose] = useDrawer()
 	const [showSnackbar] = useSnackbar()
+	const [showProcessing] = useProcessing()
 
 	const copy = () => {
 		showDrawer(
@@ -64,12 +65,44 @@ export default () => {
 								drawerClose()
 								return
 							}
+							showProcessing(true)
 							const newProduct = new ProductDraft(provider.productDrafts.collectionReference.doc())
 							newProduct.setData(product.data())
 							newProduct.name = product.name + " - copy"
 							await newProduct.save()
 							showSnackbar("success", "Copied.")
 							drawerClose()
+							showProcessing(false)
+						}
+					}
+				]
+			} />
+		)
+	}
+
+	const publish = () => {
+		showDrawer(
+			<ActionSheet title={`Do you want to publish "${product?.name}"?`} actions={
+				[
+					{
+						title: "Publish",
+						handler: async () => {
+							if (!product || !provider) {
+								drawerClose()
+								return
+							}
+							showProcessing(true)
+
+							const productPublish = firebase.functions().httpsCallable("commerce-v1-product-publish")
+							try {
+								await productPublish({ productDraftPath: product.path })
+								showSnackbar("success", "Published.")
+							} catch (error) {
+								showSnackbar("error", "Failed to publish the product.")
+								console.error(error)
+							}
+							drawerClose()
+							showProcessing(false)
 						}
 					}
 				]
@@ -98,7 +131,8 @@ export default () => {
 				</Box>
 				<Box display="flex" flexGrow={1} justifyContent="flex-end">
 					<Button variant="outlined" color="primary" size="small" style={{ marginRight: theme.spacing(1) }} onClick={copy}>Copy</Button>
-					<Button variant="outlined" color="primary" size="small" onClick={() => setEdit(true)}>Edit</Button>
+					<Button variant="outlined" color="primary" size="small" style={{ marginRight: theme.spacing(1) }} onClick={() => setEdit(true)}>Edit</Button>
+					<Button variant="contained" color="primary" size="small" onClick={publish}>Publish</Button>
 				</Box>
 			</Box>
 		)
