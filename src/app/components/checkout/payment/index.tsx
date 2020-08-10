@@ -275,7 +275,7 @@ const Form = ({ callback }: { callback?: (paymentMethod: PaymentMethod) => void 
 				defaultCard: cardMethod.convert()
 			}
 
-			if (user?.stripe?.customerID) {
+			try {
 				const attach = firebase.functions().httpsCallable('stripe-v1-paymentMethod-attach')
 				const response = await attach({
 					paymentMethodID: paymentMethod.id
@@ -292,36 +292,40 @@ const Form = ({ callback }: { callback?: (paymentMethod: PaymentMethod) => void 
 					}
 				}
 				console.log('[APP] attach payment method', result)
-			} else {
-				const create = firebase.functions().httpsCallable('stripe-v1-customer-create')
-				const response = await create({
-					payment_method: paymentMethod.id,
-					phone: auth.phoneNumber,
-					invoice_settings: {
-						default_payment_method: paymentMethod.id
-					},
-					metadata: {
-						uid: auth.uid
-					}
-				})
-				const { error, customer } = response.data
-
-				if (error) {
-					console.error(error)
-					setProcessing(false)
-					return
-				}
-
-				console.log("[APP] create customer", customer)
-				if (customer) {
-					updateData["stripe"] = {
-						customerID: customer.id,
-						link: `https://dashboard.stripe.com${
-							customer.livemode ? "" : "/test"
-							}/customers/${customer.id}`
-					}
-				}
+			} catch (error) {
+				throw error
 			}
+
+			// else {
+			// 	const create = firebase.functions().httpsCallable('stripe-v1-customer-create')
+			// 	const response = await create({
+			// 		payment_method: paymentMethod.id,
+			// 		phone: auth.phoneNumber,
+			// 		invoice_settings: {
+			// 			default_payment_method: paymentMethod.id
+			// 		},
+			// 		metadata: {
+			// 			uid: auth.uid
+			// 		}
+			// 	})
+			// 	const { error, customer } = response.data
+
+			// 	if (error) {
+			// 		console.error(error)
+			// 		setProcessing(false)
+			// 		return
+			// 	}
+
+			// 	console.log("[APP] create customer", customer)
+			// 	if (customer) {
+			// 		updateData["stripe"] = {
+			// 			customerID: customer.id,
+			// 			link: `https://dashboard.stripe.com${
+			// 				customer.livemode ? "" : "/test"
+			// 				}/customers/${customer.id}`
+			// 		}
+			// 	}
+			// }
 			await new Commerce.User(auth.uid).documentReference.set(updateData, { merge: true })
 			setProcessing(false)
 			pop()

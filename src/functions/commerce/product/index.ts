@@ -1,7 +1,6 @@
 import * as admin from "firebase-admin"
 import * as functions from "firebase-functions"
-import { regionFunctions } from "../../helper"
-import { getProviderID } from "../helper"
+import { regionFunctions, getProviderID } from "../../helper"
 import { DocumentReference } from "@1amageek/ballcap-admin"
 
 export const publish = regionFunctions.https.onCall(async (data, context) => {

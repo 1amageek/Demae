@@ -50,51 +50,51 @@ const Checkout = ({ groupID, onClose, onComplete }: { groupID: string, onClose: 
 
 	const isAvailable: boolean = shouldBeEnable()
 
-	const withCustomer = async (auth: firebase.User, user: User): Promise<{ error?: any, customerID?: any }> => {
-		if (user.stripe?.customerID) {
-			return { customerID: user.stripe.customerID }
-		} else {
-			const create = firebase.functions().httpsCallable("stripe-v1-customer-create")
-			const response = await create({
-				phone: auth.phoneNumber,
-				metadata: {
-					uid: auth.uid
-				}
-			})
-			const { error, result } = response.data
-			if (error) {
-				return { error }
-			} else {
-				const customer = result
-				await user.documentReference.set({
-					stripe: {
-						customerID: customer.id,
-						link: `https://dashboard.stripe.com${
-							customer.livemode ? "" : "/test"
-							}/customers/${customer.id}`
-					}
-				}, { merge: true })
-				return { customerID: customer.id }
-			}
-		}
-	}
+	// const withCustomer = async (auth: firebase.User, user: User): Promise<{ error?: any, customerID?: any }> => {
+	// 	if (user.stripe?.customerID) {
+	// 		return { customerID: user.stripe.customerID }
+	// 	} else {
+	// 		const create = firebase.functions().httpsCallable("stripe-v1-customer-create")
+	// 		const response = await create({
+	// 			phone: auth.phoneNumber,
+	// 			metadata: {
+	// 				uid: auth.uid
+	// 			}
+	// 		})
+	// 		const { error, result } = response.data
+	// 		if (error) {
+	// 			return { error }
+	// 		} else {
+	// 			const customer = result
+	// 			await user.documentReference.set({
+	// 				stripe: {
+	// 					customerID: customer.id,
+	// 					link: `https://dashboard.stripe.com${
+	// 						customer.livemode ? "" : "/test"
+	// 						}/customers/${customer.id}`
+	// 				}
+	// 			}, { merge: true })
+	// 			return { customerID: customer.id }
+	// 		}
+	// 	}
+	// }
 
 	const checkout = async () => {
 		if (!auth) return
 		if (!user) return
 		if (!cartGroup) return
 
-		const { error, customerID } = await withCustomer(auth, user)
+		// const { error, customerID } = await withCustomer(auth, user)
 
-		if (error) {
-			console.error(error)
-			return
-		}
+		// if (error) {
+		// 	console.error(error)
+		// 	return
+		// }
 
-		if (!customerID) {
-			console.log("[CHECKOUT] customerID is not exist")
-			return
-		}
+		// if (!customerID) {
+		// 	console.log("[CHECKOUT] customerID is not exist")
+		// 	return
+		// }
 		// paymentMethodID
 		const paymentMethodID = user.defaultCard?.id
 		if (!paymentMethodID) {
@@ -123,7 +123,7 @@ const Checkout = ({ groupID, onClose, onComplete }: { groupID: string, onClose: 
 				order: data,
 				groupID: groupID,
 				paymentMethodID: paymentMethodID,
-				customerID: customerID
+				// customerID: customerID
 			})
 			const { error, result } = response.data
 			if (error) {

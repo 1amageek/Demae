@@ -1,7 +1,6 @@
 import * as admin from "firebase-admin"
 import * as functions from "firebase-functions"
-import { regionFunctions } from "../../helper"
-import { getProviderID } from "../helper"
+import { regionFunctions, getProviderID } from "../../helper"
 import { OrderError, Response } from "./helper"
 import Stripe from "stripe"
 import Provider from "../../models/commerce/Provider"
@@ -50,7 +49,7 @@ export const confirm = regionFunctions.https.onCall(async (data, context) => {
 				if (item.mediatedBy) {
 					const transferAmount = Math.floor(item.amount * 0.2)
 					const account = await Account.get<Account>(item.mediatedBy)
-					const accountID = account?.accountID
+					const accountID = account?.stripe?.accountID
 					if (account && accountID) {
 						return {
 							amount: transferAmount,

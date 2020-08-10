@@ -6,7 +6,7 @@ service cloud.firestore {
 
 			match /accounts/{uid} {
 				allow read: if request.auth.uid == uid;
-				allow write: if request.auth.uid == uid;
+				allow write: if false;
 			}
 
 			match /requirements/{uid} {

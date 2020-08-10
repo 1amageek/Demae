@@ -28,15 +28,15 @@ export default (props: any) => {
 	const [setProcessing] = useProcessing()
 	const [setMessage] = useSnackbar()
 
-	const enabled = (user?.stripe?.customerID && user?.defaultCard?.id && user?.defaultShipping)
+	const enabled = (user?.defaultCard?.id && user?.defaultShipping)
 
 	const checkout = async () => {
 		if (!user) return
 		if (!cart) return
 
 		// customerID
-		const customerID = user.stripe?.customerID
-		if (!customerID) return
+		// const customerID = user.stripe?.customerID
+		// if (!customerID) return
 
 		// defaultShipping
 		const defaultShipping = user.defaultShipping
@@ -58,7 +58,7 @@ export default (props: any) => {
 			const response = await checkoutCreate({
 				order: data,
 				paymentMethodID: paymentMethodID,
-				customerID: customerID
+				// customerID: customerID
 			})
 			const { error, result } = response.data
 			if (error) {

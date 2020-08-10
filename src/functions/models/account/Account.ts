@@ -1,7 +1,13 @@
-import { Doc, Field, CollectionReference, firestore } from "@1amageek/ballcap-admin"
+import { Doc, Field, Model, Codable, CollectionReference, firestore } from "@1amageek/ballcap-admin"
 import * as functions from "firebase-functions"
 import { BusinessType } from "../../common/commerce/account"
 import { CurrencyCode } from "../../common/Currency"
+
+export class Stripe extends Model {
+	@Field customerID!: string
+	@Field accountID?: string
+	@Field link!: string
+}
 
 export default class Account extends Doc {
 
@@ -12,16 +18,29 @@ export default class Account extends Doc {
 	static async getAccountID(uid: string) {
 		const account = await Account.get<Account>(uid)
 		if (!account) {
-			throw new functions.https.HttpsError("invalid-argument", "User have not Account")
+			throw new functions.https.HttpsError("invalid-argument", "Account does not exist.")
 		}
-		const accountID = account.accountID
+		const accountID = account.stripe?.accountID
 		if (!accountID) {
-			throw new functions.https.HttpsError("invalid-argument", "User have not Stripe accountID")
+			throw new functions.https.HttpsError("invalid-argument", "Account have not Stripe accountID")
 		}
 		return accountID
 	}
 
-	@Field accountID!: string
+	static async getCustomerID(uid: string) {
+		const account = await Account.get<Account>(uid)
+		if (!account) {
+			throw new functions.https.HttpsError("invalid-argument", "Account have not Account")
+		}
+		const customerID = account.stripe?.customerID
+		if (!customerID) {
+			throw new functions.https.HttpsError("invalid-argument", "Account have not Stripe customerID")
+		}
+		return customerID
+	}
+
+	@Codable(Stripe, true)
+	@Field stripe?: Stripe
 	@Field country: string = "US"
 	@Field defaultCurrency: CurrencyCode = "USD"
 	@Field businessType: BusinessType = "individual"

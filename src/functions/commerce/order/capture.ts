@@ -1,7 +1,6 @@
 import * as admin from "firebase-admin"
 import * as functions from "firebase-functions"
-import { regionFunctions } from "../../helper"
-import { getProviderID } from "../helper"
+import { regionFunctions, getProviderID } from "../../helper"
 import { OrderError, Response } from "./helper"
 import Stripe from "stripe"
 import Provider from "../../models/commerce/Provider"
@@ -34,11 +33,7 @@ export const capture = regionFunctions.https.onCall(async (data, context) => {
 		throw new functions.https.HttpsError("invalid-argument", "Auth does not maintain a providerID.")
 	}
 	const providerOrderRef = new Provider(providerID).orders.collectionReference.doc(orderID)
-	const providerAccount = await Account.get<Account>(providerID)
-	const providerAccountID = providerAccount?.accountID
-	if (!providerAccount) {
-		throw new functions.https.HttpsError("invalid-argument", "Provider does not have an account ID.")
-	}
+	const providerAccountID = await Account.getAccountID(providerID)
 	if (!providerAccountID) {
 		throw new functions.https.HttpsError("invalid-argument", "Provider does not have an account ID.")
 	}
@@ -85,7 +80,7 @@ export const capture = regionFunctions.https.onCall(async (data, context) => {
 						source_transaction: paymentIntent.charges.data[0].id,
 						metadata: {
 							providedBy: providerID,
-							key: `${orderID}-${item.skuReference!.id}-${providerAccount.id}`
+							key: `${orderID}-${item.skuReference!.id}-${providerAccountID}`
 						}
 					} as Stripe.TransferCreateParams
 				})
@@ -93,7 +88,7 @@ export const capture = regionFunctions.https.onCall(async (data, context) => {
 					if (item.mediatedBy) {
 						const transferAmount = Math.floor(item.amount * 0.2)
 						const account = await Account.get<Account>(item.mediatedBy)
-						const accountID = account?.accountID
+						const accountID = account?.stripe?.accountID
 						if (account && accountID) {
 							return {
 								amount: transferAmount,

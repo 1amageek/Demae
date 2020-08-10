@@ -135,7 +135,7 @@ export default ({ individual, onCallback }: { individual: Partial<Individual>, o
 		}
 		data = nullFilter(data)
 		setLoading(true)
-		const accountCreate = firebase.app().functions("us-central1").httpsCallable("stripe-v1-account-create")
+		const accountCreate = firebase.app().functions("us-central1").httpsCallable("account-v1-account-create")
 		try {
 			const response = await accountCreate(data)
 			const { result, error } = response.data
@@ -145,13 +145,13 @@ export default ({ individual, onCallback }: { individual: Partial<Individual>, o
 				setOpen(true)
 				return
 			}
-			const account = new Account(uid)
-			account.accountID = result.id
-			account.country = result.country
-			account.businessType = result.business_type
-			account.email = result.email
-			account.individual = result.individual
-			await account.save()
+			// const account = new Account(uid)
+			// account.accountID = result.id
+			// account.country = result.country
+			// account.businessType = result.business_type
+			// account.email = result.email
+			// account.individual = result.individual
+			// await account.save()
 			if (onCallback) {
 				onCallback(true)
 			}

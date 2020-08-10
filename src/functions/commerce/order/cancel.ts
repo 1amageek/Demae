@@ -1,7 +1,7 @@
 import * as admin from "firebase-admin"
 import * as functions from "firebase-functions"
 import { regionFunctions } from "../../helper"
-import { getProviderID, stripe } from "../helper"
+import { getProviderID, stripe } from "../../helper"
 import { Response } from "./helper"
 import Stripe from "stripe"
 import Provider from "../../models/commerce/Provider"

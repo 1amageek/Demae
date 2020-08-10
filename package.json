@@ -20,6 +20,7 @@
 		"start": "npm run shell",
 		"deploy": "firebase deploy --only functions",
 		"deploy:hosting": "firebase deploy --only functions:hosting",
+		"deploy:account": "firebase deploy --only functions:account.v1",
 		"deploy:commerce": "firebase deploy --only functions:commerce.v1",
 		"deploy:commerce:order": "firebase deploy --only functions:commerce.v1.order",
 		"deploy:commerce:product": "firebase deploy --only functions:commerce.v1.product",

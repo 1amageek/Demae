@@ -2,6 +2,7 @@ import * as functions from "firebase-functions"
 import { regionFunctions } from "../../helper"
 import Stripe from "stripe"
 import User from "../../models/commerce/User"
+import Account from "../../models/account/Account"
 
 type Response = {
 	result?: any
@@ -44,7 +45,7 @@ export const update = regionFunctions.https.onCall(async (data, context) => {
 	const uid: string = context.auth.uid
 	const stripe = new Stripe(STRIPE_API_KEY, { apiVersion: "2020-03-02" })
 	try {
-		const customerID = await User.getCustomerID(uid)
+		const customerID = await Account.getCustomerID(uid)
 		const result = await stripe.customers.update(customerID, data)
 		return { result } as Response
 	} catch (error) {
@@ -67,7 +68,7 @@ export const retrieve = regionFunctions.https.onCall(async (_, context) => {
 	const uid: string = context.auth.uid
 	const stripe = new Stripe(STRIPE_API_KEY, { apiVersion: "2020-03-02" })
 	try {
-		const customerID = await User.getCustomerID(uid)
+		const customerID = await Account.getCustomerID(uid)
 		const result = await stripe.customers.retrieve(customerID)
 		return { result } as Response
 	} catch (error) {

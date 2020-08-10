@@ -1,6 +1,6 @@
 import * as admin from 'firebase-admin'
 import * as functions from 'firebase-functions'
-import { stripe } from '../helper'
+import { stripe } from '../../helper'
 
 interface CustomerData {
 	metadata: {
@@ -37,9 +37,9 @@ const createCustomerRecord = async ({
 		};
 		await admin
 			.firestore()
-			.collection("commerce")
+			.collection("account")
 			.doc("v1")
-			.collection("users")
+			.collection("accounts")
 			.doc(uid)
 			.set(customerRecord, { merge: true });
 

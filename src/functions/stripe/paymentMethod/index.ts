@@ -2,6 +2,7 @@ import * as functions from "firebase-functions"
 import { regionFunctions } from "../../helper"
 import Stripe from "stripe"
 import User from "../../models/commerce/User"
+import Account from "../../models/account/Account"
 
 type Response = {
 	result?: any
@@ -67,7 +68,7 @@ export const list = regionFunctions.https.onCall(async (data, context) => {
 	const stripe = new Stripe(STRIPE_API_KEY, { apiVersion: "2020-03-02" })
 	const type = data["type"] || "card"
 	try {
-		const customerID = await User.getCustomerID(uid)
+		const customerID = await Account.getCustomerID(uid)
 		const result = await stripe.paymentMethods.list({
 			customer: customerID,
 			type: type
@@ -97,7 +98,7 @@ export const attach = regionFunctions.https.onCall(async (data, context) => {
 		throw new functions.https.HttpsError("invalid-argument", "The functions requires paymentMethodID in data.")
 	}
 	try {
-		const customerID = await User.getCustomerID(uid)
+		const customerID = await Account.getCustomerID(uid)
 		const result = await stripe.paymentMethods.attach(paymentMethodId, {
 			customer: customerID
 		})
