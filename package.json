@@ -23,6 +23,7 @@
 		"deploy:commerce": "firebase deploy --only functions:commerce.v1",
 		"deploy:commerce:order": "firebase deploy --only functions:commerce.v1.order",
 		"deploy:commerce:product": "firebase deploy --only functions:commerce.v1.product",
+		"deploy:commerce:inventory": "firebase deploy --only functions:commerce.v1.inventory",
 		"deploy:stripe": "firebase deploy --only functions:stripe.v1",
 		"logs": "firebase functions:log",
 		"copy-common": "cpx ./src/functions/common/ ./src/app/common -C"

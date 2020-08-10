@@ -2,6 +2,7 @@ import * as admin from "firebase-admin"
 import * as functions from "firebase-functions"
 import { regionFunctions } from "../../helper"
 import * as Commerce from "../../models/commerce"
+import { func } from "prop-types"
 
 const MIN_AMOUNT = -100000
 const MAX_AMOUNT = 100000
@@ -10,7 +11,7 @@ export const increase = regionFunctions.https.onCall(async (data, context) => {
 	if (!context.auth) {
 		throw new functions.https.HttpsError("failed-precondition", "The function must be called while authenticated.")
 	}
-	console.info(context)
+	functions.logger.log(data)
 	const uid: string = context.auth.uid
 	const { skuPath, amount } = data
 	if (!skuPath) {
@@ -27,6 +28,7 @@ export const increase = regionFunctions.https.onCall(async (data, context) => {
 		throw new functions.https.HttpsError("invalid-argument", `The amount that can be added at a time is from ${MIN_AMOUNT} to ${MAX_AMOUNT}.`)
 	}
 	const skuRef = admin.firestore().doc(skuPath)
+	const productID = skuRef.parent.parent!.id
 	const providerRef = skuRef.parent.parent?.parent.parent
 	if (!providerRef) {
 		throw new functions.https.HttpsError("invalid-argument", "This skuPath is invalid.")
@@ -54,7 +56,9 @@ export const increase = regionFunctions.https.onCall(async (data, context) => {
 	// TODO: add permission
 
 	const tasks = shardCharacters.map(async (shard, index) => {
-		const ref = sku.stocks.collectionReference.doc(shard)
+		const ref = providerRef.collection("products").doc(productID)
+			.collection("skus").doc(skuRef.id)
+			.collection("stocks").doc(shard)
 		return admin.firestore().runTransaction(async transaction => {
 			const snapshot = await transaction.get(ref)
 			const data = snapshot.data()
@@ -76,7 +80,7 @@ export const update = regionFunctions.https.onCall(async (data, context) => {
 	if (!context.auth) {
 		throw new functions.https.HttpsError("failed-precondition", "The function must be called while authenticated.")
 	}
-	console.info(context)
+	functions.logger.log(data)
 	const uid: string = context.auth.uid
 	const { skuPath, amount } = data
 	if (!skuPath) {
@@ -93,6 +97,7 @@ export const update = regionFunctions.https.onCall(async (data, context) => {
 		throw new functions.https.HttpsError("invalid-argument", `The amount that can be added at a time is from ${MIN_AMOUNT} to ${MAX_AMOUNT}.`)
 	}
 	const skuRef = admin.firestore().doc(skuPath)
+	const productID = skuRef.parent.parent!.id
 	const providerRef = skuRef.parent.parent?.parent.parent
 	if (!providerRef) {
 		throw new functions.https.HttpsError("invalid-argument", "This skuPath is invalid.")
@@ -116,11 +121,10 @@ export const update = regionFunctions.https.onCall(async (data, context) => {
 	const shardAmount = Math.floor(intAmount / shardCharacters.length)
 	const remainder = intAmount % shardCharacters.length
 
-	// const role = Commerce.Role.fromSnapshot(snapshot)
-	// TODO: add permission
-
 	const tasks = shardCharacters.map(async (shard, index) => {
-		const ref = sku.stocks.collectionReference.doc(shard)
+		const ref = providerRef.collection("products").doc(productID)
+			.collection("skus").doc(skuRef.id)
+			.collection("stocks").doc(shard)
 		return admin.firestore().runTransaction(async transaction => {
 			let newCount = shardAmount
 			if (shardCharacters.length - 1 === index) {

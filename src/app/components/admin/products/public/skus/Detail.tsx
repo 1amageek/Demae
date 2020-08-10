@@ -6,7 +6,7 @@ import { useParams, useHistory } from "react-router-dom"
 import { Typography, Box, Paper, Button, Chip, InputAdornment, Divider } from "@material-ui/core";
 import DataLoading from "components/DataLoading";
 import { ProductDraft, Product, SKU } from "models/commerce";
-import InventoryTableRow from "../Inventory";
+import InventoryTableRow from "../../Inventory";
 import { useAdminProvider, useAdminProviderProduct } from "hooks/commerce";
 import { useContentToolbar, useEdit, NavigationBackButton } from "components/NavigationContainer"
 import Dayjs from "dayjs"

@@ -65,11 +65,6 @@ service cloud.firestore {
 					match /skus/{sku_id} {
 						allow read: if request.auth.uid == provider_id || isOwner() || isEditor() || isViewer();
 						allow write: if request.auth.uid == provider_id || isOwner() || isEditor();
-
-						match /stocks/{shard_key} {
-							allow read: if true;
-							allow write: if false;
-						}
 					}
 				}
 

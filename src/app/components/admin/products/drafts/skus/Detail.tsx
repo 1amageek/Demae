@@ -14,7 +14,7 @@ import SaveIcon from "@material-ui/icons/Save";
 import Select, { useSelect, useMenu } from "components/_Select"
 import { StockType, StockValue } from "common/commerce/Types";
 import { SKU } from "models/commerce";
-import InventoryTableRow from "../Inventory";
+import InventoryTableRow from "../../Inventory";
 import { useAdminProvider, useAdminProviderProductDraft } from "hooks/commerce";
 import { useContentToolbar, useEdit, NavigationBackButton } from "components/NavigationContainer"
 import Dayjs from "dayjs"

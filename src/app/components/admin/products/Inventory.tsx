@@ -12,10 +12,15 @@ import { useModal } from 'components/Modal';
 
 export default ({ sku }: { sku: SKU }) => {
 
+	const providerRef = sku.documentReference.parent.parent!.parent.parent!
+	const productID = sku.documentReference.parent.parent!.id
 	const [setModal, close] = useModal()
 	const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 	const [_stocks, isLoading] = useDataSourceListen<Stock>(Stock, {
-		path: sku.stocks.collectionReference.path
+		path: providerRef
+			.collection("products").doc(productID)
+			.collection("skus").doc(sku.id)
+			.collection("stocks").path
 	})
 
 	const stocks = _stocks || []
