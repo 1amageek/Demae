@@ -68,8 +68,6 @@ export default ({ children }: { children: any }) => {
 		right: false,
 	});
 
-	const [open, setOpen] = useState(false);
-
 	const toggleDrawer = (anchor: Anchor, open: boolean) => (
 		event: React.KeyboardEvent | React.MouseEvent,
 	) => {

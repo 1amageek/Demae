@@ -13,10 +13,10 @@ export type SNSProvider = "twitter" | "facebook" | "instagram"
 
 export type Capability = "download" | "instore_sales" | "online_sales" | "takeout"
 
-export default class Provider extends Doc {
+export class ProviderDraft extends Doc {
 
 	static collectionReference(): CollectionReference {
-		return firestore.collection("commerce/v1/providers")
+		return firestore.collection("commerce/v1/providerDrafts")
 	}
 
 	@Field thumbnailImage?: File
@@ -31,17 +31,9 @@ export default class Provider extends Doc {
 	@Field phone: string = ""
 	@Field location?: GeoPoint
 	@Field address?: string
-	@Field isAvailable: boolean = false
-	@Field isRejected: boolean = false
-	@Field isSigned: boolean = false
 	@Field url?: string
 	@Field sns?: { [key in SNSProvider]: any }
 	@Field metadata?: { [key: string]: any } = {}
-
-	@SubCollection productDrafts: Collection<ProductDraft> = new Collection()
-	@SubCollection products: Collection<Product> = new Collection()
-	@SubCollection orders: Collection<Order> = new Collection()
-	@SubCollection members: Collection<Role> = new Collection()
 
 	thumbnailImageURL() {
 		if (this.thumbnailImage) {
@@ -56,4 +48,18 @@ export default class Provider extends Doc {
 		}
 		return undefined
 	}
+}
+
+export default class Provider extends ProviderDraft {
+
+	static collectionReference(): CollectionReference {
+		return firestore.collection("commerce/v1/providers")
+	}
+
+	@Field isAvailable: boolean = false
+
+	@SubCollection productDrafts: Collection<ProductDraft> = new Collection()
+	@SubCollection products: Collection<Product> = new Collection()
+	@SubCollection orders: Collection<Order> = new Collection()
+	@SubCollection members: Collection<Role> = new Collection()
 }

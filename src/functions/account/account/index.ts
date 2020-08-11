@@ -10,8 +10,11 @@ export const create = regionFunctions.https.onCall(async (data, context) => {
 	const uid: string = context.auth.uid
 	const account = new Account(uid)
 	const snapshot = await account.documentReference.get()
-	const accountID = snapshot.data()!["stripe"]["accountID"]
-	if (accountID) throw new functions.https.HttpsError("already-exists", "Account already exists.")
+
+	if (snapshot.exists) {
+		const accountID = snapshot.data()!["stripe"]["accountID"]
+		if (accountID) throw new functions.https.HttpsError("already-exists", "Account already exists.")
+	}
 
 	try {
 		const result = await stripe.accounts.create({

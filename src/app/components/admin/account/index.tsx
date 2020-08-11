@@ -24,7 +24,7 @@ const Content = () => {
 
 	if (isLoading) return <DataLoading />
 
-	if (account?.stripe?.accountID === null) return <Workflow />
+	if (account?.stripe === undefined) return <Workflow />
 
 	return <Balance />
 }

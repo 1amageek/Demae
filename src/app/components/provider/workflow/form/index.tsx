@@ -106,7 +106,7 @@ export default ({ country, onCallback }: { country: CountryCode, onCallback: (ne
 						<Typography variant="h2" gutterBottom>Shop name</Typography>
 						<Box paddingY={2}>
 							<Typography variant="subtitle1" gutterBottom>Default Currency</Typography>
-							<FormControl variant="outlined" size="small">
+							<FormControl variant="outlined" margin="dense" size="small">
 								<Select {...defaultCurrency}>
 									{defaultCurrencyMenu}
 								</Select>
