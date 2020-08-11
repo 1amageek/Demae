@@ -4,7 +4,6 @@ import { BusinessType } from "../../common/commerce/account"
 import { CurrencyCode } from "../../common/Currency"
 
 export class Stripe extends Model {
-	@Field customerID!: string
 	@Field accountID?: string
 	@Field link!: string
 }
@@ -25,18 +24,6 @@ export default class Account extends Doc {
 			throw new functions.https.HttpsError("invalid-argument", "Account have not Stripe accountID")
 		}
 		return accountID
-	}
-
-	static async getCustomerID(uid: string) {
-		const account = await Account.get<Account>(uid)
-		if (!account) {
-			throw new functions.https.HttpsError("invalid-argument", "Account have not Account")
-		}
-		const customerID = account.stripe?.customerID
-		if (!customerID) {
-			throw new functions.https.HttpsError("invalid-argument", "Account have not Stripe customerID")
-		}
-		return customerID
 	}
 
 	@Codable(Stripe, true)

@@ -3,7 +3,6 @@ import { BusinessType } from "common/commerce/account"
 import { CurrencyCode } from "common/Currency"
 
 export class Stripe extends Model {
-	@Field customerID!: string
 	@Field accountID?: string
 	@Field link!: string
 }
@@ -12,14 +11,6 @@ export default class Account extends Doc {
 
 	static collectionReference(): CollectionReference {
 		return firestore.collection("account/v1/accounts")
-	}
-
-	static async getCustomerID(uid: string) {
-		const account = await Account.get<Account>(uid)
-		if (!account) return null
-		const customerID = account.stripe?.customerID
-		if (!customerID) return null
-		return customerID
 	}
 
 	@Codable(Stripe, true)

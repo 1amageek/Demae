@@ -17,6 +17,11 @@ service cloud.firestore {
 
 		match /commerce/{version} {  
 
+			match /customers/{uid} {
+				allow read: if request.auth.uid == uid;
+				allow write: if false;
+			}
+
 			match /users/{uid} {
 				allow read: if request.auth.uid == uid;
 				allow write: if request.auth.uid == uid;

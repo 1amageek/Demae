@@ -76,3 +76,21 @@ export const update = regionFunctions.https.onCall(async (data, context) => {
 		throw new functions.https.HttpsError("invalid-argument", "Invalid argument.")
 	}
 })
+
+export const retrieve = regionFunctions.https.onCall(async (_, context) => {
+	if (!context.auth) {
+		throw new functions.https.HttpsError("failed-precondition", "The function must be called while authenticated.")
+	}
+	const uid: string = context.auth.uid
+	try {
+		const accountID = await Account.getAccountID(uid)
+		const result = await stripe.accounts.retrieve(accountID)
+		return { result }
+	} catch (error) {
+		functions.logger.error(error)
+		if (error.raw) {
+			return { error: error.raw }
+		}
+		throw new functions.https.HttpsError("invalid-argument", "Invalid argument.")
+	}
+})
