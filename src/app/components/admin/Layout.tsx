@@ -20,8 +20,8 @@ import LocalShippingIcon from "@material-ui/icons/LocalShipping";
 import ExpandLess from "@material-ui/icons/ExpandLess";
 import ExpandMore from "@material-ui/icons/ExpandMore";
 import { Drawer, AppBar, Toolbar, List, ListItem, ListItemText, Avatar, Divider, Box, MenuItem, Menu, IconButton, Collapse, Switch, ListItemSecondaryAction, Chip } from "@material-ui/core";
-import Provider, { Role } from "models/commerce/Provider"
-import { useRoles, useUser, useAdminProvider } from "hooks/commerce"
+import Provider, { ProviderDraft, Role } from "models/commerce/Provider"
+import { useRoles, useUser, useAdmin, useAdminProvider } from "hooks/commerce"
 import { useDocumentListen } from "hooks/firestore"
 import { useProcessing } from "components/Processing";
 import { useSnackbar } from "components/Snackbar";
@@ -30,7 +30,6 @@ import { ListItemIcon } from "@material-ui/core";
 import Label from "components/Label";
 import { useAuthUser } from "hooks/auth";
 import { useAccount } from 'hooks/account'
-import { Account } from "models/account";
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
@@ -56,11 +55,12 @@ type Anchor = "top" | "left" | "bottom" | "right";
 export default ({ children }: { children: any }) => {
 	const classes = useStyles()
 	const [auth] = useAuthUser()
+	const [admin] = useAdmin()
 	const [provider] = useAdminProvider()
 	const [setProcessing] = useProcessing()
 	const [setMessage] = useSnackbar()
 
-	const previewLink = provider ? `/providers/${provider.id}` : "/providers"
+	const previewLink = admin ? `/providers/${admin.id}` : "/providers"
 	const [state, setState] = React.useState({
 		top: false,
 		left: false,
@@ -91,7 +91,8 @@ export default ({ children }: { children: any }) => {
 			onClick={toggleDrawer(anchor, false)}
 			onKeyDown={toggleDrawer(anchor, false)}
 		>
-			<Box display="flex"
+			<Box
+				display="flex"
 				flexDirection="column"
 				flexGrow={1}
 				justifyContent="center"
@@ -105,12 +106,13 @@ export default ({ children }: { children: any }) => {
 				{provider && provider.name}
 			</Box>
 
-			<Box display="flex"
+			<Box
+				display="flex"
 				flexGrow={1}
 				justifyContent="space-between"
 				alignItems="center"
 				padding={2}>
-				<Label color={provider?.isAvailable ? "green" : "red"}>{provider?.isAvailable ? "ON SALE" : "NOW CLOSED"}</Label>
+				<Label color={provider?.isAvailable ? "green" : "red"}>{provider !== undefined ? "ON SALE" : "NOW CLOSED"}</Label>
 				<Switch
 					edge="end"
 					onClick={e => {
@@ -118,21 +120,34 @@ export default ({ children }: { children: any }) => {
 					}}
 					onChange={async (e) => {
 						e.stopPropagation()
-						if (!provider) return
+						if (!admin) return
 						setProcessing(true)
-						if (!provider.isAvailable) {
-							const snapshot = await provider.products.collectionReference.where("isAvailable", "==", true).get()
-							if (snapshot.empty) {
+						const providerDraft = new ProviderDraft(admin.id)
+						if (provider) {
+							setProcessing(false)
+							const providerClose = firebase.functions().httpsCallable("commerce-v1-provider-close")
+							const response = await providerClose()
+							const { error } = response.data
+							if (error) {
 								setProcessing(false)
-								setMessage("error", `To publish ${provider.name}, add the available Products.`)
+								setMessage("error", error.message)
 								return
 							}
+							setProcessing(false)
+							setMessage("success", `${providerDraft.name} is closed.`)
+							return
+						} else {
+							const providerPublish = firebase.functions().httpsCallable("commerce-v1-provider-publish")
+							const response = await providerPublish()
+							const { error } = response.data
+							if (error) {
+								setProcessing(false)
+								setMessage("error", error.message)
+								return
+							}
+							setProcessing(false)
+							setMessage("success", `${providerDraft.name} is now on sale.`)
 						}
-						provider.isAvailable = !provider.isAvailable
-						const message = provider.isAvailable ? `${provider.name} is now on sale.` : `${provider.name} has stopped selling.`
-						await provider.update()
-						setProcessing(false)
-						setMessage("success", message)
 					}}
 					checked={provider?.isAvailable}
 				/>

@@ -20,7 +20,7 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import Label from "components/Label";
 import { useTheme } from "@material-ui/core/styles";
 import TextField, { useTextField } from "components/TextField"
-import { useAdminProvider, useUser } from "hooks/commerce"
+import { useProviderBlank, useUser } from "hooks/commerce"
 import { useProcessing } from "components/Processing";
 import { useDrawer } from "components/Drawer";
 import { useSnackbar } from "components/Snackbar";
@@ -47,7 +47,7 @@ const deliveryMethodLabel: { [key in DeliveryMethod]: string } = {
 
 export default () => {
 	const theme = useTheme();
-	const [provider] = useAdminProvider()
+	const [provider] = useProviderBlank()
 	const [product, isLoading] = useAdminProviderProductDraft()
 	const [isEditing, setEdit] = useEdit()
 	const [showDrawer, drawerClose] = useDrawer()
@@ -95,7 +95,13 @@ export default () => {
 
 							const productPublish = firebase.functions().httpsCallable("commerce-v1-product-publish")
 							try {
-								await productPublish({ productDraftPath: product.path })
+								const response = await productPublish({ productDraftPath: product.path })
+								const { error } = response.data
+								if (error) {
+									showSnackbar("success", error.message)
+									showProcessing(false)
+									return
+								}
 								showSnackbar("success", "Published.")
 							} catch (error) {
 								showSnackbar("error", "Failed to publish the product.")

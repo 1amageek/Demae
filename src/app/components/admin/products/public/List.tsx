@@ -14,7 +14,7 @@ import { useProcessing } from "components/Processing";
 import { useSnackbar } from "components/Snackbar";
 import { useHistory, useParams } from "react-router-dom";
 import { useDataSourceListen, Where, OrderBy } from "hooks/firestore"
-import { useAdminProvider, useUser } from "hooks/commerce"
+import { useProviderBlank, useUser } from "hooks/commerce"
 import { useListHeader } from "components/NavigationContainer"
 import { DeliveryMethodLabel } from "hooks/commerce/DeliveryMethod"
 import Product, { ProductDraft } from "models/commerce/Product"
@@ -51,7 +51,7 @@ export default () => {
 	const { productID } = useParams()
 	const [segmentControl] = useSegmentControl(TabLabels.map(value => value.label))
 	const [deliveryMethodControl] = useSegmentControl(DeliveryMethodLables.map(value => value.label))
-	const [provider, waiting] = useAdminProvider()
+	const [provider, waiting] = useProviderBlank()
 	const isAvailable = TabLabels[segmentControl.selected].value
 	const deliveryMethod = DeliveryMethodLables[deliveryMethodControl.selected].value
 	const collectionReference = provider ? provider.products.collectionReference : undefined

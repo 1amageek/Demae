@@ -7,7 +7,7 @@ import { Typography, Box, Paper, Button, Chip, InputAdornment, Divider } from "@
 import DataLoading from "components/DataLoading";
 import { ProductDraft, Product, SKU } from "models/commerce";
 import InventoryTableRow from "../../Inventory";
-import { useAdminProvider, useAdminProviderProduct } from "hooks/commerce";
+import { useProviderBlank, useAdminProviderProduct } from "hooks/commerce";
 import { useContentToolbar, useEdit, NavigationBackButton } from "components/NavigationContainer"
 import Dayjs from "dayjs"
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -34,7 +34,7 @@ export default () => {
 	const theme = useTheme()
 	const history = useHistory()
 	const { productID, skuID } = useParams()
-	const [provider] = useAdminProvider()
+	const [provider] = useProviderBlank()
 	const ref = skuID ? provider?.documentReference
 		.collection("products").doc(productID)
 		.collection("skus").doc(skuID) : undefined

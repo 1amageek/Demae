@@ -14,11 +14,12 @@ import { useProcessing } from "components/Processing";
 import { useSnackbar } from "components/Snackbar";
 import { useHistory, useParams } from "react-router-dom";
 import { useDataSourceListen, Where, OrderBy } from "hooks/firestore"
-import { useAdminProvider, useUser } from "hooks/commerce"
+import { useProviderBlank, useUser } from "hooks/commerce"
 import { useListHeader } from "components/NavigationContainer"
 import { DeliveryMethodLabel } from "hooks/commerce/DeliveryMethod"
 import { ProductDraft } from "models/commerce/Product"
 import { CurrencyCode } from "common/Currency"
+import { Provider } from "models/commerce";
 
 
 const TabLabels = [
@@ -49,9 +50,9 @@ const DeliveryMethodLables = [{
 export default () => {
 	const history = useHistory()
 	const { productID } = useParams()
+	const [provider, waiting] = useProviderBlank()
 	const [segmentControl] = useSegmentControl(TabLabels.map(value => value.label))
 	const [deliveryMethodControl] = useSegmentControl(DeliveryMethodLables.map(value => value.label))
-	const [provider, waiting] = useAdminProvider()
 	const isAvailable = TabLabels[segmentControl.selected].value
 	const deliveryMethod = DeliveryMethodLables[deliveryMethodControl.selected].value
 	const collectionReference = provider ? provider.productDrafts.collectionReference : undefined

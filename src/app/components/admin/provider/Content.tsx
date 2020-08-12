@@ -7,10 +7,9 @@ import Avatar from "@material-ui/core/Avatar";
 import ImageIcon from "@material-ui/icons/Image";
 import { Container, Paper, Button, FormControl, FormGroup, FormLabel, FormControlLabel, Checkbox, FormHelperText, Box, Typography } from "@material-ui/core";
 import TextField, { useTextField } from "components/TextField"
-import Switch, { useSwitch } from "components/Switch";
 import DndCard from "components/DndCard"
-import Provider, { Capability } from "models/commerce/Provider"
-import { useAdminProvider } from "hooks/commerce";
+import { Capability, ProviderDraft } from "models/commerce/Provider"
+import { useAdminProviderDraft } from "hooks/commerce";
 import { useProcessing } from "components/Processing";
 import { useSnackbar } from "components/Snackbar";
 import { useContentToolbar, useEdit, NavigationBackButton } from "components/NavigationContainer"
@@ -49,7 +48,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 
 export default () => {
-	const [provider, isLoading] = useAdminProvider()
+	const [provider, isLoading] = useAdminProviderDraft()
 
 	if (isLoading || !provider) {
 		return (
@@ -65,7 +64,7 @@ export default () => {
 	return <Form provider={provider} />
 }
 
-const Form = ({ provider }: { provider: Provider }) => {
+const Form = ({ provider }: { provider: ProviderDraft }) => {
 	const classes = useStyles()
 	const [setProcessing] = useProcessing()
 	const [setMessage] = useSnackbar()
@@ -74,7 +73,6 @@ const Form = ({ provider }: { provider: Provider }) => {
 	const [name] = useTextField(provider.name)
 	const [caption] = useTextField(provider.caption)
 	const [description] = useTextField(provider.description)
-	const [isAvailable] = useSwitch(provider.isAvailable)
 	const providerCapabilities = provider.capabilities || []
 	const [capabilities, setCapabilities] = useState<{ [key in Capability]: boolean }>({
 		"download": providerCapabilities.includes("download"),

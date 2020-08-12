@@ -13,7 +13,7 @@ import { useProcessing } from "components/Processing";
 import { useSnackbar } from "components/Snackbar";
 import { useHistory, useParams } from "react-router-dom";
 import { useDataSourceListen, Where, OrderBy } from "hooks/firestore"
-import { useAdminProvider, useUser } from "hooks/commerce";
+import { useProviderBlank, useUser } from "hooks/commerce";
 import SKU from "models/commerce/SKU"
 import { useListToolbar, useListHeader } from "components/NavigationContainer"
 
@@ -36,7 +36,7 @@ export default () => {
 	const history = useHistory()
 	const { productID } = useParams()
 	const [segmentControl] = useSegmentControl(TabLabels.map(value => value.label))
-	const [provider, waiting] = useAdminProvider()
+	const [provider, waiting] = useProviderBlank()
 	const isAvailable = TabLabels[segmentControl.selected].value
 	const collectionReference = provider && productID ? provider.products.collectionReference.doc(productID).collection("skus") : undefined
 	const wheres = [

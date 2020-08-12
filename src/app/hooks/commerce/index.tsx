@@ -3,7 +3,7 @@ import firebase from "firebase"
 import "firebase/firestore"
 import "firebase/auth"
 import { useDocumentListen, useDataSourceListen } from '../firestore'
-import Provider, { Role } from 'models/commerce/Provider'
+import Provider, { ProviderDraft, Role } from 'models/commerce/Provider'
 import Product, { ProductDraft } from 'models/commerce/Product'
 import SKU from 'models/commerce/SKU'
 import Cart from 'models/commerce/Cart'
@@ -80,6 +80,11 @@ export const useAdmin = (): [Role | undefined, boolean, firebase.auth.Error | un
 	return useContext(AdminContext)
 }
 
+export const useProviderBlank = (): [Provider | undefined, boolean, firebase.auth.Error | undefined] => {
+	const [admin, waiting, error] = useAdmin()
+	const provider = admin !== undefined ? new Provider(admin.id) : undefined
+	return [provider, waiting, error]
+}
 
 // Admin
 export const AdminProviderContext = createContext<[Provider | undefined, boolean, Error | undefined]>([undefined, true, undefined])
@@ -89,9 +94,16 @@ export const AdminProviderProvider = ({ children }: { children: any }) => {
 	return <AdminProviderContext.Provider value={[data, isLoading, error]}> {children} </AdminProviderContext.Provider>
 }
 
+export const AdminProviderDraftContext = createContext<[ProviderDraft | undefined, boolean, Error | undefined]>([undefined, true, undefined])
+export const AdminProviderDraftProvider = ({ children }: { children: any }) => {
+	const [auth, waiting] = useAdmin()
+	const [data, isLoading, error] = useDocumentListen<ProviderDraft>(ProviderDraft, auth?.id ? new ProviderDraft(auth.id).documentReference : undefined, waiting)
+	return <AdminProviderDraftContext.Provider value={[data, isLoading, error]}> {children} </AdminProviderDraftContext.Provider>
+}
+
 export const AdminProviderProductContext = createContext<[Product | undefined, boolean, Error | undefined]>([undefined, true, undefined])
 export const AdminProviderProductProvider = ({ id, children }: { id: string, children: any }) => {
-	const [provider, waiting] = useContext(AdminProviderContext)
+	const [provider, waiting] = useProviderBlank()
 	const documentReference = (provider && id) ? provider?.products.collectionReference.doc(id) : undefined
 	const [data, isLoading, error] = useDocumentListen<Product>(Product, documentReference, waiting)
 	return <AdminProviderProductContext.Provider value={[data, isLoading, error]}> {children} </AdminProviderProductContext.Provider>
@@ -99,7 +111,7 @@ export const AdminProviderProductProvider = ({ id, children }: { id: string, chi
 
 export const AdminProviderProductDraftContext = createContext<[ProductDraft | undefined, boolean, Error | undefined]>([undefined, true, undefined])
 export const AdminProviderProductDraftProvider = ({ id, children }: { id: string, children: any }) => {
-	const [provider, waiting] = useContext(AdminProviderContext)
+	const [provider, waiting] = useProviderBlank()
 	const documentReference = (provider && id) ? provider?.productDrafts.collectionReference.doc(id) : undefined
 	const [data, isLoading, error] = useDocumentListen<ProductDraft>(ProductDraft, documentReference, waiting)
 	return <AdminProviderProductDraftContext.Provider value={[data, isLoading, error]}> {children} </AdminProviderProductDraftContext.Provider>
@@ -107,7 +119,7 @@ export const AdminProviderProductDraftProvider = ({ id, children }: { id: string
 
 export const AdminProviderOrderContext = createContext<[Order | undefined, boolean, Error | undefined]>([undefined, true, undefined])
 export const AdminProviderOrderProvider = ({ id, children }: { id?: string, children: any }) => {
-	const [provider, waiting] = useContext(AdminProviderContext)
+	const [provider, waiting] = useProviderBlank()
 	const documentReference = (provider && id) ? provider.orders.collectionReference.doc(id) : undefined
 	const [data, isLoading, error] = useDocumentListen<Order>(Order, documentReference, waiting)
 	return <AdminProviderOrderContext.Provider value={[data, isLoading, error]}> {children} </AdminProviderOrderContext.Provider>
@@ -115,6 +127,10 @@ export const AdminProviderOrderProvider = ({ id, children }: { id?: string, chil
 
 export const useAdminProvider = (): [Provider | undefined, boolean, Error | undefined] => {
 	return useContext(AdminProviderContext)
+}
+
+export const useAdminProviderDraft = (): [ProviderDraft | undefined, boolean, Error | undefined] => {
+	return useContext(AdminProviderDraftContext)
 }
 
 export const useAdminProviderProducts = (): [Product[], boolean, Error?] => {

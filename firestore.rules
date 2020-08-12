@@ -46,6 +46,24 @@ service cloud.firestore {
 				allow write: if request.auth.uid == uid;
 			}
 
+			match /providerDrafts/{provider_id} {
+
+				function isOwner() {
+					return "owner" in get(/databases/$(database)/documents/commerce/$(version)/providers/$(provider_id)/members/$(request.auth.uid)).data.permissions;
+				}
+
+				function isEditor() {
+					return "write" in get(/databases/$(database)/documents/commerce/$(version)/providers/$(provider_id)/members/$(request.auth.uid)).data.permissions;
+				}
+
+				function isViewer() {
+					return "read" in get(/databases/$(database)/documents/commerce/$(version)/providers/$(provider_id)/members/$(request.auth.uid)).data.permissions;
+				}
+
+				allow read: if request.auth.uid == provider_id || isOwner() || isEditor() || isViewer();
+				allow write: if request.auth.uid == provider_id || isOwner() || isEditor();
+			}
+
 			match /providers/{provider_id} {
 
 				function isOwner() {
@@ -61,7 +79,7 @@ service cloud.firestore {
 				}
 
 				allow read: if true;
-				allow write: if request.auth.uid == provider_id || isOwner();
+				allow write: if false;
 
 				match /members/{user_id} {
 					allow read: if request.auth.uid == provider_id || isOwner() || isEditor() || isViewer();

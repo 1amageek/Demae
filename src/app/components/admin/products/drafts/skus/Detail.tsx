@@ -15,7 +15,7 @@ import Select, { useSelect, useMenu } from "components/_Select"
 import { StockType, StockValue } from "common/commerce/Types";
 import { SKU } from "models/commerce";
 import InventoryTableRow from "../../Inventory";
-import { useAdminProvider, useAdminProviderProductDraft } from "hooks/commerce";
+import { useProviderBlank, useAdminProviderProductDraft } from "hooks/commerce";
 import { useContentToolbar, useEdit, NavigationBackButton } from "components/NavigationContainer"
 import Dayjs from "dayjs"
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -42,7 +42,7 @@ const converter = new Showdown.Converter({
 export default () => {
 	const theme = useTheme();
 	const { productID, skuID } = useParams()
-	const [provider] = useAdminProvider()
+	const [provider] = useProviderBlank()
 	const ref = skuID ? provider?.documentReference
 		.collection("productDrafts").doc(productID)
 		.collection("skus").doc(skuID) : undefined

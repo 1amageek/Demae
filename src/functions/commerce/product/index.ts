@@ -1,6 +1,7 @@
 import * as admin from "firebase-admin"
 import * as functions from "firebase-functions"
 import { regionFunctions, getProviderID } from "../../helper"
+import { checkPermission } from "../helper"
 import { DocumentReference } from "@1amageek/ballcap-admin"
 
 export const publish = regionFunctions.https.onCall(async (data, context) => {
@@ -41,6 +42,13 @@ export const publish = regionFunctions.https.onCall(async (data, context) => {
 	batch.set(productRef, productData)
 	batch.delete(draftRef)
 	const skusSnapshot = await draftRef.collection("skus").get()
+	if (skusSnapshot.empty) {
+		return {
+			error: {
+				message: "The product could not be published because the product does not have an SKU."
+			}
+		}
+	}
 	skusSnapshot.forEach(doc => {
 		const productRef = doc.ref.parent.parent!
 		const skuRef = providerRef.collection("products").doc(productRef.id).collection("skus").doc(doc.ref.id)
@@ -51,12 +59,3 @@ export const publish = regionFunctions.https.onCall(async (data, context) => {
 	await batch.commit()
 	return { result }
 })
-
-const checkPermission = async (uid: string, providerRef: DocumentReference) => {
-	const snapshot = await providerRef.collection("members").doc(uid).get()
-	if (!snapshot.exists) throw new functions.https.HttpsError("invalid-argument", "You do not have permission to publish.")
-	const permissions: string[] = snapshot.data()!["permissions"] ?? []
-	const canWrite = permissions.includes("owner") || permissions.includes("write")
-	if (!canWrite) throw new functions.https.HttpsError("invalid-argument", "You do not have permission to publish.")
-}
-

@@ -19,8 +19,7 @@ import Dayjs from "dayjs"
 import relativeTime from "dayjs/plugin/relativeTime";
 import Label from "components/Label";
 import { useTheme } from "@material-ui/core/styles";
-import TextField, { useTextField } from "components/TextField"
-import { useAdminProvider, useUser } from "hooks/commerce"
+import { useProviderBlank, useUser } from "hooks/commerce"
 import { useProcessing } from "components/Processing";
 import { useDrawer } from "components/Drawer";
 import { useSnackbar } from "components/Snackbar";
@@ -48,7 +47,7 @@ const deliveryMethodLabel: { [key in DeliveryMethod]: string } = {
 export default () => {
 	const theme = useTheme()
 	const history = useHistory()
-	const [provider] = useAdminProvider()
+	const [provider] = useProviderBlank()
 	const [product, isLoading] = useAdminProviderProduct()
 	const [showDrawer, drawerClose] = useDrawer()
 	const [showSnackbar] = useSnackbar()

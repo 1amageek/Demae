@@ -1,6 +1,6 @@
 import { useState, useContext } from 'react';
 import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
-import Provider, { Role, Capability } from 'models/commerce/Provider';
+import Provider, { ProviderDraft, Role, Capability } from 'models/commerce/Provider';
 import User from 'models/commerce/User';
 import { SupportedCurrencies, CurrencyCode } from 'common/Currency'
 import { SupportedCountries, CountryCode } from 'common/Country';
@@ -73,13 +73,13 @@ export default ({ country, onCallback }: { country: CountryCode, onCallback: (ne
 		if (error) return
 		const uid = auth.uid
 		setProcessing(true)
-		const provider = new Provider(uid)
+		const provider = new ProviderDraft(uid)
 		provider.name = name.value as string
 		provider.country = country as CountryCode
 		provider.defaultCurrency = defaultCurrency.value as CurrencyCode
 		provider.capabilities = Object.keys(capabilities).filter(value => capabilities[value]) as Capability[]
 		const user = new User(uid)
-		const provierRole = new Role(provider.members.collectionReference.doc(user.id))
+		const provierRole = new Role(new Provider(uid).members.collectionReference.doc(user.id))
 		try {
 			const batch = new Batch()
 			batch.save(provider)
