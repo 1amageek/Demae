@@ -127,8 +127,8 @@ const useStyles = makeStyles((theme: Theme) =>
 
 const SKUListItem = ({ sku }: { sku: SKU }) => {
 	const classes = useStyles();
-	const [user] = useUser()
 	const { productID, skuID } = useParams()
+	const [provider, waiting] = useProviderBlank()
 	const currency = sku.currency
 	const amount = sku.price || 0
 	const price = new Intl.NumberFormat("ja-JP", { style: "currency", currency: currency }).format(amount)
@@ -161,10 +161,16 @@ const SKUListItem = ({ sku }: { sku: SKU }) => {
 										edge="end"
 										onChange={async (e) => {
 											e.preventDefault()
+											if (!provider) return
 											setProcessing(true)
 											if (!sku.isAvailable) {
 												if (sku.inventory.type === "finite") {
-													const snapshot = await sku.stocks.collectionReference.get()
+													const snapshot = await provider.products.collectionReference
+														.doc(productID)
+														.collection("skus")
+														.doc(skuID)
+														.collection("stocks")
+														.get()
 													const count = snapshot.docs.reduce((prev, current) => {
 														return prev + current.data()!["count"]
 													}, 0)

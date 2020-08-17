@@ -1,4 +1,5 @@
 import { useState, useContext } from 'react';
+import firebase from "firebase"
 import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
 import Provider, { ProviderDraft, Role, Capability } from 'models/commerce/Provider';
 import User from 'models/commerce/User';
@@ -11,6 +12,7 @@ import { useProcessing } from 'components/Processing'
 import { Batch } from '@1amageek/ballcap';
 import { useDialog } from 'components/Dialog'
 import { useAuthUser } from 'hooks/auth';
+import { functions } from 'firebase';
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
@@ -73,18 +75,22 @@ export default ({ country, onCallback }: { country: CountryCode, onCallback: (ne
 		if (error) return
 		const uid = auth.uid
 		setProcessing(true)
-		const provider = new ProviderDraft(uid)
-		provider.name = name.value as string
-		provider.country = country as CountryCode
-		provider.defaultCurrency = defaultCurrency.value as CurrencyCode
-		provider.capabilities = Object.keys(capabilities).filter(value => capabilities[value]) as Capability[]
-		const user = new User(uid)
-		const provierRole = new Role(new Provider(uid).members.collectionReference.doc(user.id))
+
+		const data = {
+			name: name.value,
+			country: country,
+			defaultCurrency: defaultCurrency.value,
+			capabilities: Object.keys(capabilities).filter(value => capabilities[value]) as Capability[]
+		}
+
 		try {
-			const batch = new Batch()
-			batch.save(provider)
-			batch.save(provierRole)
-			await batch.commit()
+			const providerCreate = firebase.functions().httpsCallable("commerce-v1-provider-create")
+			const response = await providerCreate(data)
+			const { error } = response.data
+			if (error) {
+				console.log(error)
+				return
+			}
 			if (onCallback) {
 				onCallback(true)
 			}

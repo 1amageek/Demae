@@ -18,7 +18,7 @@ import AccountBoxIcon from "@material-ui/icons/AccountBox";
 import { Container } from "@material-ui/core"
 import { useDataSourceListen, useDocumentListen } from "hooks/firestore";
 import MeetingRoomIcon from "@material-ui/icons/MeetingRoom";
-import Provider, { Role } from "models/commerce/Provider";
+import { ProviderDraft, Role } from "models/commerce/Provider";
 import DataLoading from "components/DataLoading";
 import { Paper, Grid } from "@material-ui/core";
 import { useDialog } from "components/Dialog"
@@ -169,7 +169,7 @@ const ProviderList = () => {
 }
 
 const ProviderListItem = ({ role }: { role: Role }) => {
-	const [provider, isLoading] = useDocumentListen<Provider>(Provider, new Provider(role.id).documentReference)
+	const [provider, isLoading] = useDocumentListen<ProviderDraft>(ProviderDraft, new ProviderDraft(role.id).documentReference)
 	const [setDialog] = useDialog()
 	const [setProcessing] = useProcessing()
 	if (isLoading) {

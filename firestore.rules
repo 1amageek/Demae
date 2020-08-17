@@ -10,7 +10,7 @@ service cloud.firestore {
 			}
 
 			match /requirements/{uid} {
-				allow read: if true;
+				allow read: if request.auth != null;
 				allow write: if false;
 			}
     }

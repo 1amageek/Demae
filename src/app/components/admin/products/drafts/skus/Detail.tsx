@@ -76,6 +76,27 @@ export default () => {
 		)
 	}
 
+	const itemDelete = () => {
+		showDrawer(
+			<ActionSheet title={`Do you want to delte "${sku?.name}"?`} actions={
+				[
+					{
+						title: "Delete",
+						handler: async () => {
+							if (!sku) {
+								drawerClose()
+								return
+							}
+							await sku.delete()
+							showSnackbar("success", "Copied.")
+							drawerClose()
+						}
+					}
+				]
+			} />
+		)
+	}
+
 	useContentToolbar(() => {
 		if (!sku) return <></>
 		if (isEditing) {
@@ -204,6 +225,14 @@ export default () => {
 					<Typography variant="body2" gutterBottom>Manage inventory, including different sizes and colors.</Typography>
 				</Box>
 			}
+
+			<Box width="100%" padding={2}>
+				<Button
+					fullWidth
+					variant="outlined"
+					color="secondary"
+					onClick={itemDelete}>Delete</Button>
+			</Box>
 		</Paper >
 	)
 }

@@ -2,8 +2,35 @@ import * as admin from "firebase-admin"
 import * as functions from "firebase-functions"
 import { regionFunctions, getProviderID } from "../../helper"
 import { checkPermission } from "../helper"
-import { DocumentReference } from "@1amageek/ballcap-admin"
-import Provider, { ProviderDraft } from "../../models/commerce/Provider"
+import { DocumentReference, Batch } from "@1amageek/ballcap-admin"
+import Provider, { ProviderDraft, Role } from "../../models/commerce/Provider"
+
+export const create = regionFunctions.https.onCall(async (data, context) => {
+	if (!context.auth) {
+		throw new functions.https.HttpsError("failed-precondition", "The function must be called while authenticated.")
+	}
+	functions.logger.info(data)
+	const uid: string = context.auth.uid
+	const provider = new ProviderDraft(uid)
+	const { name, country, defaultCurrency, capabilities } = data
+	provider.name = name
+	provider.country = country
+	provider.defaultCurrency = defaultCurrency
+	provider.capabilities = capabilities
+	const provierRole = new Role(new Provider(uid).members.collectionReference.doc(uid))
+	try {
+		const batch = new Batch()
+		batch.save(provider)
+		batch.save(provierRole)
+		await batch.commit()
+	} catch (error) {
+		functions.logger.error(error)
+	}
+	return {
+		result: provider.data()
+	}
+})
+
 
 export const publish = regionFunctions.https.onCall(async (data, context) => {
 	if (!context.auth) {
@@ -15,7 +42,7 @@ export const publish = regionFunctions.https.onCall(async (data, context) => {
 	if (!providerID) {
 		throw new functions.https.HttpsError("invalid-argument", "Auth does not maintain a providerID.")
 	}
-	const providerDraftRef: DocumentReference = new Provider(providerID).documentReference
+	const providerDraftRef: DocumentReference = new ProviderDraft(providerID).documentReference
 	const providerRef: DocumentReference = new Provider(providerID).documentReference
 	await checkPermission(uid, providerRef)
 

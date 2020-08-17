@@ -92,13 +92,12 @@ export default () => {
 								return
 							}
 							showProcessing(true)
-
 							const productPublish = firebase.functions().httpsCallable("commerce-v1-product-publish")
 							try {
 								const response = await productPublish({ productDraftPath: product.path })
 								const { error } = response.data
 								if (error) {
-									showSnackbar("success", error.message)
+									showSnackbar("error", error.message)
 									showProcessing(false)
 									return
 								}
