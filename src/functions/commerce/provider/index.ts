@@ -59,6 +59,21 @@ export const publish = regionFunctions.https.onCall(async (data, context) => {
 	const providerRef: DocumentReference = new Provider(providerID).documentReference
 	await checkPermission(uid, providerRef)
 
+	const reuirement = await Requirement.get<Requirement>(providerID)
+	if (!reuirement) {
+		throw new functions.https.HttpsError("invalid-argument", "The Requirement could not be verified.")
+	}
+	if (
+		reuirement.eventuallyDue.find(task => task.id === "account") ||
+		reuirement.eventuallyDue.find(task => task.id === "external_account")
+	) {
+		return {
+			error: {
+				message: "Please enter the required items."
+			}
+		}
+	}
+
 	const snapshot = await providerRef.collection("products").get()
 	if (snapshot.empty) {
 		return {
