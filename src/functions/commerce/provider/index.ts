@@ -4,6 +4,7 @@ import { regionFunctions, getProviderID } from "../../helper"
 import { checkPermission } from "../helper"
 import { DocumentReference, Batch } from "@1amageek/ballcap-admin"
 import Provider, { ProviderDraft, Role } from "../../models/commerce/Provider"
+import Requirement from "../../models/account/Requirement"
 
 export const create = regionFunctions.https.onCall(async (data, context) => {
 	if (!context.auth) {
@@ -18,10 +19,22 @@ export const create = regionFunctions.https.onCall(async (data, context) => {
 	provider.defaultCurrency = defaultCurrency
 	provider.capabilities = capabilities
 	const provierRole = new Role(new Provider(uid).members.collectionReference.doc(uid))
+	const reuirement = new Requirement(uid)
+	reuirement.currentlyDue = [
+		{
+			id: "account",
+			action: "/admin/account"
+		},
+		{
+			id: "external_account",
+			action: "/admin/account"
+		}
+	]
 	try {
 		const batch = new Batch()
 		batch.save(provider)
 		batch.save(provierRole)
+		batch.save(reuirement)
 		await batch.commit()
 	} catch (error) {
 		functions.logger.error(error)
