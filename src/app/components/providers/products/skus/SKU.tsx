@@ -26,7 +26,7 @@ export default ({ providerID, productID, skuID }: { providerID: string, productI
 	const mediatorID = useMediator()
 	const [user] = useUser()
 	const [cart] = useCart()
-	const [setDialog] = useDialog()
+	const [showDialog] = useDialog()
 	const [setModal, modalClose] = useModal()
 	const [showDrawer, onClose] = useDrawer()
 
@@ -43,7 +43,7 @@ export default ({ providerID, productID, skuID }: { providerID: string, productI
 		if (user) {
 			onNext(sku)
 		} else {
-			setDialog("Please Login", undefined, [
+			showDialog("Please Login", undefined, [
 				{
 					title: "Cancel",
 				},
@@ -107,7 +107,7 @@ export default ({ providerID, productID, skuID }: { providerID: string, productI
 				/>
 			)
 		} else {
-			setDialog("Welcome 🎉", "Please log in first to purchase this product.", [
+			showDialog("Welcome 🎉", "Please log in first to purchase this product.", [
 				{
 					title: "OK",
 					handler: () => {

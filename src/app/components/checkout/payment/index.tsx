@@ -1,39 +1,39 @@
-import React, { useContext, useState } from 'react'
-import { createStyles, Theme, makeStyles } from '@material-ui/core/styles'
-import firebase from 'firebase'
-import { loadStripe } from '@stripe/stripe-js'
+import React, { useContext, useState } from "react"
+import { createStyles, Theme, makeStyles } from "@material-ui/core/styles"
+import firebase from "firebase"
+import { loadStripe } from "@stripe/stripe-js"
 import {
 	CardElement,
 	Elements,
 	useStripe,
 	useElements,
-} from '@stripe/react-stripe-js'
-import 'firebase/functions'
-import ArrowBackIcon from '@material-ui/icons/ArrowBack';
-import { Paper, AppBar, Toolbar, Button, Typography, Tooltip, IconButton, FormControlLabel, Checkbox, Card } from '@material-ui/core'
-import { List, ListItem, ListItemText, ListItemIcon } from '@material-ui/core';
-import AddIcon from '@material-ui/icons/Add';
-import Loading from 'components/Loading'
-import { Container, ExpansionPanel, ExpansionPanelSummary, ExpansionPanelDetails, ExpansionPanelActions, Divider, Box } from '@material-ui/core';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import CardBrand from 'common/stripe/CardBrand'
-import * as Commerce from 'models/commerce'
-import { PaymentMethod } from '@stripe/stripe-js'
-import DataLoading from 'components/DataLoading';
-import { useDialog } from 'components/Dialog'
-import { useFetchList } from 'hooks/stripe'
-import { useAuthUser } from 'hooks/auth'
-import { UserContext } from 'hooks/commerce'
-import { useProcessing } from 'components/Processing';
-import { usePush, usePop } from 'components/Navigation';
-import { useSnackbar } from 'components/Snackbar'
+} from "@stripe/react-stripe-js"
+import "firebase/functions"
+import ArrowBackIcon from "@material-ui/icons/ArrowBack";
+import { Paper, AppBar, Toolbar, Button, Typography, Tooltip, IconButton, FormControlLabel, Checkbox, Card } from "@material-ui/core"
+import { List, ListItem, ListItemText, ListItemIcon } from "@material-ui/core";
+import AddIcon from "@material-ui/icons/Add";
+import Loading from "components/Loading"
+import { Container, ExpansionPanel, ExpansionPanelSummary, ExpansionPanelDetails, ExpansionPanelActions, Divider, Box } from "@material-ui/core";
+import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+import CardBrand from "common/stripe/CardBrand"
+import * as Commerce from "models/commerce"
+import { PaymentMethod } from "@stripe/stripe-js"
+import DataLoading from "components/DataLoading";
+import { useDialog } from "components/Dialog"
+import { useFetchList } from "hooks/stripe"
+import { useAuthUser } from "hooks/auth"
+import { UserContext } from "hooks/commerce"
+import { useProcessing } from "components/Processing";
+import { usePush, usePop } from "components/Navigation";
+import { useSnackbar } from "components/Snackbar"
 
 export default ({ user }: { user: Commerce.User }) => {
 
 	const [setProcessing] = useProcessing()
-	const [paymentMethods, isLoading, error, setPaymentMethods] = useFetchList<PaymentMethod>('stripe-v1-paymentMethod-list', { type: 'card' })
+	const [paymentMethods, isLoading, error, setPaymentMethods] = useFetchList<PaymentMethod>("stripe-v1-paymentMethod-list", { type: "card" })
 	const [setMessage] = useSnackbar()
-	const [setDialog, close] = useDialog()
+	const [showDialog, close] = useDialog()
 	const [push] = usePush()
 	const pop = usePop()
 
@@ -43,7 +43,7 @@ export default ({ user }: { user: Commerce.User }) => {
 
 	const setDefaultPaymentMethod = async (paymentMethod: PaymentMethod) => {
 		setProcessing(true)
-		const customerUpdate = firebase.functions().httpsCallable('stripe-v1-customer-update')
+		const customerUpdate = firebase.functions().httpsCallable("stripe-v1-customer-update")
 		try {
 			const response = await customerUpdate({
 				// payment_method: paymentMethod.id,
@@ -55,7 +55,7 @@ export default ({ user }: { user: Commerce.User }) => {
 			if (error) {
 				console.error(error)
 				setProcessing(false)
-				setMessage('error', error.message)
+				setMessage("error", error.message)
 				return
 			}
 			const card = new Commerce.Card(paymentMethod.id)
@@ -66,7 +66,7 @@ export default ({ user }: { user: Commerce.User }) => {
 			await user.documentReference.set({
 				defaultCard: card.convert()
 			}, { merge: true })
-			console.log('[APP] set default payment method', result)
+			console.log("[APP] set default payment method", result)
 		} catch (error) {
 			console.error(error)
 		}
@@ -80,7 +80,7 @@ export default ({ user }: { user: Commerce.User }) => {
 		}
 		setProcessing(true)
 		try {
-			const detach = firebase.functions().httpsCallable('stripe-v1-paymentMethod-detach')
+			const detach = firebase.functions().httpsCallable("stripe-v1-paymentMethod-detach")
 			const response = await detach({
 				paymentMethodID: deletePaymentMethod.id
 			})
@@ -88,10 +88,10 @@ export default ({ user }: { user: Commerce.User }) => {
 			if (error) {
 				console.error(error)
 				setProcessing(false)
-				setMessage('error', error.message)
+				setMessage("error", error.message)
 				return
 			}
-			console.log('[APP] detach payment method', result)
+			console.log("[APP] detach payment method", result)
 			const data = paymentMethods.filter(method => method.id !== deletePaymentMethod.id)
 			if (deletePaymentMethod.id === user.defaultCard?.id) {
 				if (data.length > 0) {
@@ -112,13 +112,13 @@ export default ({ user }: { user: Commerce.User }) => {
 
 	return (
 		<Paper>
-			<AppBar position='static' color='transparent' elevation={0}>
+			<AppBar position="static" color="transparent" elevation={0}>
 				<Toolbar>
-					<Tooltip title='Back' onClick={() => {
+					<Tooltip title="Back" onClick={() => {
 						pop()
 					}}>
 						<IconButton>
-							<ArrowBackIcon color='inherit' />
+							<ArrowBackIcon color="inherit" />
 						</IconButton>
 					</Tooltip>
 					<Box fontSize={18} fontWeight={600}>
@@ -151,7 +151,7 @@ export default ({ user }: { user: Commerce.User }) => {
 									onFocus={(event) => event.stopPropagation()}
 									control={<Checkbox checked={user.defaultCard?.id === method.id} />}
 									label={
-										<Box display="flex" alignItems="center" flexGrow={1} style={{ width: '140px' }}>
+										<Box display="flex" alignItems="center" flexGrow={1} style={{ width: "140px" }}>
 											<Box display="flex" alignItems="center" flexGrow={1}>
 												<i className={`pf ${CardBrand[method.card!.brand]}`}></i>
 											</Box>
@@ -170,13 +170,13 @@ export default ({ user }: { user: Commerce.User }) => {
 							<Divider />
 							<ExpansionPanelActions>
 								<Button size="small" onClick={async () => {
-									setDialog('Delete', 'Do you want to remove it?', [
+									showDialog("Delete", "Do you want to remove it?", [
 										{
-											title: 'Cancel',
+											title: "Cancel",
 											handler: close
 										},
 										{
-											title: 'OK',
+											title: "OK",
 											handler: async () => {
 												await paymentMethodDetach(method)
 											}
@@ -197,11 +197,11 @@ const stripePromise = loadStripe(STRIPE_API_KEY)
 const CARD_OPTIONS = {
 	style: {
 		base: {
-			fontSize: '16px',
+			fontSize: "16px",
 		},
 		invalid: {
-			iconColor: '#FFC7EE',
-			color: '#FFC7EE',
+			iconColor: "#FFC7EE",
+			color: "#FFC7EE",
 		},
 	},
 	hidePostalCode: true
@@ -221,7 +221,7 @@ const useStyles = makeStyles((theme: Theme) =>
 			padding: theme.spacing(3),
 		},
 		button: {
-			width: '100%',
+			width: "100%",
 			flexGrow: 1,
 			marginTop: theme.spacing(4)
 		}
@@ -249,7 +249,7 @@ const Form = ({ callback }: { callback?: (paymentMethod: PaymentMethod) => void 
 
 		try {
 			const { error, paymentMethod } = await stripe.createPaymentMethod({
-				type: 'card',
+				type: "card",
 				card: card
 			})
 
@@ -276,7 +276,7 @@ const Form = ({ callback }: { callback?: (paymentMethod: PaymentMethod) => void 
 			}
 
 			try {
-				const attach = firebase.functions().httpsCallable('stripe-v1-paymentMethod-attach')
+				const attach = firebase.functions().httpsCallable("stripe-v1-paymentMethod-attach")
 				const response = await attach({
 					paymentMethodID: paymentMethod.id
 				})
@@ -291,13 +291,13 @@ const Form = ({ callback }: { callback?: (paymentMethod: PaymentMethod) => void 
 						callback(result)
 					}
 				}
-				console.log('[APP] attach payment method', result)
+				console.log("[APP] attach payment method", result)
 			} catch (error) {
 				throw error
 			}
 
 			// else {
-			// 	const create = firebase.functions().httpsCallable('stripe-v1-customer-create')
+			// 	const create = firebase.functions().httpsCallable("stripe-v1-customer-create")
 			// 	const response = await create({
 			// 		payment_method: paymentMethod.id,
 			// 		phone: auth.phoneNumber,
@@ -340,13 +340,13 @@ const Form = ({ callback }: { callback?: (paymentMethod: PaymentMethod) => void 
 	} else {
 		return (
 			<Paper>
-				<AppBar position='static' color='transparent' elevation={0}>
+				<AppBar position="static" color="transparent" elevation={0}>
 					<Toolbar disableGutters>
-						<Tooltip title='Back' onClick={() => {
+						<Tooltip title="Back" onClick={() => {
 							pop()
 						}}>
 							<IconButton>
-								<ArrowBackIcon color='inherit' />
+								<ArrowBackIcon color="inherit" />
 							</IconButton>
 						</Tooltip>
 						<Box fontSize={18} fontWeight={600}>

@@ -112,7 +112,7 @@ const ShippingAddresses = ({ user }: { user: Commerce.User }) => {
 
 	const [shippingAddresses, isLoading] = useUserShippingAddresses()
 	const history = useHistory()
-	const [setDialog, close] = useDialog()
+	const [showDialog, close] = useDialog()
 
 	if (isLoading) {
 		return (
@@ -158,7 +158,7 @@ const ShippingAddresses = ({ user }: { user: Commerce.User }) => {
 							<Divider />
 							<ExpansionPanelActions>
 								<Button size="small" onClick={async () => {
-									setDialog("Delete", "Do you want to remove it?", [
+									showDialog("Delete", "Do you want to remove it?", [
 										{
 											title: "Cancel",
 											handler: close
@@ -167,7 +167,7 @@ const ShippingAddresses = ({ user }: { user: Commerce.User }) => {
 											title: "OK",
 											handler: async () => {
 												if (user?.defaultShipping?.id === shipping.id) {
-													setDialog("Selected shipping address", "This shipping address is currently selected. To delete this shipping address, please select another shipping address first.",
+													showDialog("Selected shipping address", "This shipping address is currently selected. To delete this shipping address, please select another shipping address first.",
 														[
 															{
 																title: "OK"
@@ -204,7 +204,7 @@ const PaymentMethods = ({ user }: { user: Commerce.User }) => {
 
 	const [setProcessing] = useProcessing()
 	const [paymentMethods, isLoading, error, setPaymentMethods] = useFetchList<PaymentMethod>("stripe-v1-paymentMethod-list", { type: "card" })
-	const [setDialog, close] = useDialog()
+	const [showDialog, close] = useDialog()
 	const [setMessage] = useSnackbar()
 
 	if (error) {
@@ -322,7 +322,7 @@ const PaymentMethods = ({ user }: { user: Commerce.User }) => {
 							<Divider />
 							<ExpansionPanelActions>
 								<Button size="small" onClick={async () => {
-									setDialog("Delete", "Do you want to remove it?", [
+									showDialog("Delete", "Do you want to remove it?", [
 										{
 											title: "Cancel",
 											handler: close

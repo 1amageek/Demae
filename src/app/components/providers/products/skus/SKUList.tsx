@@ -72,7 +72,7 @@ const SKUListItem = ({ providerID, product, sku }: { providerID: string, product
 	const theme = useTheme()
 	const [user] = useUser()
 	const [cart] = useCart()
-	const [setDialog] = useDialog()
+	const [showDialog] = useDialog()
 	const [setModal, modalClose] = useModal()
 	const mediatorID = useMediator()
 
@@ -85,7 +85,7 @@ const SKUListItem = ({ providerID, product, sku }: { providerID: string, product
 		if (user) {
 			onNext(sku)
 		} else {
-			setDialog("Please Login", undefined, [
+			showDialog("Please Login", undefined, [
 				{
 					title: "Cancel",
 				},

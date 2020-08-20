@@ -9,19 +9,19 @@ import PublicIcon from "@material-ui/icons/Public";
 import ViewListIcon from "@material-ui/icons/ViewList";
 import StorefrontIcon from "@material-ui/icons/Storefront";
 import AccountCircle from "@material-ui/icons/AccountCircle";
-import AccountBoxIcon from '@material-ui/icons/AccountBox';
+import AccountBoxIcon from "@material-ui/icons/AccountBox";
 import ImageIcon from "@material-ui/icons/Image";
 import MenuIcon from "@material-ui/icons/Menu";
 import PlaceIcon from "@material-ui/icons/Place";
-import PhotoFilterIcon from '@material-ui/icons/PhotoFilter';
-import ListAltIcon from '@material-ui/icons/ListAlt';
+import PhotoFilterIcon from "@material-ui/icons/PhotoFilter";
+import ListAltIcon from "@material-ui/icons/ListAlt";
 import CloudDownloadIcon from "@material-ui/icons/CloudDownload";
 import LocalShippingIcon from "@material-ui/icons/LocalShipping";
 import ExpandLess from "@material-ui/icons/ExpandLess";
 import ExpandMore from "@material-ui/icons/ExpandMore";
 import { Drawer, AppBar, Toolbar, List, ListItem, ListItemText, Avatar, Divider, Box, MenuItem, Menu, IconButton, Collapse, Switch, ListItemSecondaryAction, Chip } from "@material-ui/core";
 import Provider, { ProviderDraft, Role } from "models/commerce/Provider"
-import { useRoles, useUser, useAdmin, useAdminProvider } from "hooks/commerce"
+import { useRoles, useUser, useAdmin, useAdminProvider, useProviderBlank, useAdminProviderDraft } from "hooks/commerce"
 import { useDocumentListen } from "hooks/firestore"
 import { useProcessing } from "components/Processing";
 import { useSnackbar } from "components/Snackbar";
@@ -29,7 +29,8 @@ import DataLoading from "components/DataLoading"
 import { ListItemIcon } from "@material-ui/core";
 import Label from "components/Label";
 import { useAuthUser } from "hooks/auth";
-import { useAccount } from 'hooks/account'
+import { useRequirement } from "hooks/account"
+import { useDialog } from "components/Dialog";
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
@@ -54,11 +55,14 @@ type Anchor = "top" | "left" | "bottom" | "right";
 
 export default ({ children }: { children: any }) => {
 	const classes = useStyles()
+	const history = useHistory()
 	const [auth] = useAuthUser()
 	const [admin] = useAdmin()
 	const [provider] = useAdminProvider()
-	const [setProcessing] = useProcessing()
-	const [setMessage] = useSnackbar()
+	const [providerDraft] = useAdminProviderDraft()
+	const [showProcessing] = useProcessing()
+	const [showMessage] = useSnackbar()
+	const [showDialog, closeDialog] = useDialog()
 
 	const previewLink = admin ? `/providers/${admin.id}` : "/providers"
 	const [state, setState] = React.useState({
@@ -100,10 +104,10 @@ export default ({ children }: { children: any }) => {
 				fontSize={18}
 				fontWeight={600}
 				paddingY={3}>
-				<Avatar variant="circle" src={provider?.thumbnailImageURL()} style={{ width: "80px", height: "80px" }}>
+				<Avatar variant="circle" src={providerDraft?.thumbnailImageURL()} style={{ width: "80px", height: "80px" }}>
 					<ImageIcon />
 				</Avatar>
-				{provider && provider.name}
+				{providerDraft && providerDraft.name}
 			</Box>
 
 			<Box
@@ -112,7 +116,7 @@ export default ({ children }: { children: any }) => {
 				justifyContent="space-between"
 				alignItems="center"
 				padding={2}>
-				<Label color={provider?.isAvailable ? "green" : "red"}>{provider !== undefined ? "ON SALE" : "NOW CLOSED"}</Label>
+				<Label color={provider !== undefined ? "green" : "red"}>{provider !== undefined ? "ON SALE" : "NOW CLOSED"}</Label>
 				<Switch
 					edge="end"
 					onClick={e => {
@@ -121,35 +125,52 @@ export default ({ children }: { children: any }) => {
 					onChange={async (e) => {
 						e.stopPropagation()
 						if (!admin) return
-						setProcessing(true)
+						showProcessing(true)
 						const providerDraft = new ProviderDraft(admin.id)
 						if (provider) {
-							setProcessing(false)
+							showProcessing(false)
 							const providerClose = firebase.functions().httpsCallable("commerce-v1-provider-close")
 							const response = await providerClose()
 							const { error } = response.data
 							if (error) {
-								setProcessing(false)
-								setMessage("error", error.message)
+								console.log(error)
+								showProcessing(false)
+								showMessage("error", `The process failed. Please try again.`)
 								return
 							}
-							setProcessing(false)
-							setMessage("success", `${providerDraft.name} is closed.`)
+							showProcessing(false)
+							showMessage("success", `${providerDraft.name} is closed.`)
 							return
 						} else {
 							const providerPublish = firebase.functions().httpsCallable("commerce-v1-provider-publish")
 							const response = await providerPublish()
 							const { error } = response.data
 							if (error) {
-								setProcessing(false)
-								setMessage("error", error.message)
+								console.log(error)
+								showProcessing(false)
+								showDialog("Please enter the required information.", "Please enter the information required to start the service.",
+									[
+										{
+											title: "Cancel",
+											handler: closeDialog
+										},
+										{
+											title: "Enter",
+											variant: "outlined",
+											handler: () => {
+												toggleDrawer(anchor, false)
+												history.push("/admin/account")
+											}
+										}
+									]
+								)
 								return
 							}
-							setProcessing(false)
-							setMessage("success", `${providerDraft.name} is now on sale.`)
+							showProcessing(false)
+							showMessage("success", `${providerDraft.name} is now on sale.`)
 						}
 					}}
-					checked={provider?.isAvailable}
+					checked={provider !== undefined}
 				/>
 			</Box>
 
@@ -219,7 +240,7 @@ export default ({ children }: { children: any }) => {
 					<ListItemText primary={"Shop"} />
 				</ListItem>
 				{
-					(auth && auth.uid === provider?.id) && <AccountListItem />
+					(auth && auth.uid === admin?.id) && <AccountListItem />
 				}
 			</List>
 			<Divider />
@@ -266,7 +287,7 @@ export default ({ children }: { children: any }) => {
 							<MenuIcon />
 						</IconButton>
 						<Box fontSize={18} fontWeight={600}>
-							{provider && provider.name}
+							{providerDraft && providerDraft.name}
 						</Box>
 						<div style={{ flexGrow: 1 }}></div>
 						<AccountMenu />
@@ -281,7 +302,9 @@ export default ({ children }: { children: any }) => {
 }
 
 const AccountListItem = () => {
-	const [account, isLoading] = useAccount()
+	const [requirement, isLoading] = useRequirement()
+	const currentlyDue = requirement?.currentlyDue ?? []
+	const isRequired = currentlyDue.find(task => task.id === "account") || currentlyDue.find(task => task.id === "external_account")
 
 	return (
 		<ListItem button key={"provider"} component={Link} to="/admin/account">
@@ -291,7 +314,7 @@ const AccountListItem = () => {
 			<ListItemText primary={"Account"} />
 			<ListItemSecondaryAction>
 				{isLoading && <DataLoading />}
-				{!isLoading && account === undefined && <Chip variant="outlined" size="small" color="secondary" label="Required" />}
+				{!isLoading && isRequired && <Chip variant="outlined" size="small" color="secondary" label="Required" />}
 			</ListItemSecondaryAction>
 		</ListItem>
 	)
@@ -350,22 +373,22 @@ const AccountMenu = () => {
 
 const UserMenuItem = React.forwardRef(({ role }: { role: Role }, ref) => {
 	const history = useHistory()
-	const [setProcessing] = useProcessing()
-	const [setMessage] = useSnackbar()
+	const [showProcessing] = useProcessing()
+	const [showMessage] = useSnackbar()
 	const [provider] = useDocumentListen<Provider>(Provider, new Provider(role.id).documentReference)
 	return (
 		<MenuItem key={role.id} onClick={async () => {
-			setProcessing(true)
+			showProcessing(true)
 			const adminAttach = firebase.functions().httpsCallable("commerce-v1-admin-attach")
 			try {
 				await adminAttach({ providerID: provider!.id })
-				setMessage("success", "Change admin")
+				showMessage("success", "Change admin")
 				history.push(`/admin`)
 			} catch (error) {
-				setMessage("error", "Error")
+				showMessage("error", "Error")
 				console.error(error)
 			}
-			setProcessing(false)
+			showProcessing(false)
 		}}>{provider?.name || ""}</MenuItem>
 	)
 })

@@ -1,45 +1,45 @@
-import { useState, useContext } from 'react';
+import { useState, useContext } from "react";
 import firebase from "firebase"
-import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
-import Provider, { ProviderDraft, Role, Capability } from 'models/commerce/Provider';
-import User from 'models/commerce/User';
-import { SupportedCurrencies, CurrencyCode } from 'common/Currency'
-import { SupportedCountries, CountryCode } from 'common/Country';
-import { FormControl, Button, Box, Typography, FormGroup, FormControlLabel, Checkbox, Divider, FormHelperText } from '@material-ui/core';
-import Select, { useSelect, useMenu } from 'components/_Select'
+import { createStyles, Theme, makeStyles } from "@material-ui/core/styles";
+import Provider, { ProviderDraft, Role, Capability } from "models/commerce/Provider";
+import User from "models/commerce/User";
+import { SupportedCurrencies, CurrencyCode } from "common/Currency"
+import { SupportedCountries, CountryCode } from "common/Country";
+import { FormControl, Button, Box, Typography, FormGroup, FormControlLabel, Checkbox, Divider, FormHelperText } from "@material-ui/core";
+import Select, { useSelect, useMenu } from "components/_Select"
 import TextField, { useTextField } from "components/TextField"
-import { useProcessing } from 'components/Processing'
-import { Batch } from '@1amageek/ballcap';
-import { useDialog } from 'components/Dialog'
-import { useAuthUser } from 'hooks/auth';
-import { functions } from 'firebase';
+import { useProcessing } from "components/Processing"
+import { Batch } from "@1amageek/ballcap";
+import { useDialog } from "components/Dialog"
+import { useAuthUser } from "hooks/auth";
+import { functions } from "firebase";
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
 		box: {
-			backgroundColor: '#fafafa'
+			backgroundColor: "#fafafa"
 		},
 		bottomBox: {
 			padding: theme.spacing(2),
-			display: 'flex',
-			justifyContent: 'flex-end'
+			display: "flex",
+			justifyContent: "flex-end"
 		},
 		input: {
-			backgroundColor: '#fff'
+			backgroundColor: "#fff"
 		},
 		cell: {
-			borderBottom: 'none',
+			borderBottom: "none",
 			padding: theme.spacing(1),
 		},
 		cellStatus: {
-			borderBottom: 'none',
+			borderBottom: "none",
 			padding: theme.spacing(1),
-			width: '48px',
+			width: "48px",
 		},
 		cellStatusBox: {
-			display: 'flex',
-			justifyContent: 'center',
-			alignItems: 'center'
+			display: "flex",
+			justifyContent: "center",
+			alignItems: "center"
 		}
 	})
 )
@@ -49,7 +49,7 @@ export default ({ country, onCallback }: { country: CountryCode, onCallback: (ne
 	const classes = useStyles()
 	const [auth] = useAuthUser()
 	const [setProcessing] = useProcessing()
-	const [setDialog] = useDialog()
+	const [showDialog] = useDialog()
 	const [name] = useTextField("")
 	const [capabilities, setCapabilities] = useState<{ [key in Capability]: boolean }>({
 		"download": false,
@@ -96,8 +96,8 @@ export default ({ country, onCallback }: { country: CountryCode, onCallback: (ne
 			}
 		} catch (error) {
 			console.error(error)
-			setDialog('Error', 'Creation of provider failed. Please try again with good communication conditions.', [{
-				title: 'OK',
+			showDialog("Error", "Creation of provider failed. Please try again with good communication conditions.", [{
+				title: "OK",
 				autoFocus: true
 			}])
 		}
@@ -105,7 +105,7 @@ export default ({ country, onCallback }: { country: CountryCode, onCallback: (ne
 	}
 
 	return (
-		<form autoComplete='off' onSubmit={onSubmit}>
+		<form autoComplete="off" onSubmit={onSubmit}>
 			<Box className={classes.box}>
 				<Box padding={2}>
 					<Box paddingTop={2}>
@@ -159,7 +159,7 @@ export default ({ country, onCallback }: { country: CountryCode, onCallback: (ne
 				<Button onClick={() => {
 					onCallback(false)
 				}}>Back</Button>
-				<Button fullWidth variant='contained' size='large' color='primary' type='submit'>
+				<Button fullWidth variant="contained" size="large" color="primary" type="submit">
 					Save
 				</Button>
 			</Box>

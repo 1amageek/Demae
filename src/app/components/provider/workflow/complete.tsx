@@ -9,7 +9,7 @@ import { useDialog } from "components/Dialog";
 export default () => {
 	const [setProcessing] = useProcessing()
 	const [auth] = useAuthUser()
-	const [setDialog] = useDialog()
+	const [showDialog] = useDialog()
 	return (
 		<Paper>
 			<Box display="flex" flexDirection="column" justifyContent="center" alignItems="center" padding={8} fontSize={30} fontWeight={800}>
@@ -30,7 +30,7 @@ export default () => {
 						const url = "/admin/products/drafts"
 						if (!window.open(url)) window.location.href = url
 					} catch (error) {
-						setDialog("Error", "Error", [{
+						showDialog("Error", "Error", [{
 							title: "OK"
 						}])
 						console.error(error)

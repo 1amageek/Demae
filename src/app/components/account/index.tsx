@@ -34,7 +34,7 @@ export default () => {
 	const [account, isAccountLoading] = useAccount()
 	const history = useHistory()
 	const [setProgress] = useProcessing()
-	const [setDialog] = useDialog()
+	const [showDialog] = useDialog()
 	const [setModal, close] = useModal()
 
 	return (
@@ -59,7 +59,7 @@ export default () => {
 										history.push("/account/create")
 									}
 								} else {
-									setDialog("Welcome 🎉", "We support your business. Please log in first.", [
+									showDialog("Welcome 🎉", "We support your business. Please log in first.", [
 										{
 											title: "OK",
 											handler: () => {
@@ -123,7 +123,7 @@ const ProviderList = () => {
 	const [user, isLoading] = useUser()
 	const ref = user?.providers.collectionReference
 	const [roles, isDataLoading] = useDataSourceListen<Role>(Role, { path: ref?.path }, isLoading)
-	const [setDialog] = useDialog()
+	const [showDialog] = useDialog()
 	const [setModal, close] = useModal()
 
 	if (isDataLoading) {
@@ -138,7 +138,7 @@ const ProviderList = () => {
 					if (currentUser) {
 						history.push("/provider/create")
 					} else {
-						setDialog("Welcome 🎉", "We support your business. Please log in first.", [
+						showDialog("Welcome 🎉", "We support your business. Please log in first.", [
 							{
 								title: "OK",
 								handler: () => {
@@ -170,7 +170,7 @@ const ProviderList = () => {
 
 const ProviderListItem = ({ role }: { role: Role }) => {
 	const [provider, isLoading] = useDocumentListen<ProviderDraft>(ProviderDraft, new ProviderDraft(role.id).documentReference)
-	const [setDialog] = useDialog()
+	const [showDialog] = useDialog()
 	const [setProcessing] = useProcessing()
 	if (isLoading) {
 		return (
@@ -196,7 +196,7 @@ const ProviderListItem = ({ role }: { role: Role }) => {
 						const url = "/admin"
 						if (!window.open(url)) window.location.href = url
 					} catch (error) {
-						setDialog("Error", "Error", [{
+						showDialog("Error", "Error", [{
 							title: "OK"
 						}])
 						console.error(error)

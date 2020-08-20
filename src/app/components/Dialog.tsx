@@ -63,11 +63,11 @@ export const DialogProvider = ({ children }: { children: any }) => {
 			actions: []
 		})
 	}
-	const setDialog = (title: string | undefined, body: string | undefined, actions: Action[]) => {
+	const showDialog = (title: string | undefined, body: string | undefined, actions: Action[]) => {
 		setState({ title, body, actions })
 	}
 	return (
-		<DialogContext.Provider value={[setDialog, onClose, open]}>
+		<DialogContext.Provider value={[showDialog, onClose, open]}>
 			<_Dialog open={open} title={state.title} body={state.body} actions={state.actions} onClose={onClose} />
 			{children}
 		</DialogContext.Provider>

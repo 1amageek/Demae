@@ -13,6 +13,7 @@ import Dashboard from "components/admin/dashboard"
 import Provider from "components/admin/provider"
 import Account from "components/admin/account"
 import { AdminProviderProvider } from "hooks/commerce";
+import { RequirementProvider } from "hooks/account";
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
@@ -27,13 +28,15 @@ export default () => {
 	const classes = useStyles()
 	return (
 		<AdminProviderProvider>
-			<Layout>
-				<main className={classes.content}>
-					<Container maxWidth="xl" disableGutters>
-						<App />
-					</Container>
-				</main>
-			</Layout>
+			<RequirementProvider>
+				<Layout>
+					<main className={classes.content}>
+						<Container maxWidth="xl" disableGutters>
+							<App />
+						</Container>
+					</main>
+				</Layout>
+			</RequirementProvider>
 		</AdminProviderProvider>
 	);
 }

@@ -19,8 +19,8 @@ export const create = regionFunctions.https.onCall(async (data, context) => {
 	provider.defaultCurrency = defaultCurrency
 	provider.capabilities = capabilities
 	const provierRole = new Role(new Provider(uid).members.collectionReference.doc(uid))
-	const reuirement = new Requirement(uid)
-	reuirement.currentlyDue = [
+	const requirement = new Requirement(uid)
+	requirement.currentlyDue = [
 		{
 			id: "account",
 			action: "/admin/account"
@@ -34,7 +34,7 @@ export const create = regionFunctions.https.onCall(async (data, context) => {
 		const batch = new Batch()
 		batch.save(provider)
 		batch.save(provierRole)
-		batch.save(reuirement)
+		batch.save(requirement)
 		await batch.commit()
 	} catch (error) {
 		functions.logger.error(error)
@@ -59,13 +59,13 @@ export const publish = regionFunctions.https.onCall(async (data, context) => {
 	const providerRef: DocumentReference = new Provider(providerID).documentReference
 	await checkPermission(uid, providerRef)
 
-	const reuirement = await Requirement.get<Requirement>(providerID)
-	if (!reuirement) {
+	const requirement = await Requirement.get<Requirement>(providerID)
+	if (!requirement) {
 		throw new functions.https.HttpsError("invalid-argument", "The Requirement could not be verified.")
 	}
 	if (
-		reuirement.eventuallyDue.find(task => task.id === "account") ||
-		reuirement.eventuallyDue.find(task => task.id === "external_account")
+		requirement.currentlyDue.find(task => task.id === "account") ||
+		requirement.currentlyDue.find(task => task.id === "external_account")
 	) {
 		return {
 			error: {
