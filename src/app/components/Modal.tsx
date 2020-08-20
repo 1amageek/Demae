@@ -5,14 +5,17 @@ import Fade from "@material-ui/core/Fade";
 
 interface Prop {
 	component?: React.ReactNode
+	canCloseTapBackdrop: boolean
 }
 
-const _Modal = ({ open, component, onClose }: { open: boolean, component?: React.ReactNode, onClose: () => void }) => {
+const _Modal = ({ open, component, onClose, canCloseTapBackdrop }: { open: boolean, component?: React.ReactNode, onClose: () => void, canCloseTapBackdrop: boolean }) => {
 	if (open) {
 		return (
 			<Modal
 				open={open}
-				onClose={onClose}
+				onClose={() => {
+					if (canCloseTapBackdrop) onClose()
+				}}
 				closeAfterTransition
 				BackdropComponent={Backdrop}
 				BackdropProps={{
@@ -35,23 +38,28 @@ const _Modal = ({ open, component, onClose }: { open: boolean, component?: React
 	return <></>
 }
 
-export const ModalContext = createContext<[(component: React.ReactNode | undefined) => void, () => void, boolean]>([() => { }, () => { }, false])
+export const ModalContext = createContext<[(component: React.ReactNode | undefined, canCloseTapBackdrop?: boolean) => void, () => void, boolean]>([() => { }, () => { }, false])
 export const ModalProvider = ({ children }: { children: any }) => {
 	const [state, setState] = useState<Prop>({
-		component: undefined
+		component: undefined,
+		canCloseTapBackdrop: true
 	})
 	const open = !!state.component
-	const onClose = () => {
+	const closeModal = () => {
 		setState({
-			component: undefined
+			component: undefined,
+			canCloseTapBackdrop: state.canCloseTapBackdrop
 		})
 	}
-	const setModal = (component: React.ReactNode) => {
-		setState({ component })
+	const showModal = (component: React.ReactNode, canCloseTapBackdrop?: boolean) => {
+		setState({
+			component: component,
+			canCloseTapBackdrop: canCloseTapBackdrop ?? true
+		})
 	}
 	return (
-		<ModalContext.Provider value={[setModal, onClose, open]}>
-			<_Modal open={open} component={state.component} onClose={onClose} />
+		<ModalContext.Provider value={[showModal, closeModal, open]}>
+			<_Modal open={open} component={state.component} onClose={closeModal} canCloseTapBackdrop={state.canCloseTapBackdrop} />
 			{children}
 		</ModalContext.Provider>
 	)

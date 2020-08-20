@@ -8,7 +8,7 @@ import "firebase/auth"
 import { ThemeProvider } from "@material-ui/styles"
 import { CssBaseline } from "@material-ui/core"
 import { AuthProvider } from "hooks/auth"
-import { AccountProvider } from "hooks/account"
+import { AccountProvider, RequirementProvider } from "hooks/account"
 import { UserProvider, RolesProvider, AdminProviderProvider, CartProvider, AdminProvider } from "hooks/commerce"
 import { ProcessingProvider } from "components/Processing"
 import { SnackbarProvider } from "components/Snackbar"
@@ -56,17 +56,19 @@ const Provider = ({ children }: { children: any }) => {
 		<AuthProvider>
 			<AdminProvider>
 				<AccountProvider>
-					<RolesProvider>
-						<AdminProviderProvider>
-							<UserProvider>
-								<CartProvider>
-									<UIProvider>
-										{children}
-									</UIProvider>
-								</CartProvider>
-							</UserProvider>
-						</AdminProviderProvider>
-					</RolesProvider>
+					<RequirementProvider>
+						<RolesProvider>
+							<AdminProviderProvider>
+								<UserProvider>
+									<CartProvider>
+										<UIProvider>
+											{children}
+										</UIProvider>
+									</CartProvider>
+								</UserProvider>
+							</AdminProviderProvider>
+						</RolesProvider>
+					</RequirementProvider>
 				</AccountProvider>
 			</AdminProvider>
 		</AuthProvider>
