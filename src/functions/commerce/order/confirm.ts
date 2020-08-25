@@ -49,7 +49,7 @@ export const confirm = regionFunctions.https.onCall(async (data, context) => {
 				if (item.mediatedBy) {
 					const transferAmount = Math.floor(item.amount * 0.2)
 					const account = await Account.get<Account>(item.mediatedBy)
-					const accountID = account?.stripe?.accountID
+					const accountID = account?.stripe?.id
 					if (account && accountID) {
 						return {
 							amount: transferAmount,

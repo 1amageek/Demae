@@ -13,7 +13,6 @@ import { Paper, Typography, Box } from "@material-ui/core";
 import { useFunctions } from "hooks/stripe"
 import { Symbol } from "common/Currency"
 import { useModal } from "components/Modal"
-import { useRequirement } from "hooks/account"
 import Payout from "../payouts"
 
 export default () => {
@@ -73,9 +72,6 @@ const Balance = () => {
 }
 
 const BankAccount = () => {
-	const [requirement] = useRequirement()
-	const currentlyDue = requirement?.currentlyDue ?? []
-	const isRequired = currentlyDue.find(task => task.id === "external_account")
 
 	const [showModal, closeModal] = useModal()
 
@@ -87,7 +83,7 @@ const BankAccount = () => {
 				}}>
 					<ListItemText primary="Register your bank account" primaryTypographyProps={{ variant: "subtitle1" }} />
 					<ListItemSecondaryAction>
-						{!isRequired && <Chip variant="outlined" size="small" color="secondary" label="Required" />}
+						{/* {!isRequired && <Chip variant="outlined" size="small" color="secondary" label="Required" />} */}
 						<NavigateNextIcon />
 					</ListItemSecondaryAction>
 				</ListItem>
