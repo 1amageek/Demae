@@ -10,6 +10,7 @@ export const create = regionFunctions.https.onCall(async (data, context) => {
 	}
 	console.info(context)
 	const uid: string = context.auth.uid
+	const account = new Account(uid)
 	const { external_account } = data
 	if (!external_account) {
 		throw new functions.https.HttpsError("invalid-argument", "This request does not include an external_account.")
@@ -20,6 +21,10 @@ export const create = regionFunctions.https.onCall(async (data, context) => {
 	}
 	try {
 		const result = await stripe.accounts.createExternalAccount(accountID, data)
+		const accountResult = await stripe.accounts.retrieve(accountID)
+		await account.documentReference.set({
+			stripe: accountResult
+		}, { merge: true })
 		return { result }
 	} catch (error) {
 		functions.logger.error(error)
