@@ -14,6 +14,7 @@ import { useFunctions } from "hooks/stripe"
 import { Symbol } from "common/Currency"
 import { useModal } from "components/Modal"
 import Payout from "../payouts"
+import { useAccount } from "hooks/account";
 
 export default () => {
 
@@ -72,8 +73,10 @@ const Balance = () => {
 }
 
 const BankAccount = () => {
-
+	const [account, isLoading] = useAccount()
 	const [showModal, closeModal] = useModal()
+	const currently_due: string[] = account?.stripe?.currently_due ?? []
+	const isRequired = isLoading || currently_due.includes("external_account")
 
 	return (
 		<Box>
@@ -83,8 +86,10 @@ const BankAccount = () => {
 				}}>
 					<ListItemText primary="Register your bank account" primaryTypographyProps={{ variant: "subtitle1" }} />
 					<ListItemSecondaryAction>
-						{/* {!isRequired && <Chip variant="outlined" size="small" color="secondary" label="Required" />} */}
-						<NavigateNextIcon />
+						<Box display="flex" alignItems="center">
+							{!isRequired && <Chip variant="outlined" size="small" color="secondary" label="Required" />}
+							<NavigateNextIcon />
+						</Box>
 					</ListItemSecondaryAction>
 				</ListItem>
 			</List>

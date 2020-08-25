@@ -42,15 +42,11 @@ export const publish = regionFunctions.https.onCall(async (data, context) => {
 	if (!providerID) {
 		throw new functions.https.HttpsError("invalid-argument", "Auth does not maintain a providerID.")
 	}
-	const accountID = await Account.getAccountID(providerID)
-	if (!accountID) {
-		throw new functions.https.HttpsError("invalid-argument", "Please enter the required information for your account.")
-	}
 	const providerDraftRef: DocumentReference = new ProviderDraft(providerID).documentReference
 	const providerRef: DocumentReference = new Provider(providerID).documentReference
 	await checkPermission(uid, providerRef)
 
-	const account = await Account.get<Account>(accountID)
+	const account = await Account.get<Account>(providerID)
 	if (!account) {
 		throw new functions.https.HttpsError("invalid-argument", "The Requirement could not be verified.")
 	}
@@ -118,11 +114,7 @@ export const requirements = regionFunctions.https.onCall(async (data, context) =
 	}
 	const providerRef = new Provider(providerID).documentReference
 	await checkPermission(uid, providerRef)
-	const accountID = await Account.getAccountID(providerID)
-	if (!accountID) {
-		throw new functions.https.HttpsError("invalid-argument", "Please enter the required information for your account.")
-	}
-	const account = await Account.get<Account>(accountID)
+	const account = await Account.get<Account>(providerID)
 	if (!account) {
 		throw new functions.https.HttpsError("invalid-argument", "The Requirement could not be verified.")
 	}

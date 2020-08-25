@@ -27,6 +27,8 @@ import { ListItemIcon } from "@material-ui/core"
 import Label from "components/Label"
 import { useAuthUser } from "hooks/auth"
 import { useDialog } from "components/Dialog"
+import { useFunctions } from "hooks/stripe";
+import DataLoading from "components/DataLoading";
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
@@ -299,6 +301,8 @@ export default ({ children }: { children: any }) => {
 
 const AccountListItem = () => {
 
+	const [data, isLoading, error] = useFunctions<any>("commerce-v1-provider-requirements")
+	const isRequired = isLoading || data?.currently_due.length > 0
 
 	return (
 		<ListItem button key={"provider"} component={Link} to="/admin/account">
@@ -307,8 +311,8 @@ const AccountListItem = () => {
 			</ListItemIcon>
 			<ListItemText primary={"Account"} />
 			<ListItemSecondaryAction>
-				{/* {isLoading && <DataLoading />}
-				{!isLoading && isRequired && <Chip variant="outlined" size="small" color="secondary" label="Required" />} */}
+				{isLoading && <DataLoading />}
+				{!isLoading && isRequired && <Chip variant="outlined" size="small" color="secondary" label="Required" />}
 			</ListItemSecondaryAction>
 		</ListItem>
 	)

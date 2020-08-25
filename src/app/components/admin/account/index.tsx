@@ -19,7 +19,7 @@ export default () => {
 
 const Content = () => {
 	const [account, isLoading] = useAccount()
-	console.log(account?.data())
+
 	// const [data, isLoading] = useFunctions("stripe-v1-balance-retrieve"
 
 	if (isLoading) return <DataLoading />
