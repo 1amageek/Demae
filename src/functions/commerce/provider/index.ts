@@ -3,8 +3,8 @@ import * as functions from "firebase-functions"
 import { regionFunctions, getProviderID } from "../../helper"
 import { checkPermission } from "../helper"
 import { DocumentReference, Batch } from "@1amageek/ballcap-admin"
+import Account from "../../models/account/Account"
 import Provider, { ProviderDraft, Role } from "../../models/commerce/Provider"
-import Requirement from "../../models/account/Requirement"
 
 export const create = regionFunctions.https.onCall(async (data, context) => {
 	if (!context.auth) {
@@ -19,22 +19,10 @@ export const create = regionFunctions.https.onCall(async (data, context) => {
 	provider.defaultCurrency = defaultCurrency
 	provider.capabilities = capabilities
 	const provierRole = new Role(new Provider(uid).members.collectionReference.doc(uid))
-	const requirement = new Requirement(uid)
-	requirement.currentlyDue = [
-		{
-			id: "account",
-			action: "/admin/account"
-		},
-		{
-			id: "external_account",
-			action: "/admin/account"
-		}
-	]
 	try {
 		const batch = new Batch()
 		batch.save(provider)
 		batch.save(provierRole)
-		batch.save(requirement)
 		await batch.commit()
 	} catch (error) {
 		functions.logger.error(error)
@@ -43,7 +31,6 @@ export const create = regionFunctions.https.onCall(async (data, context) => {
 		result: provider.data()
 	}
 })
-
 
 export const publish = regionFunctions.https.onCall(async (data, context) => {
 	if (!context.auth) {
@@ -59,14 +46,12 @@ export const publish = regionFunctions.https.onCall(async (data, context) => {
 	const providerRef: DocumentReference = new Provider(providerID).documentReference
 	await checkPermission(uid, providerRef)
 
-	const requirement = await Requirement.get<Requirement>(providerID)
-	if (!requirement) {
+	const account = await Account.get<Account>(providerID)
+	if (!account) {
 		throw new functions.https.HttpsError("invalid-argument", "The Requirement could not be verified.")
 	}
-	if (
-		requirement.currentlyDue.find(task => task.id === "account") ||
-		requirement.currentlyDue.find(task => task.id === "external_account")
-	) {
+	const currentlyDue = account.stripe?.individual?.requirements?.currently_due ?? []
+	if (currentlyDue.length) {
 		return {
 			error: {
 				message: "Please enter the required items."
@@ -115,4 +100,26 @@ export const close = regionFunctions.https.onCall(async (data, context) => {
 	await checkPermission(uid, providerRef)
 	await providerRef.delete()
 	return {}
+})
+
+export const requirements = regionFunctions.https.onCall(async (data, context) => {
+	if (!context.auth) {
+		throw new functions.https.HttpsError("failed-precondition", "The function must be called while authenticated.")
+	}
+	functions.logger.info(data)
+	const uid: string = context.auth.uid
+	const providerID = await getProviderID(uid)
+	if (!providerID) {
+		throw new functions.https.HttpsError("invalid-argument", "Auth does not maintain a providerID.")
+	}
+	const providerRef = new Provider(providerID).documentReference
+	await checkPermission(uid, providerRef)
+	const account = await Account.get<Account>(providerID)
+	if (!account) {
+		throw new functions.https.HttpsError("invalid-argument", "The Requirement could not be verified.")
+	}
+	const requirements = account.stripe?.requirements || []
+	return {
+		result: requirements
+	}
 })

@@ -27,18 +27,8 @@ export const create = regionFunctions.https.onCall(async (data, context) => {
 				uid: uid
 			}
 		})
-
-		await account.documentReference.set({
-			stripe: {
-				accountID: result.id
-			},
-			country: result.country,
-			businessType: result.business_type,
-			email: result.email,
-			individual: result.individual ?? null,
-			company: result.company ?? null
-		}, { merge: true })
-
+		account.stripe = result
+		await account.save()
 		return { result }
 	} catch (error) {
 		functions.logger.error(error)
@@ -61,14 +51,7 @@ export const update = regionFunctions.https.onCall(async (data, context) => {
 		const accountID = await Account.getAccountID(uid)
 		const result = await stripe.accounts.update(accountID, data)
 		await account.documentReference.set({
-			stripe: {
-				accountID: result.id
-			},
-			country: result.country,
-			businessType: result.business_type,
-			email: result.email,
-			individual: result.individual ?? null,
-			company: result.company ?? null
+			stripe: result
 		}, { merge: true })
 		return { result }
 	} catch (error) {

@@ -1,12 +1,8 @@
-import { Doc, Field, Model, Codable, CollectionReference, firestore } from "@1amageek/ballcap-admin"
+import { Doc, Field, CollectionReference, firestore } from "@1amageek/ballcap-admin"
 import * as functions from "firebase-functions"
 import { BusinessType } from "../../common/commerce/account"
 import { CurrencyCode } from "../../common/Currency"
-
-export class Stripe extends Model {
-	@Field accountID?: string
-	@Field link!: string
-}
+import Stripe from "stripe"
 
 export default class Account extends Doc {
 
@@ -19,21 +15,17 @@ export default class Account extends Doc {
 		if (!account) {
 			throw new functions.https.HttpsError("invalid-argument", "Account does not exist.")
 		}
-		const accountID = account.stripe?.accountID
+		const accountID = account.stripe?.id
 		if (!accountID) {
 			throw new functions.https.HttpsError("invalid-argument", "Account have not Stripe accountID")
 		}
 		return accountID
 	}
 
-	@Codable(Stripe, true)
-	@Field stripe?: Stripe
 	@Field country: string = "US"
 	@Field defaultCurrency: CurrencyCode = "USD"
 	@Field businessType: BusinessType = "individual"
-	@Field company?: { [key: string]: any }
-	@Field individual?: { [key: string]: any }
-	@Field email!: string
+	@Field stripe?: Stripe.Account
 	@Field isRejected: boolean = false
 	@Field isSigned: boolean = false
 	@Field hasLegalEntity: boolean = false

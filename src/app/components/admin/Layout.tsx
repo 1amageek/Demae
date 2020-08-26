@@ -3,34 +3,32 @@ import { Link, useHistory } from "react-router-dom"
 import clsx from "clsx";
 import firebase from "firebase"
 import "firebase/auth"
-import { makeStyles, Theme, createStyles } from "@material-ui/core/styles";
-import CheckBoxOutlineBlankIcon from "@material-ui/icons/CheckBoxOutlineBlank";
-import PublicIcon from "@material-ui/icons/Public";
-import ViewListIcon from "@material-ui/icons/ViewList";
-import StorefrontIcon from "@material-ui/icons/Storefront";
-import AccountCircle from "@material-ui/icons/AccountCircle";
-import AccountBoxIcon from "@material-ui/icons/AccountBox";
-import ImageIcon from "@material-ui/icons/Image";
-import MenuIcon from "@material-ui/icons/Menu";
-import PlaceIcon from "@material-ui/icons/Place";
-import PhotoFilterIcon from "@material-ui/icons/PhotoFilter";
-import ListAltIcon from "@material-ui/icons/ListAlt";
-import CloudDownloadIcon from "@material-ui/icons/CloudDownload";
-import LocalShippingIcon from "@material-ui/icons/LocalShipping";
-import ExpandLess from "@material-ui/icons/ExpandLess";
-import ExpandMore from "@material-ui/icons/ExpandMore";
-import { Drawer, AppBar, Toolbar, List, ListItem, ListItemText, Avatar, Divider, Box, MenuItem, Menu, IconButton, Collapse, Switch, ListItemSecondaryAction, Chip } from "@material-ui/core";
+import { makeStyles, Theme, createStyles } from "@material-ui/core/styles"
+import CheckBoxOutlineBlankIcon from "@material-ui/icons/CheckBoxOutlineBlank"
+import PublicIcon from "@material-ui/icons/Public"
+import ViewListIcon from "@material-ui/icons/ViewList"
+import StorefrontIcon from "@material-ui/icons/Storefront"
+import AccountCircle from "@material-ui/icons/AccountCircle"
+import AccountBoxIcon from "@material-ui/icons/AccountBox"
+import ImageIcon from "@material-ui/icons/Image"
+import MenuIcon from "@material-ui/icons/Menu"
+import PlaceIcon from "@material-ui/icons/Place"
+import PhotoFilterIcon from "@material-ui/icons/PhotoFilter"
+import ListAltIcon from "@material-ui/icons/ListAlt"
+import CloudDownloadIcon from "@material-ui/icons/CloudDownload"
+import LocalShippingIcon from "@material-ui/icons/LocalShipping"
+import { Drawer, AppBar, Toolbar, List, ListItem, ListItemText, Avatar, Divider, Box, MenuItem, Menu, IconButton, Switch, ListItemSecondaryAction, Chip, Badge } from "@material-ui/core"
 import Provider, { ProviderDraft, Role } from "models/commerce/Provider"
-import { useRoles, useUser, useAdmin, useAdminProvider, useProviderBlank, useAdminProviderDraft } from "hooks/commerce"
+import { useRoles, useUser, useAdmin, useAdminProvider, useAdminProviderDraft } from "hooks/commerce"
 import { useDocumentListen } from "hooks/firestore"
-import { useProcessing } from "components/Processing";
-import { useSnackbar } from "components/Snackbar";
-import DataLoading from "components/DataLoading"
-import { ListItemIcon } from "@material-ui/core";
-import Label from "components/Label";
-import { useAuthUser } from "hooks/auth";
-import { useRequirement } from "hooks/account"
-import { useDialog } from "components/Dialog";
+import { useProcessing } from "components/Processing"
+import { useSnackbar } from "components/Snackbar"
+import { ListItemIcon } from "@material-ui/core"
+import Label from "components/Label"
+import { useAuthUser } from "hooks/auth"
+import { useDialog } from "components/Dialog"
+import DataLoading from "components/DataLoading";
+import { useAccount } from "hooks/account";
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
@@ -142,10 +140,10 @@ export default ({ children }: { children: any }) => {
 							showMessage("success", `${providerDraft.name} is closed.`)
 							return
 						} else {
-							const providerPublish = firebase.functions().httpsCallable("commerce-v1-provider-publish")
-							const response = await providerPublish()
-							const { error } = response.data
-							if (error) {
+							try {
+								const providerPublish = firebase.functions().httpsCallable("commerce-v1-provider-publish")
+								await providerPublish()
+							} catch (error) {
 								console.log(error)
 								showProcessing(false)
 								showDialog("Please enter the required information.", "Please enter the information required to start the service.",
@@ -302,10 +300,10 @@ export default ({ children }: { children: any }) => {
 }
 
 const AccountListItem = () => {
-	const [requirement, isLoading] = useRequirement()
-	const currentlyDue = requirement?.currentlyDue ?? []
-	const isRequired = currentlyDue.find(task => task.id === "account") || currentlyDue.find(task => task.id === "external_account")
 
+	const [account, isLoading] = useAccount()
+	const currently_due: string[] = account?.stripe?.requirements.currently_due ?? []
+	const isRequired = currently_due.includes("external_account") || account === undefined
 	return (
 		<ListItem button key={"provider"} component={Link} to="/admin/account">
 			<ListItemIcon>

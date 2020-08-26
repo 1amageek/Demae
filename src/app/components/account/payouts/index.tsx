@@ -1,19 +1,12 @@
-import React, { useContext, useState } from "react"
-import { createStyles, Theme, makeStyles } from "@material-ui/core/styles"
+import React from "react"
 import firebase from "firebase"
 import { loadStripe } from "@stripe/stripe-js"
 import {
-	AuBankAccountElement,
-	CardElement,
-	IbanElement,
-	IdealBankElement,
 	Elements,
-	useStripe,
-	useElements,
+	useStripe
 } from "@stripe/react-stripe-js"
 import "firebase/functions"
-import ArrowBackIcon from "@material-ui/icons/ArrowBack";
-import { Paper, AppBar, Toolbar, Button, Typography, Tooltip, IconButton, FormControlLabel, FormControl, Card } from "@material-ui/core"
+import { Paper, Button, Typography, FormControl, Card } from "@material-ui/core"
 import { Container, Box } from "@material-ui/core";
 import { useAuthUser } from "hooks/auth"
 import { useSnackbar } from "components/Snackbar"
@@ -72,7 +65,7 @@ const Form = ({ onClose }: { onClose?: () => void }) => {
 			return
 		}
 
-		const createExternalAccount = firebase.functions().httpsCallable("stripe-v1-account-createExternalAccount")
+		const createExternalAccount = firebase.functions().httpsCallable("account-v1-bankAccount-create")
 		const response = await createExternalAccount({
 			external_account: token!.id,
 			default_for_currency: true,
@@ -88,6 +81,9 @@ const Form = ({ onClose }: { onClose?: () => void }) => {
 		} else {
 			showSnackbar("success", "You have successfully registered your bank account.")
 			showProgress(false)
+			if (onClose) {
+				onClose()
+			}
 		}
 	}
 
