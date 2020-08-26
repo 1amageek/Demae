@@ -20,8 +20,6 @@ export default () => {
 const Content = () => {
 	const [account, isLoading] = useAccount()
 
-	// const [data, isLoading] = useFunctions("stripe-v1-balance-retrieve"
-
 	if (isLoading) return <DataLoading />
 
 	if (account?.stripe === undefined) return <Workflow />

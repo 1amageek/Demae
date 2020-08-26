@@ -81,6 +81,9 @@ const Form = ({ onClose }: { onClose?: () => void }) => {
 		} else {
 			showSnackbar("success", "You have successfully registered your bank account.")
 			showProgress(false)
+			if (onClose) {
+				onClose()
+			}
 		}
 	}
 

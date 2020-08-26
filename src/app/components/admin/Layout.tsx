@@ -17,7 +17,7 @@ import PhotoFilterIcon from "@material-ui/icons/PhotoFilter"
 import ListAltIcon from "@material-ui/icons/ListAlt"
 import CloudDownloadIcon from "@material-ui/icons/CloudDownload"
 import LocalShippingIcon from "@material-ui/icons/LocalShipping"
-import { Drawer, AppBar, Toolbar, List, ListItem, ListItemText, Avatar, Divider, Box, MenuItem, Menu, IconButton, Switch, ListItemSecondaryAction, Chip } from "@material-ui/core"
+import { Drawer, AppBar, Toolbar, List, ListItem, ListItemText, Avatar, Divider, Box, MenuItem, Menu, IconButton, Switch, ListItemSecondaryAction, Chip, Badge } from "@material-ui/core"
 import Provider, { ProviderDraft, Role } from "models/commerce/Provider"
 import { useRoles, useUser, useAdmin, useAdminProvider, useAdminProviderDraft } from "hooks/commerce"
 import { useDocumentListen } from "hooks/firestore"
@@ -27,8 +27,8 @@ import { ListItemIcon } from "@material-ui/core"
 import Label from "components/Label"
 import { useAuthUser } from "hooks/auth"
 import { useDialog } from "components/Dialog"
-import { useFunctions } from "hooks/stripe";
 import DataLoading from "components/DataLoading";
+import { useAccount } from "hooks/account";
 
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
@@ -140,10 +140,10 @@ export default ({ children }: { children: any }) => {
 							showMessage("success", `${providerDraft.name} is closed.`)
 							return
 						} else {
-							const providerPublish = firebase.functions().httpsCallable("commerce-v1-provider-publish")
-							const response = await providerPublish()
-							const { error } = response.data
-							if (error) {
+							try {
+								const providerPublish = firebase.functions().httpsCallable("commerce-v1-provider-publish")
+								await providerPublish()
+							} catch (error) {
 								console.log(error)
 								showProcessing(false)
 								showDialog("Please enter the required information.", "Please enter the information required to start the service.",
@@ -301,9 +301,9 @@ export default ({ children }: { children: any }) => {
 
 const AccountListItem = () => {
 
-	const [data, isLoading, error] = useFunctions<any>("commerce-v1-provider-requirements")
-	const isRequired = isLoading || data?.currently_due.length > 0
-
+	const [account, isLoading] = useAccount()
+	const currently_due: string[] = account?.stripe?.requirements.currently_due ?? []
+	const isRequired = currently_due.includes("external_account") || account === undefined
 	return (
 		<ListItem button key={"provider"} component={Link} to="/admin/account">
 			<ListItemIcon>
