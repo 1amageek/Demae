@@ -13,7 +13,7 @@ import { useProcessing } from "components/Processing";
 import { useSnackbar } from "components/Snackbar";
 import { useHistory, useParams } from "react-router-dom";
 import { useDataSourceListen, Where, OrderBy } from "hooks/firestore"
-import { useProviderBlank, useUser } from "hooks/commerce";
+import { useProviderBlank } from "hooks/commerce";
 import SKU from "models/commerce/SKU"
 import { useListToolbar, useListHeader } from "components/NavigationContainer"
 
@@ -184,7 +184,7 @@ const SKUListItem = ({ sku }: { sku: SKU }) => {
 											sku.isAvailable = !sku.isAvailable
 											await sku.save()
 											setProcessing(false)
-											setMessage("success", `${sku.name} is published`)
+											setMessage("success", `You must publish your product for the changes to take effect.`)
 										}}
 										checked={sku.isAvailable}
 									/>

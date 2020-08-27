@@ -175,35 +175,35 @@ const ProductListItem = ({ product }: { product: ProductDraft }) => {
 									<Typography variant="subtitle1">{product.name}</Typography>
 									<Typography variant="body2">{price}</Typography>
 								</Box>
-								{/* <Box>
+								<Box>
 									<Switch
 										edge="end"
 										onChange={async (e) => {
 											e.preventDefault()
 											setProcessing(true)
-											const snapshot = await product.skus.collectionReference.where("isAvailable", "==", true).get()
-
-											if (snapshot.empty) {
-												setProcessing(false)
-												setMessage("error", `To publish ${product.name}, add the available SKUs.`)
-												return
-											}
-
-											if (product.images.length === 0) {
-												setProcessing(false)
-												setMessage("error", `The product must be set with one or more images.`)
-												return
+											if (!product.isAvailable) {
+												const snapshot = await product.skus.collectionReference.where("isAvailable", "==", true).get()
+												if (snapshot.empty) {
+													setProcessing(false)
+													setMessage("error", `To publish ${product.name}, add the available SKUs.`)
+													return
+												}
+												if (product.images.length === 0) {
+													setProcessing(false)
+													setMessage("error", `The product must be set with one or more images.`)
+													return
+												}
 											}
 
 											product.isAvailable = !product.isAvailable
 											await product.save()
 											setProcessing(false)
-											setMessage("success", `${product.name} is published`)
+											setMessage("success", `You must publish your product for the changes to take effect.`)
 
 										}}
 										checked={product.isAvailable}
 									/>
-								</Box> */}
+								</Box>
 							</Box>
 
 							<Box className={classes.tags}>

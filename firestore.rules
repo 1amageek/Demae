@@ -28,6 +28,7 @@ service cloud.firestore {
 
 				match /providers/{provider_id} {
 					allow read: if request.auth.uid == uid;
+					allow write: if false;
 				}
 
 				match /orders/{order_id} {

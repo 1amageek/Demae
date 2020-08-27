@@ -20,8 +20,8 @@ export default class SKU extends Doc {
 	@Field currency: CurrencyCode = "USD"
 	@Field productReference?: DocumentReference
 	@Field name: string = "NO NAME"
-	@Field caption?: string
-	@Field description?: string
+	@Field caption: string = ""
+	@Field description: string = ""
 	@Field price: number = 0
 	@Field discount?: Discount
 	@Field taxRate: number = 8

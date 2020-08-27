@@ -4,6 +4,7 @@ import { regionFunctions, getProviderID } from "../../helper"
 import { Response } from "./helper"
 import Stripe from "stripe"
 import Provider from "../../models/commerce/Provider"
+import User from "../../models/commerce/User"
 import Order from "../../models/commerce/Order"
 
 export const refund = regionFunctions.https.onCall(async (data, context) => {
@@ -34,6 +35,7 @@ export const refund = regionFunctions.https.onCall(async (data, context) => {
 				if (!order) {
 					throw new functions.https.HttpsError("invalid-argument", "This user has not this order.")
 				}
+				const userOrderRef = new User(order.purchasedBy).orders.collectionReference.doc(order.id)
 				// Check order cancellable.
 				const request = await refundRequestForOrder(uid, order)
 				const result = await stripe.refunds.create(request, {
@@ -47,6 +49,10 @@ export const refund = regionFunctions.https.onCall(async (data, context) => {
 				order.refundResult = result
 				order.isCanceled = true
 				transaction.set(providerOrderRef, {
+					...order.data(),
+					updatedAt: admin.firestore.FieldValue.serverTimestamp()
+				})
+				transaction.set(userOrderRef, {
 					...order.data(),
 					updatedAt: admin.firestore.FieldValue.serverTimestamp()
 				})

@@ -6,7 +6,7 @@ import Stripe from "stripe"
 import Cart from "../../models/commerce/Cart"
 import Provider from "../../models/commerce/Provider"
 import User from "../../models/commerce/User"
-import Costomer from "../../models/commerce/Customer"
+import Customer from "../../models/commerce/Customer"
 import Order, { OrderItem } from "../../models/commerce/Order"
 import { randomShard } from "../../common/Shard"
 
@@ -34,7 +34,7 @@ export const create = regionFunctions.https.onCall(async (data, context) => {
 	if (!paymentMethodID) {
 		throw new functions.https.HttpsError("invalid-argument", "This request does not contain a paymentMethodID.")
 	}
-	const customerID = await Costomer.getCustomerID(uid)
+	const customerID = await Customer.getCustomerID(uid)
 	if (!customerID) {
 		throw new functions.https.HttpsError("invalid-argument", "This request does not contain a customerID.")
 	}
@@ -122,6 +122,11 @@ export const create = regionFunctions.https.onCall(async (data, context) => {
 						break
 					}
 				}
+				transaction.set(userOrderRef, {
+					...order.data(),
+					createdAt: admin.firestore.FieldValue.serverTimestamp(),
+					updatedAt: admin.firestore.FieldValue.serverTimestamp()
+				})
 				transaction.set(providerOrderRef, {
 					...order.data(),
 					createdAt: admin.firestore.FieldValue.serverTimestamp(),

@@ -50,7 +50,7 @@ export default () => {
 	const [provider] = useProviderBlank()
 	const [product, isLoading] = useAdminProviderProductDraft()
 	const [isEditing, setEdit] = useEdit()
-	const [showDrawer, drawerClose] = useDrawer()
+	const [showDrawer, closeDrawer] = useDrawer()
 	const [showSnackbar] = useSnackbar()
 	const [showProcessing] = useProcessing()
 
@@ -62,7 +62,7 @@ export default () => {
 						title: "Copy",
 						handler: async () => {
 							if (!product || !provider) {
-								drawerClose()
+								closeDrawer()
 								return
 							}
 							showProcessing(true)
@@ -71,7 +71,7 @@ export default () => {
 							newProduct.name = product.name + " - copy"
 							await newProduct.save()
 							showSnackbar("success", "Copied.")
-							drawerClose()
+							closeDrawer()
 							showProcessing(false)
 						}
 					}
@@ -88,7 +88,7 @@ export default () => {
 						title: "Publish",
 						handler: async () => {
 							if (!product || !provider) {
-								drawerClose()
+								closeDrawer()
 								return
 							}
 							showProcessing(true)
@@ -106,7 +106,7 @@ export default () => {
 								showSnackbar("error", "Failed to publish the product.")
 								console.error(error)
 							}
-							drawerClose()
+							closeDrawer()
 							showProcessing(false)
 						}
 					}
@@ -251,7 +251,7 @@ const Edit = ({ product, onClose }: { product: ProductDraft, onClose: () => void
 	const [selectedTab, setSelectedTab] = useState<"write" | "preview">("write");
 	const [deliveryMethod, setDeliveryMethod] = useSelect(product.deliveryMethod)
 
-	const [showDrawer, drawerClose] = useDrawer()
+	const [showDrawer, closeDrawer] = useDrawer()
 	const [showSnackbar] = useSnackbar()
 
 	const deliveryMethodMenu = useMenu([
@@ -290,6 +290,24 @@ const Edit = ({ product, onClose }: { product: ProductDraft, onClose: () => void
 		await product.save()
 		setProcessing(false)
 		onClose()
+
+		if (!product.isAvailable) {
+			showDrawer(
+				<ActionSheet title="Do you want to make the Product available?" actions={
+					[
+						{
+							title: "YES",
+							handler: async () => {
+								product.isAvailable = true
+								await product.update()
+								showSnackbar("success", `You must publish your product for the changes to take effect.`)
+								closeDrawer()
+							}
+						}
+					]
+				} />
+			)
+		}
 	})
 
 	const uploadImages = (files: File[]) => {
@@ -365,7 +383,7 @@ const Edit = ({ product, onClose }: { product: ProductDraft, onClose: () => void
 														images: firebase.firestore.FieldValue.arrayRemove(imageData)
 													})
 													showSnackbar("success", "The image has been removed.")
-													drawerClose()
+													closeDrawer()
 												}
 											}
 										]

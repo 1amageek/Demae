@@ -4,6 +4,7 @@ import { regionFunctions, getProviderID } from "../../helper"
 import { OrderError, Response } from "./helper"
 import Stripe from "stripe"
 import Provider from "../../models/commerce/Provider"
+import User from "../../models/commerce/User"
 import Order from "../../models/commerce/Order"
 import { Account } from "../../models/account"
 
@@ -45,6 +46,7 @@ export const confirm = regionFunctions.https.onCall(async (data, context) => {
 			if (order.paymentStatus !== "processing") {
 				throw new functions.https.HttpsError("invalid-argument", `Invalid order status.. ${providerOrderRef.path}`)
 			}
+			const userOrderRef = new User(order.purchasedBy).orders.collectionReference.doc(order.id)
 			const tasks = order.items.map(async item => {
 				if (item.mediatedBy) {
 					const transferAmount = Math.floor(item.amount * 0.2)
@@ -84,6 +86,7 @@ export const confirm = regionFunctions.https.onCall(async (data, context) => {
 					const result = await Promise.all(transferTasks)
 					updateData.transferResults = result
 				}
+				transaction.set(userOrderRef, updateData, { merge: true })
 				transaction.set(providerOrderRef, updateData, { merge: true })
 				return order.data({ convertDocumentReference: true })
 			} catch (error) {

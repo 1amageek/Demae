@@ -35,27 +35,26 @@ export const publish = regionFunctions.https.onCall(async (data, context) => {
 	const batch = admin.firestore().batch()
 	const productData = {
 		...draftSnapshot.data()!,
-		isAvailable: true
+		accessControl: "public"
 	}
 
 	const result = []
 	result.push(productRef.path)
 	batch.set(productRef, productData)
-	batch.delete(productDraftRef)
-	const skusSnapshot = await productDraftRef.collection("skus").get()
-	if (skusSnapshot.empty) {
+	batch.set(productDraftRef, productData)
+
+	const [skusSnapshot, draftSKUsSnapshot] = await Promise.all([productRef.collection("skus").get(), productDraftRef.collection("skus").get()])
+	if (skusSnapshot.empty && draftSKUsSnapshot.empty) {
 		return {
 			error: {
 				message: "The product could not be published because the product does not have an SKU."
 			}
 		}
 	}
-	skusSnapshot.forEach(doc => {
-		const productRef = doc.ref.parent.parent!
-		const skuRef = providerRef.collection("products").doc(productRef.id).collection("skus").doc(doc.ref.id)
+	draftSKUsSnapshot.forEach(doc => {
+		const skuRef = productRef.collection("skus").doc(doc.ref.id)
 		result.push(skuRef.path)
 		batch.set(skuRef, doc.data())
-		batch.delete(doc.ref)
 	})
 	await batch.commit()
 	return { result }
