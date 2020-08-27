@@ -27,6 +27,7 @@ export class ProductDraft extends Doc {
 	@Field price: { [key in CurrencyCode]?: number } = {}
 	@Field deliveryMethod: DeliveryMethod = "none"
 	@Field accessControl: AccessControl = "public"
+	@Field isAvailable: boolean = true
 	@Field metadata?: any
 	@SubCollection skus: Collection<SKU> = new Collection()
 	@SubCollection plans: Collection<Plan> = new Collection()
@@ -56,6 +57,4 @@ export default class Product extends ProductDraft {
 	static collectionReference(): CollectionReference {
 		return firestore.collection("commerce/v1/products")
 	}
-
-	@Field isAvailable: boolean = true
 }

@@ -122,6 +122,11 @@ export const create = regionFunctions.https.onCall(async (data, context) => {
 						break
 					}
 				}
+				transaction.set(userOrderRef, {
+					...order.data(),
+					createdAt: admin.firestore.FieldValue.serverTimestamp(),
+					updatedAt: admin.firestore.FieldValue.serverTimestamp()
+				})
 				transaction.set(providerOrderRef, {
 					...order.data(),
 					createdAt: admin.firestore.FieldValue.serverTimestamp(),

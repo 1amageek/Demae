@@ -27,6 +27,7 @@ import { useDrawer } from "components/Drawer";
 import { useSnackbar } from "components/Snackbar";
 import ActionSheet from "components/ActionSheet"
 import MediaController from "components/MediaController"
+import { isAbsolute } from "path";
 
 Dayjs.extend(relativeTime)
 
@@ -48,7 +49,7 @@ export default () => {
 		.collection("skus").doc(skuID) : undefined
 	const [sku, isLoading] = useDocumentListen<SKU>(SKU, ref)
 	const [isEditing, setEdit] = useEdit()
-	const [showDrawer, drawerClose] = useDrawer()
+	const [showDrawer, closeDrawer] = useDrawer()
 	const [showSnackbar] = useSnackbar()
 
 	const copy = () => {
@@ -58,17 +59,18 @@ export default () => {
 					{
 						title: "Copy",
 						handler: async () => {
-							if (!sku) {
-								drawerClose()
+							if (!sku || !provider) {
+								closeDrawer()
 								return
 							}
+
 							const newSKU = new SKU(sku?.documentReference.parent.doc())
 							newSKU.setData(sku.data())
 							newSKU.name = sku.name + "- copy"
 							newSKU.isAvailable = false
 							await newSKU.save()
 							showSnackbar("success", "Copied.")
-							drawerClose()
+							closeDrawer()
 						}
 					}
 				]
@@ -83,13 +85,22 @@ export default () => {
 					{
 						title: "Delete",
 						handler: async () => {
-							if (!sku) {
-								drawerClose()
+							if (!sku || !provider) {
+								closeDrawer()
+								return
+							}
+							const snapshot = await provider.documentReference
+								.collection("products").doc(productID)
+								.collection("skus").doc(sku.id)
+								.get()
+							if (snapshot.exists) {
+								showSnackbar("error", "SKUs that have already been published cannot be deleted.")
+								closeDrawer()
 								return
 							}
 							await sku.delete()
-							showSnackbar("success", "Copied.")
-							drawerClose()
+							showSnackbar("success", "Deleted.")
+							closeDrawer()
 						}
 					}
 				]
@@ -240,6 +251,7 @@ export default () => {
 const Edit = ({ sku, onClose }: { sku: SKU, onClose: () => void }) => {
 	const theme = useTheme();
 	const [setProcessing] = useProcessing()
+	const [provider] = useProviderBlank()
 	const [product] = useAdminProviderProductDraft()
 	const [images, setImages] = useState<File[]>([])
 	const [name] = useTextField(sku?.name)
@@ -255,7 +267,7 @@ const Edit = ({ sku, onClose }: { sku: SKU, onClose: () => void }) => {
 	const [description, setDescription] = useState(sku?.description || "");
 	const [selectedTab, setSelectedTab] = useState<"write" | "preview">("write");
 
-	const [showDrawer, drawerClose] = useDrawer()
+	const [showDrawer, closeDrawer] = useDrawer()
 	const [showSnackbar] = useSnackbar()
 
 	const currencyMenu = useMenu(SupportedCurrencies.map(c => {
@@ -295,8 +307,8 @@ const Edit = ({ sku, onClose }: { sku: SKU, onClose: () => void }) => {
 		}
 	])
 
-	useEdit(async (event) => {
-		event.preventDefault()
+	const save = async (isAvailable: boolean) => {
+
 		if (!product) return
 		if (!sku) return
 		setProcessing(true)
@@ -317,7 +329,7 @@ const Edit = ({ sku, onClose }: { sku: SKU, onClose: () => void }) => {
 			quantity: Number(quantity.value)
 		}
 		sku.productReference = product.documentReference
-
+		sku.isAvailable = isAvailable
 		const nowPrice = product.price || {}
 		var productPrice = nowPrice[sku.currency] || Infinity
 		productPrice = Math.min(productPrice, sku.price)
@@ -346,6 +358,51 @@ const Edit = ({ sku, onClose }: { sku: SKU, onClose: () => void }) => {
 		await batch.commit()
 		setProcessing(false)
 		onClose()
+	}
+
+	useEdit(async (event) => {
+		event.preventDefault()
+		if (!provider) return
+		if (!product) return
+		if (!sku) return
+		if (!sku.isAvailable) {
+			if (sku.inventory.type === "finite") {
+				const snapshot = await provider.products.collectionReference
+					.doc(product.id)
+					.collection("skus")
+					.doc(sku.id)
+					.collection("stocks")
+					.get()
+				const count = snapshot.docs.reduce((prev, current) => {
+					return prev + current.data()!["count"]
+				}, 0)
+				if (count > 0) {
+					showDrawer(
+						<ActionSheet title="Do you want to make the SKU available?" actions={
+							[
+								{
+									title: "YES",
+									handler: async () => {
+										closeDrawer()
+										save(true)
+									}
+								},
+								{
+									title: "NO",
+									handler: async () => {
+										closeDrawer()
+										save(false)
+									}
+								}
+							]
+						} />
+					)
+					return
+				}
+			}
+		} else {
+			save(sku.isAvailable)
+		}
 	})
 
 	const uploadImages = (files: File[]) => {
@@ -429,7 +486,7 @@ const Edit = ({ sku, onClose }: { sku: SKU, onClose: () => void }) => {
 																images: firebase.firestore.FieldValue.arrayRemove(imageData)
 															})
 															showSnackbar("success", "The image has been removed.")
-															drawerClose()
+															closeDrawer()
 														}
 													}
 												]

@@ -51,8 +51,9 @@ const _canceledByCustomer = async (uid: string, orderID: string) => {
 					idempotencyKey: `${orderRef.path}-cancel`
 				})
 				order.paymentCancelResult = result
+				const userOrderRef = new User(order.purchasedBy).orders.collectionReference.doc(order.id)
 				const providerOrderRef = new Provider(order.providedBy).orders.collectionReference.doc(orderID)
-				return _cancel(order, providerOrderRef, transaction)
+				return _cancel(order, [providerOrderRef, userOrderRef], transaction)
 			} catch (error) {
 				throw error
 			}
@@ -78,6 +79,7 @@ const _canceledByProvider = async (uid: string, orderID: string) => {
 				if (!order) {
 					throw new functions.https.HttpsError("invalid-argument", "This user has not this order.")
 				}
+				const userOrderRef = new User(order.purchasedBy).orders.collectionReference.doc(order.id)
 				const paymentIntentID = order.paymentResult.id
 				if (!paymentIntentID) {
 					throw new functions.https.HttpsError("internal", "Your order does not contain the required information.")
@@ -88,7 +90,7 @@ const _canceledByProvider = async (uid: string, orderID: string) => {
 					idempotencyKey: `${orderRef.path}-cancel`
 				})
 				order.paymentCancelResult = result
-				return _cancel(order, orderRef, transaction)
+				return _cancel(order, [orderRef, userOrderRef], transaction)
 			} catch (error) {
 				throw error
 			}
@@ -100,7 +102,7 @@ const _canceledByProvider = async (uid: string, orderID: string) => {
 	}
 }
 
-const _cancel = (order: Order, ref: DocumentReference, transaction: admin.firestore.Transaction) => {
+const _cancel = (order: Order, refs: DocumentReference[], transaction: admin.firestore.Transaction) => {
 	order.items = order.items.map(item => {
 		item.status = "canceled"
 		return item
@@ -108,10 +110,12 @@ const _cancel = (order: Order, ref: DocumentReference, transaction: admin.firest
 	order.deliveryStatus = "none"
 	order.paymentStatus = "canceled"
 	order.isCanceled = true
-	transaction.set(ref, {
-		...order.data(),
-		updatedAt: admin.firestore.FieldValue.serverTimestamp()
-	}, { merge: true })
+	refs.forEach(ref => {
+		transaction.set(ref, {
+			...order.data(),
+			updatedAt: admin.firestore.FieldValue.serverTimestamp()
+		}, { merge: true })
+	})
 	return order.data({ convertDocumentReference: true })
 }
 
