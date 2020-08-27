@@ -39,7 +39,7 @@ const createCustomerRecord = async ({
 			.firestore()
 			.collection("commerce")
 			.doc("v1")
-			.collection("costomers")
+			.collection("customers")
 			.doc(uid)
 			.set(customerRecord, { merge: true });
 

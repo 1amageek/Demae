@@ -9,11 +9,9 @@ import { useCapability, deliveryMethodForProviderCapability } from "hooks/commer
 
 export default () => {
 	const { providerID } = useParams()
-
 	const capability = useCapability()
 	const deliveryMethod = deliveryMethodForProviderCapability(capability)
 	const ref = new Provider(providerID).products.collectionReference
-	console.log(deliveryMethod)
 	const wheres = [
 		Where("isAvailable", "==", true),
 		deliveryMethod ? Where("deliveryMethod", "==", deliveryMethod) : undefined,

@@ -21,8 +21,8 @@ export class ProductDraft extends Doc {
 	@Field tags: string[] = []
 	@Field type: ProductType = "good"
 	@Field name: string = "No Name"
-	@Field caption?: string
-	@Field description?: string
+	@Field caption: string = ""
+	@Field description: string = ""
 	@Field unitLabel: string = ""
 	@Field price: { [key in CurrencyCode]?: number } = {}
 	@Field deliveryMethod: DeliveryMethod = "none"

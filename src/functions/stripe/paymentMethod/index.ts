@@ -1,6 +1,5 @@
 import * as functions from "firebase-functions"
-import { regionFunctions } from "../../helper"
-import Stripe from "stripe"
+import { regionFunctions, stripe } from "../../helper"
 import Customer from "../../models/commerce/Customer"
 
 type Response = {
@@ -12,12 +11,6 @@ export const create = regionFunctions.https.onCall(async (data, context) => {
 	if (!context.auth) {
 		throw new functions.https.HttpsError("failed-precondition", "The function must be called while authenticated.")
 	}
-	const STRIPE_API_KEY = functions.config().stripe.api_key
-	if (!STRIPE_API_KEY) {
-		throw new functions.https.HttpsError("invalid-argument", "The functions requires STRIPE_API_KEY.")
-	}
-	const stripe = new Stripe(STRIPE_API_KEY, { apiVersion: "2020-03-02" })
-
 	try {
 		const result = await stripe.paymentMethods.create(data)
 		return { result } as Response
@@ -34,11 +27,6 @@ export const retrieve = regionFunctions.https.onCall(async (data, context) => {
 	if (!context.auth) {
 		throw new functions.https.HttpsError("failed-precondition", "The function must be called while authenticated.")
 	}
-	const STRIPE_API_KEY = functions.config().stripe.api_key
-	if (!STRIPE_API_KEY) {
-		throw new functions.https.HttpsError("invalid-argument", "The functions requires STRIPE_API_KEY.")
-	}
-	const stripe = new Stripe(STRIPE_API_KEY, { apiVersion: "2020-03-02" })
 	const paymentMethodId = data["paymentMethodID"]
 	if (!paymentMethodId) {
 		throw new functions.https.HttpsError("invalid-argument", "The functions requires paymentMethodID in data.")
@@ -59,12 +47,7 @@ export const list = regionFunctions.https.onCall(async (data, context) => {
 	if (!context.auth) {
 		throw new functions.https.HttpsError("failed-precondition", "The function must be called while authenticated.")
 	}
-	const STRIPE_API_KEY = functions.config().stripe.api_key
-	if (!STRIPE_API_KEY) {
-		throw new functions.https.HttpsError("invalid-argument", "The functions requires STRIPE_API_KEY.")
-	}
 	const uid: string = context.auth.uid
-	const stripe = new Stripe(STRIPE_API_KEY, { apiVersion: "2020-03-02" })
 	const type = data["type"] || "card"
 	try {
 		const customerID = await Customer.getCustomerID(uid)
@@ -86,12 +69,7 @@ export const attach = regionFunctions.https.onCall(async (data, context) => {
 	if (!context.auth) {
 		throw new functions.https.HttpsError("failed-precondition", "The function must be called while authenticated.")
 	}
-	const STRIPE_API_KEY = functions.config().stripe.api_key
-	if (!STRIPE_API_KEY) {
-		throw new functions.https.HttpsError("invalid-argument", "The functions requires STRIPE_API_KEY.")
-	}
 	const uid: string = context.auth.uid
-	const stripe = new Stripe(STRIPE_API_KEY, { apiVersion: "2020-03-02" })
 	const paymentMethodId = data["paymentMethodID"]
 	if (!paymentMethodId) {
 		throw new functions.https.HttpsError("invalid-argument", "The functions requires paymentMethodID in data.")
@@ -115,11 +93,6 @@ export const detach = regionFunctions.https.onCall(async (data, context) => {
 	if (!context.auth) {
 		throw new functions.https.HttpsError("failed-precondition", "The function must be called while authenticated.")
 	}
-	const STRIPE_API_KEY = functions.config().stripe.api_key
-	if (!STRIPE_API_KEY) {
-		throw new functions.https.HttpsError("invalid-argument", "The functions requires STRIPE_API_KEY.")
-	}
-	const stripe = new Stripe(STRIPE_API_KEY, { apiVersion: "2020-03-02" })
 	const paymentMethodId = data["paymentMethodID"]
 	if (!paymentMethodId) {
 		throw new functions.https.HttpsError("invalid-argument", "The functions requires paymentMethodID in data.")

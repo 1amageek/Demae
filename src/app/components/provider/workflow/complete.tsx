@@ -37,7 +37,7 @@ export default () => {
 					}
 					setProcessing(false)
 				}}>
-					Let"s register our products!
+					Let's register our products!
 				</Button>
 			</Box>
 		</Paper>

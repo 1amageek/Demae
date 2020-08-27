@@ -27,6 +27,7 @@
 		"deploy:commerce.inventory": "firebase deploy --only functions:commerce.v1.inventory",
 		"deploy:commerce.provider": "firebase deploy --only functions:commerce.v1.provider",
 		"deploy:stripe": "firebase deploy --only functions:stripe.v1",
+		"deploy:stripe.paymentMethod": "firebase deploy --only functions:stripe.v1.paymentMethod",
 		"logs": "firebase functions:log",
 		"copy-common": "cpx ./src/functions/common/ ./src/app/common -C"
 	},

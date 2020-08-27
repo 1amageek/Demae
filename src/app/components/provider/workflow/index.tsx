@@ -7,75 +7,8 @@ import { Container, Box, Typography, StepConnector } from "@material-ui/core";
 import Board from "components/admin/Board"
 import { SupportedCountries, CountryCode } from "common/Country";
 import Select, { useSelect, useMenu } from "components/_Select"
-import { StepIconProps } from "@material-ui/core/StepIcon";
-
-import Agreement from "./agreement"
 import Form from "./form"
 import Completed from "./complete"
-import RegisterableCountries from "config/RegisterableCountries"
-
-const QontoConnector = withStyles({
-	alternativeLabel: {
-		top: 10,
-		left: "calc(-50% + 16px)",
-		right: "calc(50% + 16px)",
-	},
-	active: {
-		"& $line": {
-			borderColor: "#784af4",
-		},
-	},
-	completed: {
-		"& $line": {
-			borderColor: "#784af4",
-		},
-	},
-	line: {
-		borderColor: "#eaeaf0",
-		borderTopWidth: 3,
-		borderRadius: 1,
-	},
-})(StepConnector);
-
-const useQontoStepIconStyles = makeStyles({
-	root: {
-		color: "#eaeaf0",
-		display: "flex",
-		height: 22,
-		alignItems: "center",
-	},
-	active: {
-		color: "#784af4",
-	},
-	circle: {
-		width: 8,
-		height: 8,
-		borderRadius: "50%",
-		backgroundColor: "currentColor",
-	},
-	completed: {
-		color: "#784af4",
-		zIndex: 1,
-		fontSize: 18,
-	},
-});
-
-function QontoStepIcon(props: StepIconProps) {
-	const classes = useQontoStepIconStyles();
-	const { active, completed } = props;
-
-	return (
-		<div
-			className={clsx(classes.root, {
-				[classes.active]: active,
-			})}
-		>
-			{completed ? <Check className={classes.completed} /> : <div className={classes.circle} />}
-		</div>
-	);
-}
-
-const Steps = ["Agreement", "Create your Shop", "Finish"]
 
 export default () => {
 
@@ -88,45 +21,22 @@ export default () => {
 		setActiveStep((prevActiveStep) => prevActiveStep - 1);
 	};
 
+	const [isCompleted, setComplete] = useState(false)
 	const [country] = useSelect("US")
-	const countries = useMenu(SupportedCountries.map(country => {
-		return { value: country.alpha2, label: country.name }
-	}))
 
 	return (
-		<Container maxWidth="md">
-			<Board header={
-				<Box display="flex" flexGrow={1} alignItems="center" justifyContent="space-between">
-					<Box flexGrow={1}>Account</Box>
-					<Box>
-						<FormControl variant="outlined" size="small">
-							<Select {...country} disabled={activeStep !== 0}>
-								{countries}
-							</Select>
-						</FormControl>
-					</Box>
+		<Container maxWidth="sm" disableGutters>
+			<Box padding={2}>
+				<Box padding={2}>
+					<Typography variant="h1">{`Get started today.`}</Typography>
+					<Typography variant="body1" gutterBottom>Begin taking customer orders in more places, online and in-store.</Typography>
 				</Box>
-			}>
-				<Stepper alternativeLabel activeStep={activeStep} connector={<QontoConnector />}>
-					{Steps.map((label) => (
-						<Step key={label}>
-							<StepLabel StepIconComponent={QontoStepIcon}>{label}</StepLabel>
-						</Step>
-					))}
-				</Stepper>
-
-				{activeStep === 0 && <Agreement country={country.value as CountryCode} onCallback={handleNext} />}
-				{activeStep === 1 && <Form country={country.value as CountryCode} onCallback={(next) => {
-					if (next) {
-						handleNext()
-					} else {
-						handleBack()
-					}
-				}} />}
-				{activeStep === 2 && <Completed />}
-
-			</Board>
+				{isCompleted ? <Completed /> :
+					<Form country={country.value as CountryCode} onCallback={(next) => {
+						setComplete(true)
+					}} />
+				}
+			</Box>
 		</Container>
-
 	)
 }
