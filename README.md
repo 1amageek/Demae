@@ -68,7 +68,7 @@ __download__
 | PaymentStatus | Description |
 |-|-|
 |	none | Free Product. |
-|	processing | The customer’s payment was submitted to Stripe successfully. Only applicable to payment methods with delayed success confirmation. https:stripe.com/docs/payments/payment-methods#payment-confirmation |
+|	processing | The customer’s payment was submitted to Stripe successfully. Only applicable to payment methods with delayed success confirmation. [https:stripe.com/docs/payments/payment-methods#payment-confirmation](https:stripe.com/docs/payments/payment-methods#payment-confirmation) |
 |	succeeded | Customer’s payment succeeded |
 |	payment_failed | Customer’s payment was declined by card network or otherwise expired |
 |	canceled | Canceled order |
