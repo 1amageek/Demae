@@ -22,14 +22,14 @@ export type PaymentStatus =
 	"none" | // Free Product.
 	"processing" | // The customer’s payment was submitted to Stripe successfully. Only applicable to payment methods with delayed success confirmation. https://stripe.com/docs/payments/payment-methods#payment-confirmation
 	"succeeded" | // Customer’s payment succeeded
-	"payment_failed" |// Customer’s payment was declined by card network or otherwise expired
-	"canceled"
+	"payment_failed" | // Customer’s payment was declined by card network or otherwise expired
+	"canceled" // Canceled order
 
 export type RefundStatus =
-	"none" | //
-	"pending" | //
-	"succeeded" | //
-	"failed" //
+	"none" | // Not refunded
+	"pending" | // Customer is requesting a refund
+	"succeeded" | // Refunded
+	"failed" // Refund failure
 
 // Plan
 export type Interval = "day" | "week" | "month" | "year"
