@@ -22,6 +22,9 @@
 | pickup | - |  Capture later | Cancel available when DeliveryStatus is not `preparing_for_delivery` | - | Refund fee 5% | Refund fee 80% |
 | download | - | Immediate | - | - | Refund fee 5% | Refund fee 5% |
 
+The Order can be cancelled until the Payment is captured.
+After capture, a refund policy is required.
+
 ### DeliveryStatus
 
 | DeliveryStatus | Description |
