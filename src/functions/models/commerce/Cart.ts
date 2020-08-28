@@ -1,7 +1,7 @@
 import { firestore, Doc, Model, Field, File, DocumentReference, CollectionReference, Codable } from "@1amageek/ballcap-admin"
 import { CurrencyCode } from "../../common/Currency"
 import { Discount } from "../../common/commerce/Types"
-import { ProductType, DeliveryMethod } from "./Product"
+import { ProductType, SalesMethod } from "./Product"
 import Shipping from "./Shipping"
 
 
@@ -37,7 +37,7 @@ export class CartGroup extends Model {
 	@Codable(CartItem)
 	@Field items: CartItem[] = []
 	@Field currency: CurrencyCode = "USD"
-	@Field deliveryMethod: DeliveryMethod = "none"
+	@Field salesMethod: SalesMethod = "instore"
 	@Field shippingDate?: any
 	@Field estimatedArrivalDate?: any
 

@@ -8,7 +8,7 @@ import { File as StorageFile } from "@1amageek/ballcap"
 import { Link } from "react-router-dom"
 import { Typography, Box, Paper, FormControl, Button, ListItemSecondaryAction } from "@material-ui/core";
 import { List, ListItem, ListItemText, Divider } from "@material-ui/core";
-import { ProductDraft, DeliveryMethod } from "models/commerce/Product"
+import { ProductDraft, SalesMethod } from "models/commerce/Product"
 import DataLoading from "components/DataLoading";
 import SaveIcon from "@material-ui/icons/Save";
 import NavigateNextIcon from '@material-ui/icons/NavigateNext';
@@ -38,11 +38,11 @@ const converter = new Showdown.Converter({
 	tasklists: true
 });
 
-const deliveryMethodLabel: { [key in DeliveryMethod]: string } = {
-	"none": "In-Store",
+const salesMethodLabel: { [key in SalesMethod]: string } = {
+	"instore": "In-Store",
 	"download": "Download",
 	"pickup": "Pickup",
-	"shipping": "Shipping required"
+	"online": "Shipping required"
 }
 
 export default () => {
@@ -195,7 +195,7 @@ export default () => {
 									<Box display="flex" paddingY={1}>
 										<Typography variant="subtitle1">
 											{/* Access Control <Label marginX={1} color="gray" fontSize={11}>{product.accessControl}</Label> */}
-									Delivery Method <Label marginX={1} color="gray" fontSize={11}>{deliveryMethodLabel[product.deliveryMethod]}</Label>
+									Delivery Method <Label marginX={1} color="gray" fontSize={11}>{salesMethodLabel[product.salesMethod]}</Label>
 										</Typography>
 									</Box>
 								</Box>
@@ -249,15 +249,15 @@ const Edit = ({ product, onClose }: { product: ProductDraft, onClose: () => void
 	const [caption] = useTextField(product.caption)
 	const [description, setDescription] = useState(product.description || "");
 	const [selectedTab, setSelectedTab] = useState<"write" | "preview">("write");
-	const [deliveryMethod, setDeliveryMethod] = useSelect(product.deliveryMethod)
+	const [salesMethod, setSalesMethod] = useSelect(product.salesMethod)
 
 	const [showDrawer, closeDrawer] = useDrawer()
 	const [showSnackbar] = useSnackbar()
 
-	const deliveryMethodMenu = useMenu([
+	const salesMethodMenu = useMenu([
 		{
 			label: "In-Store",
-			value: "none"
+			value: "instore"
 		},
 		{
 			label: "Download",
@@ -269,7 +269,7 @@ const Edit = ({ product, onClose }: { product: ProductDraft, onClose: () => void
 		},
 		{
 			label: "Shipping required",
-			value: "shipping"
+			value: "online"
 		},
 	])
 
@@ -285,7 +285,7 @@ const Edit = ({ product, onClose }: { product: ProductDraft, onClose: () => void
 		product.name = name.value as string
 		product.caption = caption.value as string
 		product.description = description
-		product.deliveryMethod = deliveryMethod.value as DeliveryMethod
+		product.salesMethod = salesMethod.value as SalesMethod
 
 		await product.save()
 		setProcessing(false)
@@ -358,7 +358,7 @@ const Edit = ({ product, onClose }: { product: ProductDraft, onClose: () => void
 							</Box>
 							<Box display="flex" paddingY={1}>
 								<Typography variant="subtitle1">
-									Delivery Method <Label marginX={1} color="gray" fontSize={11}>{deliveryMethodLabel[product.deliveryMethod]}</Label>
+									Delivery Method <Label marginX={1} color="gray" fontSize={11}>{salesMethodLabel[product.salesMethod]}</Label>
 								</Typography>
 							</Box>
 						</Box>
@@ -402,8 +402,8 @@ const Edit = ({ product, onClose }: { product: ProductDraft, onClose: () => void
 							<Box paddingBottom={2}>
 								<Typography variant="subtitle1" gutterBottom>Delivery</Typography>
 								<FormControl variant="outlined" size="small">
-									<Select variant="outlined" {...deliveryMethod} >
-										{deliveryMethodMenu}
+									<Select variant="outlined" {...salesMethod} >
+										{salesMethodMenu}
 									</Select>
 								</FormControl>
 							</Box>

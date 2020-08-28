@@ -120,8 +120,8 @@ export default ({ providerID, productID, skuID }: { providerID: string, productI
 		}
 	}
 
-	const InstantActionButtonTitle = product?.deliveryMethod === "download" ? "DOWNLOAD" : "Purchase now"
-	const InstantActionButtonWidth = (product?.deliveryMethod === "download" || product?.deliveryMethod === "none") ? 12 : 7
+	const InstantActionButtonTitle = product?.salesMethod === "download" ? "DOWNLOAD" : "Purchase now"
+	const InstantActionButtonWidth = (product?.salesMethod === "download" || product?.salesMethod === "instore") ? 12 : 7
 
 	if (isLoading || isProductLoading) {
 		return (
@@ -190,7 +190,7 @@ export default ({ providerID, productID, skuID }: { providerID: string, productI
 					>
 						<Box padding={1}>
 							<Grid container spacing={1}>
-								{(product.deliveryMethod === "pickup" || product.deliveryMethod === "shipping") &&
+								{(product.salesMethod === "pickup" || product.salesMethod === "online") &&
 									<Grid item xs={5}>
 										<Button fullWidth
 											size="large"

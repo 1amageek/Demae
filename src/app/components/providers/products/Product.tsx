@@ -8,7 +8,7 @@ import { useDocumentListen } from "hooks/firestore";
 import NotFound from "components/NotFound"
 import ActionBar from "components/ActionBar"
 import MediaCard from "components/MediaCard"
-import { DeliveryMethodLabel, capabilityForDeliveryMethod } from "hooks/commerce/DeliveryMethod"
+import { SalesMethodLabel, capabilityForSalesMethod } from "hooks/commerce/SalesMethod"
 import { useImage } from "utils/ImageManager"
 import { useTheme } from "@material-ui/core/styles";
 
@@ -18,7 +18,7 @@ export default ({ providerID, productID }: { providerID: string, productID: stri
 	const [data, isLoading] = useDocumentListen<Product>(Product, new Provider(providerID).products.collectionReference.doc(productID))
 	const imageURL = (data?.imagePaths() || []).length > 0 ? data?.imagePaths()[0] : undefined
 	const imgProps = useImage({ path: imageURL, alt: `${data?.name ?? ""}` })
-	const capability = capabilityForDeliveryMethod(data?.deliveryMethod)
+	const capability = capabilityForSalesMethod(data?.salesMethod)
 	if (isLoading) {
 		return <DataLoading />
 	}
@@ -50,7 +50,7 @@ export default ({ providerID, productID }: { providerID: string, productID: stri
 								WebkitBackdropFilter: "blur(20px)",
 								cursor: "pointer"
 							}}>
-								{DeliveryMethodLabel[data.deliveryMethod]}
+								{SalesMethodLabel[data.salesMethod]}
 							</Paper>
 						</Box>
 					</Box>

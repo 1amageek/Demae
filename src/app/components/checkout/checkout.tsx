@@ -42,7 +42,7 @@ const Checkout = ({ groupID, onClose, onComplete }: { groupID: string, onClose: 
 	const shouldBeEnable = () => {
 		if (isUserLoading) return false
 		if (!cartGroup) return false
-		if (cartGroup.deliveryMethod === "shipping") {
+		if (cartGroup.salesMethod === "online") {
 			return !!(defaultShipping) && !!(defaultCard)
 		}
 		return !!(defaultCard)
@@ -102,7 +102,7 @@ const Checkout = ({ groupID, onClose, onComplete }: { groupID: string, onClose: 
 			return
 		}
 
-		if (cartGroup.deliveryMethod === "shipping") {
+		if (cartGroup.salesMethod === "online") {
 			// defaultShipping
 			const defaultShipping = user.defaultShipping
 			if (!defaultShipping) {
@@ -185,7 +185,7 @@ const Checkout = ({ groupID, onClose, onComplete }: { groupID: string, onClose: 
 								<Box display="flex" flexGrow={1} justifyContent="flex-end" alignItems="center">{defaultCard ? <NavigateNextIcon /> : <ErrorIcon color="secondary" />}</Box>
 							</TableCell>
 						</TableRow>
-						{cartGroup.deliveryMethod === "shipping" &&
+						{cartGroup.salesMethod === "online" &&
 							<TableRow onClick={(e) => {
 								e.preventDefault()
 								e.stopPropagation()

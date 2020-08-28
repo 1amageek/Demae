@@ -8,7 +8,7 @@ import { File as StorageFile } from "@1amageek/ballcap"
 import { Link, useHistory } from "react-router-dom"
 import { Typography, Box, Paper, FormControl, Button, ListItemSecondaryAction } from "@material-ui/core";
 import { List, ListItem, ListItemText, Divider } from "@material-ui/core";
-import Product, { ProductDraft, DeliveryMethod } from "models/commerce/Product"
+import Product, { ProductDraft, SalesMethod } from "models/commerce/Product"
 import DataLoading from "components/DataLoading";
 import SaveIcon from "@material-ui/icons/Save";
 import NavigateNextIcon from '@material-ui/icons/NavigateNext';
@@ -37,11 +37,11 @@ const converter = new Showdown.Converter({
 	tasklists: true
 });
 
-const deliveryMethodLabel: { [key in DeliveryMethod]: string } = {
-	"none": "In-Store",
+const salesMethodLabel: { [key in SalesMethod]: string } = {
+	"instore": "In-Store",
 	"download": "Download",
 	"pickup": "Pickup",
-	"shipping": "Shipping required"
+	"online": "Shipping required"
 }
 
 export default () => {
@@ -170,7 +170,7 @@ export default () => {
 									<Box display="flex" paddingY={1}>
 										<Typography variant="subtitle1">
 											{/* Access Control <Label marginX={1} color="gray" fontSize={11}>{product.accessControl}</Label> */}
-									Delivery Method <Label marginX={1} color="gray" fontSize={11}>{deliveryMethodLabel[product.deliveryMethod]}</Label>
+									Delivery Method <Label marginX={1} color="gray" fontSize={11}>{salesMethodLabel[product.salesMethod]}</Label>
 										</Typography>
 									</Box>
 								</Box>

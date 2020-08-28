@@ -11,7 +11,7 @@ export class Role extends Doc {
 
 export type SNSProvider = "twitter" | "facebook" | "instagram"
 
-export type Capability = "download" | "instore_sales" | "online_sales" | "takeout"
+export type Capability = "download" | "instore" | "online" | "pickup"
 
 export class ProviderDraft extends Doc {
 

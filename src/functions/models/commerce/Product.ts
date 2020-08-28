@@ -5,7 +5,7 @@ import SKU from "./SKU"
 
 export type ProductType = "service" | "good"
 
-export type DeliveryMethod = "none" | "shipping" | "pickup" | "download"
+export type SalesMethod = "instore" | "online" | "pickup" | "download"
 
 export type AccessControl = "public" | "private" | "limited"
 
@@ -25,7 +25,7 @@ export class ProductDraft extends Doc {
 	@Field description: string = ""
 	@Field unitLabel: string = ""
 	@Field price: { [key in CurrencyCode]?: number } = {}
-	@Field deliveryMethod: DeliveryMethod = "none"
+	@Field salesMethod: SalesMethod = "instore"
 	@Field accessControl: AccessControl = "private"
 	@Field isAvailable: boolean = true
 	@Field metadata?: any

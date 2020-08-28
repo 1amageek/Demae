@@ -2,8 +2,10 @@ import firebase from "firebase"
 import { Doc, Model, Field, File, DocumentReference, SubCollection, Collection, Timestamp, Codable } from "@1amageek/ballcap"
 import { CurrencyCode } from "common/Currency"
 import { OrderItemStatus, DeliveryStatus, PaymentStatus, RefundStatus, Discount } from "common/commerce/Types"
-import { ProductType, DeliveryMethod } from "./Product"
+import { ProductType, SalesMethod } from "./Product"
 import Shipping from "./Shipping"
+
+export type DeliveryMethod = "none"
 
 export class OrderItem extends Model {
 	@Field images: File[] = []
@@ -50,6 +52,7 @@ export default class Order extends Doc {
 	@Field amount: number = 0
 	@Codable(OrderItem)
 	@Field items: OrderItem[] = []
+	@Field salesMethod: SalesMethod = "instore"
 	@Field deliveryMethod: DeliveryMethod = "none"
 	@Field deliveryStatus: DeliveryStatus = "none"
 	@Field paymentStatus: PaymentStatus = "none"

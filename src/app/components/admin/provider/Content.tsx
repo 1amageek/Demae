@@ -76,9 +76,9 @@ const Form = ({ provider }: { provider: ProviderDraft }) => {
 	const providerCapabilities = provider.capabilities || []
 	const [capabilities, setCapabilities] = useState<{ [key in Capability]: boolean }>({
 		"download": providerCapabilities.includes("download"),
-		"instore_sales": providerCapabilities.includes("instore_sales"),
-		"online_sales": providerCapabilities.includes("online_sales"),
-		"takeout": providerCapabilities.includes("takeout")
+		"instore": providerCapabilities.includes("instore"),
+		"online": providerCapabilities.includes("online"),
+		"pickup": providerCapabilities.includes("pickup")
 	})
 
 	const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -222,16 +222,16 @@ const Form = ({ provider }: { provider: ProviderDraft }) => {
 										label="Download"
 									/>
 									<FormControlLabel
-										control={<Checkbox checked={capabilities.instore_sales} onChange={handleChange} name="instore_sales" />}
+										control={<Checkbox checked={capabilities.instore} onChange={handleChange} name="instore" />}
 										label="In-Store Sales"
 									/>
 									<FormControlLabel
-										control={<Checkbox checked={capabilities.online_sales} onChange={handleChange} name="online_sales" />}
+										control={<Checkbox checked={capabilities.online} onChange={handleChange} name="online" />}
 										label="Online Sales"
 									/>
 									<FormControlLabel
-										control={<Checkbox checked={capabilities.takeout} onChange={handleChange} name="takeout" />}
-										label="Takeout"
+										control={<Checkbox checked={capabilities.pickup} onChange={handleChange} name="pickup" />}
+										label="Pickup"
 									/>
 								</FormGroup>
 								<FormHelperText>You can choose multiple sales methods.</FormHelperText>
@@ -295,16 +295,16 @@ const Form = ({ provider }: { provider: ProviderDraft }) => {
 									label="Download"
 								/>
 								<FormControlLabel
-									control={<Checkbox checked={capabilities.instore_sales} onChange={handleChange} name="instore_sales" />}
+									control={<Checkbox checked={capabilities.instore} onChange={handleChange} name="instore" />}
 									label="In-Store Sales"
 								/>
 								<FormControlLabel
-									control={<Checkbox checked={capabilities.online_sales} onChange={handleChange} name="online_sales" />}
+									control={<Checkbox checked={capabilities.online} onChange={handleChange} name="online" />}
 									label="Online Sales"
 								/>
 								<FormControlLabel
-									control={<Checkbox checked={capabilities.takeout} onChange={handleChange} name="takeout" />}
-									label="Takeout"
+									control={<Checkbox checked={capabilities.pickup} onChange={handleChange} name="pickup" />}
+									label="Pickup"
 								/>
 							</FormGroup>
 						</FormControl>

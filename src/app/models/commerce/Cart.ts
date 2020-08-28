@@ -3,7 +3,7 @@ import { CurrencyCode, Symbol } from "common/Currency"
 import { Discount } from "common/commerce/Types"
 import Shipping from "./Shipping"
 import SKU from "./SKU"
-import Product, { ProductType, DeliveryMethod } from "./Product"
+import Product, { ProductType, SalesMethod } from "./Product"
 import Order, { OrderItem } from "./Order"
 
 
@@ -124,7 +124,7 @@ export class CartGroup extends Model implements Accounting {
 	@Codable(CartItem)
 	@Field items: CartItem[] = []
 	@Field currency: CurrencyCode = "USD"
-	@Field deliveryMethod: DeliveryMethod = "none"
+	@Field salesMethod: SalesMethod = "instore"
 	@Field shippingDate?: any
 	@Field estimatedArrivalDate?: any
 
@@ -173,14 +173,14 @@ export class CartGroup extends Model implements Accounting {
 
 	static fromSKU(product: Product, sku: SKU) {
 		const group = new CartGroup()
-		group.deliveryMethod = product.deliveryMethod
+		group.salesMethod = product.salesMethod
 		group.providedBy = sku.providedBy
 		group.currency = sku.currency
 		return group
 	}
 
 	static ID(product: Product) {
-		return `${product.providedBy}-${product.deliveryMethod}`
+		return `${product.providedBy}-${product.salesMethod}`
 	}
 
 	order(purchasedBy: string) {
@@ -214,7 +214,7 @@ export class CartGroup extends Model implements Accounting {
 		order.currency = this.currency
 		order.amount = this.total()
 		order.items = items
-		order.deliveryMethod = this.deliveryMethod
+		order.salesMethod = this.salesMethod
 		order.deliveryStatus = "none"
 		order.paymentStatus = "none"
 		order.isCanceled = false
@@ -226,7 +226,7 @@ export class CartGroup extends Model implements Accounting {
 
 	setSKU(product: Product, sku: SKU, mediatedBy: string | null) {
 		if (product.providedBy !== sku.providedBy) return
-		if (this.deliveryMethod !== product.deliveryMethod) return
+		if (this.salesMethod !== product.salesMethod) return
 		if ((this.currency !== null) && (this.currency !== sku.currency)) {
 			console.log(`[APP] invalid currency. The cart now contains ${this.currency}, but the added item is ${sku.currency}.`)
 			return
@@ -238,7 +238,7 @@ export class CartGroup extends Model implements Accounting {
 
 	addSKU(product: Product, sku: SKU, mediatedBy: string | null) {
 		if (product.providedBy !== sku.providedBy) return
-		if (this.deliveryMethod !== product.deliveryMethod) return
+		if (this.salesMethod !== product.salesMethod) return
 		if ((this.currency !== null) && (this.currency !== sku.currency)) {
 			console.log(`[APP] invalid currency. The cart now contains ${this.currency}, but the added item is ${sku.currency}.`)
 			return

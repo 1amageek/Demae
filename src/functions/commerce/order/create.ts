@@ -1,7 +1,7 @@
 import * as admin from "firebase-admin"
 import * as functions from "firebase-functions"
 import { regionFunctions, getProviderID } from "../../helper"
-import { OrderError, Response, captureMethodForDeliveryMethod, checkOrder } from "./helper"
+import { OrderError, Response, captureMethodForSalesMethod, checkOrder } from "./helper"
 import Stripe from "stripe"
 import Cart from "../../models/commerce/Cart"
 import Provider from "../../models/commerce/Provider"
@@ -46,9 +46,9 @@ export const create = regionFunctions.https.onCall(async (data, context) => {
 	const order: Order = Order.fromData(orderData, userOrderRef, { convertDocumentReference: true })
 	const cartItemGroups = cart.groups.filter(group => group.groupID !== groupID)
 
-	const isOnSession = order.deliveryMethod === "none" || order.deliveryMethod === "download"
+	const isOnSession = order.salesMethod === "instore" || order.salesMethod === "download"
 	const setup_future_usage = isOnSession ? "on_session" : "off_session"
-	const capture_method = captureMethodForDeliveryMethod(order.deliveryMethod)
+	const capture_method = captureMethodForSalesMethod(order.salesMethod)
 	const confirm = true
 
 	const request = {
@@ -99,8 +99,8 @@ export const create = regionFunctions.https.onCall(async (data, context) => {
 				const provider: Provider = new Provider(order.providedBy)
 				const providerOrderRef = provider.orders.collectionReference.doc(order.id)
 				order.paymentResult = result
-				switch (order.deliveryMethod) {
-					case "none": {
+				switch (order.salesMethod) {
+					case "instore": {
 						order.paymentStatus = "succeeded"
 						order.deliveryStatus = "none"
 						break
@@ -116,7 +116,7 @@ export const create = regionFunctions.https.onCall(async (data, context) => {
 						order.deliveryStatus = "preparing_for_delivery"
 						break
 					}
-					case "shipping": {
+					case "online": {
 						order.paymentStatus = "processing"
 						order.deliveryStatus = "preparing_for_delivery"
 						break

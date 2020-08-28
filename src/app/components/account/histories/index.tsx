@@ -110,7 +110,7 @@ const OrderList = () => {
 										{orderedDate.format("YYYY-MM-DD HH:mm:ss")}
 									</Typography>
 									<Box display="flex" paddingY={1}>
-										{data.deliveryMethod === "shipping" && <Label color="gray" fontSize={12}>{DeliveryStatusLabel[data.deliveryStatus]}</Label>}
+										{data.salesMethod === "online" && <Label color="gray" fontSize={12}>{DeliveryStatusLabel[data.deliveryStatus]}</Label>}
 										<Label color="gray" fontSize={12}>{PaymentStatusLabel[data.paymentStatus]}</Label>
 									</Box>
 								</>
@@ -222,7 +222,7 @@ const OrderDetail = () => {
 								})}
 							</List>
 						</Paper>
-						{order.deliveryMethod === "shipping" &&
+						{order.salesMethod === "online" &&
 							<Box paddingY={2}>
 								<Typography variant="subtitle1" gutterBottom>Shipping Information</Typography>
 								<Typography variant="body2" >{order.shipping?.format(["postal_code", "line1", "line2", "city", "state"])}</Typography>

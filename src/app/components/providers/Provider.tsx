@@ -8,7 +8,6 @@ import { useDocumentListen } from "hooks/firestore";
 import { Provider } from "models/commerce";
 import NotFound from "components/NotFound"
 import ActionBar from "components/ActionBar"
-import { Capability } from "models/commerce/Provider"
 import { Capabilities, CapabilityLabel, useCapability } from "hooks/commerce/ProviderCapabilities"
 
 export default () => {
@@ -46,9 +45,9 @@ export default () => {
 export const TabLabel = {
 	"all": "ALL",
 	"download": "DOWNLOAD",
-	"instore_sales": "INSTORE SALE",
-	"online_sales": "ONLINE SALE",
-	"takeout": "TAKEOUT"
+	"instore": "INSTORE",
+	"online": "ONLINE",
+	"pickup": "PICKUP"
 }
 
 const CapabilityTabs = ({ provider }: { provider: Provider }) => {

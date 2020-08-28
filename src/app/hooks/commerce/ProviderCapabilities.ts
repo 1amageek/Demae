@@ -1,15 +1,15 @@
 import { useLocation } from "react-router-dom"
 import { Capability } from "models/commerce/Provider"
-import { DeliveryMethod } from "models/commerce/Product"
+import { SalesMethod } from "models/commerce/Product"
 
-export const CapabilityLabel = {
+export const CapabilityLabel: { [key in Capability]: string } = {
 	"download": "DOWNLOAD",
-	"instore_sales": "INSTORE SALE",
-	"online_sales": "ONLINE SALE",
-	"takeout": "TAKEOUT"
+	"instore": "INSTORE SALE",
+	"online": "ONLINE SALE",
+	"pickup": "PICKUP"
 }
 
-export const Capabilities: Capability[] = ["download", "instore_sales", "online_sales", "takeout"]
+export const Capabilities: Capability[] = ["download", "instore", "online", "pickup"]
 
 export const useCapability = (): Capability | "all" => {
 
@@ -24,7 +24,7 @@ export const useCapability = (): Capability | "all" => {
 	}
 }
 
-export const deliveryMethodForProviderCapability = (capability?: Capability | "all"): DeliveryMethod | undefined => {
+export const salesMethodForProviderCapability = (capability?: Capability | "all"): SalesMethod | undefined => {
 	if (!capability) {
 		return undefined
 	}
@@ -32,8 +32,8 @@ export const deliveryMethodForProviderCapability = (capability?: Capability | "a
 	switch (capability) {
 		case "all": return undefined
 		case "download": return "download"
-		case "instore_sales": return "none"
-		case "online_sales": return "shipping"
-		case "takeout": return "pickup"
+		case "instore": return "instore"
+		case "online": return "online"
+		case "pickup": return "pickup"
 	}
 }

@@ -123,8 +123,8 @@ const cancelRequestForOrder = async (uid: string, order: Order) => {
 
 	if (uid === order.purchasedBy) {
 		if (order.isCanceled) throw new functions.https.HttpsError("invalid-argument", `This order has already been canceled.`)
-		if (order.deliveryMethod === "pickup") throw new functions.https.HttpsError("invalid-argument", `Take-out orders cannot be canceled.`)
-		if (order.deliveryMethod === "none") throw new functions.https.HttpsError("invalid-argument", `Orders for in-store sales cannot be canceled.`)
+		if (order.salesMethod === "pickup") throw new functions.https.HttpsError("invalid-argument", `Take-out orders cannot be canceled.`)
+		if (order.salesMethod === "instore") throw new functions.https.HttpsError("invalid-argument", `Orders for in-store sales cannot be canceled.`)
 		if (order.deliveryStatus === "delivered") throw new functions.https.HttpsError("invalid-argument", `Orders that have already been delivered cannot be canceled.`)
 
 		const request = {

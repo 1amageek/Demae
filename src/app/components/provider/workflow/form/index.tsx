@@ -22,9 +22,9 @@ export default ({ country, onCallback }: { country: CountryCode, onCallback: (ne
 	const [name] = useTextField("")
 	const [capabilities, setCapabilities] = useState<{ [key in Capability]: boolean }>({
 		"download": false,
-		"instore_sales": false,
-		"online_sales": false,
-		"takeout": false
+		"instore": false,
+		"online": false,
+		"pickup": false
 	})
 	const currencyInitValue = (country === "JP") ? "JPY" : "USD"
 	const [defaultCurrency] = useSelect(currencyInitValue)
@@ -108,15 +108,15 @@ export default ({ country, onCallback }: { country: CountryCode, onCallback: (ne
 										label="Download"
 									/>
 									<FormControlLabel
-										control={<Checkbox checked={capabilities.instore_sales} onChange={handleChange} name="instore_sales" />}
+										control={<Checkbox checked={capabilities.instore} onChange={handleChange} name="instore" />}
 										label="In-Store Sales"
 									/>
 									<FormControlLabel
-										control={<Checkbox checked={capabilities.online_sales} onChange={handleChange} name="online_sales" />}
+										control={<Checkbox checked={capabilities.online} onChange={handleChange} name="online" />}
 										label="Online Sales"
 									/>
 									<FormControlLabel
-										control={<Checkbox checked={capabilities.takeout} onChange={handleChange} name="takeout" />}
+										control={<Checkbox checked={capabilities.pickup} onChange={handleChange} name="pickup" />}
 										label="Takeout"
 									/>
 								</FormGroup>

@@ -16,7 +16,7 @@ import { useHistory, useParams } from "react-router-dom";
 import { useDataSourceListen, Where, OrderBy } from "hooks/firestore"
 import { useProviderBlank, useUser } from "hooks/commerce"
 import { useListHeader } from "components/NavigationContainer"
-import { DeliveryMethodLabel } from "hooks/commerce/DeliveryMethod"
+import { SalesMethodLabel } from "hooks/commerce/SalesMethod"
 import Product, { ProductDraft } from "models/commerce/Product"
 import { CurrencyCode } from "common/Currency"
 
@@ -36,12 +36,12 @@ const TabLabels = [
 	},
 ]
 
-const DeliveryMethodLables = [{
+const SalesMethodLables = [{
 	label: "All",
 	value: undefined
-}].concat(Object.keys(DeliveryMethodLabel).map(key => {
+}].concat(Object.keys(SalesMethodLabel).map(key => {
 	return {
-		label: DeliveryMethodLabel[key],
+		label: SalesMethodLabel[key],
 		value: key,
 	}
 }) as any[])
@@ -50,14 +50,14 @@ export default () => {
 	const history = useHistory()
 	const { productID } = useParams()
 	const [segmentControl] = useSegmentControl(TabLabels.map(value => value.label))
-	const [deliveryMethodControl] = useSegmentControl(DeliveryMethodLables.map(value => value.label))
+	const [salesMethodControl] = useSegmentControl(SalesMethodLables.map(value => value.label))
 	const [provider, waiting] = useProviderBlank()
 	const isAvailable = TabLabels[segmentControl.selected].value
-	const deliveryMethod = DeliveryMethodLables[deliveryMethodControl.selected].value
+	const salesMethod = SalesMethodLables[salesMethodControl.selected].value
 	const collectionReference = provider ? provider.products.collectionReference : undefined
 	const wheres = [
 		isAvailable !== undefined ? Where("isAvailable", "==", isAvailable) : undefined,
-		deliveryMethod !== undefined ? Where("deliveryMethod", "==", deliveryMethod) : undefined,
+		salesMethod !== undefined ? Where("salesMethod", "==", salesMethod) : undefined,
 	].filter(value => !!value)
 	const [orderBy] = useState<firebase.firestore.OrderByDirection>("desc")
 	const [products, isLoading] = useDataSourceListen<Product>(Product, {
@@ -93,7 +93,7 @@ export default () => {
 					<SegmentControl {...segmentControl} />
 				</Box>
 				<Box padding={1} paddingTop={0}>
-					<SegmentControl {...deliveryMethodControl} />
+					<SegmentControl {...salesMethodControl} />
 				</Box>
 			</>
 		)
@@ -206,7 +206,7 @@ const ProductListItem = ({ product }: { product: Product }) => {
 							</Box>
 
 							<Box className={classes.tags}>
-								<Chip size="small" label={DeliveryMethodLabel[product.deliveryMethod]} />
+								<Chip size="small" label={SalesMethodLabel[product.salesMethod]} />
 								{
 									product.tags.map((tag, index) => {
 										return <Chip key={index} size="small" label={tag} />

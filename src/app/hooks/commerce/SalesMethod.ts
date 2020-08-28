@@ -1,9 +1,9 @@
 import { useLocation } from "react-router-dom"
-import { DeliveryMethod } from "models/commerce/Product"
+import { SalesMethod } from "models/commerce/Product"
 import { Capability } from "models/commerce/Provider"
 import { PaymentStatus } from "common/commerce/Types"
 
-export const DeliveryMethods: DeliveryMethod[] = ["none", "download", "pickup", "shipping"]
+export const SalesMethods: SalesMethod[] = ["instore", "download", "pickup", "online"]
 
 export const DeliveryStatusLabel = {
 	"none": "NONE",
@@ -18,10 +18,10 @@ export const DeliveryStatusLabel = {
 	"expired": "EXPIRED"
 }
 
-export const DeliveryMethodLabel: { [key in DeliveryMethod]: string } = {
-	"none": "IN-STORE",
-	"shipping": "ONLINE",
-	"pickup": "TAKEOUT",
+export const SalesMethodLabel: { [key in SalesMethod]: string } = {
+	"instore": "IN-STORE",
+	"online": "ONLINE",
+	"pickup": "PICKUP",
 	"download": "DOWNOAD",
 }
 
@@ -33,28 +33,28 @@ export const PaymentStatusLabel: { [key in PaymentStatus]: string } = {
 	"canceled": "CANCELED"
 }
 
-export const useDeliveryMethod = (): DeliveryMethod | undefined => {
+export const useSalesMethod = (): SalesMethod | undefined => {
 
 	const { search } = useLocation()
 	const params = new URLSearchParams(search);
-	const deliveryMethod = params.get("deliveryMethod") || ""
+	const salesMethod = params.get("salesMethod") || ""
 
-	if (["none", "shipping", "pickup", "download"].includes(deliveryMethod)) {
-		return deliveryMethod as DeliveryMethod
+	if (["instore", "online", "pickup", "download"].includes(salesMethod)) {
+		return salesMethod as SalesMethod
 	} else {
 		return undefined
 	}
 }
 
-export const capabilityForDeliveryMethod = (deliveryMethod?: DeliveryMethod): Capability | undefined => {
-	if (!deliveryMethod) {
+export const capabilityForSalesMethod = (salesMethod?: SalesMethod): Capability | undefined => {
+	if (!salesMethod) {
 		return undefined
 	}
-	if (!DeliveryMethods.includes(deliveryMethod)) return undefined
-	switch (deliveryMethod) {
-		case "none": return "instore_sales"
-		case "shipping": return "online_sales"
-		case "pickup": return "takeout"
+	if (!SalesMethods.includes(salesMethod)) return undefined
+	switch (salesMethod) {
+		case "instore": return "instore"
+		case "online": return "online"
+		case "pickup": return "pickup"
 		case "download": return "download"
 	}
 }
@@ -64,9 +64,9 @@ interface Item {
 	value?: string
 }
 
-export const deliveryStatusesForDeliveryMethod = (deliveryMethod?: DeliveryMethod): Item[] => {
-	switch (deliveryMethod) {
-		case "none": return [
+export const deliveryStatusesForSalesMethod = (salesMethod?: SalesMethod): Item[] => {
+	switch (salesMethod) {
+		case "instore": return [
 			{
 				label: "IN-STORE",
 				value: "none"
@@ -92,7 +92,7 @@ export const deliveryStatusesForDeliveryMethod = (deliveryMethod?: DeliveryMetho
 				value: "delivered"
 			},
 		]
-		case "shipping": return [
+		case "online": return [
 			{
 				label: "TODO",
 				value: "preparing_for_delivery"

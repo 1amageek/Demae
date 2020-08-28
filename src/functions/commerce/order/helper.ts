@@ -1,14 +1,14 @@
 import * as functions from "firebase-functions"
 import Order, { OrderItem } from "../../models/commerce/Order"
-import { DeliveryMethod } from "../../models/commerce/Product"
+import { SalesMethod } from "../../models/commerce/Product"
 import SKU, { Stock } from "../../models/commerce/SKU"
 
-export const captureMethodForDeliveryMethod = (deliveryMethod: DeliveryMethod) => {
-	switch (deliveryMethod) {
-		case "none": return "automatic"
+export const captureMethodForSalesMethod = (salesMethod: SalesMethod) => {
+	switch (salesMethod) {
+		case "instore": return "automatic"
 		case "download": return "automatic"
 		case "pickup": return "manual"
-		case "shipping": return "manual"
+		case "online": return "manual"
 	}
 }
 

@@ -13,7 +13,7 @@ import Select, { useSelect, useMenu } from "components/_Select"
 import { useMenu as useMenuProp } from "components/Menu"
 import Order from "models/commerce/Order"
 import * as Social from "models/social"
-import { useDeliveryMethod, deliveryStatusesForDeliveryMethod, DeliveryStatusLabel, PaymentStatusLabel, DeliveryMethodLabel } from "hooks/commerce/DeliveryMethod"
+import { useSalesMethod, deliveryStatusesForSalesMethod, DeliveryStatusLabel, PaymentStatusLabel, SalesMethodLabel } from "hooks/commerce/SalesMethod"
 import Dayjs from "dayjs"
 import relativeTime from "dayjs/plugin/relativeTime";
 import Label from "components/Label";
@@ -38,15 +38,15 @@ export default ({ orderID }: { orderID?: string }) => {
 	const theme = useTheme();
 	const [auth] = useAuthUser()
 	const [order, isLoading] = useAdminProviderOrder(orderID)
-	const deliveryMethod = useDeliveryMethod()
-	const deliveryMethodQuery = (deliveryMethod ? `?deliveryMethod=${deliveryMethod}` : "")
+	const salesMethod = useSalesMethod()
+	const salesMethodQuery = (salesMethod ? `?salesMethod=${salesMethod}` : "")
 
 	const [showModal, closeModal] = useModal()
 	const [showDrawer, closeDrawer] = useDrawer()
 	const [showSnackbar] = useSnackbar()
 	const [setProcessing] = useProcessing()
 
-	const deliveryStatuses = deliveryStatusesForDeliveryMethod(order?.deliveryMethod) as any[]
+	const deliveryStatuses = deliveryStatusesForSalesMethod(order?.salesMethod) as any[]
 	const deliveryStatusMenu = useMenu(deliveryStatuses)
 	const [deliveryStatus, setStatus] = useSelect(order?.deliveryStatus)
 
@@ -133,7 +133,7 @@ export default ({ orderID }: { orderID?: string }) => {
 		return (
 			<Box display="flex" flexGrow={1} justifyContent="space-between" paddingX={1}>
 				<Box>
-					<NavigationBackButton title="Orders" href={`/admin/orders?deliveryMethod=${deliveryMethod}`} />
+					<NavigationBackButton title="Orders" href={`/admin/orders?salesMethod=${salesMethod}`} />
 				</Box>
 			</Box>
 		)
@@ -301,7 +301,7 @@ export default ({ orderID }: { orderID?: string }) => {
 								</Grid>
 								<Grid item xs={12} md={4}>
 									<Typography variant="subtitle1">
-										Delivery Method <Label marginX={1} color="gray" fontSize={11}>{DeliveryMethodLabel[order.deliveryMethod]}</Label>
+										Delivery Method <Label marginX={1} color="gray" fontSize={11}>{SalesMethodLabel[order.salesMethod]}</Label>
 									</Typography>
 								</Grid>
 								<Grid item xs={12} md={4}>

@@ -12,24 +12,24 @@ import { useHistory, useParams } from "react-router-dom";
 import { Order } from "models/commerce";
 import { useDataSourceListen, Where, OrderBy } from "hooks/firestore"
 import { useListHeader } from "components/NavigationContainer"
-import { useDeliveryMethod, deliveryStatusesForDeliveryMethod, DeliveryStatusLabel, PaymentStatusLabel, DeliveryMethodLabel } from "hooks/commerce/DeliveryMethod"
+import { useSalesMethod, deliveryStatusesForSalesMethod, DeliveryStatusLabel, PaymentStatusLabel, SalesMethodLabel } from "hooks/commerce/SalesMethod"
 import Dayjs from "dayjs"
 
 export default () => {
 	const classes = useStyles();
 	const history = useHistory()
 	const { orderID } = useParams()
-	const deliveryMethod = useDeliveryMethod()
-	const deliveryMethodLables = deliveryStatusesForDeliveryMethod(deliveryMethod).concat({
+	const salesMethod = useSalesMethod()
+	const salesMethodLables = deliveryStatusesForSalesMethod(salesMethod).concat({
 		label: "ALL",
 		value: undefined
 	})
-	const [segmentControl] = useSegmentControl(deliveryMethodLables.map(tab => tab.label))
-	const deliveryStatus = deliveryMethodLables.map(tab => tab.value)[segmentControl.selected]
+	const [segmentControl] = useSegmentControl(salesMethodLables.map(tab => tab.label))
+	const deliveryStatus = salesMethodLables.map(tab => tab.value)[segmentControl.selected]
 	const [provider, waiting] = useAdminProvider()
 	const collectionReference = provider ? provider.orders.collectionReference : undefined
 	const wheres = [
-		deliveryMethod ? Where("deliveryMethod", "==", deliveryMethod) : undefined,
+		salesMethod ? Where("salesMethod", "==", salesMethod) : undefined,
 		deliveryStatus ? Where("deliveryStatus", "==", deliveryStatus) : undefined,
 		// paymentStatus ? Where("paymentStatus", "==", paymentStatus) : undefined
 	].filter(value => !!value)
@@ -102,7 +102,7 @@ const useStyles = makeStyles((theme: Theme) =>
 const ListItem = ({ data }: { data: Order }) => {
 	const classes = useStyles();
 	const { orderID } = useParams()
-	const deliveryMethod = useDeliveryMethod()
+	const salesMethod = useSalesMethod()
 	const orderedDate = Dayjs(data.createdAt.toDate())
 	const currency = data.currency
 	const amount = data.amount || 0
@@ -110,7 +110,7 @@ const ListItem = ({ data }: { data: Order }) => {
 	const imageURL = data.imageURLs().length > 0 ? data.imageURLs()[0] : undefined
 
 	return (
-		<Link className={classes.list} to={`/admin/orders/${data.id}` + (deliveryMethod ? `?deliveryMethod=${deliveryMethod}` : "")}>
+		<Link className={classes.list} to={`/admin/orders/${data.id}` + (salesMethod ? `?salesMethod=${salesMethod}` : "")}>
 			<Box>
 				<Box padding={1} paddingY={2} style={{
 					backgroundColor: orderID === data.id ? "rgba(0, 0, 140, 0.03)" : "inherit"
@@ -135,7 +135,7 @@ const ListItem = ({ data }: { data: Order }) => {
 							</Box>
 							<Box className={classes.tags}>
 								<Chip size="small" label={DeliveryStatusLabel[data.deliveryStatus]} />
-								<Chip size="small" label={DeliveryMethodLabel[data.deliveryMethod]} />
+								<Chip size="small" label={SalesMethodLabel[data.salesMethod]} />
 								<Chip size="small" label={PaymentStatusLabel[data.paymentStatus]} />
 								{
 									data.tags.map((tag, index) => {

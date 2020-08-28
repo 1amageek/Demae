@@ -203,25 +203,25 @@ export default ({ children }: { children: any }) => {
 					<ListItemText primary={"Orders"} />
 				</ListItem>
 				<List>
-					<ListItem className={classes.nested} button key={"pickup"} component={Link} to="/admin/orders?deliveryMethod=pickup">
+					<ListItem className={classes.nested} button key={"pickup"} component={Link} to="/admin/orders?salesMethod=pickup">
 						<ListItemIcon>
 							<PlaceIcon />
 						</ListItemIcon>
 						<ListItemText primary={"Pickup"} />
 					</ListItem>
-					<ListItem className={classes.nested} button key={"shipping"} component={Link} to="/admin/orders?deliveryMethod=shipping">
+					<ListItem className={classes.nested} button key={"online"} component={Link} to="/admin/orders?salesMethod=shipping">
 						<ListItemIcon>
 							<LocalShippingIcon />
 						</ListItemIcon>
-						<ListItemText primary={"Shipping"} />
+						<ListItemText primary={"Online"} />
 					</ListItem>
-					<ListItem className={classes.nested} button key={"download"} component={Link} to="/admin/orders?deliveryMethod=download">
+					<ListItem className={classes.nested} button key={"download"} component={Link} to="/admin/orders?salesMethod=download">
 						<ListItemIcon>
 							<CloudDownloadIcon />
 						</ListItemIcon>
 						<ListItemText primary={"Download"} />
 					</ListItem>
-					<ListItem className={classes.nested} button key={"in-store"} component={Link} to="/admin/orders?deliveryMethod=none">
+					<ListItem className={classes.nested} button key={"in-store"} component={Link} to="/admin/orders?salesMethod=none">
 						<ListItemIcon>
 							<StorefrontIcon />
 						</ListItemIcon>
