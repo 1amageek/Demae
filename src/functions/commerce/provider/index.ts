@@ -6,6 +6,9 @@ import { DocumentReference, Batch } from "@1amageek/ballcap-admin"
 import Account from "../../models/account/Account"
 import Provider, { ProviderDraft, Role } from "../../models/commerce/Provider"
 
+import * as operator from "./operators"
+export { operator }
+
 export const create = regionFunctions.https.onCall(async (data, context) => {
 	if (!context.auth) {
 		throw new functions.https.HttpsError("failed-precondition", "The function must be called while authenticated.")
@@ -18,7 +21,7 @@ export const create = regionFunctions.https.onCall(async (data, context) => {
 	provider.country = country
 	provider.defaultCurrency = defaultCurrency
 	provider.capabilities = capabilities
-	const provierRole = new Role(new Provider(uid).members.collectionReference.doc(uid))
+	const provierRole = new Role(new Provider(uid).operators.collectionReference.doc(uid))
 	try {
 		const batch = new Batch()
 		batch.save(provider)

@@ -33,7 +33,7 @@ export const increase = regionFunctions.https.onCall(async (data, context) => {
 	if (!providerRef) {
 		throw new functions.https.HttpsError("invalid-argument", "This skuPath is invalid.")
 	}
-	const roleRef = new Commerce.Provider(providerRef).members.collectionReference.doc(uid)
+	const roleRef = new Commerce.Provider(providerRef).operators.collectionReference.doc(uid)
 	const role = await Commerce.Role.get<Commerce.Role>(roleRef)
 	if (!role) {
 		throw new functions.https.HttpsError("invalid-argument", "You do not have permission to execute the process.")
@@ -102,7 +102,7 @@ export const update = regionFunctions.https.onCall(async (data, context) => {
 	if (!providerRef) {
 		throw new functions.https.HttpsError("invalid-argument", "This skuPath is invalid.")
 	}
-	const roleRef = new Commerce.Provider(providerRef).members.collectionReference.doc(uid)
+	const roleRef = new Commerce.Provider(providerRef).operators.collectionReference.doc(uid)
 	const role = await Commerce.Role.get<Commerce.Role>(roleRef)
 	if (!role) {
 		throw new functions.https.HttpsError("invalid-argument", "You do not have permission to execute the process.")
