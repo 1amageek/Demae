@@ -27,8 +27,8 @@ export default ({ providerID, productID, skuID }: { providerID: string, productI
 	const [user] = useUser()
 	const [cart] = useCart()
 	const [showDialog] = useDialog()
-	const [setModal, modalClose] = useModal()
-	const [showDrawer, onClose] = useDrawer()
+	const [showModal, closeModal] = useModal()
+	const [showDrawer, closeDrawer] = useDrawer()
 
 	const provider: Provider = new Provider(providerID)
 	const [product, isProductLoading] = useDocumentListen<Product>(Product, provider.products.collectionReference.doc(productID))
@@ -52,9 +52,9 @@ export default ({ providerID, productID, skuID }: { providerID: string, productI
 					variant: "contained",
 					color: "primary",
 					handler: () => {
-						setModal(<Login onNext={async (user) => {
+						showModal(<Login onNext={async (user) => {
 							onNext(sku)
-							modalClose()
+							closeModal()
 						}} />)
 					}
 				}
@@ -99,9 +99,9 @@ export default ({ providerID, productID, skuID }: { providerID: string, productI
 			showDrawer(
 				<QuickCheckout
 					groupID={"quick"}
-					onClose={onClose}
+					onClose={closeDrawer}
 					onComplete={() => {
-						onClose()
+						closeDrawer()
 						history.push(`/checkout/${providerID}/completed`)
 					}}
 				/>
@@ -111,8 +111,8 @@ export default ({ providerID, productID, skuID }: { providerID: string, productI
 				{
 					title: "OK",
 					handler: () => {
-						setModal(<Login onNext={() => {
-							modalClose()
+						showModal(<Login onNext={() => {
+							closeModal()
 						}} />)
 					}
 				}

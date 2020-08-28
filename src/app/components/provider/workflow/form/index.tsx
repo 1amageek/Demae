@@ -109,15 +109,15 @@ export default ({ country, onCallback }: { country: CountryCode, onCallback: (ne
 									/>
 									<FormControlLabel
 										control={<Checkbox checked={capabilities.instore} onChange={handleChange} name="instore" />}
-										label="In-Store Sales"
+										label="In-Store"
 									/>
 									<FormControlLabel
 										control={<Checkbox checked={capabilities.online} onChange={handleChange} name="online" />}
-										label="Online Sales"
+										label="Online"
 									/>
 									<FormControlLabel
 										control={<Checkbox checked={capabilities.pickup} onChange={handleChange} name="pickup" />}
-										label="Takeout"
+										label="Pickup"
 									/>
 								</FormGroup>
 								{error && <FormHelperText>You must select one or more.</FormHelperText>}

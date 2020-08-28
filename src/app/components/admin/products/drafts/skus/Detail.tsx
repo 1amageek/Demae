@@ -27,7 +27,6 @@ import { useDrawer } from "components/Drawer";
 import { useSnackbar } from "components/Snackbar";
 import ActionSheet from "components/ActionSheet"
 import MediaController from "components/MediaController"
-import { isAbsolute } from "path";
 
 Dayjs.extend(relativeTime)
 
@@ -547,13 +546,13 @@ const Edit = ({ sku, onClose }: { sku: SKU, onClose: () => void }) => {
 									</Box>
 									<Box paddingBottom={2}>
 										<Typography variant="subtitle1" gutterBottom>Inventory</Typography>
-										<FormControl variant="outlined" size="small">
+										<FormControl variant="outlined" margin="dense" size="small">
 											<Select variant="outlined" {...inventory} >
 												{inventoryMenu}
 											</Select>
 										</FormControl>
 										{inventory.value === "bucket" &&
-											<FormControl variant="outlined" size="small" style={{ marginLeft: "8px" }}>
+											<FormControl variant="outlined" margin="dense" size="small" style={{ marginLeft: "8px" }}>
 												<Select variant="outlined" {...stockValue}>
 													{stockValueMenu}
 												</Select>

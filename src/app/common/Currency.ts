@@ -171,5 +171,5 @@ export const SupportedCurrencyCodes: CurrencyCode[] = ['USD', 'JPY']
 export const SupportedCurrencies = Spec.filter(spec => SupportedCurrencyCodes.includes(spec.code as CurrencyCode)) as CurrencySpec[]
 
 export const Symbol = (code: CurrencyCode) => {
-	return Spec.find(spec => spec.code == code)?.code
+	return Spec.find(spec => spec.code == code)?.symbol
 }

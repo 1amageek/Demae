@@ -19,8 +19,8 @@ import { useListHeader } from "components/NavigationContainer"
 import { SalesMethodLabel } from "hooks/commerce/SalesMethod"
 import { ProductDraft } from "models/commerce/Product"
 import { CurrencyCode } from "common/Currency"
-import { Provider } from "models/commerce";
-
+import { useModal } from "components/Modal"
+import DraftForm from "./DraftForm"
 
 const TabLabels = [
 	{
@@ -50,6 +50,7 @@ const SalesMethodLables = [{
 export default () => {
 	const history = useHistory()
 	const { productID } = useParams()
+	const [showModal, closeModal] = useModal()
 	const [provider, waiting] = useProviderBlank()
 	const [segmentControl] = useSegmentControl(TabLabels.map(value => value.label))
 	const [salesMethodControl] = useSegmentControl(SalesMethodLables.map(value => value.label))
@@ -70,11 +71,13 @@ export default () => {
 	const addProduct = async (e) => {
 		e.preventDefault()
 		if (!provider) return
-		const product = new ProductDraft(provider.productDrafts.collectionReference.doc())
-		product.providedBy = provider.id
-		product.name = "No name"
-		await product.save()
-		history.push(`/admin/products/drafts/${product.id}`)
+		// const product = new ProductDraft(provider.productDrafts.collectionReference.doc())
+		// product.providedBy = provider.id
+		// product.name = "No name"
+		// await product.save()
+		// history.push(`/admin/products/drafts/${product.id}`)
+
+		showModal(<DraftForm onClose={closeModal} />, false)
 	}
 
 	useListHeader(() => {

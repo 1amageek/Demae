@@ -35,7 +35,7 @@ export default () => {
 	const history = useHistory()
 	const [setProgress] = useProcessing()
 	const [showDialog] = useDialog()
-	const [setModal, close] = useModal()
+	const [showModal, closeModal] = useModal()
 
 	return (
 		<Container maxWidth="sm">
@@ -63,18 +63,18 @@ export default () => {
 										{
 											title: "OK",
 											handler: () => {
-												setModal(<Login onNext={async (user) => {
+												showModal(<Login onNext={async (user) => {
 													setProgress(true)
 													try {
 														const account = await Account.get<Account>(user.id)
 														if (!account) {
 															setProgress(false)
-															close()
+															closeModal()
 															history.push("/account/create")
 														}
 													} catch (error) {
 														setProgress(false)
-														close()
+														closeModal()
 														history.push("/account/create")
 														console.error(error)
 													}
@@ -124,7 +124,7 @@ const ProviderList = () => {
 	const ref = user?.providers.collectionReference
 	const [roles, isDataLoading] = useDataSourceListen<Role>(Role, { path: ref?.path }, isLoading)
 	const [showDialog] = useDialog()
-	const [setModal, close] = useModal()
+	const [showModal, closeModal] = useModal()
 
 	if (isDataLoading) {
 		return <DataLoading />
@@ -142,8 +142,8 @@ const ProviderList = () => {
 							{
 								title: "OK",
 								handler: () => {
-									setModal(<Login onNext={() => {
-										close()
+									showModal(<Login onNext={() => {
+										closeModal()
 									}} />)
 								}
 							}

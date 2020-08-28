@@ -73,7 +73,7 @@ const SKUListItem = ({ providerID, product, sku }: { providerID: string, product
 	const [user] = useUser()
 	const [cart] = useCart()
 	const [showDialog] = useDialog()
-	const [setModal, modalClose] = useModal()
+	const [showModal, closeModal] = useModal()
 	const mediatorID = useMediator()
 
 	const imageURL = (sku.imagePaths().length > 0) ? sku.imagePaths()[0] : undefined
@@ -94,9 +94,9 @@ const SKUListItem = ({ providerID, product, sku }: { providerID: string, product
 					variant: "contained",
 					color: "primary",
 					handler: () => {
-						setModal(<Login onNext={async (user) => {
+						showModal(<Login onNext={async (user) => {
 							onNext(sku)
-							modalClose()
+							closeModal()
 						}} />)
 					}
 				}
