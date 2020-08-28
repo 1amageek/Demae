@@ -2,7 +2,7 @@
 
 ## Architecture
 
-https:miro.com/app/board/o9J_km01nvw=/
+[EC Architecture for Firebase](https:miro.com/app/board/o9J_km01nvw=/)
 
 ## SalesMethod
 
