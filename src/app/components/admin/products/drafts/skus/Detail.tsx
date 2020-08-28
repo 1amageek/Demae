@@ -307,8 +307,9 @@ const Edit = ({ sku, onClose }: { sku: SKU, onClose: () => void }) => {
 		}
 	])
 
-	const save = async (isAvailable: boolean) => {
-
+	useEdit(async (event) => {
+		event.preventDefault()
+		if (!provider) return
 		if (!product) return
 		if (!sku) return
 		setProcessing(true)
@@ -329,7 +330,6 @@ const Edit = ({ sku, onClose }: { sku: SKU, onClose: () => void }) => {
 			quantity: Number(quantity.value)
 		}
 		sku.productReference = product.documentReference
-		sku.isAvailable = isAvailable
 		const nowPrice = product.price || {}
 		var productPrice = nowPrice[sku.currency] || Infinity
 		productPrice = Math.min(productPrice, sku.price)
@@ -358,13 +358,7 @@ const Edit = ({ sku, onClose }: { sku: SKU, onClose: () => void }) => {
 		await batch.commit()
 		setProcessing(false)
 		onClose()
-	}
 
-	useEdit(async (event) => {
-		event.preventDefault()
-		if (!provider) return
-		if (!product) return
-		if (!sku) return
 		if (!sku.isAvailable) {
 			if (sku.inventory.type === "finite") {
 				const snapshot = await provider.products.collectionReference
@@ -383,25 +377,33 @@ const Edit = ({ sku, onClose }: { sku: SKU, onClose: () => void }) => {
 								{
 									title: "YES",
 									handler: async () => {
+										sku.isAvailable = true
+										await sku.update()
+										showSnackbar("success", `You must publish your product for the changes to take effect.`)
 										closeDrawer()
-										save(true)
-									}
-								},
-								{
-									title: "NO",
-									handler: async () => {
-										closeDrawer()
-										save(false)
 									}
 								}
 							]
 						} />
 					)
-					return
 				}
+			} else {
+				showDrawer(
+					<ActionSheet title="Do you want to make the SKU available?" actions={
+						[
+							{
+								title: "YES",
+								handler: async () => {
+									sku.isAvailable = true
+									await sku.update()
+									showSnackbar("success", `You must publish your product for the changes to take effect.`)
+									closeDrawer()
+								}
+							}
+						]
+					} />
+				)
 			}
-		} else {
-			save(sku.isAvailable)
 		}
 	})
 

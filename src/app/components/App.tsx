@@ -3,6 +3,7 @@ import { Switch, Route, useHistory } from "react-router-dom"
 import { makeStyles, Theme, createStyles } from "@material-ui/core/styles"
 import { Box } from "@material-ui/core"
 
+import AppConfigure from "config/AppConfigure"
 import AppBar from "components/AppBar"
 import TabBar from "components/TabBar"
 import Login from "components/Login"
@@ -44,7 +45,7 @@ export default () => {
 	return (
 		<>
 			<Box className={classes.box}>
-				<AppBar title={"Demae"} />
+				<AppBar title={AppConfigure.name} />
 				<main className={classes.content}>
 					<App />
 				</main>

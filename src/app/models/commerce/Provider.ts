@@ -61,5 +61,5 @@ export default class Provider extends ProviderDraft {
 	@SubCollection productDrafts: Collection<ProductDraft> = new Collection()
 	@SubCollection products: Collection<Product> = new Collection()
 	@SubCollection orders: Collection<Order> = new Collection()
-	@SubCollection members: Collection<Role> = new Collection()
+	@SubCollection operators: Collection<Role> = new Collection()
 }

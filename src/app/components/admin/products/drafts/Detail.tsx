@@ -20,7 +20,7 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import Label from "components/Label";
 import { useTheme } from "@material-ui/core/styles";
 import TextField, { useTextField } from "components/TextField"
-import { useProviderBlank, useUser } from "hooks/commerce"
+import { useProviderBlank } from "hooks/commerce"
 import { useProcessing } from "components/Processing";
 import { useDrawer } from "components/Drawer";
 import { useSnackbar } from "components/Snackbar";
