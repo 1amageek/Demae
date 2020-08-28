@@ -48,8 +48,6 @@ const SalesMethodLables = [{
 }) as any[])
 
 export default () => {
-	const history = useHistory()
-	const { productID } = useParams()
 	const [showModal, closeModal] = useModal()
 	const [provider, waiting] = useProviderBlank()
 	const [segmentControl] = useSegmentControl(TabLabels.map(value => value.label))
@@ -71,12 +69,6 @@ export default () => {
 	const addProduct = async (e) => {
 		e.preventDefault()
 		if (!provider) return
-		// const product = new ProductDraft(provider.productDrafts.collectionReference.doc())
-		// product.providedBy = provider.id
-		// product.name = "No name"
-		// await product.save()
-		// history.push(`/admin/products/drafts/${product.id}`)
-
 		showModal(<DraftForm onClose={closeModal} />, false)
 	}
 
