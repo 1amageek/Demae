@@ -16,9 +16,7 @@ import { useSalesMethod, deliveryStatusesForSalesMethod, DeliveryStatusLabel, Pa
 import Dayjs from "dayjs"
 
 export default () => {
-	const classes = useStyles();
-	const history = useHistory()
-	const { orderID } = useParams()
+	const { orderID } = useParams<{ orderID?: string }>()
 	const salesMethod = useSalesMethod()
 	const salesMethodLables = deliveryStatusesForSalesMethod(salesMethod).concat({
 		label: "ALL",
@@ -101,7 +99,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 const ListItem = ({ data }: { data: Order }) => {
 	const classes = useStyles();
-	const { orderID } = useParams()
+	const { orderID } = useParams<{ orderID?: string }>()
 	const salesMethod = useSalesMethod()
 	const orderedDate = Dayjs(data.createdAt.toDate())
 	const currency = data.currency

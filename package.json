@@ -67,10 +67,11 @@
 		"uuidv4": "^6.2.0"
 	},
 	"devDependencies": {
+		"@firebase/rules-unit-testing": "latest",
 		"@types/cookie-parser": "^1.4.2",
 		"@types/express": "^4.17.3",
 		"@types/mkdirp": "^1.0.1",
-		"@types/node": "^13.9.1",
+		"@types/node": "latest",
 		"@types/node-fetch": "^2.5.5",
 		"@types/react": "latest",
 		"@types/react-dom": "latest",
@@ -78,19 +79,20 @@
 		"@types/sharp": "^0.25.0",
 		"@types/showdown": "^1.9.3",
 		"@types/stripe": "latest",
-		"@types/webpack": "^4.41.17",
+		"@types/webpack": "latest",
 		"@zeit/next-workers": "^1.0.0",
 		"babel-plugin-styled-components": "latest",
 		"cpx": "^1.5.0",
 		"cross-env": "^6.0.3",
 		"dotenv-webpack": "^1.7.0",
 		"file-loader": "^5.0.2",
+		"firebase-functions-test": "latest",
 		"firebase-tools": "^8.6.0",
 		"googleapis": "^48.0.0",
 		"rimraf": "^3.0.0",
-		"ts-loader": "^6.2.1",
-		"tslint": "^5.20.1",
-		"tslint-react": "^4.1.0",
-		"typescript": "^3.9.5"
+		"ts-loader": "^8.0.3",
+		"tslint": "latest",
+		"tslint-react": "latest",
+		"typescript": "latest"
 	}
 }

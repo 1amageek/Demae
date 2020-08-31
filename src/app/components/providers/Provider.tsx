@@ -12,7 +12,7 @@ import { Capabilities, CapabilityLabel, useCapability } from "hooks/commerce/Pro
 
 export default () => {
 
-	const { providerID } = useParams()
+	const { providerID } = useParams<{ providerID?: string }>()
 	const [data, isLoading] = useDocumentListen<Provider>(Provider, Provider.collectionReference().doc(providerID))
 
 	if (isLoading) {

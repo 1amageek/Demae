@@ -34,7 +34,7 @@ const TabLabels = [
 
 export default () => {
 	const history = useHistory()
-	const { productID } = useParams()
+	const { productID } = useParams<{ productID?: string }>()
 	const [segmentControl] = useSegmentControl(TabLabels.map(value => value.label))
 	const [provider, waiting] = useProviderBlank()
 	const isAvailable = TabLabels[segmentControl.selected].value
@@ -127,7 +127,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 const SKUListItem = ({ sku }: { sku: SKU }) => {
 	const classes = useStyles();
-	const { productID, skuID } = useParams()
+	const { productID, skuID } = useParams<{ productID?: string, skuID?: string }>()
 	const [provider, waiting] = useProviderBlank()
 	const currency = sku.currency
 	const amount = sku.price || 0

@@ -4,7 +4,7 @@ import ProviderList from "components/providers/ProviderList"
 import Provider from "components/providers/Provider"
 
 export default () => {
-	const { providerID } = useParams()
+	const { providerID } = useParams<{ providerID?: string }>()
 	if (providerID) {
 		return (
 			<Container maxWidth="sm" disableGutters>

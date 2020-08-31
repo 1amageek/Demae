@@ -10,8 +10,7 @@ import { AdminProviderProductDraftProvider } from "hooks/commerce";
 import { NavigationView, ListView, ContentView } from "components/NavigationContainer"
 
 export default () => {
-	const { productID, skuID } = useParams()
-
+	const { productID } = useParams<{ productID: string }>()
 	return (
 		<AdminProviderProductDraftProvider id={productID}>
 			<Box>
@@ -26,7 +25,7 @@ export default () => {
 const Content = () => {
 
 	const theme = useTheme();
-	const { productID, skuID } = useParams()
+	const { productID } = useParams<{ productID?: string, skuID?: string }>()
 	const matches = useMediaQuery(theme.breakpoints.down("sm"));
 
 	if (matches) {

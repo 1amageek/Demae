@@ -8,7 +8,7 @@ import DataLoading from "components/DataLoading"
 import { useCapability, salesMethodForProviderCapability } from "hooks/commerce/ProviderCapabilities"
 
 export default () => {
-	const { providerID } = useParams()
+	const { providerID } = useParams<{ providerID: string }>()
 	const capability = useCapability()
 	const salesMethod = salesMethodForProviderCapability(capability)
 	const ref = new Provider(providerID).products.collectionReference

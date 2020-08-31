@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useContext } from "react";
+import React from "react";
 import { Link, useParams, useHistory } from "react-router-dom"
 import "firebase/auth";
 import "firebase/functions";
@@ -46,7 +46,7 @@ const PaymentStatusLabel: { [key in PaymentStatus]: string } = {
 }
 
 export default () => {
-	const { orderID } = useParams()
+	const { orderID } = useParams<{ orderID?: string }>()
 	return (
 		<Container maxWidth="sm">
 			<Typography variant="h1" gutterBottom>Order history</Typography>
@@ -125,7 +125,7 @@ const OrderList = () => {
 
 const OrderDetail = () => {
 	const theme = useTheme()
-	const { orderID } = useParams()
+	const { orderID } = useParams<{ orderID?: string }>()
 	const [user] = useUser()
 	const ref = user?.orders.collectionReference.doc(orderID)
 	const [order, isLoading] = useDocumentListen<Order>(Order, ref)

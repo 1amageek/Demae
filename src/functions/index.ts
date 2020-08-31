@@ -10,6 +10,8 @@ import assets from "./assets"
 const firebase = admin.initializeApp()
 ballcap.initialize(firebase)
 
+console.log(process.env)
+
 // Hosting
 const dev = process.env.NODE_ENV === "development"
 const app = next({

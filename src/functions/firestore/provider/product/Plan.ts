@@ -1,5 +1,5 @@
 import * as functions from "firebase-functions"
-import { regionFunctions } from "../../../helper"
+import { regionFunctions, stripe } from "../../../helper"
 import Stripe from "stripe"
 import { ErrorCode } from "../../helper"
 import { nullFilter } from "../../../helper"
@@ -39,12 +39,7 @@ export const onCreate = regionFunctions.firestore
 	.document(triggerdPath)
 	.onCreate(async (snapshot, context) => {
 		console.info(context)
-		const STRIPE_API_KEY = functions.config().stripe.api_key
-		if (!STRIPE_API_KEY) {
-			throw new functions.https.HttpsError("invalid-argument", "The functions requires STRIPE_API_KEY.")
-		}
 		const plan: Plan = Plan.fromSnapshot(snapshot)
-		const stripe = new Stripe(STRIPE_API_KEY, { apiVersion: "2020-03-02" })
 		try {
 			await create(stripe, plan)
 		} catch (error) {
@@ -62,11 +57,6 @@ export const onUpdate = regionFunctions.firestore
 		if (!plan.isAvailable) {
 			return
 		}
-		const STRIPE_API_KEY = functions.config().stripe.api_key
-		if (!STRIPE_API_KEY) {
-			throw new functions.https.HttpsError("invalid-argument", "The functions requires STRIPE_API_KEY.")
-		}
-		const stripe = new Stripe(STRIPE_API_KEY, { apiVersion: "2020-03-02" })
 		const data: Stripe.PlanUpdateParams = {
 			product: plan.parent.parent!.id,
 			metadata: {

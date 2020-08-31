@@ -139,7 +139,7 @@ const useStyles = makeStyles((theme: Theme) =>
 const ProductListItem = ({ product }: { product: ProductDraft }) => {
 	const classes = useStyles();
 	const [user] = useUser()
-	const { productID } = useParams()
+	const { productID } = useParams<{ productID?: string }>()
 	const prices = product.price
 	const currencies = Object.keys(prices) as CurrencyCode[]
 	const userCurrency = user?.currency ?? "USD"

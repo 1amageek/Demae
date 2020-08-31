@@ -3,8 +3,7 @@ import * as os from "os"
 import * as fs from "fs"
 import * as admin from "firebase-admin"
 import * as functions from "firebase-functions"
-import { regionFunctions } from "../../helper"
-import Stripe from "stripe"
+import { regionFunctions, stripe } from "../../helper"
 
 export const upload = regionFunctions.https.onCall(async (data, context) => {
 	if (!context.auth) {
@@ -31,7 +30,6 @@ export const upload = regionFunctions.https.onCall(async (data, context) => {
 	if (!purpose) {
 		throw new functions.https.HttpsError("invalid-argument", "This request does not include an purpose.")
 	}
-	const stripe = new Stripe(STRIPE_API_KEY, { apiVersion: "2020-03-02" })
 	const tempFilePath = path.join(os.tmpdir(), name);
 	try {
 		await admin.storage().bucket(bucket).file(fullPath).download({ destination: tempFilePath })

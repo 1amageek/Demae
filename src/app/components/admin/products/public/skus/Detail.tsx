@@ -33,7 +33,7 @@ const converter = new Showdown.Converter({
 export default () => {
 	const theme = useTheme()
 	const history = useHistory()
-	const { productID, skuID } = useParams()
+	const { productID, skuID } = useParams<{ productID?: string, skuID?: string }>()
 	const [provider] = useProviderBlank()
 	const ref = skuID ? provider?.documentReference
 		.collection("products").doc(productID)

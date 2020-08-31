@@ -10,7 +10,7 @@ import Detail from "./Detail"
 import { NavigationView, ListView, ContentView } from "components/NavigationContainer"
 
 export default () => {
-	const { orderID } = useParams()
+	const { orderID } = useParams<{ orderID?: string }>()
 
 	return (
 		<AdminProviderOrderProvider id={orderID}>
@@ -22,7 +22,7 @@ export default () => {
 }
 
 const Content = () => {
-	const { orderID } = useParams()
+	const { orderID } = useParams<{ orderID?: string }>()
 	const theme = useTheme();
 	const matches = useMediaQuery(theme.breakpoints.down("sm"));
 
