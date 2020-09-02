@@ -6,7 +6,6 @@ import ErrorIcon from "@material-ui/icons/Error";
 import NavigateNextIcon from "@material-ui/icons/NavigateNext";
 import DataLoading from "components/DataLoading";
 import CardBrand from "common/stripe/CardBrand"
-import User from "models/commerce/User"
 import CartItemCell from "./CartItemCell"
 import CardList from "./payment"
 import ShippingAddressList from "./shipping"

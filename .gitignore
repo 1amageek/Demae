@@ -12,6 +12,7 @@ firestore-debug.log*
 .firebase/
 
 dist/
+serviceAccount/*.json
 
 src/app/config/*.json
 src/functions/.runtimeconfig.json

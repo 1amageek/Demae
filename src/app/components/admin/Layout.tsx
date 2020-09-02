@@ -142,7 +142,14 @@ export default ({ children }: { children: any }) => {
 						} else {
 							try {
 								const providerPublish = firebase.functions().httpsCallable("commerce-v1-provider-publish")
-								await providerPublish()
+								const response = await providerPublish()
+								const { error } = response.data
+								if (error) {
+									console.log(error)
+									showProcessing(false)
+									showMessage("error", error.message)
+									return
+								}
 							} catch (error) {
 								console.log(error)
 								showProcessing(false)

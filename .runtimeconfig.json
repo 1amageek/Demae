@@ -1,11 +1,14 @@
 {
-  "stripe": {
-    "account_link_success_url": "https://localhost:3000",
-    "api_key": "sk_test_8Lj4NhDfqJ266XXPFUvVjpLc",
-    "account": "acct_1EE9uWEEPdlvsyGJ",
-    "account_link_failure_url": "https://localhost:3000"
-  },
   "filestore": {
     "secret": "asdiopfjq3prijoqaewgnibp2q3t@#$^%q34tY*&onasfq3"
+  },
+  "stripe": {
+    "account": "acct_1EE9uWEEPdlvsyGJ",
+    "account_link_failure_url": "http://localhost:3000/account/link/failure",
+    "account_link_success_url": "http://localhost:3000/account/link/success",
+    "api_key": "sk_test_8Lj4NhDfqJ266XXPFUvVjpLc"
+  },
+  "host": {
+    "domain": "demae-210ed.web.app"
   }
 }

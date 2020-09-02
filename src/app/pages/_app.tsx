@@ -32,7 +32,7 @@ if (firebase.apps.length === 0) {
 			ssl: false
 		});
 	}
-	Ballcap.initialize(app)
+	Ballcap.initialize(app, firestore)
 }
 
 const UIProvider = ({ children }: { children: any }) => {

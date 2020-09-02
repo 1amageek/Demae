@@ -7,6 +7,7 @@ import * as PaymentIntent from "./paymentIntent"
 import * as Balance from "./balance"
 import * as BalanceTransaction from "./balanceTransaction"
 // import * as SubscriptionSchedule from "./subscriptionSchedule"
+
 const account = { ...Account }
 const accountLink = { ...AccountLink }
 const file = { ...File }

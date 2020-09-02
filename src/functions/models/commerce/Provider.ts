@@ -19,6 +19,7 @@ export class ProviderDraft extends Doc {
 		return firestore.collection("commerce/v1/providerDrafts")
 	}
 
+	@Field isAvailable: boolean = false
 	@Field thumbnailImage?: File
 	@Field coverImage?: File
 	@Field capabilities: Capability[] = []
@@ -41,8 +42,6 @@ export default class Provider extends ProviderDraft {
 	static collectionReference(): CollectionReference {
 		return firestore.collection("commerce/v1/providers")
 	}
-
-	@Field isAvailable: boolean = false
 
 	@SubCollection productDrafts: Collection<ProductDraft> = new Collection()
 	@SubCollection products: Collection<Product> = new Collection()
