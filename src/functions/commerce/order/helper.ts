@@ -5,7 +5,7 @@ import SKU, { Stock } from "../../models/commerce/SKU"
 
 export const captureMethodForSalesMethod = (salesMethod: SalesMethod) => {
 	switch (salesMethod) {
-		case "instore": return "automatic"
+		case "instore": return "manual"
 		case "download": return "automatic"
 		case "pickup": return "manual"
 		case "online": return "manual"

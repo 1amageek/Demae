@@ -100,10 +100,12 @@ export const create = regionFunctions.https.onCall(async (data, context) => {
 				const provider: Provider = new Provider(order.providedBy)
 				const providerOrderRef = provider.orders.collectionReference.doc(order.id)
 				order.paymentResult = result
+
+				/// https://github.com/1amageek/Demae/blob/master/README.md
 				switch (order.salesMethod) {
 					case "instore": {
-						order.paymentStatus = "succeeded"
-						order.deliveryStatus = "none"
+						order.paymentStatus = "processing"
+						order.deliveryStatus = "preparing_for_delivery"
 						break
 					}
 					case "download": {
@@ -136,7 +138,10 @@ export const create = regionFunctions.https.onCall(async (data, context) => {
 				transaction.set(cart.documentReference, {
 					groups: cartItemGroups
 				}, { merge: true })
-				return order.data({ convertDocumentReference: true })
+				return {
+					id: order.id,
+					data: order.data({ convertDocumentReference: true })
+				}
 			} catch (error) {
 				throw error
 			}

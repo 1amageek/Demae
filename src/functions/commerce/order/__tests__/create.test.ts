@@ -127,8 +127,8 @@ describe("Order Create Test", () => {
 						uid: 'TEST_CUSTOMER'
 					}
 				})
-				expect(result.amount).toEqual(1080)
-				expect(result.paymentResult.amount).toEqual(1080)
+				expect(result.data.amount).toEqual(1080)
+				expect(result.data.paymentResult.amount).toEqual(1080)
 			})
 
 			it("Finite out of stock", async () => {
@@ -152,7 +152,7 @@ describe("Order Create Test", () => {
 						uid: 'TEST_CUSTOMER'
 					}
 				})
-				expect(error).not.toBeNull()
+				expect(error).not.toBeUndefined()
 			})
 		})
 
@@ -181,8 +181,8 @@ describe("Order Create Test", () => {
 						uid: 'TEST_CUSTOMER'
 					}
 				})
-				expect(result.amount).toEqual(1080)
-				expect(result.paymentResult.amount).toEqual(1080)
+				expect(result.data.amount).toEqual(1080)
+				expect(result.data.paymentResult.amount).toEqual(1080)
 			})
 
 			it("Finite limited", async () => {
@@ -206,8 +206,8 @@ describe("Order Create Test", () => {
 						uid: 'TEST_CUSTOMER'
 					}
 				})
-				expect(result.amount).toEqual(1080)
-				expect(result.paymentResult.amount).toEqual(1080)
+				expect(result.data.amount).toEqual(1080)
+				expect(result.data.paymentResult.amount).toEqual(1080)
 			})
 
 			it("Finite out of stock", async () => {
@@ -231,7 +231,7 @@ describe("Order Create Test", () => {
 						uid: 'TEST_CUSTOMER'
 					}
 				})
-				expect(error).not.toBeNull()
+				expect(error).not.toBeUndefined()
 			})
 		})
 
@@ -259,8 +259,8 @@ describe("Order Create Test", () => {
 						uid: 'TEST_CUSTOMER'
 					}
 				})
-				expect(result.amount).toEqual(1080)
-				expect(result.paymentResult.amount).toEqual(1080)
+				expect(result.data.amount).toEqual(1080)
+				expect(result.data.paymentResult.amount).toEqual(1080)
 			})
 		})
 
@@ -295,8 +295,8 @@ describe("Order Create Test", () => {
 						uid: 'TEST_CUSTOMER'
 					}
 				})
-				expect(result.amount).toEqual(1080)
-				expect(result.paymentResult.amount).toEqual(1080)
+				expect(result.data.amount).toEqual(1080)
+				expect(result.data.paymentResult.amount).toEqual(1080)
 			})
 
 			it("Finite out of stock", async () => {
@@ -320,7 +320,7 @@ describe("Order Create Test", () => {
 						uid: 'TEST_CUSTOMER'
 					}
 				})
-				expect(error).not.toBeNull()
+				expect(error).not.toBeUndefined()
 			})
 		})
 
@@ -349,8 +349,8 @@ describe("Order Create Test", () => {
 						uid: 'TEST_CUSTOMER'
 					}
 				})
-				expect(result.amount).toEqual(1080)
-				expect(result.paymentResult.amount).toEqual(1080)
+				expect(result.data.amount).toEqual(1080)
+				expect(result.data.paymentResult.amount).toEqual(1080)
 			})
 
 			it("Finite limited", async () => {
@@ -374,8 +374,8 @@ describe("Order Create Test", () => {
 						uid: 'TEST_CUSTOMER'
 					}
 				})
-				expect(result.amount).toEqual(1080)
-				expect(result.paymentResult.amount).toEqual(1080)
+				expect(result.data.amount).toEqual(1080)
+				expect(result.data.paymentResult.amount).toEqual(1080)
 			})
 
 			it("Finite out of stock", async () => {
@@ -399,7 +399,7 @@ describe("Order Create Test", () => {
 						uid: 'TEST_CUSTOMER'
 					}
 				})
-				expect(error).not.toBeNull()
+				expect(error).not.toBeUndefined()
 			})
 		})
 
@@ -427,8 +427,8 @@ describe("Order Create Test", () => {
 						uid: 'TEST_CUSTOMER'
 					}
 				})
-				expect(result.amount).toEqual(1080)
-				expect(result.paymentResult.amount).toEqual(1080)
+				expect(result.data.amount).toEqual(1080)
+				expect(result.data.paymentResult.amount).toEqual(1080)
 			})
 		})
 
@@ -463,8 +463,8 @@ describe("Order Create Test", () => {
 						uid: 'TEST_CUSTOMER'
 					}
 				})
-				expect(result.amount).toEqual(1080)
-				expect(result.paymentResult.amount).toEqual(1080)
+				expect(result.data.amount).toEqual(1080)
+				expect(result.data.paymentResult.amount).toEqual(1080)
 			})
 
 			it("Finite out of stock", async () => {
@@ -488,7 +488,7 @@ describe("Order Create Test", () => {
 						uid: 'TEST_CUSTOMER'
 					}
 				})
-				expect(error).not.toBeNull()
+				expect(error).not.toBeUndefined()
 			})
 
 			it("Shpping undefined", async () => {
@@ -512,7 +512,7 @@ describe("Order Create Test", () => {
 						uid: 'TEST_CUSTOMER'
 					}
 				})
-				expect(error).not.toBeNull()
+				expect(error).not.toBeUndefined()
 			})
 		})
 
@@ -541,8 +541,8 @@ describe("Order Create Test", () => {
 						uid: 'TEST_CUSTOMER'
 					}
 				})
-				expect(result.amount).toEqual(1080)
-				expect(result.paymentResult.amount).toEqual(1080)
+				expect(result.data.amount).toEqual(1080)
+				expect(result.data.paymentResult.amount).toEqual(1080)
 			})
 
 			it("Finite limited", async () => {
@@ -566,8 +566,8 @@ describe("Order Create Test", () => {
 						uid: 'TEST_CUSTOMER'
 					}
 				})
-				expect(result.amount).toEqual(1080)
-				expect(result.paymentResult.amount).toEqual(1080)
+				expect(result.data.amount).toEqual(1080)
+				expect(result.data.paymentResult.amount).toEqual(1080)
 			})
 
 			it("Finite out of stock", async () => {
@@ -591,7 +591,7 @@ describe("Order Create Test", () => {
 						uid: 'TEST_CUSTOMER'
 					}
 				})
-				expect(error).not.toBeNull()
+				expect(error).not.toBeUndefined()
 			})
 		})
 
@@ -619,8 +619,8 @@ describe("Order Create Test", () => {
 						uid: 'TEST_CUSTOMER'
 					}
 				})
-				expect(result.amount).toEqual(1080)
-				expect(result.paymentResult.amount).toEqual(1080)
+				expect(result.data.amount).toEqual(1080)
+				expect(result.data.paymentResult.amount).toEqual(1080)
 			})
 		})
 
@@ -655,8 +655,8 @@ describe("Order Create Test", () => {
 						uid: 'TEST_CUSTOMER'
 					}
 				})
-				expect(result.amount).toEqual(1080)
-				expect(result.paymentResult.amount).toEqual(1080)
+				expect(result.data.amount).toEqual(1080)
+				expect(result.data.paymentResult.amount).toEqual(1080)
 			})
 
 			it("Finite out of stock", async () => {
@@ -680,7 +680,7 @@ describe("Order Create Test", () => {
 						uid: 'TEST_CUSTOMER'
 					}
 				})
-				expect(error).not.toBeNull()
+				expect(error).not.toBeUndefined()
 			})
 
 			it("Shpping undefined", async () => {
@@ -704,7 +704,7 @@ describe("Order Create Test", () => {
 						uid: 'TEST_CUSTOMER'
 					}
 				})
-				expect(error).not.toBeNull()
+				expect(error).not.toBeUndefined()
 			})
 		})
 
@@ -733,8 +733,8 @@ describe("Order Create Test", () => {
 						uid: 'TEST_CUSTOMER'
 					}
 				})
-				expect(result.amount).toEqual(1080)
-				expect(result.paymentResult.amount).toEqual(1080)
+				expect(result.data.amount).toEqual(1080)
+				expect(result.data.paymentResult.amount).toEqual(1080)
 			})
 
 			it("Finite limited", async () => {
@@ -758,8 +758,8 @@ describe("Order Create Test", () => {
 						uid: 'TEST_CUSTOMER'
 					}
 				})
-				expect(result.amount).toEqual(1080)
-				expect(result.paymentResult.amount).toEqual(1080)
+				expect(result.data.amount).toEqual(1080)
+				expect(result.data.paymentResult.amount).toEqual(1080)
 			})
 
 			it("Finite out of stock", async () => {
@@ -783,7 +783,7 @@ describe("Order Create Test", () => {
 						uid: 'TEST_CUSTOMER'
 					}
 				})
-				expect(error).not.toBeNull()
+				expect(error).not.toBeUndefined()
 			})
 		})
 
@@ -811,8 +811,8 @@ describe("Order Create Test", () => {
 						uid: 'TEST_CUSTOMER'
 					}
 				})
-				expect(result.amount).toEqual(1080)
-				expect(result.paymentResult.amount).toEqual(1080)
+				expect(result.data.amount).toEqual(1080)
+				expect(result.data.paymentResult.amount).toEqual(1080)
 			})
 		})
 

@@ -115,7 +115,10 @@ export const capture = regionFunctions.https.onCall(async (data, context) => {
 				}
 				transaction.set(userOrderRef, updateData, { merge: true })
 				transaction.set(providerOrderRef, updateData, { merge: true })
-				return order.data({ convertDocumentReference: true })
+				return {
+					id: order.id,
+					data: order.data({ convertDocumentReference: true })
+				}
 			} catch (error) {
 				throw error
 			}

@@ -1,8 +1,8 @@
 import { initialize } from "@1amageek/ballcap-admin"
 import * as admin from "firebase-admin"
 import { SalesMethod } from "../../../models/commerce/Product"
-import { Inventory } from "../../../common/commerce/Types"
-
+import { Inventory, DeliveryStatus } from "../../../common/commerce/Types"
+const serviceAccount = require("../../../../../serviceAccount/key.json");
 
 const SKU_PRICE = 1000
 const SKU_TAXRATE = 8
@@ -11,6 +11,7 @@ export const projectId = process.env.GCLOUD_PROJECT
 
 export const init = () => {
 	const adminApp = admin.initializeApp({
+		credential: admin.credential.cert(serviceAccount),
 		projectId: projectId
 	})
 	initialize(adminApp)
@@ -22,6 +23,16 @@ export const init = () => {
 }
 
 export const setupProvider = async () => {
+
+	const record = await admin.auth().getUser("TEST_PROVIDER")
+
+	if (!record) {
+		await admin.auth().createUser({
+			uid: "TEST_PROVIDER"
+		})
+	}
+
+	await admin.auth().setCustomUserClaims("TEST_PROVIDER", { admin: "TEST_PROVIDER" })
 
 	await admin.firestore().doc("/commerce/v1/providers/TEST_PROVIDER")
 		.set(
@@ -394,4 +405,12 @@ export const setupCart = async (salesMethod: SalesMethod, product: admin.firesto
 				"amount": 0
 			}
 		)
+}
+
+export const updateOrder = async (refs: admin.firestore.DocumentReference[], deliveryStatus: DeliveryStatus) => {
+	const batch = admin.firestore().batch()
+	refs.forEach(ref => {
+		batch.set(ref, { deliveryStatus }, { merge: true })
+	})
+	await batch.commit()
 }

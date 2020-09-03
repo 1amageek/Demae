@@ -51,7 +51,10 @@ export const refund = regionFunctions.https.onCall(async (data, context) => {
 					...order.data(),
 					updatedAt: admin.firestore.FieldValue.serverTimestamp()
 				})
-				return order.data({ convertDocumentReference: true })
+				return {
+					id: order.id,
+					data: order.data({ convertDocumentReference: true })
+				}
 			} catch (error) {
 				throw error
 			}

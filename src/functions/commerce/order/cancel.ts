@@ -41,6 +41,7 @@ const _canceledByCustomer = async (uid: string, orderID: string) => {
 				if (!order) {
 					throw new functions.https.HttpsError("invalid-argument", "This user has not this order.")
 				}
+				checkCancelOrder(order, "customer")
 				const paymentIntentID = order.paymentResult.id
 				if (!paymentIntentID) {
 					throw new functions.https.HttpsError("internal", "Your order does not contain the required information.")
@@ -79,6 +80,7 @@ const _canceledByProvider = async (uid: string, orderID: string) => {
 				if (!order) {
 					throw new functions.https.HttpsError("invalid-argument", "This user has not this order.")
 				}
+				checkCancelOrder(order, "provider")
 				const userOrderRef = new User(order.purchasedBy).orders.collectionReference.doc(order.id)
 				const paymentIntentID = order.paymentResult.id
 				if (!paymentIntentID) {
@@ -116,17 +118,27 @@ const _cancel = (order: Order, refs: DocumentReference[], transaction: admin.fir
 			updatedAt: admin.firestore.FieldValue.serverTimestamp()
 		}, { merge: true })
 	})
-	return order.data({ convertDocumentReference: true })
+	return {
+		id: order.id,
+		data: order.data({ convertDocumentReference: true })
+	}
+}
+
+const checkCancelOrder = (order: Order, canceledBy: "customer" | "provider") => {
+	if (order.isCanceled) throw new functions.https.HttpsError("invalid-argument", `This order has already been canceled.`)
+	if (canceledBy === "customer") {
+		if (order.salesMethod === "instore") throw new functions.https.HttpsError("invalid-argument", `Orders for in-store sales cannot be canceled.`)
+		if (order.salesMethod === "pickup") throw new functions.https.HttpsError("invalid-argument", `Take-out orders cannot be canceled.`)
+		if (order.salesMethod === "download") throw new functions.https.HttpsError("invalid-argument", `Download orders cannot be canceled.`)
+	} else {
+		if (order.salesMethod === "instore" && order.deliveryStatus !== "preparing_for_delivery") throw new functions.https.HttpsError("invalid-argument", `The payment has already been made. A refund process is required to cancel the order.`)
+		if (order.salesMethod === "pickup" && order.deliveryStatus !== "preparing_for_delivery") throw new functions.https.HttpsError("invalid-argument", `The payment has already been made. A refund process is required to cancel the order.`)
+	}
 }
 
 const cancelRequestForOrder = async (uid: string, order: Order) => {
 
 	if (uid === order.purchasedBy) {
-		if (order.isCanceled) throw new functions.https.HttpsError("invalid-argument", `This order has already been canceled.`)
-		if (order.salesMethod === "pickup") throw new functions.https.HttpsError("invalid-argument", `Take-out orders cannot be canceled.`)
-		if (order.salesMethod === "instore") throw new functions.https.HttpsError("invalid-argument", `Orders for in-store sales cannot be canceled.`)
-		if (order.deliveryStatus === "delivered") throw new functions.https.HttpsError("invalid-argument", `Orders that have already been delivered cannot be canceled.`)
-
 		const request = {
 			cancellation_reason: "requested_by_customer",
 			expand: []
