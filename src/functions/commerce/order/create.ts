@@ -45,6 +45,12 @@ export const create = regionFunctions.https.onCall(async (data, context) => {
 	const setup_future_usage = isOnSession ? "on_session" : "off_session"
 	const capture_method = captureMethodForSalesMethod(order.salesMethod)
 	const confirm = true
+	const shipping = order.shipping
+	if (order.salesMethod === "online") {
+		if (!shipping) {
+			return { error: { message: `Online sales require an address.`, target: order.path } } as Response
+		}
+	}
 
 	const request = {
 		setup_future_usage,

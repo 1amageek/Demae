@@ -297,7 +297,8 @@ export const setupProduct = async (salesMethod: SalesMethod) => {
 }
 
 export const setupSKU = async (product: admin.firestore.DocumentReference, inventory: Inventory) => {
-	const ref = admin.firestore().doc(`/commerce/v1/providers/TEST_PROVIDER/products/${product.id}/skus/TEST_SKU-${inventory.type}`)
+	const name = inventory.type !== "finite" ? `TEST_SKU-${inventory.type}` : `TEST_SKU-${inventory.type}-${inventory.quantity!}`
+	const ref = admin.firestore().doc(`/commerce/v1/providers/TEST_PROVIDER/products/${product.id}/skus/${name}`)
 	await ref
 		.set(
 			{
@@ -322,16 +323,12 @@ export const setupSKU = async (product: admin.firestore.DocumentReference, inven
 				"currency": "JPY",
 				"assets": [],
 				"shardCharacters": [
-					"a",
-					"b",
-					"c"
+					"a"
 				]
 			}
 		)
 	if (inventory.type === "finite") {
-		await admin.firestore().doc(`/commerce/v1/providers/TEST_PROVIDER/products/${product.id}/skus/TEST_SKU-${inventory.type}/stocks/a`).set({ "count": 3 })
-		await admin.firestore().doc(`/commerce/v1/providers/TEST_PROVIDER/products/${product.id}/skus/TEST_SKU-${inventory.type}/stocks/b`).set({ "count": 3 })
-		await admin.firestore().doc(`/commerce/v1/providers/TEST_PROVIDER/products/${product.id}/skus/TEST_SKU-${inventory.type}/stocks/c`).set({ "count": 3 })
+		await admin.firestore().doc(`/commerce/v1/providers/TEST_PROVIDER/products/${product.id}/skus/${name}/stocks/a`).set({ "count": inventory.quantity! })
 	}
 	return ref
 }
@@ -349,7 +346,7 @@ export const setupCustomer = async () => {
 		)
 }
 
-export const setupCart = async (product: admin.firestore.DocumentReference, sku: admin.firestore.DocumentReference) => {
+export const setupCart = async (salesMethod: SalesMethod, product: admin.firestore.DocumentReference, sku: admin.firestore.DocumentReference, shipping?: { [key: string]: any }) => {
 	await admin.firestore().doc("/commerce/v1/carts/TEST_CUSTOMER")
 		.set(
 			{
@@ -380,11 +377,11 @@ export const setupCart = async (product: admin.firestore.DocumentReference, sku:
 						],
 						"estimatedArrivalDate": null,
 						"providedBy": "TEST_PROVIDER",
-						"shipping": null,
+						"shipping": shipping || null,
 						"currency": "JPY",
 						"metadata": null,
-						"salesMethod": "instore",
-						"groupID": "TEST_PROVIDER-instore",
+						"salesMethod": salesMethod,
+						"groupID": `TEST_PROVIDER-${salesMethod}`,
 						"shippingDate": null
 					}
 				],
@@ -393,7 +390,7 @@ export const setupCart = async (product: admin.firestore.DocumentReference, sku:
 				"currency": "USD",
 				"updatedAt": admin.firestore.FieldValue.serverTimestamp(),
 				"metadata": null,
-				"shipping": null,
+				"shipping": shipping || null,
 				"amount": 0
 			}
 		)

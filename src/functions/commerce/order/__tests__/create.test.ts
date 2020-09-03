@@ -4,6 +4,8 @@ import * as myFunctions from "../create"
 import Cart, { CartGroup, CartItem } from "../../../models/commerce/Cart"
 import Order, { OrderItem } from "../../../models/commerce/Order"
 import { init, setupProvider, setupCustomer, setupCart, projectId, setupProduct, setupSKU } from "./setup"
+import { SalesMethod } from "../../../models/commerce/Product"
+import { StockType } from "../../../common/commerce/Types"
 
 init()
 
@@ -77,8 +79,19 @@ const order = (cartGroup: CartGroup, purchasedBy: string) => {
 	return order.data({ convertDocumentReference: true })
 }
 
+const shipping = {
+	name: "村本章憲",
+	address: {
+		line2: "",
+		postal_code: "106-0032",
+		line1: "六本木",
+		state: " 東京都",
+		city: "港区"
+	},
+	phone: "+819000003333"
+}
 
-describe("Order Test", () => {
+describe("Order Create Test", () => {
 
 	beforeAll(async () => {
 		await setupCustomer()
@@ -86,30 +99,723 @@ describe("Order Test", () => {
 	})
 
 	describe("Donwload Item", () => {
-		it("create", async () => {
-			const product = await setupProduct("download")
-			const sku = await setupSKU(product, {
-				type: "finite",
-				quantity: 10
-			})
-			await setupCart(product, sku)
-			const cart = await new Cart(admin.firestore().doc("/commerce/v1/carts/TEST_CUSTOMER")).fetch()
-			const cartGroup = cart.groups[0]
-			const orderData = order(cartGroup, "TEST_CUSTOMER")
-			const wrapped = test.wrap(myFunctions.create)
-			const data = {
-				order: orderData,
-				groupID: "TEST_PROVIDER-instore",
-				paymentMethodID: "pm_1HMpAbEEPdlvsyGJH8woCUfg"
-			}
-			const { result } = await wrapped(data, {
-				auth: {
-					uid: 'TEST_CUSTOMER'
+
+		const salesMethod: SalesMethod = "download"
+
+		describe("StockType finite", () => {
+
+			const stockType: StockType = "finite"
+
+			it("Finite in stock", async () => {
+				const product = await setupProduct(salesMethod)
+				const sku = await setupSKU(product, {
+					type: stockType,
+					quantity: 1
+				})
+				await setupCart(salesMethod, product, sku)
+				const cart = await new Cart(admin.firestore().doc("/commerce/v1/carts/TEST_CUSTOMER")).fetch()
+				const cartGroup = cart.groups[0]
+				const orderData = order(cartGroup, "TEST_CUSTOMER")
+				const wrapped = test.wrap(myFunctions.create)
+				const data = {
+					order: orderData,
+					groupID: `TEST_PROVIDER-${salesMethod}`,
+					paymentMethodID: "pm_1HMpAbEEPdlvsyGJH8woCUfg"
 				}
+				const { result } = await wrapped(data, {
+					auth: {
+						uid: 'TEST_CUSTOMER'
+					}
+				})
+				expect(result.amount).toEqual(1080)
+				expect(result.paymentResult.amount).toEqual(1080)
 			})
-			expect(result.amount).toEqual(1080)
-			expect(result.paymentResult.amount).toEqual(1080)
+
+			it("Finite out of stock", async () => {
+				const product = await setupProduct("download")
+				const sku = await setupSKU(product, {
+					type: stockType,
+					quantity: 0
+				})
+				await setupCart("download", product, sku)
+				const cart = await new Cart(admin.firestore().doc("/commerce/v1/carts/TEST_CUSTOMER")).fetch()
+				const cartGroup = cart.groups[0]
+				const orderData = order(cartGroup, "TEST_CUSTOMER")
+				const wrapped = test.wrap(myFunctions.create)
+				const data = {
+					order: orderData,
+					groupID: `TEST_PROVIDER-${salesMethod}`,
+					paymentMethodID: "pm_1HMpAbEEPdlvsyGJH8woCUfg"
+				}
+				const { error } = await wrapped(data, {
+					auth: {
+						uid: 'TEST_CUSTOMER'
+					}
+				})
+				expect(error).not.toBeNull()
+			})
 		})
+
+		describe("StockType bucket", () => {
+
+			const stockType: StockType = "bucket"
+
+			it("Finite in stock", async () => {
+				const product = await setupProduct(salesMethod)
+				const sku = await setupSKU(product, {
+					type: stockType,
+					value: "in_stock"
+				})
+				await setupCart(salesMethod, product, sku)
+				const cart = await new Cart(admin.firestore().doc("/commerce/v1/carts/TEST_CUSTOMER")).fetch()
+				const cartGroup = cart.groups[0]
+				const orderData = order(cartGroup, "TEST_CUSTOMER")
+				const wrapped = test.wrap(myFunctions.create)
+				const data = {
+					order: orderData,
+					groupID: `TEST_PROVIDER-${salesMethod}`,
+					paymentMethodID: "pm_1HMpAbEEPdlvsyGJH8woCUfg"
+				}
+				const { result } = await wrapped(data, {
+					auth: {
+						uid: 'TEST_CUSTOMER'
+					}
+				})
+				expect(result.amount).toEqual(1080)
+				expect(result.paymentResult.amount).toEqual(1080)
+			})
+
+			it("Finite limited", async () => {
+				const product = await setupProduct(salesMethod)
+				const sku = await setupSKU(product, {
+					type: stockType,
+					value: "limited"
+				})
+				await setupCart(salesMethod, product, sku)
+				const cart = await new Cart(admin.firestore().doc("/commerce/v1/carts/TEST_CUSTOMER")).fetch()
+				const cartGroup = cart.groups[0]
+				const orderData = order(cartGroup, "TEST_CUSTOMER")
+				const wrapped = test.wrap(myFunctions.create)
+				const data = {
+					order: orderData,
+					groupID: `TEST_PROVIDER-${salesMethod}`,
+					paymentMethodID: "pm_1HMpAbEEPdlvsyGJH8woCUfg"
+				}
+				const { result } = await wrapped(data, {
+					auth: {
+						uid: 'TEST_CUSTOMER'
+					}
+				})
+				expect(result.amount).toEqual(1080)
+				expect(result.paymentResult.amount).toEqual(1080)
+			})
+
+			it("Finite out of stock", async () => {
+				const product = await setupProduct("download")
+				const sku = await setupSKU(product, {
+					type: stockType,
+					value: "out_of_stock"
+				})
+				await setupCart("download", product, sku)
+				const cart = await new Cart(admin.firestore().doc("/commerce/v1/carts/TEST_CUSTOMER")).fetch()
+				const cartGroup = cart.groups[0]
+				const orderData = order(cartGroup, "TEST_CUSTOMER")
+				const wrapped = test.wrap(myFunctions.create)
+				const data = {
+					order: orderData,
+					groupID: `TEST_PROVIDER-${salesMethod}`,
+					paymentMethodID: "pm_1HMpAbEEPdlvsyGJH8woCUfg"
+				}
+				const { error } = await wrapped(data, {
+					auth: {
+						uid: 'TEST_CUSTOMER'
+					}
+				})
+				expect(error).not.toBeNull()
+			})
+		})
+
+		describe("StockType infinite", () => {
+
+			const stockType: StockType = "infinite"
+
+			it("Finite in stock", async () => {
+				const product = await setupProduct(salesMethod)
+				const sku = await setupSKU(product, {
+					type: stockType
+				})
+				await setupCart(salesMethod, product, sku)
+				const cart = await new Cart(admin.firestore().doc("/commerce/v1/carts/TEST_CUSTOMER")).fetch()
+				const cartGroup = cart.groups[0]
+				const orderData = order(cartGroup, "TEST_CUSTOMER")
+				const wrapped = test.wrap(myFunctions.create)
+				const data = {
+					order: orderData,
+					groupID: `TEST_PROVIDER-${salesMethod}`,
+					paymentMethodID: "pm_1HMpAbEEPdlvsyGJH8woCUfg"
+				}
+				const { result } = await wrapped(data, {
+					auth: {
+						uid: 'TEST_CUSTOMER'
+					}
+				})
+				expect(result.amount).toEqual(1080)
+				expect(result.paymentResult.amount).toEqual(1080)
+			})
+		})
+
+	})
+
+	describe("In-Store Item", () => {
+
+		const salesMethod: SalesMethod = "instore"
+
+		describe("StockType finite", () => {
+
+			const stockType: StockType = "finite"
+
+			it("Finite in stock", async () => {
+				const product = await setupProduct(salesMethod)
+				const sku = await setupSKU(product, {
+					type: stockType,
+					quantity: 1
+				})
+				await setupCart(salesMethod, product, sku)
+				const cart = await new Cart(admin.firestore().doc("/commerce/v1/carts/TEST_CUSTOMER")).fetch()
+				const cartGroup = cart.groups[0]
+				const orderData = order(cartGroup, "TEST_CUSTOMER")
+				const wrapped = test.wrap(myFunctions.create)
+				const data = {
+					order: orderData,
+					groupID: `TEST_PROVIDER-${salesMethod}`,
+					paymentMethodID: "pm_1HMpAbEEPdlvsyGJH8woCUfg"
+				}
+				const { result } = await wrapped(data, {
+					auth: {
+						uid: 'TEST_CUSTOMER'
+					}
+				})
+				expect(result.amount).toEqual(1080)
+				expect(result.paymentResult.amount).toEqual(1080)
+			})
+
+			it("Finite out of stock", async () => {
+				const product = await setupProduct(salesMethod)
+				const sku = await setupSKU(product, {
+					type: "finite",
+					quantity: 0
+				})
+				await setupCart(salesMethod, product, sku)
+				const cart = await new Cart(admin.firestore().doc("/commerce/v1/carts/TEST_CUSTOMER")).fetch()
+				const cartGroup = cart.groups[0]
+				const orderData = order(cartGroup, "TEST_CUSTOMER")
+				const wrapped = test.wrap(myFunctions.create)
+				const data = {
+					order: orderData,
+					groupID: `TEST_PROVIDER-${salesMethod}`,
+					paymentMethodID: "pm_1HMpAbEEPdlvsyGJH8woCUfg"
+				}
+				const { error } = await wrapped(data, {
+					auth: {
+						uid: 'TEST_CUSTOMER'
+					}
+				})
+				expect(error).not.toBeNull()
+			})
+		})
+
+		describe("StockType bucket", () => {
+
+			const stockType: StockType = "bucket"
+
+			it("Finite in stock", async () => {
+				const product = await setupProduct(salesMethod)
+				const sku = await setupSKU(product, {
+					type: stockType,
+					value: "in_stock"
+				})
+				await setupCart(salesMethod, product, sku)
+				const cart = await new Cart(admin.firestore().doc("/commerce/v1/carts/TEST_CUSTOMER")).fetch()
+				const cartGroup = cart.groups[0]
+				const orderData = order(cartGroup, "TEST_CUSTOMER")
+				const wrapped = test.wrap(myFunctions.create)
+				const data = {
+					order: orderData,
+					groupID: `TEST_PROVIDER-${salesMethod}`,
+					paymentMethodID: "pm_1HMpAbEEPdlvsyGJH8woCUfg"
+				}
+				const { result } = await wrapped(data, {
+					auth: {
+						uid: 'TEST_CUSTOMER'
+					}
+				})
+				expect(result.amount).toEqual(1080)
+				expect(result.paymentResult.amount).toEqual(1080)
+			})
+
+			it("Finite limited", async () => {
+				const product = await setupProduct(salesMethod)
+				const sku = await setupSKU(product, {
+					type: stockType,
+					value: "limited"
+				})
+				await setupCart(salesMethod, product, sku)
+				const cart = await new Cart(admin.firestore().doc("/commerce/v1/carts/TEST_CUSTOMER")).fetch()
+				const cartGroup = cart.groups[0]
+				const orderData = order(cartGroup, "TEST_CUSTOMER")
+				const wrapped = test.wrap(myFunctions.create)
+				const data = {
+					order: orderData,
+					groupID: `TEST_PROVIDER-${salesMethod}`,
+					paymentMethodID: "pm_1HMpAbEEPdlvsyGJH8woCUfg"
+				}
+				const { result } = await wrapped(data, {
+					auth: {
+						uid: 'TEST_CUSTOMER'
+					}
+				})
+				expect(result.amount).toEqual(1080)
+				expect(result.paymentResult.amount).toEqual(1080)
+			})
+
+			it("Finite out of stock", async () => {
+				const product = await setupProduct("download")
+				const sku = await setupSKU(product, {
+					type: stockType,
+					value: "out_of_stock"
+				})
+				await setupCart("download", product, sku)
+				const cart = await new Cart(admin.firestore().doc("/commerce/v1/carts/TEST_CUSTOMER")).fetch()
+				const cartGroup = cart.groups[0]
+				const orderData = order(cartGroup, "TEST_CUSTOMER")
+				const wrapped = test.wrap(myFunctions.create)
+				const data = {
+					order: orderData,
+					groupID: `TEST_PROVIDER-${salesMethod}`,
+					paymentMethodID: "pm_1HMpAbEEPdlvsyGJH8woCUfg"
+				}
+				const { error } = await wrapped(data, {
+					auth: {
+						uid: 'TEST_CUSTOMER'
+					}
+				})
+				expect(error).not.toBeNull()
+			})
+		})
+
+		describe("StockType infinite", () => {
+
+			const stockType: StockType = "infinite"
+
+			it("Finite in stock", async () => {
+				const product = await setupProduct(salesMethod)
+				const sku = await setupSKU(product, {
+					type: stockType
+				})
+				await setupCart(salesMethod, product, sku)
+				const cart = await new Cart(admin.firestore().doc("/commerce/v1/carts/TEST_CUSTOMER")).fetch()
+				const cartGroup = cart.groups[0]
+				const orderData = order(cartGroup, "TEST_CUSTOMER")
+				const wrapped = test.wrap(myFunctions.create)
+				const data = {
+					order: orderData,
+					groupID: `TEST_PROVIDER-${salesMethod}`,
+					paymentMethodID: "pm_1HMpAbEEPdlvsyGJH8woCUfg"
+				}
+				const { result } = await wrapped(data, {
+					auth: {
+						uid: 'TEST_CUSTOMER'
+					}
+				})
+				expect(result.amount).toEqual(1080)
+				expect(result.paymentResult.amount).toEqual(1080)
+			})
+		})
+
+	})
+
+	describe("Pickup Item", () => {
+
+		const salesMethod: SalesMethod = "pickup"
+
+		describe("StockType finite", () => {
+
+			const stockType: StockType = "finite"
+
+			it("Finite in stock", async () => {
+				const product = await setupProduct(salesMethod)
+				const sku = await setupSKU(product, {
+					type: stockType,
+					quantity: 1
+				})
+				await setupCart(salesMethod, product, sku, shipping)
+				const cart = await new Cart(admin.firestore().doc("/commerce/v1/carts/TEST_CUSTOMER")).fetch()
+				const cartGroup = cart.groups[0]
+				const orderData = order(cartGroup, "TEST_CUSTOMER")
+				const wrapped = test.wrap(myFunctions.create)
+				const data = {
+					order: orderData,
+					groupID: `TEST_PROVIDER-${salesMethod}`,
+					paymentMethodID: "pm_1HMpAbEEPdlvsyGJH8woCUfg"
+				}
+				const { result } = await wrapped(data, {
+					auth: {
+						uid: 'TEST_CUSTOMER'
+					}
+				})
+				expect(result.amount).toEqual(1080)
+				expect(result.paymentResult.amount).toEqual(1080)
+			})
+
+			it("Finite out of stock", async () => {
+				const product = await setupProduct(salesMethod)
+				const sku = await setupSKU(product, {
+					type: stockType,
+					quantity: 0
+				})
+				await setupCart(salesMethod, product, sku, shipping)
+				const cart = await new Cart(admin.firestore().doc("/commerce/v1/carts/TEST_CUSTOMER")).fetch()
+				const cartGroup = cart.groups[0]
+				const orderData = order(cartGroup, "TEST_CUSTOMER")
+				const wrapped = test.wrap(myFunctions.create)
+				const data = {
+					order: orderData,
+					groupID: `TEST_PROVIDER-${salesMethod}`,
+					paymentMethodID: "pm_1HMpAbEEPdlvsyGJH8woCUfg"
+				}
+				const { error } = await wrapped(data, {
+					auth: {
+						uid: 'TEST_CUSTOMER'
+					}
+				})
+				expect(error).not.toBeNull()
+			})
+
+			it("Shpping undefined", async () => {
+				const product = await setupProduct(salesMethod)
+				const sku = await setupSKU(product, {
+					type: stockType,
+					quantity: 0
+				})
+				await setupCart(salesMethod, product, sku)
+				const cart = await new Cart(admin.firestore().doc("/commerce/v1/carts/TEST_CUSTOMER")).fetch()
+				const cartGroup = cart.groups[0]
+				const orderData = order(cartGroup, "TEST_CUSTOMER")
+				const wrapped = test.wrap(myFunctions.create)
+				const data = {
+					order: orderData,
+					groupID: `TEST_PROVIDER-${salesMethod}`,
+					paymentMethodID: "pm_1HMpAbEEPdlvsyGJH8woCUfg"
+				}
+				const { error } = await wrapped(data, {
+					auth: {
+						uid: 'TEST_CUSTOMER'
+					}
+				})
+				expect(error).not.toBeNull()
+			})
+		})
+
+		describe("StockType bucket", () => {
+
+			const stockType: StockType = "bucket"
+
+			it("Finite in stock", async () => {
+				const product = await setupProduct(salesMethod)
+				const sku = await setupSKU(product, {
+					type: stockType,
+					value: "in_stock"
+				})
+				await setupCart(salesMethod, product, sku)
+				const cart = await new Cart(admin.firestore().doc("/commerce/v1/carts/TEST_CUSTOMER")).fetch()
+				const cartGroup = cart.groups[0]
+				const orderData = order(cartGroup, "TEST_CUSTOMER")
+				const wrapped = test.wrap(myFunctions.create)
+				const data = {
+					order: orderData,
+					groupID: `TEST_PROVIDER-${salesMethod}`,
+					paymentMethodID: "pm_1HMpAbEEPdlvsyGJH8woCUfg"
+				}
+				const { result } = await wrapped(data, {
+					auth: {
+						uid: 'TEST_CUSTOMER'
+					}
+				})
+				expect(result.amount).toEqual(1080)
+				expect(result.paymentResult.amount).toEqual(1080)
+			})
+
+			it("Finite limited", async () => {
+				const product = await setupProduct(salesMethod)
+				const sku = await setupSKU(product, {
+					type: stockType,
+					value: "limited"
+				})
+				await setupCart(salesMethod, product, sku)
+				const cart = await new Cart(admin.firestore().doc("/commerce/v1/carts/TEST_CUSTOMER")).fetch()
+				const cartGroup = cart.groups[0]
+				const orderData = order(cartGroup, "TEST_CUSTOMER")
+				const wrapped = test.wrap(myFunctions.create)
+				const data = {
+					order: orderData,
+					groupID: `TEST_PROVIDER-${salesMethod}`,
+					paymentMethodID: "pm_1HMpAbEEPdlvsyGJH8woCUfg"
+				}
+				const { result } = await wrapped(data, {
+					auth: {
+						uid: 'TEST_CUSTOMER'
+					}
+				})
+				expect(result.amount).toEqual(1080)
+				expect(result.paymentResult.amount).toEqual(1080)
+			})
+
+			it("Finite out of stock", async () => {
+				const product = await setupProduct("download")
+				const sku = await setupSKU(product, {
+					type: stockType,
+					value: "out_of_stock"
+				})
+				await setupCart("download", product, sku)
+				const cart = await new Cart(admin.firestore().doc("/commerce/v1/carts/TEST_CUSTOMER")).fetch()
+				const cartGroup = cart.groups[0]
+				const orderData = order(cartGroup, "TEST_CUSTOMER")
+				const wrapped = test.wrap(myFunctions.create)
+				const data = {
+					order: orderData,
+					groupID: `TEST_PROVIDER-${salesMethod}`,
+					paymentMethodID: "pm_1HMpAbEEPdlvsyGJH8woCUfg"
+				}
+				const { error } = await wrapped(data, {
+					auth: {
+						uid: 'TEST_CUSTOMER'
+					}
+				})
+				expect(error).not.toBeNull()
+			})
+		})
+
+		describe("StockType infinite", () => {
+
+			const stockType: StockType = "infinite"
+
+			it("Finite in stock", async () => {
+				const product = await setupProduct(salesMethod)
+				const sku = await setupSKU(product, {
+					type: stockType
+				})
+				await setupCart(salesMethod, product, sku)
+				const cart = await new Cart(admin.firestore().doc("/commerce/v1/carts/TEST_CUSTOMER")).fetch()
+				const cartGroup = cart.groups[0]
+				const orderData = order(cartGroup, "TEST_CUSTOMER")
+				const wrapped = test.wrap(myFunctions.create)
+				const data = {
+					order: orderData,
+					groupID: `TEST_PROVIDER-${salesMethod}`,
+					paymentMethodID: "pm_1HMpAbEEPdlvsyGJH8woCUfg"
+				}
+				const { result } = await wrapped(data, {
+					auth: {
+						uid: 'TEST_CUSTOMER'
+					}
+				})
+				expect(result.amount).toEqual(1080)
+				expect(result.paymentResult.amount).toEqual(1080)
+			})
+		})
+
+	})
+
+	describe("Online Item", () => {
+
+		const salesMethod: SalesMethod = "online"
+
+		describe("StockType finite", () => {
+
+			const stockType: StockType = "finite"
+
+			it("Finite in stock", async () => {
+				const product = await setupProduct(salesMethod)
+				const sku = await setupSKU(product, {
+					type: stockType,
+					quantity: 1
+				})
+				await setupCart(salesMethod, product, sku, shipping)
+				const cart = await new Cart(admin.firestore().doc("/commerce/v1/carts/TEST_CUSTOMER")).fetch()
+				const cartGroup = cart.groups[0]
+				const orderData = order(cartGroup, "TEST_CUSTOMER")
+				const wrapped = test.wrap(myFunctions.create)
+				const data = {
+					order: orderData,
+					groupID: `TEST_PROVIDER-${salesMethod}`,
+					paymentMethodID: "pm_1HMpAbEEPdlvsyGJH8woCUfg"
+				}
+				const { result } = await wrapped(data, {
+					auth: {
+						uid: 'TEST_CUSTOMER'
+					}
+				})
+				expect(result.amount).toEqual(1080)
+				expect(result.paymentResult.amount).toEqual(1080)
+			})
+
+			it("Finite out of stock", async () => {
+				const product = await setupProduct(salesMethod)
+				const sku = await setupSKU(product, {
+					type: stockType,
+					quantity: 0
+				})
+				await setupCart(salesMethod, product, sku, shipping)
+				const cart = await new Cart(admin.firestore().doc("/commerce/v1/carts/TEST_CUSTOMER")).fetch()
+				const cartGroup = cart.groups[0]
+				const orderData = order(cartGroup, "TEST_CUSTOMER")
+				const wrapped = test.wrap(myFunctions.create)
+				const data = {
+					order: orderData,
+					groupID: `TEST_PROVIDER-${salesMethod}`,
+					paymentMethodID: "pm_1HMpAbEEPdlvsyGJH8woCUfg"
+				}
+				const { error } = await wrapped(data, {
+					auth: {
+						uid: 'TEST_CUSTOMER'
+					}
+				})
+				expect(error).not.toBeNull()
+			})
+
+			it("Shpping undefined", async () => {
+				const product = await setupProduct(salesMethod)
+				const sku = await setupSKU(product, {
+					type: stockType,
+					quantity: 0
+				})
+				await setupCart(salesMethod, product, sku)
+				const cart = await new Cart(admin.firestore().doc("/commerce/v1/carts/TEST_CUSTOMER")).fetch()
+				const cartGroup = cart.groups[0]
+				const orderData = order(cartGroup, "TEST_CUSTOMER")
+				const wrapped = test.wrap(myFunctions.create)
+				const data = {
+					order: orderData,
+					groupID: `TEST_PROVIDER-${salesMethod}`,
+					paymentMethodID: "pm_1HMpAbEEPdlvsyGJH8woCUfg"
+				}
+				const { error } = await wrapped(data, {
+					auth: {
+						uid: 'TEST_CUSTOMER'
+					}
+				})
+				expect(error).not.toBeNull()
+			})
+		})
+
+		describe("StockType bucket", () => {
+
+			const stockType: StockType = "bucket"
+
+			it("Finite in stock", async () => {
+				const product = await setupProduct(salesMethod)
+				const sku = await setupSKU(product, {
+					type: stockType,
+					value: "in_stock"
+				})
+				await setupCart(salesMethod, product, sku, shipping)
+				const cart = await new Cart(admin.firestore().doc("/commerce/v1/carts/TEST_CUSTOMER")).fetch()
+				const cartGroup = cart.groups[0]
+				const orderData = order(cartGroup, "TEST_CUSTOMER")
+				const wrapped = test.wrap(myFunctions.create)
+				const data = {
+					order: orderData,
+					groupID: `TEST_PROVIDER-${salesMethod}`,
+					paymentMethodID: "pm_1HMpAbEEPdlvsyGJH8woCUfg"
+				}
+				const { result } = await wrapped(data, {
+					auth: {
+						uid: 'TEST_CUSTOMER'
+					}
+				})
+				expect(result.amount).toEqual(1080)
+				expect(result.paymentResult.amount).toEqual(1080)
+			})
+
+			it("Finite limited", async () => {
+				const product = await setupProduct(salesMethod)
+				const sku = await setupSKU(product, {
+					type: stockType,
+					value: "limited"
+				})
+				await setupCart(salesMethod, product, sku, shipping)
+				const cart = await new Cart(admin.firestore().doc("/commerce/v1/carts/TEST_CUSTOMER")).fetch()
+				const cartGroup = cart.groups[0]
+				const orderData = order(cartGroup, "TEST_CUSTOMER")
+				const wrapped = test.wrap(myFunctions.create)
+				const data = {
+					order: orderData,
+					groupID: `TEST_PROVIDER-${salesMethod}`,
+					paymentMethodID: "pm_1HMpAbEEPdlvsyGJH8woCUfg"
+				}
+				const { result } = await wrapped(data, {
+					auth: {
+						uid: 'TEST_CUSTOMER'
+					}
+				})
+				expect(result.amount).toEqual(1080)
+				expect(result.paymentResult.amount).toEqual(1080)
+			})
+
+			it("Finite out of stock", async () => {
+				const product = await setupProduct("download")
+				const sku = await setupSKU(product, {
+					type: stockType,
+					value: "out_of_stock"
+				})
+				await setupCart(salesMethod, product, sku, shipping)
+				const cart = await new Cart(admin.firestore().doc("/commerce/v1/carts/TEST_CUSTOMER")).fetch()
+				const cartGroup = cart.groups[0]
+				const orderData = order(cartGroup, "TEST_CUSTOMER")
+				const wrapped = test.wrap(myFunctions.create)
+				const data = {
+					order: orderData,
+					groupID: `TEST_PROVIDER-${salesMethod}`,
+					paymentMethodID: "pm_1HMpAbEEPdlvsyGJH8woCUfg"
+				}
+				const { error } = await wrapped(data, {
+					auth: {
+						uid: 'TEST_CUSTOMER'
+					}
+				})
+				expect(error).not.toBeNull()
+			})
+		})
+
+		describe("StockType infinite", () => {
+
+			const stockType: StockType = "infinite"
+
+			it("Finite in stock", async () => {
+				const product = await setupProduct(salesMethod)
+				const sku = await setupSKU(product, {
+					type: stockType
+				})
+				await setupCart(salesMethod, product, sku, shipping)
+				const cart = await new Cart(admin.firestore().doc("/commerce/v1/carts/TEST_CUSTOMER")).fetch()
+				const cartGroup = cart.groups[0]
+				const orderData = order(cartGroup, "TEST_CUSTOMER")
+				const wrapped = test.wrap(myFunctions.create)
+				const data = {
+					order: orderData,
+					groupID: `TEST_PROVIDER-${salesMethod}`,
+					paymentMethodID: "pm_1HMpAbEEPdlvsyGJH8woCUfg"
+				}
+				const { result } = await wrapped(data, {
+					auth: {
+						uid: 'TEST_CUSTOMER'
+					}
+				})
+				expect(result.amount).toEqual(1080)
+				expect(result.paymentResult.amount).toEqual(1080)
+			})
+		})
+
 	})
 
 })
