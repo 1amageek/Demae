@@ -93,13 +93,13 @@ export const create = regionFunctions.https.onCall(async (data, context) => {
 					})
 				}
 
-				const result = await stripe.paymentIntents.create(request, {
-					idempotencyKey: userOrderRef.path
+				const paymentResult = await stripe.paymentIntents.create(request, {
+					idempotencyKey: `${userOrderRef.path}-create`
 				})
 
 				const provider: Provider = new Provider(order.providedBy)
 				const providerOrderRef = provider.orders.collectionReference.doc(order.id)
-				order.paymentResult = result
+				order.paymentResult = paymentResult
 
 				/// https://github.com/1amageek/Demae/blob/master/README.md
 				switch (order.salesMethod) {

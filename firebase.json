@@ -13,7 +13,11 @@
 		"public": "dist/public",
 		"rewrites": [
 			{
-				"source": "**/**",
+				"source": "/_/webhook/stripe",
+				"function": "webhook-stripe"
+			},
+			{
+				"source": "/**/**",
 				"function": "hosting"
 			}
 		],

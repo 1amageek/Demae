@@ -1,14 +1,15 @@
 {
-  "filestore": {
-    "secret": "asdiopfjq3prijoqaewgnibp2q3t@#$^%q34tY*&onasfq3"
-  },
   "stripe": {
     "account": "acct_1EE9uWEEPdlvsyGJ",
     "account_link_failure_url": "http://localhost:3000/account/link/failure",
+    "api_key": "sk_test_8Lj4NhDfqJ266XXPFUvVjpLc",
     "account_link_success_url": "http://localhost:3000/account/link/success",
-    "api_key": "sk_test_8Lj4NhDfqJ266XXPFUvVjpLc"
+    "webhook_secret": "whsec_VSTb9fYIrH6GSiIUhfB9A8BDRMeZN1pY"
   },
   "host": {
     "domain": "demae-210ed.web.app"
+  },
+  "filestore": {
+    "secret": "asdiopfjq3prijoqaewgnibp2q3t@#$^%q34tY*&onasfq3"
   }
 }

@@ -91,7 +91,7 @@ const shipping = {
 	phone: "+819000003333"
 }
 
-describe("Order Create Test", () => {
+describe("Order Cancel Test", () => {
 
 	beforeAll(async () => {
 		await setupCustomer()
