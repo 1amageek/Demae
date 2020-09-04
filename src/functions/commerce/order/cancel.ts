@@ -126,6 +126,8 @@ const _cancel = (order: Order, refs: DocumentReference[], transaction: admin.fir
 
 const checkCancelOrder = (order: Order, canceledBy: "customer" | "provider") => {
 	if (order.isCanceled) throw new functions.https.HttpsError("invalid-argument", `This order has already been canceled.`)
+	if (order.deliveryStatus === "delivered" || order.deliveryStatus == "in_transit") throw new functions.https.HttpsError("invalid-argument", `The payment has already been made. A refund process is required to cancel the order.`)
+
 	if (canceledBy === "customer") {
 		if (order.salesMethod === "instore") throw new functions.https.HttpsError("invalid-argument", `Orders for in-store sales cannot be canceled.`)
 		if (order.salesMethod === "pickup") throw new functions.https.HttpsError("invalid-argument", `Take-out orders cannot be canceled.`)

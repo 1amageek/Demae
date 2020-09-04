@@ -212,7 +212,7 @@ describe("Order Create Test", () => {
 
 			describe("Can cancel", () => {
 
-				it("Can cancel", async () => {
+				it("preparing_for_delivery", async () => {
 					const product = await setupProduct(salesMethod)
 					const sku = await setupSKU(product, {
 						type: stockType,
@@ -272,7 +272,6 @@ describe("Order Create Test", () => {
 						admin.firestore().doc(`/commerce/v1/users/TEST_CUSTOMER/orders/${response.result.id}`),
 					], "out_for_delivery")
 					const snapshot = await admin.firestore().doc(`/commerce/v1/providers/TEST_PROVIDER/orders/${response.result.id}`).get()
-					console.log(snapshot.data())
 					const { result, error } = await test.wrap(myFunctions.cancel)({ orderID: response.result.id, canceledBy: "provider" }, {
 						auth: {
 							uid: 'TEST_PROVIDER'
@@ -282,6 +281,422 @@ describe("Order Create Test", () => {
 				})
 
 			})
+
+		})
+	})
+
+	describe("Pickup Item", () => {
+
+		const salesMethod: SalesMethod = "pickup"
+
+		describe("Canceled by customer", () => {
+
+			const stockType: StockType = "finite"
+
+			it("Cannot be cancelled", async () => {
+				const product = await setupProduct(salesMethod)
+				const sku = await setupSKU(product, {
+					type: stockType,
+					quantity: 1
+				})
+				await setupCart(salesMethod, product, sku)
+				const cart = await new Cart(admin.firestore().doc("/commerce/v1/carts/TEST_CUSTOMER")).fetch()
+				const cartGroup = cart.groups[0]
+				const orderData = order(cartGroup, "TEST_CUSTOMER")
+				const response = await test.wrap(myFunctions.create)({
+					order: orderData,
+					groupID: `TEST_PROVIDER-${salesMethod}`,
+					paymentMethodID: "pm_1HMpAbEEPdlvsyGJH8woCUfg"
+				}, {
+					auth: {
+						uid: 'TEST_CUSTOMER'
+					}
+				})
+				const { error } = await test.wrap(myFunctions.cancel)({ orderID: response.result.id, canceledBy: "customer" }, {
+					auth: {
+						uid: 'TEST_CUSTOMER'
+					}
+				})
+				expect(error).not.toBeNull()
+			})
+
+		})
+
+		describe("Canceled by provider", () => {
+
+			const stockType: StockType = "finite"
+
+			describe("Can cancel", () => {
+
+				it("preparing_for_delivery", async () => {
+					const product = await setupProduct(salesMethod)
+					const sku = await setupSKU(product, {
+						type: stockType,
+						quantity: 1
+					})
+					await setupCart(salesMethod, product, sku)
+					const cart = await new Cart(admin.firestore().doc("/commerce/v1/carts/TEST_CUSTOMER")).fetch()
+					const cartGroup = cart.groups[0]
+					const orderData = order(cartGroup, "TEST_CUSTOMER")
+					const response = await test.wrap(myFunctions.create)({
+						order: orderData,
+						groupID: `TEST_PROVIDER-${salesMethod}`,
+						paymentMethodID: "pm_1HMpAbEEPdlvsyGJH8woCUfg"
+					}, {
+						auth: {
+							uid: 'TEST_CUSTOMER'
+						}
+					})
+					const { result, error } = await test.wrap(myFunctions.cancel)({ orderID: response.result.id, canceledBy: "provider" }, {
+						auth: {
+							uid: 'TEST_PROVIDER'
+						}
+					})
+					expect(result.data.amount).toEqual(1080)
+					expect(result.data.paymentStatus).toEqual("canceled")
+					expect(result.data.deliveryStatus).toEqual("none")
+					expect(result.data.isCanceled).toEqual(true)
+					expect(result.data.paymentCancelResult).not.toBeNull()
+					expect(error).toBeUndefined()
+				})
+
+			})
+
+			describe("Can not cancel", () => {
+
+				it("out_for_delivery", async () => {
+					const product = await setupProduct(salesMethod)
+					const sku = await setupSKU(product, {
+						type: stockType,
+						quantity: 1
+					})
+					await setupCart(salesMethod, product, sku)
+					const cart = await new Cart(admin.firestore().doc("/commerce/v1/carts/TEST_CUSTOMER")).fetch()
+					const cartGroup = cart.groups[0]
+					const orderData = order(cartGroup, "TEST_CUSTOMER")
+					const response = await test.wrap(myFunctions.create)({
+						order: orderData,
+						groupID: `TEST_PROVIDER-${salesMethod}`,
+						paymentMethodID: "pm_1HMpAbEEPdlvsyGJH8woCUfg"
+					}, {
+						auth: {
+							uid: 'TEST_CUSTOMER'
+						}
+					})
+					await updateOrder([
+						admin.firestore().doc(`/commerce/v1/providers/TEST_PROVIDER/orders/${response.result.id}`),
+						admin.firestore().doc(`/commerce/v1/users/TEST_CUSTOMER/orders/${response.result.id}`),
+					], "out_for_delivery")
+					const snapshot = await admin.firestore().doc(`/commerce/v1/providers/TEST_PROVIDER/orders/${response.result.id}`).get()
+					const { result, error } = await test.wrap(myFunctions.cancel)({ orderID: response.result.id, canceledBy: "provider" }, {
+						auth: {
+							uid: 'TEST_PROVIDER'
+						}
+					})
+					expect(error).not.toBeUndefined()
+				})
+
+			})
+
+		})
+	})
+
+	describe("Online", () => {
+
+		const salesMethod: SalesMethod = "online"
+
+		describe("Canceled by customer", () => {
+
+			const stockType: StockType = "finite"
+
+			describe("Can cancel", () => {
+
+				it("preparing_for_delivery", async () => {
+					const product = await setupProduct(salesMethod)
+					const sku = await setupSKU(product, {
+						type: stockType,
+						quantity: 1
+					})
+					await setupCart(salesMethod, product, sku, shipping)
+					const cart = await new Cart(admin.firestore().doc("/commerce/v1/carts/TEST_CUSTOMER")).fetch()
+					const cartGroup = cart.groups[0]
+					const orderData = order(cartGroup, "TEST_CUSTOMER")
+					const response = await test.wrap(myFunctions.create)({
+						order: orderData,
+						groupID: `TEST_PROVIDER-${salesMethod}`,
+						paymentMethodID: "pm_1HMpAbEEPdlvsyGJH8woCUfg"
+					}, {
+						auth: {
+							uid: 'TEST_CUSTOMER'
+						}
+					})
+					const { result, error } = await test.wrap(myFunctions.cancel)({ orderID: response.result.id, canceledBy: "provider" }, {
+						auth: {
+							uid: 'TEST_PROVIDER'
+						}
+					})
+					expect(result.data.amount).toEqual(1080)
+					expect(result.data.paymentStatus).toEqual("canceled")
+					expect(result.data.deliveryStatus).toEqual("none")
+					expect(result.data.isCanceled).toEqual(true)
+					expect(result.data.paymentCancelResult).not.toBeNull()
+					expect(error).toBeUndefined()
+				})
+
+				it("out_for_delivery", async () => {
+					const product = await setupProduct(salesMethod)
+					const sku = await setupSKU(product, {
+						type: stockType,
+						quantity: 1
+					})
+					await setupCart(salesMethod, product, sku, shipping)
+					const cart = await new Cart(admin.firestore().doc("/commerce/v1/carts/TEST_CUSTOMER")).fetch()
+					const cartGroup = cart.groups[0]
+					const orderData = order(cartGroup, "TEST_CUSTOMER")
+					const response = await test.wrap(myFunctions.create)({
+						order: orderData,
+						groupID: `TEST_PROVIDER-${salesMethod}`,
+						paymentMethodID: "pm_1HMpAbEEPdlvsyGJH8woCUfg"
+					}, {
+						auth: {
+							uid: 'TEST_CUSTOMER'
+						}
+					})
+					await updateOrder([
+						admin.firestore().doc(`/commerce/v1/providers/TEST_PROVIDER/orders/${response.result.id}`),
+						admin.firestore().doc(`/commerce/v1/users/TEST_CUSTOMER/orders/${response.result.id}`),
+					], "out_for_delivery")
+					const { result, error } = await test.wrap(myFunctions.cancel)({ orderID: response.result.id, canceledBy: "provider" }, {
+						auth: {
+							uid: 'TEST_PROVIDER'
+						}
+					})
+					expect(result.data.amount).toEqual(1080)
+					expect(result.data.paymentStatus).toEqual("canceled")
+					expect(result.data.deliveryStatus).toEqual("none")
+					expect(result.data.isCanceled).toEqual(true)
+					expect(result.data.paymentCancelResult).not.toBeNull()
+					expect(error).toBeUndefined()
+				})
+
+				it("pending", async () => {
+					const product = await setupProduct(salesMethod)
+					const sku = await setupSKU(product, {
+						type: stockType,
+						quantity: 1
+					})
+					await setupCart(salesMethod, product, sku, shipping)
+					const cart = await new Cart(admin.firestore().doc("/commerce/v1/carts/TEST_CUSTOMER")).fetch()
+					const cartGroup = cart.groups[0]
+					const orderData = order(cartGroup, "TEST_CUSTOMER")
+					const response = await test.wrap(myFunctions.create)({
+						order: orderData,
+						groupID: `TEST_PROVIDER-${salesMethod}`,
+						paymentMethodID: "pm_1HMpAbEEPdlvsyGJH8woCUfg"
+					}, {
+						auth: {
+							uid: 'TEST_CUSTOMER'
+						}
+					})
+					await updateOrder([
+						admin.firestore().doc(`/commerce/v1/providers/TEST_PROVIDER/orders/${response.result.id}`),
+						admin.firestore().doc(`/commerce/v1/users/TEST_CUSTOMER/orders/${response.result.id}`),
+					], "pending")
+					const { result, error } = await test.wrap(myFunctions.cancel)({ orderID: response.result.id, canceledBy: "provider" }, {
+						auth: {
+							uid: 'TEST_PROVIDER'
+						}
+					})
+					expect(result.data.amount).toEqual(1080)
+					expect(result.data.paymentStatus).toEqual("canceled")
+					expect(result.data.deliveryStatus).toEqual("none")
+					expect(result.data.isCanceled).toEqual(true)
+					expect(result.data.paymentCancelResult).not.toBeNull()
+					expect(error).toBeUndefined()
+				})
+			})
+
+			describe("Cannot be cancelled", () => {
+
+				it("in_transit", async () => {
+					const product = await setupProduct(salesMethod)
+					const sku = await setupSKU(product, {
+						type: stockType,
+						quantity: 1
+					})
+					await setupCart(salesMethod, product, sku, shipping)
+					const cart = await new Cart(admin.firestore().doc("/commerce/v1/carts/TEST_CUSTOMER")).fetch()
+					const cartGroup = cart.groups[0]
+					const orderData = order(cartGroup, "TEST_CUSTOMER")
+					const response = await test.wrap(myFunctions.create)({
+						order: orderData,
+						groupID: `TEST_PROVIDER-${salesMethod}`,
+						paymentMethodID: "pm_1HMpAbEEPdlvsyGJH8woCUfg"
+					}, {
+						auth: {
+							uid: 'TEST_CUSTOMER'
+						}
+					})
+					await updateOrder([
+						admin.firestore().doc(`/commerce/v1/providers/TEST_PROVIDER/orders/${response.result.id}`),
+						admin.firestore().doc(`/commerce/v1/users/TEST_CUSTOMER/orders/${response.result.id}`),
+					], "in_transit")
+					const { result, error } = await test.wrap(myFunctions.cancel)({ orderID: response.result.id, canceledBy: "provider" }, {
+						auth: {
+							uid: 'TEST_PROVIDER'
+						}
+					})
+					expect(error).not.toBeUndefined()
+				})
+			})
+
+		})
+
+		describe("Canceled by provider", () => {
+
+			const stockType: StockType = "finite"
+
+			describe("Can cancel", () => {
+
+				it("preparing_for_delivery", async () => {
+					const product = await setupProduct(salesMethod)
+					const sku = await setupSKU(product, {
+						type: stockType,
+						quantity: 1
+					})
+					await setupCart(salesMethod, product, sku, shipping)
+					const cart = await new Cart(admin.firestore().doc("/commerce/v1/carts/TEST_CUSTOMER")).fetch()
+					const cartGroup = cart.groups[0]
+					const orderData = order(cartGroup, "TEST_CUSTOMER")
+					const response = await test.wrap(myFunctions.create)({
+						order: orderData,
+						groupID: `TEST_PROVIDER-${salesMethod}`,
+						paymentMethodID: "pm_1HMpAbEEPdlvsyGJH8woCUfg"
+					}, {
+						auth: {
+							uid: 'TEST_CUSTOMER'
+						}
+					})
+					const { result, error } = await test.wrap(myFunctions.cancel)({ orderID: response.result.id, canceledBy: "provider" }, {
+						auth: {
+							uid: 'TEST_PROVIDER'
+						}
+					})
+					expect(result.data.amount).toEqual(1080)
+					expect(result.data.paymentStatus).toEqual("canceled")
+					expect(result.data.deliveryStatus).toEqual("none")
+					expect(result.data.isCanceled).toEqual(true)
+					expect(result.data.paymentCancelResult).not.toBeNull()
+					expect(error).toBeUndefined()
+				})
+
+				it("out_for_delivery", async () => {
+					const product = await setupProduct(salesMethod)
+					const sku = await setupSKU(product, {
+						type: stockType,
+						quantity: 1
+					})
+					await setupCart(salesMethod, product, sku, shipping)
+					const cart = await new Cart(admin.firestore().doc("/commerce/v1/carts/TEST_CUSTOMER")).fetch()
+					const cartGroup = cart.groups[0]
+					const orderData = order(cartGroup, "TEST_CUSTOMER")
+					const response = await test.wrap(myFunctions.create)({
+						order: orderData,
+						groupID: `TEST_PROVIDER-${salesMethod}`,
+						paymentMethodID: "pm_1HMpAbEEPdlvsyGJH8woCUfg"
+					}, {
+						auth: {
+							uid: 'TEST_CUSTOMER'
+						}
+					})
+					await updateOrder([
+						admin.firestore().doc(`/commerce/v1/providers/TEST_PROVIDER/orders/${response.result.id}`),
+						admin.firestore().doc(`/commerce/v1/users/TEST_CUSTOMER/orders/${response.result.id}`),
+					], "out_for_delivery")
+					const { result, error } = await test.wrap(myFunctions.cancel)({ orderID: response.result.id, canceledBy: "provider" }, {
+						auth: {
+							uid: 'TEST_PROVIDER'
+						}
+					})
+					expect(result.data.amount).toEqual(1080)
+					expect(result.data.paymentStatus).toEqual("canceled")
+					expect(result.data.deliveryStatus).toEqual("none")
+					expect(result.data.isCanceled).toEqual(true)
+					expect(result.data.paymentCancelResult).not.toBeNull()
+					expect(error).toBeUndefined()
+				})
+
+				it("pending", async () => {
+					const product = await setupProduct(salesMethod)
+					const sku = await setupSKU(product, {
+						type: stockType,
+						quantity: 1
+					})
+					await setupCart(salesMethod, product, sku, shipping)
+					const cart = await new Cart(admin.firestore().doc("/commerce/v1/carts/TEST_CUSTOMER")).fetch()
+					const cartGroup = cart.groups[0]
+					const orderData = order(cartGroup, "TEST_CUSTOMER")
+					const response = await test.wrap(myFunctions.create)({
+						order: orderData,
+						groupID: `TEST_PROVIDER-${salesMethod}`,
+						paymentMethodID: "pm_1HMpAbEEPdlvsyGJH8woCUfg"
+					}, {
+						auth: {
+							uid: 'TEST_CUSTOMER'
+						}
+					})
+					await updateOrder([
+						admin.firestore().doc(`/commerce/v1/providers/TEST_PROVIDER/orders/${response.result.id}`),
+						admin.firestore().doc(`/commerce/v1/users/TEST_CUSTOMER/orders/${response.result.id}`),
+					], "pending")
+					const { result, error } = await test.wrap(myFunctions.cancel)({ orderID: response.result.id, canceledBy: "provider" }, {
+						auth: {
+							uid: 'TEST_PROVIDER'
+						}
+					})
+					expect(result.data.amount).toEqual(1080)
+					expect(result.data.paymentStatus).toEqual("canceled")
+					expect(result.data.deliveryStatus).toEqual("none")
+					expect(result.data.isCanceled).toEqual(true)
+					expect(result.data.paymentCancelResult).not.toBeNull()
+					expect(error).toBeUndefined()
+				})
+			})
+
+			describe("Cannot be cancelled", () => {
+
+				it("in_transit", async () => {
+					const product = await setupProduct(salesMethod)
+					const sku = await setupSKU(product, {
+						type: stockType,
+						quantity: 1
+					})
+					await setupCart(salesMethod, product, sku, shipping)
+					const cart = await new Cart(admin.firestore().doc("/commerce/v1/carts/TEST_CUSTOMER")).fetch()
+					const cartGroup = cart.groups[0]
+					const orderData = order(cartGroup, "TEST_CUSTOMER")
+					const response = await test.wrap(myFunctions.create)({
+						order: orderData,
+						groupID: `TEST_PROVIDER-${salesMethod}`,
+						paymentMethodID: "pm_1HMpAbEEPdlvsyGJH8woCUfg"
+					}, {
+						auth: {
+							uid: 'TEST_CUSTOMER'
+						}
+					})
+					await updateOrder([
+						admin.firestore().doc(`/commerce/v1/providers/TEST_PROVIDER/orders/${response.result.id}`),
+						admin.firestore().doc(`/commerce/v1/users/TEST_CUSTOMER/orders/${response.result.id}`),
+					], "in_transit")
+					const { result, error } = await test.wrap(myFunctions.cancel)({ orderID: response.result.id, canceledBy: "provider" }, {
+						auth: {
+							uid: 'TEST_PROVIDER'
+						}
+					})
+					expect(error).not.toBeUndefined()
+				})
+			})
+
 
 		})
 	})
