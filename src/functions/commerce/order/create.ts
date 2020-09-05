@@ -9,6 +9,7 @@ import User from "../../models/commerce/User"
 import Customer from "../../models/commerce/Customer"
 import Order, { OrderItem } from "../../models/commerce/Order"
 import { randomShard } from "../../common/Shard"
+import { Metadata } from "../transfer"
 
 export const create = regionFunctions.https.onCall(async (data, context) => {
 	if (!context.auth) {
@@ -51,6 +52,17 @@ export const create = regionFunctions.https.onCall(async (data, context) => {
 			return { error: { message: `Online sales require an address.`, target: order.path } } as Response
 		}
 	}
+	const provider: Provider = new Provider(order.providedBy)
+	const providerOrderRef = provider.orders.collectionReference.doc(order.id)
+
+	const metadata: Metadata = {
+		salesMethod: order.salesMethod,
+		customerID: customerID,
+		customerUID: uid,
+		providerUID: order.providedBy,
+		orderID: order.id,
+		orderPath: providerOrderRef.path
+	}
 
 	const request = {
 		setup_future_usage,
@@ -62,10 +74,8 @@ export const create = regionFunctions.https.onCall(async (data, context) => {
 		shipping: order.shipping?.data(),
 		payment_method: paymentMethodID,
 		transfer_group: order.id,
-		metadata: {
-			uid: uid,
-		}
-	} as Stripe.PaymentIntentCreateParams
+		metadata: metadata
+	} as unknown as Stripe.PaymentIntentCreateParams
 
 	try {
 
@@ -97,8 +107,6 @@ export const create = regionFunctions.https.onCall(async (data, context) => {
 					idempotencyKey: `${userOrderRef.path}-create`
 				})
 
-				const provider: Provider = new Provider(order.providedBy)
-				const providerOrderRef = provider.orders.collectionReference.doc(order.id)
 				order.paymentResult = paymentResult
 
 				/// https://github.com/1amageek/Demae/blob/master/README.md

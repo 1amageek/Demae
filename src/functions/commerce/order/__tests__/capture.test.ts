@@ -125,6 +125,9 @@ describe("Order Capture Test", () => {
 			expect(result.data.amount).toEqual(1080)
 			expect(result.data.paymentResult.amount).toEqual(1080)
 			expect(result.data.paymentResult.capture_method).toEqual("automatic")
+			expect(result.data.paymentResult.amount_capturable).toEqual(0)
+			expect(result.data.paymentResult.amount_received).toEqual(1080)
+			expect(result.data.paymentResult.status).toEqual("succeeded")
 		})
 	})
 
@@ -163,6 +166,9 @@ describe("Order Capture Test", () => {
 			expect(result.data.amount).toEqual(1080)
 			expect(result.data.paymentResult.amount).toEqual(1080)
 			expect(result.data.paymentResult.capture_method).toEqual("manual")
+			expect(result.data.paymentResult.amount_capturable).toEqual(0)
+			expect(result.data.paymentResult.amount_received).toEqual(1080)
+			expect(result.data.paymentResult.status).toEqual("succeeded")
 		})
 	})
 
@@ -201,6 +207,9 @@ describe("Order Capture Test", () => {
 			expect(result.data.amount).toEqual(1080)
 			expect(result.data.paymentResult.amount).toEqual(1080)
 			expect(result.data.paymentResult.capture_method).toEqual("manual")
+			expect(result.data.paymentResult.amount_capturable).toEqual(0)
+			expect(result.data.paymentResult.amount_received).toEqual(1080)
+			expect(result.data.paymentResult.status).toEqual("succeeded")
 		})
 	})
 
@@ -239,6 +248,9 @@ describe("Order Capture Test", () => {
 			expect(result.data.amount).toEqual(1080)
 			expect(result.data.paymentResult.amount).toEqual(1080)
 			expect(result.data.paymentResult.capture_method).toEqual("manual")
+			expect(result.data.paymentResult.amount_capturable).toEqual(0)
+			expect(result.data.paymentResult.amount_received).toEqual(1080)
+			expect(result.data.paymentResult.status).toEqual("succeeded")
 		})
 	})
 

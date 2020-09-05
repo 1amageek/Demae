@@ -2,7 +2,6 @@ import * as admin from "firebase-admin"
 import * as functions from "firebase-functions"
 import { regionFunctions, getProviderID } from "../../helper"
 import { OrderError, Response } from "./helper"
-import Stripe from "stripe"
 import Provider from "../../models/commerce/Provider"
 import User from "../../models/commerce/User"
 import Order from "../../models/commerce/Order"
@@ -59,65 +58,66 @@ export const capture = regionFunctions.https.onCall(async (data, context) => {
 				const paymentIntent = await stripe.paymentIntents.capture(paymentIntentID, {
 					idempotencyKey: orderID
 				})
-				let updateData: Partial<Order> = {
+				const updateData: Partial<Order> = {
 					paymentStatus: "succeeded",
 					deliveryStatus: "in_transit",
 					paymentResult: paymentIntent,
 					updatedAt: admin.firestore.FieldValue.serverTimestamp() as any
 				}
-				const providerTransferTasks = order.items.map(item => {
-					const transferAmount = Math.floor(item.amount * 0.2)
-					return {
-						amount: transferAmount,
-						currency: item.currency,
-						destination: providerAccountID,
-						transfer_group: orderID,
-						description: `Transfer from Order: [${orderID}] to Provider UID: [${providerID}]`,
-						source_transaction: paymentIntent.charges.data[0].id,
-						metadata: {
-							providedBy: providerID,
-							key: `${orderID}-${item.skuReference!.id}-${providerAccountID}`
-						}
-					} as Stripe.TransferCreateParams
-				})
-				const tasks = order.items.map(async item => {
-					if (item.mediatedBy) {
-						const transferAmount = Math.floor(item.amount * 0.2)
-						const account = await Account.get<Account>(item.mediatedBy)
-						const accountID = account?.stripe?.id
-						if (account && accountID) {
-							return {
-								amount: transferAmount,
-								currency: item.currency,
-								destination: accountID,
-								transfer_group: orderID,
-								description: `Transfer from Order: [${orderID}] to UID: [${account.id}]`,
-								source_transaction: paymentIntent.charges.data[0].id,
-								metadata: {
-									mediatedBy: item.mediatedBy,
-									uid: account.id,
-									key: `${orderID}-${item.skuReference!.id}-${account.id}`
-								}
-							} as Stripe.TransferCreateParams
-						}
-					}
-					return undefined
-				})
-				const mediatorTransferTasks = (await Promise.all(tasks)).filter(value => value !== undefined) as Stripe.TransferCreateParams[]
-				const mediatorTransferDataSet = mediatorTransferTasks.concat(providerTransferTasks)
-				functions.logger.log(JSON.stringify(mediatorTransferDataSet, null, "\t"))
-				const transferTasks = mediatorTransferDataSet.map(async data => {
-					return stripe.transfers.create(data, { idempotencyKey: `${data.metadata!.key}` });
-				})
-				if (transferTasks.length > 0) {
-					const result = await Promise.all(transferTasks)
-					updateData.transferResults = result
-				}
+				// const providerTransferTasks = order.items.map(item => {
+				// 	const transferAmount = Math.floor(item.amount * 0.2)
+				// 	return {
+				// 		amount: transferAmount,
+				// 		currency: item.currency,
+				// 		destination: providerAccountID,
+				// 		transfer_group: orderID,
+				// 		description: `Transfer from Order: [${orderID}] to Provider UID: [${providerID}]`,
+				// 		source_transaction: paymentIntent.charges.data[0].id,
+				// 		metadata: {
+				// 			providedBy: providerID,
+				// 			key: `${orderID}-${item.skuReference!.id}-${providerAccountID}`
+				// 		}
+				// 	} as Stripe.TransferCreateParams
+				// })
+				// const tasks = order.items.map(async item => {
+				// 	if (item.mediatedBy) {
+				// 		const transferAmount = Math.floor(item.amount * 0.2)
+				// 		const account = await Account.get<Account>(item.mediatedBy)
+				// 		const accountID = account?.stripe?.id
+				// 		if (account && accountID) {
+				// 			return {
+				// 				amount: transferAmount,
+				// 				currency: item.currency,
+				// 				destination: accountID,
+				// 				transfer_group: orderID,
+				// 				description: `Transfer from Order: [${orderID}] to UID: [${account.id}]`,
+				// 				source_transaction: paymentIntent.charges.data[0].id,
+				// 				metadata: {
+				// 					mediatedBy: item.mediatedBy,
+				// 					uid: account.id,
+				// 					key: `${orderID}-${item.skuReference!.id}-${account.id}`
+				// 				}
+				// 			} as Stripe.TransferCreateParams
+				// 		}
+				// 	}
+				// 	return undefined
+				// })
+				// const mediatorTransferTasks = (await Promise.all(tasks)).filter(value => value !== undefined) as Stripe.TransferCreateParams[]
+				// const mediatorTransferDataSet = mediatorTransferTasks.concat(providerTransferTasks)
+				// functions.logger.log(JSON.stringify(mediatorTransferDataSet, null, "\t"))
+				// const transferTasks = mediatorTransferDataSet.map(async data => {
+				// 	return stripe.transfers.create(data, { idempotencyKey: `${data.metadata!.key}` });
+				// })
+				// if (transferTasks.length > 0) {
+				// 	const result = await Promise.all(transferTasks)
+				// 	updateData.transferResults = result
+				// }
 				transaction.set(userOrderRef, updateData, { merge: true })
 				transaction.set(providerOrderRef, updateData, { merge: true })
+				const data = order.data({ convertDocumentReference: true })
 				return {
 					id: order.id,
-					data: order.data({ convertDocumentReference: true })
+					data: { ...data, ...updateData }
 				}
 			} catch (error) {
 				throw error
