@@ -27,10 +27,15 @@ export type PaymentStatus =
 	"canceled"
 
 export type RefundStatus =
+	"none" | // Not refunded
+	"pending" | // Customer is requesting a refund
+	"succeeded" | // Refunded
+	"failed" // Refund failure
+
+export type TransferStatus =
 	"none" | //
-	"pending" | //
 	"succeeded" | //
-	"failed" //
+	"refunded"
 
 // Plan
 export type Interval = "day" | "week" | "month" | "year"

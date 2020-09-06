@@ -91,11 +91,15 @@ const shipping = {
 	phone: "+819000003333"
 }
 
-describe("Order Refund Test", () => {
+describe("Order Capture Test", () => {
 
 	beforeAll(async () => {
 		await setupCustomer()
 		await setupProvider()
+	})
+
+	afterAll(async () => {
+		await admin.firestore().terminate()
 	})
 
 	describe("Donwload Item", () => {
@@ -103,53 +107,7 @@ describe("Order Refund Test", () => {
 		const salesMethod: SalesMethod = "download"
 		const stockType: StockType = "finite"
 
-		describe("Refunded by customer", () => {
-
-			it("Capture Automatic", async () => {
-				const product = await setupProduct(salesMethod)
-				const sku = await setupSKU(product, {
-					type: stockType,
-					quantity: 1
-				})
-				await setupCart(salesMethod, product, sku)
-				const cart = await new Cart(admin.firestore().doc("/commerce/v1/carts/TEST_CUSTOMER")).fetch()
-				const cartGroup = cart.groups[0]
-				const orderData = order(cartGroup, "TEST_CUSTOMER")
-				const response = await test.wrap(myFunctions.create)({
-					order: orderData,
-					groupID: `TEST_PROVIDER-${salesMethod}`,
-					paymentMethodID: "pm_1HMpAbEEPdlvsyGJH8woCUfg"
-				}, {
-					auth: {
-						uid: 'TEST_CUSTOMER'
-					}
-				})
-
-				const { result } = await test.wrap(myFunctions.refund)({
-					orderID: response.result.id
-				}, {
-					auth: {
-						uid: 'TEST_PROVIDER'
-					}
-				})
-
-				console.log(result)
-
-				expect(result.data.amount).toEqual(1080)
-				expect(result.data.paymentResult.amount).toEqual(1080)
-				expect(result.data.paymentResult.capture_method).toEqual("automatic")
-				expect(result.data.refundResult.amount).toEqual("automatic")
-			})
-
-		})
-	})
-
-	describe("In-Store Item", () => {
-
-		const salesMethod: SalesMethod = "instore"
-		const stockType: StockType = "finite"
-
-		it("Capture", async () => {
+		it("Capture Automatic", async (done) => {
 			const product = await setupProduct(salesMethod)
 			const sku = await setupSKU(product, {
 				type: stockType,
@@ -168,94 +126,157 @@ describe("Order Refund Test", () => {
 					uid: 'TEST_CUSTOMER'
 				}
 			})
-			const { result } = await test.wrap(myFunctions.capture)({
-				orderID: response.result.id,
-				paymentIntentID: response.result.data.paymentResult.id
-			}, {
-				auth: {
-					uid: 'TEST_PROVIDER'
+
+			const listener = admin.firestore().collection("/commerce/v1/providers/TEST_PROVIDER/orders").doc(response.result.id).onSnapshot(async (snapshot) => {
+				const order = Order.fromSnapshot<Order>(snapshot)
+				if (order.transferStatus === "succeeded") {
+					setTimeout(async () => {
+						const { result, error } = await test.wrap(myFunctions.refund)({
+							orderID: response.result.id
+						}, {
+							auth: {
+								uid: 'TEST_PROVIDER'
+							}
+						})
+						expect(result.data.amount).toEqual(1080)
+						expect(result.data.paymentResult.amount).toEqual(1080)
+						expect(result.data.paymentResult.capture_method).toEqual("automatic")
+						expect(result.data.paymentResult.amount_capturable).toEqual(0)
+						expect(result.data.paymentResult.amount_received).toEqual(1080)
+						expect(result.data.paymentResult.status).toEqual("succeeded")
+						expect(result.data.refundResult.status).toEqual("succeeded")
+						expect(result.data.refundResult.amount).toEqual(1080)
+						listener()
+						done()
+					}, 1000)
 				}
 			})
-			expect(result.data.amount).toEqual(1080)
-			expect(result.data.paymentResult.amount).toEqual(1080)
-			expect(result.data.paymentResult.capture_method).toEqual("manual")
-		})
+
+
+		}, 100000)
 	})
 
-	describe("Pickup Item", () => {
+	// describe("In-Store Item", () => {
 
-		const salesMethod: SalesMethod = "pickup"
-		const stockType: StockType = "finite"
+	// 	const salesMethod: SalesMethod = "instore"
+	// 	const stockType: StockType = "finite"
 
-		it("Capture", async () => {
-			const product = await setupProduct(salesMethod)
-			const sku = await setupSKU(product, {
-				type: stockType,
-				quantity: 1
-			})
-			await setupCart(salesMethod, product, sku)
-			const cart = await new Cart(admin.firestore().doc("/commerce/v1/carts/TEST_CUSTOMER")).fetch()
-			const cartGroup = cart.groups[0]
-			const orderData = order(cartGroup, "TEST_CUSTOMER")
-			const response = await test.wrap(myFunctions.create)({
-				order: orderData,
-				groupID: `TEST_PROVIDER-${salesMethod}`,
-				paymentMethodID: "pm_1HMpAbEEPdlvsyGJH8woCUfg"
-			}, {
-				auth: {
-					uid: 'TEST_CUSTOMER'
-				}
-			})
-			const { result } = await test.wrap(myFunctions.capture)({
-				orderID: response.result.id,
-				paymentIntentID: response.result.data.paymentResult.id
-			}, {
-				auth: {
-					uid: 'TEST_PROVIDER'
-				}
-			})
-			expect(result.data.amount).toEqual(1080)
-			expect(result.data.paymentResult.amount).toEqual(1080)
-			expect(result.data.paymentResult.capture_method).toEqual("manual")
-		})
-	})
+	// 	it("Capture", async () => {
+	// 		const product = await setupProduct(salesMethod)
+	// 		const sku = await setupSKU(product, {
+	// 			type: stockType,
+	// 			quantity: 1
+	// 		})
+	// 		await setupCart(salesMethod, product, sku)
+	// 		const cart = await new Cart(admin.firestore().doc("/commerce/v1/carts/TEST_CUSTOMER")).fetch()
+	// 		const cartGroup = cart.groups[0]
+	// 		const orderData = order(cartGroup, "TEST_CUSTOMER")
+	// 		const response = await test.wrap(myFunctions.create)({
+	// 			order: orderData,
+	// 			groupID: `TEST_PROVIDER-${salesMethod}`,
+	// 			paymentMethodID: "pm_1HMpAbEEPdlvsyGJH8woCUfg"
+	// 		}, {
+	// 			auth: {
+	// 				uid: 'TEST_CUSTOMER'
+	// 			}
+	// 		})
+	// 		const { result } = await test.wrap(myFunctions.capture)({
+	// 			orderID: response.result.id,
+	// 			paymentIntentID: response.result.data.paymentResult.id
+	// 		}, {
+	// 			auth: {
+	// 				uid: 'TEST_PROVIDER'
+	// 			}
+	// 		})
+	// 		expect(result.data.amount).toEqual(1080)
+	// 		expect(result.data.paymentResult.amount).toEqual(1080)
+	// 		expect(result.data.paymentResult.capture_method).toEqual("manual")
+	// 		expect(result.data.paymentResult.amount_capturable).toEqual(0)
+	// 		expect(result.data.paymentResult.amount_received).toEqual(1080)
+	// 		expect(result.data.paymentResult.status).toEqual("succeeded")
+	// 	})
+	// })
 
-	describe("Online Item", () => {
+	// describe("Pickup Item", () => {
 
-		const salesMethod: SalesMethod = "online"
-		const stockType: StockType = "finite"
+	// 	const salesMethod: SalesMethod = "pickup"
+	// 	const stockType: StockType = "finite"
 
-		it("Capture", async () => {
-			const product = await setupProduct(salesMethod)
-			const sku = await setupSKU(product, {
-				type: stockType,
-				quantity: 1
-			})
-			await setupCart(salesMethod, product, sku, shipping)
-			const cart = await new Cart(admin.firestore().doc("/commerce/v1/carts/TEST_CUSTOMER")).fetch()
-			const cartGroup = cart.groups[0]
-			const orderData = order(cartGroup, "TEST_CUSTOMER")
-			const response = await test.wrap(myFunctions.create)({
-				order: orderData,
-				groupID: `TEST_PROVIDER-${salesMethod}`,
-				paymentMethodID: "pm_1HMpAbEEPdlvsyGJH8woCUfg"
-			}, {
-				auth: {
-					uid: 'TEST_CUSTOMER'
-				}
-			})
-			const { result } = await test.wrap(myFunctions.capture)({
-				orderID: response.result.id,
-				paymentIntentID: response.result.data.paymentResult.id
-			}, {
-				auth: {
-					uid: 'TEST_PROVIDER'
-				}
-			})
-			expect(result.data.amount).toEqual(1080)
-			expect(result.data.paymentResult.amount).toEqual(1080)
-			expect(result.data.paymentResult.capture_method).toEqual("manual")
-		})
-	})
+	// 	it("Capture", async () => {
+	// 		const product = await setupProduct(salesMethod)
+	// 		const sku = await setupSKU(product, {
+	// 			type: stockType,
+	// 			quantity: 1
+	// 		})
+	// 		await setupCart(salesMethod, product, sku)
+	// 		const cart = await new Cart(admin.firestore().doc("/commerce/v1/carts/TEST_CUSTOMER")).fetch()
+	// 		const cartGroup = cart.groups[0]
+	// 		const orderData = order(cartGroup, "TEST_CUSTOMER")
+	// 		const response = await test.wrap(myFunctions.create)({
+	// 			order: orderData,
+	// 			groupID: `TEST_PROVIDER-${salesMethod}`,
+	// 			paymentMethodID: "pm_1HMpAbEEPdlvsyGJH8woCUfg"
+	// 		}, {
+	// 			auth: {
+	// 				uid: 'TEST_CUSTOMER'
+	// 			}
+	// 		})
+	// 		const { result } = await test.wrap(myFunctions.capture)({
+	// 			orderID: response.result.id,
+	// 			paymentIntentID: response.result.data.paymentResult.id
+	// 		}, {
+	// 			auth: {
+	// 				uid: 'TEST_PROVIDER'
+	// 			}
+	// 		})
+	// 		expect(result.data.amount).toEqual(1080)
+	// 		expect(result.data.paymentResult.amount).toEqual(1080)
+	// 		expect(result.data.paymentResult.capture_method).toEqual("manual")
+	// 		expect(result.data.paymentResult.amount_capturable).toEqual(0)
+	// 		expect(result.data.paymentResult.amount_received).toEqual(1080)
+	// 		expect(result.data.paymentResult.status).toEqual("succeeded")
+	// 	})
+	// })
+
+	// describe("Online Item", () => {
+
+	// 	const salesMethod: SalesMethod = "online"
+	// 	const stockType: StockType = "finite"
+
+	// 	it("Capture", async () => {
+	// 		const product = await setupProduct(salesMethod)
+	// 		const sku = await setupSKU(product, {
+	// 			type: stockType,
+	// 			quantity: 1
+	// 		})
+	// 		await setupCart(salesMethod, product, sku, shipping)
+	// 		const cart = await new Cart(admin.firestore().doc("/commerce/v1/carts/TEST_CUSTOMER")).fetch()
+	// 		const cartGroup = cart.groups[0]
+	// 		const orderData = order(cartGroup, "TEST_CUSTOMER")
+	// 		const response = await test.wrap(myFunctions.create)({
+	// 			order: orderData,
+	// 			groupID: `TEST_PROVIDER-${salesMethod}`,
+	// 			paymentMethodID: "pm_1HMpAbEEPdlvsyGJH8woCUfg"
+	// 		}, {
+	// 			auth: {
+	// 				uid: 'TEST_CUSTOMER'
+	// 			}
+	// 		})
+	// 		const { result } = await test.wrap(myFunctions.capture)({
+	// 			orderID: response.result.id,
+	// 			paymentIntentID: response.result.data.paymentResult.id
+	// 		}, {
+	// 			auth: {
+	// 				uid: 'TEST_PROVIDER'
+	// 			}
+	// 		})
+	// 		expect(result.data.amount).toEqual(1080)
+	// 		expect(result.data.paymentResult.amount).toEqual(1080)
+	// 		expect(result.data.paymentResult.capture_method).toEqual("manual")
+	// 		expect(result.data.paymentResult.amount_capturable).toEqual(0)
+	// 		expect(result.data.paymentResult.amount_received).toEqual(1080)
+	// 		expect(result.data.paymentResult.status).toEqual("succeeded")
+	// 	})
+	// })
 
 })

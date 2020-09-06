@@ -73,14 +73,6 @@ export const confirm = regionFunctions.https.onCall(async (data, context) => {
 					paymentResult: result,
 					updatedAt: admin.firestore.FieldValue.serverTimestamp() as any
 				}
-				const mediatorTransferDataSet = (await Promise.all(tasks)).filter(value => value !== undefined) as Stripe.TransferCreateParams[]
-				const transferTasks = mediatorTransferDataSet.map(async data => {
-					return await stripe.transfers.create(data, { idempotencyKey: `${orderID}-${data.destination}` });
-				})
-				if (transferTasks.length > 0) {
-					const result = await Promise.all(transferTasks)
-					updateData.transferResults = result
-				}
 				transaction.set(userOrderRef, updateData, { merge: true })
 				transaction.set(providerOrderRef, updateData, { merge: true })
 				return {

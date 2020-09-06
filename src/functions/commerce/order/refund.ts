@@ -30,6 +30,19 @@ export const refund = regionFunctions.https.onCall(async (data, context) => {
 				if (!order) {
 					throw new functions.https.HttpsError("invalid-argument", "This user has not this order.")
 				}
+				if (order.refundStatus !== "none") {
+					throw new functions.https.HttpsError("invalid-argument", "The Order has been refunded.")
+				}
+				// const transferResults: Stripe.Transfer[] = order.transferResults ?? []
+				// const tasks = transferResults.map(transfer => {
+				// 	return stripe.transfers.createReversal(transfer.id, {
+				// 		amount: transfer.amount
+				// 	}, {
+				// 		idempotencyKey: `${providerOrderRef.path}-createReversal-${transfer.id}`
+				// 	})
+				// })
+				// const transferReversalResults = await Promise.all(tasks)
+				// order.transferReversalResults = transferReversalResults
 				const userOrderRef = new User(order.purchasedBy).orders.collectionReference.doc(order.id)
 				// Check order cancellable.
 				const request = await refundRequestForOrder(uid, order)
@@ -42,6 +55,7 @@ export const refund = regionFunctions.https.onCall(async (data, context) => {
 				})
 				order.refundStatus = "succeeded"
 				order.refundResult = result
+
 				order.isCanceled = true
 				transaction.set(providerOrderRef, {
 					...order.data(),
@@ -76,12 +90,12 @@ const refundRequestForOrder = async (uid: string, order: Order) => {
 	const adminUser = userRecord.customClaims.admin
 	if (!adminUser) throw new functions.https.HttpsError("permission-denied", `The user does not have the right to change the order.`)
 	if (order.providedBy !== adminUser) throw new functions.https.HttpsError("permission-denied", `The user does not have the right to change the order.`)
-	const reverse_transfer = !!order.transferResults
+	const reverse_transfer = (order.transferResults ?? []).length > 0
 	const request = {
 		payment_intent: paymentIntentID,
 		reason: "requested_by_customer",
 		refund_application_fee: false,
-		reverse_transfer: reverse_transfer,
+		reverse_transfer: false,
 		metadata: {
 			admin: adminUser,
 			uid: uid

@@ -31,6 +31,11 @@ export type RefundStatus =
 	"succeeded" | // Refunded
 	"failed" // Refund failure
 
+export type TransferStatus =
+	"none" | //
+	"succeeded" | //
+	"refunded"
+
 // Plan
 export type Interval = "day" | "week" | "month" | "year"
 export type TiersMode = "graduated" | "volume"
