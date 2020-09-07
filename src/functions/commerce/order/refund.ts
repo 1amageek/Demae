@@ -7,6 +7,53 @@ import Provider from "../../models/commerce/Provider"
 import User from "../../models/commerce/User"
 import Order from "../../models/commerce/Order"
 
+export const refundRequest = regionFunctions.https.onCall(async (data, context) => {
+	if (!context.auth) {
+		throw new functions.https.HttpsError("failed-precondition", "The function must be called while authenticated.")
+	}
+	functions.logger.info(data)
+	const uid: string = context.auth.uid
+	const orderID = data.orderID
+	if (!orderID) {
+		throw new functions.https.HttpsError("invalid-argument", "This request does not contain a orderID.")
+	}
+	const userOrderRef = (new User(uid)).orders.collectionReference.doc(orderID)
+	const snapshot = await userOrderRef.get()
+	if (!snapshot.exists) {
+		throw new functions.https.HttpsError("invalid-argument", "This user has not this order.")
+	}
+	const order = Order.fromSnapshot<Order>(snapshot)
+	const providerOrderRef = new Provider(order.providedBy).orders.collectionReference.doc(orderID)
+	try {
+		const result = await admin.firestore().runTransaction(async transaction => {
+			try {
+				const snapshot = await transaction.get(providerOrderRef)
+				const order = Order.fromSnapshot<Order>(snapshot)
+				if (!order) {
+					throw new functions.https.HttpsError("invalid-argument", "This user has not this order.")
+				}
+				if (order.refundStatus === "succeeded") {
+					throw new functions.https.HttpsError("invalid-argument", "The Order has been refunded.")
+				}
+				transaction.set(providerOrderRef, {
+					refundStatus: "pending",
+					updatedAt: admin.firestore.FieldValue.serverTimestamp()
+				}, { merge: true })
+				return {
+					id: order.id,
+					data: order.data({ convertDocumentReference: true })
+				}
+			} catch (error) {
+				throw error
+			}
+		})
+		return { result } as Response
+	} catch (error) {
+		functions.logger.error(error)
+		return { error }
+	}
+})
+
 export const refund = regionFunctions.https.onCall(async (data, context) => {
 	if (!context.auth) {
 		throw new functions.https.HttpsError("failed-precondition", "The function must be called while authenticated.")
@@ -30,19 +77,9 @@ export const refund = regionFunctions.https.onCall(async (data, context) => {
 				if (!order) {
 					throw new functions.https.HttpsError("invalid-argument", "This user has not this order.")
 				}
-				if (order.refundStatus !== "none") {
+				if (order.refundStatus === "succeeded") {
 					throw new functions.https.HttpsError("invalid-argument", "The Order has been refunded.")
 				}
-				// const transferResults: Stripe.Transfer[] = order.transferResults ?? []
-				// const tasks = transferResults.map(transfer => {
-				// 	return stripe.transfers.createReversal(transfer.id, {
-				// 		amount: transfer.amount
-				// 	}, {
-				// 		idempotencyKey: `${providerOrderRef.path}-createReversal-${transfer.id}`
-				// 	})
-				// })
-				// const transferReversalResults = await Promise.all(tasks)
-				// order.transferReversalResults = transferReversalResults
 				const userOrderRef = new User(order.purchasedBy).orders.collectionReference.doc(order.id)
 				// Check order cancellable.
 				const request = await refundRequestForOrder(uid, order)
