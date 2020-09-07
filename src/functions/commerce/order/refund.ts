@@ -80,8 +80,6 @@ export const refund = regionFunctions.https.onCall(async (data, context) => {
 				if (order.refundStatus === "succeeded") {
 					throw new functions.https.HttpsError("invalid-argument", "The Order has been refunded.")
 				}
-				const userOrderRef = new User(order.purchasedBy).orders.collectionReference.doc(order.id)
-				// Check order cancellable.
 				const request = await refundRequestForOrder(uid, order)
 				const result = await stripe.refunds.create(request, {
 					idempotencyKey: `${providerOrderRef.path}-refund`
@@ -92,13 +90,8 @@ export const refund = regionFunctions.https.onCall(async (data, context) => {
 				})
 				order.refundStatus = "succeeded"
 				order.refundResult = result
-
 				order.isCanceled = true
 				transaction.set(providerOrderRef, {
-					...order.data(),
-					updatedAt: admin.firestore.FieldValue.serverTimestamp()
-				})
-				transaction.set(userOrderRef, {
 					...order.data(),
 					updatedAt: admin.firestore.FieldValue.serverTimestamp()
 				})
