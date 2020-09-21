@@ -159,33 +159,64 @@ const OrderDetail = () => {
 								<MoreVertIcon />
 							</IconButton>
 							<Menu {...menuPros}>
-								<MenuItem onClick={() => {
-									showDrawer(
-										<ActionSheet title="Would you like to cancel this order?" actions={
-											[
-												{
-													title: "Cancel",
-													handler: async () => {
-														setProcessing(true)
-														const response = await order.cancel()
-														const { error, result } = response.data
-														if (error) {
-															console.error(error)
-															showSnackbar('error', error.message)
-															setProcessing(false)
-															closeDrawer()
-															return
+								{
+									order.paymentStatus === "succeeded" ?
+										<MenuItem onClick={() => {
+											showDrawer(
+												<ActionSheet title="Would you like to refund this order?" actions={
+													[
+														{
+															title: "Refund request",
+															handler: async () => {
+																setProcessing(true)
+																const response = await order.cancel()
+																const { error, result } = response.data
+																if (error) {
+																	console.error(error)
+																	showSnackbar('error', error.message)
+																	setProcessing(false)
+																	closeDrawer()
+																	return
+																}
+																console.log(result)
+																showSnackbar("success", "The order was canceled.")
+																setProcessing(false)
+																closeDrawer()
+															}
 														}
-														console.log(result)
-														showSnackbar("success", "The order was canceled.")
-														setProcessing(false)
-														closeDrawer()
-													}
-												}
-											]
-										} />
-									)
-								}}>Cancel</MenuItem>
+													]
+												} />
+											)
+										}}>Refund</MenuItem> :
+										<MenuItem onClick={() => {
+											showDrawer(
+												<ActionSheet title="Would you like to cancel this order?" actions={
+													[
+														{
+															title: "Cancel request",
+															handler: async () => {
+																setProcessing(true)
+																const response = await order.cancel()
+																const { error, result } = response.data
+																if (error) {
+																	console.error(error)
+																	showSnackbar('error', error.message)
+																	setProcessing(false)
+																	closeDrawer()
+																	return
+																}
+																console.log(result)
+																showSnackbar("success", "The order was canceled.")
+																setProcessing(false)
+																closeDrawer()
+															}
+														}
+													]
+												} />
+											)
+										}}>Cancel</MenuItem>
+								}
+
 							</Menu>
 						</Box>
 					</Box>
