@@ -22,7 +22,7 @@
 | Cancel from Provider | Cancel available when DeliveryStatus is not `in_transit` | Cancel available when DeliveryStatus is not `preparing_for_delivery` | Cancel available when DeliveryStatus is not `preparing_for_delivery` | - |
 | Cancel from Customer | Cancel available when DeliveryStatus is `preparing_for_delivery`, `out_for_delivery` | - | - | - |
 | Refund from Provider | Refund fee 5% | Refund fee 5% | Refund fee 5% | Refund fee 5% |
-| Cancel from Customer | Refund fee 10% | Refund fee 10% | Refund fee 80% | Refund fee 80% |
+| Refund from Customer | Refund fee 10% | Refund fee 10% | Refund fee 80% | Refund fee 80% |
 
 
 The Order can be cancelled until the Payment is captured.
