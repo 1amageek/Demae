@@ -15,12 +15,15 @@
 
 ## Order
 
-| Sales method | Delivery | Payment | Cancel from Provider | Cancel from Customer | Refund from Provider | Cancel from Cutomer |
-|-|-|-|-|-|-|-|
-| online | ○ | Capture later | Cancel available when DeliveryStatus is not `in_transit` | Cancel available when DeliveryStatus is `preparing_for_delivery`, `out_for_delivery` | Refund fee 5%  | Refund fee 10%  | 
-| instore | - | Capture later | Cancel available when DeliveryStatus is not `preparing_for_delivery` | - | Refund fee 5% | Refund fee 80% |
-| pickup | - |  Capture later | Cancel available when DeliveryStatus is not `preparing_for_delivery` | - | Refund fee 5% | Refund fee 80% |
-| download | - | Immediate | - | - | Refund fee 5% | Refund fee 5% |
+|  | online | instore | pickup | download | 
+|-|-|-|-|-|
+| Delivery | ○ | - | - | - |
+| Payment | Capture later | Refund fee 5% | Capture later | Capture later |
+| Cancel from Provider | Cancel available when DeliveryStatus is not `in_transit` | Cancel available when DeliveryStatus is not `preparing_for_delivery` | Cancel available when DeliveryStatus is not `preparing_for_delivery` | - |
+| Cancel from Customer | Cancel available when DeliveryStatus is `preparing_for_delivery`, `out_for_delivery` | - | - | - |
+| Refund from Provider | Refund fee 5% | Refund fee 5% | Refund fee 5% | Refund fee 5% |
+| Cancel from Provider | Refund fee 10% | Refund fee 10% | Refund fee 80% | Refund fee 80% |
+
 
 The Order can be cancelled until the Payment is captured.
 After capture, a refund policy is required.
