@@ -18,7 +18,7 @@
 |  | online | instore | pickup | download | 
 |-|-|-|-|-|
 | Delivery | ○ | - | - | - |
-| Payment | Capture later | Refund fee 5% | Capture later | Capture later |
+| Payment | Capture later | Capture later | Capture later | Immediate |
 | Cancel from Provider | Cancel available when DeliveryStatus is not `in_transit` | Cancel available when DeliveryStatus is not `preparing_for_delivery` | Cancel available when DeliveryStatus is not `preparing_for_delivery` | - |
 | Cancel from Customer | Cancel available when DeliveryStatus is `preparing_for_delivery`, `out_for_delivery` | - | - | - |
 | Refund from Provider | Refund fee 5% | Refund fee 5% | Refund fee 5% | Refund fee 5% |
