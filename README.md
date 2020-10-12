@@ -87,3 +87,18 @@ __download__
 |	pending | Customer is requesting a refund |
 |	succeeded | Refunded |
 |	failed | Refund failure |
+
+
+## Development
+
+### Deploy
+
+Next App build. Must be done before deployment.
+```
+npm run build:app
+```
+
+Deploy
+```
+npm run deploy
+```
