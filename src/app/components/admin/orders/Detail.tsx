@@ -13,7 +13,7 @@ import Select, { useSelect, useMenu } from "components/_Select"
 import { useMenu as useMenuProp } from "components/Menu"
 import Order from "models/commerce/Order"
 import * as Social from "models/social"
-import { useSalesMethod, deliveryStatusesForSalesMethod, DeliveryStatusLabel, PaymentStatusLabel, SalesMethodLabel } from "hooks/commerce/SalesMethod"
+import { useSalesMethod, deliveryStatusesForSalesMethod, DeliveryStatusLabel, PaymentStatusLabel, SalesMethodLabel } from "hooks/commerce/OrderQuery"
 import Dayjs from "dayjs"
 import relativeTime from "dayjs/plugin/relativeTime";
 import Label from "components/Label";

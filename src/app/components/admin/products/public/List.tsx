@@ -16,7 +16,7 @@ import { useHistory, useParams } from "react-router-dom";
 import { useDataSourceListen, Where, OrderBy } from "hooks/firestore"
 import { useProviderBlank, useUser } from "hooks/commerce"
 import { useListHeader } from "components/NavigationContainer"
-import { SalesMethodLabel } from "hooks/commerce/SalesMethod"
+import { SalesMethodLabel } from "hooks/commerce/OrderQuery"
 import Product, { ProductDraft } from "models/commerce/Product"
 import { CurrencyCode } from "common/Currency"
 

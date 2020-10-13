@@ -8,7 +8,7 @@ import { useDocumentListen } from "hooks/firestore";
 import NotFound from "components/NotFound"
 import ActionBar from "components/ActionBar"
 import MediaCard from "components/MediaCard"
-import { SalesMethodLabel, capabilityForSalesMethod } from "hooks/commerce/SalesMethod"
+import { SalesMethodLabel, capabilityForSalesMethod } from "hooks/commerce/OrderQuery"
 import { useImage } from "utils/ImageManager"
 import { useTheme } from "@material-ui/core/styles";
 

@@ -35,6 +35,9 @@ export const refundRequest = regionFunctions.https.onCall(async (data, context) 
 				if (order.refundStatus === "succeeded") {
 					throw new functions.https.HttpsError("invalid-argument", "The Order has been refunded.")
 				}
+				if (order.purchasedBy !== "uid") {
+					throw new functions.https.HttpsError("invalid-argument", "You do not have permission to change the order.")
+				}
 				transaction.set(providerOrderRef, {
 					refundStatus: "pending",
 					updatedAt: admin.firestore.FieldValue.serverTimestamp()

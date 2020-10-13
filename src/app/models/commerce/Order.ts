@@ -82,8 +82,13 @@ export default class Order extends Doc {
 	}
 
 	cancel() {
-		const orderCancel = firebase.functions().httpsCallable("commerce-v1-order-cancel")
-		return orderCancel({ orderID: this.id, canceledBy: "customer" })
+		const cancel = firebase.functions().httpsCallable("commerce-v1-order-cancel")
+		return cancel({ orderID: this.id, canceledBy: "customer" })
+	}
+
+	refundRequest() {
+		const refundRequest = firebase.functions().httpsCallable("commerce-v1-order-refundRequest")
+		return refundRequest({ orderID: this.id, canceledBy: "customer" })
 	}
 }
 

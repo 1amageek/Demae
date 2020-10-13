@@ -1,7 +1,7 @@
 import { useLocation } from "react-router-dom"
 import { SalesMethod } from "models/commerce/Product"
 import { Capability } from "models/commerce/Provider"
-import { PaymentStatus } from "common/commerce/Types"
+import { PaymentStatus, RefundStatus } from "common/commerce/Types"
 
 export const SalesMethods: SalesMethod[] = ["instore", "download", "pickup", "online"]
 
@@ -46,6 +46,19 @@ export const useSalesMethod = (): SalesMethod | undefined => {
 	}
 }
 
+export const useRefundStatus = (): RefundStatus | undefined => {
+
+	const { search } = useLocation()
+	const params = new URLSearchParams(search);
+	const refundStatus = params.get("refundStatus") || ""
+
+	if (["pending"].includes(refundStatus)) {
+		return refundStatus as RefundStatus
+	} else {
+		return undefined
+	}
+}
+
 export const capabilityForSalesMethod = (salesMethod?: SalesMethod): Capability | undefined => {
 	if (!salesMethod) {
 		return undefined
@@ -69,7 +82,7 @@ export const deliveryStatusesForSalesMethod = (salesMethod?: SalesMethod): Item[
 		case "instore": return [
 			{
 				label: "IN-STORE",
-				value: "none"
+				value: "instore"
 			},
 		]
 		case "download": return [

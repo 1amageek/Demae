@@ -169,7 +169,7 @@ const OrderDetail = () => {
 															title: "Refund request",
 															handler: async () => {
 																setProcessing(true)
-																const response = await order.cancel()
+																const response = await order.refundRequest()
 																const { error, result } = response.data
 																if (error) {
 																	console.error(error)

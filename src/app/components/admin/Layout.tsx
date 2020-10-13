@@ -15,6 +15,7 @@ import MenuIcon from "@material-ui/icons/Menu"
 import PlaceIcon from "@material-ui/icons/Place"
 import PhotoFilterIcon from "@material-ui/icons/PhotoFilter"
 import ListAltIcon from "@material-ui/icons/ListAlt"
+import ReceiptIcon from '@material-ui/icons/Receipt'
 import CloudDownloadIcon from "@material-ui/icons/CloudDownload"
 import LocalShippingIcon from "@material-ui/icons/LocalShipping"
 import { Drawer, AppBar, Toolbar, List, ListItem, ListItemText, Avatar, Divider, Box, MenuItem, Menu, IconButton, Switch, ListItemSecondaryAction, Chip, Badge } from "@material-ui/core"
@@ -228,11 +229,17 @@ export default ({ children }: { children: any }) => {
 						</ListItemIcon>
 						<ListItemText primary={"Download"} />
 					</ListItem>
-					<ListItem className={classes.nested} button key={"in-store"} component={Link} to="/admin/orders?salesMethod=none">
+					<ListItem className={classes.nested} button key={"in-store"} component={Link} to="/admin/orders?salesMethod=instore">
 						<ListItemIcon>
 							<StorefrontIcon />
 						</ListItemIcon>
 						<ListItemText primary={"In-Store"} />
+					</ListItem>
+					<ListItem className={classes.nested} button key={"refund"} component={Link} to="/admin/orders?salesMethod=none">
+						<ListItemIcon>
+							<ReceiptIcon />
+						</ListItemIcon>
+						<ListItemText primary={"Refund Request"} />
 					</ListItem>
 				</List>
 			</List>

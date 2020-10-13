@@ -12,7 +12,7 @@ import { useHistory, useParams } from "react-router-dom";
 import { Order } from "models/commerce";
 import { useDataSourceListen, Where, OrderBy } from "hooks/firestore"
 import { useListHeader } from "components/NavigationContainer"
-import { useSalesMethod, deliveryStatusesForSalesMethod, DeliveryStatusLabel, PaymentStatusLabel, SalesMethodLabel } from "hooks/commerce/SalesMethod"
+import { useSalesMethod, deliveryStatusesForSalesMethod, DeliveryStatusLabel, PaymentStatusLabel, SalesMethodLabel } from "hooks/commerce/OrderQuery"
 import Dayjs from "dayjs"
 
 export default () => {
