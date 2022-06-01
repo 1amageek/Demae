@@ -63,7 +63,7 @@
 		"react-mde": "^10.1.0",
 		"react-router-dom": "latest",
 		"recharts": "^1.8.5",
-		"sharp": "^0.25.4",
+		"sharp": "^0.30.5",
 		"showdown": "^1.9.1",
 		"stripe": "latest",
 		"styled-components": "latest",
